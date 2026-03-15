@@ -87,7 +87,11 @@ export async function executeCommand(
         } else if (c.elements !== undefined) output = JSON.stringify(c.elements, null, 2);
         else if (c.result !== undefined) output = JSON.stringify(c.result, null, 2);
         else if (c.structure !== undefined) {
-          output = layoutToYaml(c.structure);
+          if (c.yaml !== undefined && typeof c.yaml === 'string') {
+            output = c.yaml;
+          } else {
+            output = layoutToYaml(c.structure);
+          }
         } else output = JSON.stringify(content, null, 2);
       }
     }

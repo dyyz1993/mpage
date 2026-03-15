@@ -112,9 +112,12 @@ export const queryCommands: CommandModule = {
     const selector = (args.selector as string) || 'body';
 
     const fn = eval('(' + LAYOUT_FN_STR + ')');
-    const result = await page.evaluate(fn, { selector });
+    const result = (await page.evaluate(fn, { selector })) as {
+      layout: unknown;
+      yaml: string;
+    };
 
-    return result;
+    return { structure: result.layout, yaml: result.yaml };
   },
 };
 
