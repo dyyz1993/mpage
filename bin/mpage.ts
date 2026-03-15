@@ -1,4 +1,4 @@
-#!/usr/bin/env tsx
+#!/usr/bin/env node
 import * as net from "net";
 import { spawn } from "child_process";
 import { fileURLToPath } from "url";

@@ -1,27 +1,32 @@
 {
-  "name": "mpage",
-  "version": "1.0.0",
+  "name": "mpage-cli",
+  "version": "1.0.2",
   "description": "Playwright browser automation CLI with CDP support",
   "type": "module",
   "bin": {
-    "mpage": "./bin/mpage.ts"
+    "mpage": "dist/bin/mpage.js"
   },
-  "main": "./dist/src/index.js",
-  "types": "./dist/src/index.d.ts",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/src/index.js",
-      "types": "./dist/src/index.d.ts"
+      "import": "dist/src/index.js",
+      "types": "dist/src/index.d.ts"
     }
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "mpage": "npx tsx bin/mpage.ts",
-    "build": "tsc",
+    "build": "tsup",
     "dev": "npx tsx bin/mpage.ts",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test tests/**/*.test.ts"
+    "test": "tsx --test tests/**/*.test.ts",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "playwright-core": "^1.58.2",
@@ -32,6 +37,7 @@
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
     "eslint": "^8.57.0",
+    "tsup": "^8.0.0",
     "tsx": "^4.0.0",
     "typescript": "^5.0.0"
   },
@@ -42,5 +48,13 @@
     "cdp",
     "cli"
   ],
-  "license": "MIT"
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }

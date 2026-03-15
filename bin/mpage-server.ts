@@ -1,4 +1,4 @@
-#!/usr/bin/env tsx
+#!/usr/bin/env node
 import { chromium, type Browser, type Page, type BrowserContext } from "playwright-core";
 import * as net from "net";
 import * as fs from "fs";
