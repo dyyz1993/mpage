@@ -15,7 +15,7 @@ export function parseArgsToRecord(args: string[], schema?: ZodSchema): Record<st
   let positionalIndex = 0;
 
   for (let i = 0; i < args.length; i++) {
-    let arg = unquote(args[i]);
+    const arg = unquote(args[i]);
     if (args[i].startsWith("--")) {
       const key = args[i].slice(2);
       const value = args[i + 1];

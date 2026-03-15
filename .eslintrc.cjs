@@ -19,6 +19,7 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-explicit-any': 'warn',
     'no-console': 'off',
+    'no-empty': ['error', { allowEmptyCatch: true }],
   },
   ignorePatterns: ['dist', 'node_modules', '*.js'],
 };

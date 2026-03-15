@@ -29,7 +29,7 @@ interface Session {
   lastUsed: number;
 }
 
-let session: Session = {
+const session: Session = {
   name: sessionName,
   browser: null,
   context: null,
@@ -196,7 +196,7 @@ async function executeCommand(cmd: string, args: Record<string, unknown>): Promi
           id: el.id || "",
           className: (el.className || "").toString().slice(0, 100),
           text: (el.textContent || "").trim().slice(0, 200),
-          href: el.href || "",
+          href: (el as HTMLAnchorElement).href || "",
         }));
       }, selector);
       return { elements: result, count: result.length };
