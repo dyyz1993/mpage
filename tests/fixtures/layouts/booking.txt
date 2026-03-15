@@ -1,0 +1,12 @@
+└── body {📝, i:5, b:1, l:4, 23.0KB}
+    ├── [HEADER] header .bui-header {5.1KB}
+    │   └── [NAV] nav .bui-header__bar {5.0KB}
+    └── div {📝, i:5, b:1, l:4, ×2, 6.2KB}
+        └── div .b7ef425131 {📝, i:5, b:1, l:4, 6.1KB}
+            └── div .f6e3a11b0d {📝, i:5, b:1, l:4, 5.9KB}
+                ├── div {l:2, 1.1KB}
+                │   └── div .b99b6ef58f
+                ├── div .b99b6ef58f {📝, i:1}
+                └── fieldset .b99b6ef58f {📝, i:4, l:2, 3.8KB}
+                    └── div .f6e3a11b0d {📝, i:4, l:2, 3.8KB}
+                        └── div .b99b6ef58f {📝, i:1, l:2, ×4, 1.4KB}

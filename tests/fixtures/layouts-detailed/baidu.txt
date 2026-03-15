@@ -1,0 +1,50 @@
+└── body {📝 | i:1 | b:2 | 477.8KB}
+    ├── [HIDDEN] textarea #s_is_result_css {214.2KB}
+    ├── [HIDDEN] textarea #s_index_off_css {index}
+    ├── [SEARCH] div #wrapper {wrapper,search,input,dashboard,box | 📝 | i:1 | b:2 | 188.0KB}
+    │   ├── div #skin-container {container,index}
+    │   ├── div .fixed-skin-wrapper {wrapper}
+    │   │   └── div .fixed-skin-bg-inner.s-skin-container {container,index}
+    │   ├── div #head {logo | 📝 | i:1 | b:2 | 172.9KB}
+    │   │   ├── div .s_top_container {container | 33.3KB}
+    │   │   │   └── div #s_top_wrap {index | ×3}
+    │   │   │       ├── [NAV] div .s-top-nav {nav}
+    │   │   │       └── div .s-center-box {box}
+    │   │   ├── [SEARCH] div #head_wrapper {wrapper,search,title,img,index | 📝 | i:1 | b:2 | l:8 | 87.0KB}
+    │   │   │   ├── [FORM] div #s_fm {form,login | 📝 | i:1 | b:2 | l:5 | 65.4KB}
+    │   │   │   │   └── [FORM] div #s_form_wrapper {wrapper,form,index | 📝 | i:1 | b:2 | l:5 | 65.3KB}
+    │   │   │   │       ├── a #result_logo {logo}
+    │   │   │   │       │   └── img .index-logo-src {logo,index | ×3}
+    │   │   │   │       ├── div #main-wrapper {wrapper,main,input | l:1 | 61.6KB}
+    │   │   │   │       │   └── [CARD] div .san-card {card | l:1 | 9.2KB}
+    │   │   │   │       │       └── div .chat-input-background_3edHa {input | l:1 | 9.0KB}
+    │   │   │   │       ├── [FORM] form #form {form | 📝 | i:1 | b:1 | l:3 | 1.7KB}
+    │   │   │   │       │   ├── span #s_kw_wrap {📝 | i:1}
+    │   │   │   │       │   │   ├── input #kw
+    │   │   │   │       │   │   └── i .c-icon.quickdelete {icon}
+    │   │   │   │       │   ├── input {×10}
+    │   │   │   │       │   ├── span #s_btn_wr
+    │   │   │   │       │   │   └── input #su
+    │   │   │   │       │   └── input {×2}
+    │   │   │   │       ├── [SEARCH] div #s_new_search_guide {search}
+    │   │   │   │       └── [SEARCH] div #s_lm_wrap {search,hide,index,box}
+    │   │   │   ├── p .s-skin-lm.s-isindex-wrap {index}
+    │   │   │   ├── div .message-panel-container-wrapper {container,wrapper,panel,message}
+    │   │   │   ├── div .message-center-push-container {container,message}
+    │   │   │   └── [MODAL] div .message-center-settings-modal-container {container,modal,message,setting}
+    │   │   └── div #s_wrap {index | ×2 | 48.0KB}
+    │   │       └── [HIDDEN] textarea #s_sync_data
+    │   ├── [TABS] div #s_tab {tab | l:9 | 14.2KB}
+    │   │   └── [TABS] div .s_tab_inner.pc_home_inner_tab {tag,tab,home | l:9 | 14.1KB}
+    │   │       ├── [TABS] a .s-tab-item.s-tab-item-img {item,tab,img | 12.0KB}
+    │   │       │   └── img {11.7KB}
+    │   │       ├── [TABS] b .cur-tab {tab}
+    │   │       ├── [TABS] a .s-tab-item.s-tab-pic {item,tab | ×2}
+    │   │       ├── [TABS] a .s-tab-item.s-tab-video {item,tab,video}
+    │   │       ├── [TABS] a .s-tab-item.s-tab-note {item,tab | ×4}
+    │   │       ├── [TABS] a .s-tab-item.s-tab-more {item,tab,more}
+    │   │       └── [TABS] a .s-tab-item {item,tab}
+    │   └── div #wrapper_wrapper {wrapper}
+    ├── input #bsToken
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

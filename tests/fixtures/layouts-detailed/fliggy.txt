@@ -1,0 +1,71 @@
+└── body {📝 | b:2 | 63.8KB}
+    ├── a #J_ems_trip_bar_fixed
+    ├── div {📝 | i:1 | b:1 | l:6 | 7.4KB}
+    │   └── [NAV] div #J_fliggy_top_header {header,nav | 📝 | i:1 | b:1 | l:6 | 7.2KB}
+    │       ├── [NAV] div .flg-site-nav-header {header,nav | 📝 | i:1 | b:1 | l:6 | 7.1KB}
+    │       │   ├── [NAV] div .nav-logo {nav,logo}
+    │       │   │   └── img
+    │       │   ├── [NAV] div .nav-search-compact {nav,search | 📝 | i:1 | b:1}
+    │       │   │   ├── [SEARCH] div .search-prefix {search}
+    │       │   │   │   └── img
+    │       │   │   ├── [SEARCH] input .search-input {search,input | 🔍}
+    │       │   │   ├── [SEARCH] button .search-btn {search}
+    │       │   │   ├── [HIDDEN] [NAV] div .fly-nav-search-suggest {nav,search,suggest}
+    │       │   │   └── [HIDDEN] [NAV] div .fly-nav-search-recommend {nav,search,recommend}
+    │       │   └── [NAV] ul .nav-head-right {nav | l:6 | 6.5KB}
+    │       │       ├── [ACTIVE] li .active-icon.mr36 {active,icon | l:1 | ×3 | 1.5KB}
+    │       │       │   └── a {1.5KB}
+    │       │       ├── [NAV] li #F_site_nav_login {nav,login | l:2}
+    │       │       │   └── div .flg-site-login {login | l:2}
+    │       │       │       └── div .login-info {info,login | l:2}
+    │       │       │           └── div .login-nick {login | l:1}
+    │       │       ├── li .header-divider {header}
+    │       │       ├── [ACTIVE] li .active-icon.mr18 {active,icon | l:1}
+    │       │       │   └── a
+    │       │       ├── li .header-divider {header}
+    │       │       └── [ACTIVE] [NAV] li .nav-hot-line.active-icon {nav,active,icon}
+    │       └── div .flg-site-bg-header {header}
+    ├── [NAV] div {nav,home | l:6 | 3.5KB}
+    │   └── div #fly-common-menulist-wrap {menu,list | l:6 | 3.4KB}
+    │       └── [LIST] ul #fly-menu {menu | l:6 | 3.3KB}
+    │           ├── [ACTIVE] li .fly-menu-item.fly-menu-selected {menu,item,select,selected}
+    │           │   └── div .item-base.flight-item {item | ×2}
+    │           ├── li .fly-menu-item {menu,item | ×2}
+    │           │   └── div .item-base.hotel-item {item | ×2}
+    │           ├── [NAV] li #nav-menu-holiday {nav,menu,item | l:4 | 2.2KB}
+    │           │   ├── a
+    │           │   │   └── div .fly-menu-link-wrap {menu}
+    │           │   │       └── div .item-base.trip-item {item | ×2}
+    │           │   └── [HIDDEN] div .item-popover {item | l:3 | 1.5KB}
+    │           │       └── div .fly-popover-content {content | l:3 | 1.4KB}
+    │           │           └── [LIST] ul .trip-menu-ul {menu | l:3 | 1.3KB}
+    │           │               ├── [ACTIVE] li .trip-menu-list.trip-menu-selected {menu,list,select,selected | l:1}
+    │           │               └── li .trip-menu-list {menu,list | l:1 | ×2}
+    │           └── li .fly-menu-item {menu,item | l:1 | ×3}
+    │               └── a
+    │                   └── div .fly-menu-link-wrap {menu}
+    │                       └── div .item-base.view-item {item | ×2}
+    ├── div {📝 | b:1 | 34.2KB}
+    │   └── div #J_HomeContainer {container,home | 📝 | b:1 | 34.1KB}
+    │       └── div .fly-home-content {content,home | 📝 | b:1 | 34.1KB}
+    │           ├── [TABS] div .home-tab-wrap {tab,home | 📝 | b:1 | l:2 | 19.9KB}
+    │           │   ├── [CARD] div .home-business {card,home | 📝 | b:1 | l:1 | 19.1KB}
+    │           │   │   ├── [HIDDEN] div {📝 | i:4 | ×2 | 5.8KB}
+    │           │   │   │   └── div .common-tracker-click {📝 | i:4 | 5.8KB}
+    │           │   │   │       └── [SEARCH] div .hotel_search_root {search | 📝 | i:4 | 5.7KB}
+    │           │   │   └── [HIDDEN] div .home-business-train {home}
+    │           │   └── div .home-beautiful {home | l:1}
+    │           │       └── a
+    │           └── div .masonry-container {container,like | 14.2KB}
+    │               ├── div .masonry-container-title {container,title}
+    │               └── div .masonry-load-more {more}
+    ├── div #root {content,page | l:3 | 1.8KB}
+    │   └── div .fliggy-home-content {content,home | l:3 | 1.8KB}
+    │       └── div .home-bottom-summary {home | l:3 | 1.7KB}
+    │           ├── div .home-bottom-summary-title {title,home}
+    │           ├── p .home-bottom-summary-text {text,home | ×10}
+    │           ├── a .home-bottom-summary-text {text,home | ×2}
+    │           ├── p .home-bottom-summary-text {text,home | ×2}
+    │           └── a .home-bottom-summary-text {text,home}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

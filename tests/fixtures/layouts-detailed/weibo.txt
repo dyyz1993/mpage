@@ -1,0 +1,78 @@
+└── body {📝 | i:2 | 241.9KB}
+    ├── div #app {📝 | i:2 | 144.0KB}
+    │   ├── div .woo-box-flex.woo-box-column {box | 📝 | i:2 | 123.3KB}
+    │   │   ├── div {📝 | i:1 | b:5 | l:7 | 23.2KB}
+    │   │   │   └── div {📝 | i:1 | b:5 | l:7 | 23.2KB}
+    │   │   │       └── div {📝 | i:1 | b:5 | l:7 | 23.1KB}
+    │   │   │           └── [NAV] div {📝 | i:1 | b:5 | l:7 | 23.1KB}
+    │   │   │               └── div .woo-panel-main.woo-panel-bottom {main,panel | 📝 | i:1 | b:5 | l:7 | 23.0KB}
+    │   │   │                   └── div .woo-box-flex.woo-box-alignCenter {main,box | 📝 | i:1 | b:5 | l:7 | 22.9KB}
+    │   │   └── div .woo-box-flex {content,box | 📝 | i:1 | 100.1KB}
+    │   │       ├── div .grayTheme {l:10 | ×2 | 3.4KB}
+    │   │       │   └── div {main | l:10 | 3.4KB}
+    │   │       │       └── div .woo-panel-main.woo-panel-left {main,panel,scroll | l:10 | 3.3KB}
+    │   │       │           ├── h2 {title}
+    │   │       │           └── div {l:10 | 3.1KB}
+    │   │       │               └── div {l:10 | 3.1KB}
+    │   │       └── [HIDDEN] div .woo-panel-main.woo-panel-top {main,panel}
+    │   │           └── div .woo-box-flex.woo-box-alignCenter {main,box}
+    │   └── [HIDDEN] div .mini-player {19.4KB}
+    │       └── [ACTIVE] div #vjs_video_3 {user,active,video | 19.3KB}
+    │           ├── video #vjs_video_3_html5_api {video}
+    │           ├── [HIDDEN] div .vjs-poster.vjs-hidden {post,hidden}
+    │           ├── [HIDDEN] div .vjs-title-bar.vjs-hidden {hidden,title}
+    │           │   ├── div #vjs-title-bar-title-92 {title}
+    │           │   └── div #vjs-title-bar-description-93 {title,description}
+    │           ├── div .vjs-text-track-display {text}
+    │           ├── div .vjs-loading-spinner {loading,spinner}
+    │           │   └── span .vjs-control-text {text}
+    │           ├── [HIDDEN] [MODAL] div .vjs-error-display.vjs-modal-dialog {modal,dialog,hidden,error | ×2}
+    │           │   ├── [MODAL] p #vjs_video_3_component_212_description {modal,dialog,text,description,video}
+    │           │   └── [MODAL] div .vjs-modal-dialog-content {content,modal,dialog}
+    │           ├── div .vjs-miniplayer-title {title}
+    │           ├── [HIDDEN] span .vjs-miniplayer-podcast.vjs-miniplayer-podcast-hidden {hidden}
+    │           │   ├── img .vjs-miniplayer-podcast-thumbnail {thumbnail}
+    │           │   └── img .vjs-miniplayer-podcast-background
+    │           ├── div .vjs-miniplayer-control
+    │           │   ├── span .vjs-miniplayer-back-button {button}
+    │           │   ├── span .vjs-miniplayer-close-button {button,close}
+    │           │   └── button .vjs-miniplayer-play-button {button}
+    │           │       ├── [HIDDEN] span .vjs-icon-placeholder {icon,placeholder}
+    │           │       └── span .vjs-control-text {text}
+    │           └── div .vjs-volume-toast.volume-toast-icon {icon}
+    │               └── div .vjs-volume-toast-text {text}
+    ├── svg #__svg__icons__dom__ {icon | 96.8KB}
+    │   ├── [NAV] symbol #woo_svg_nav_ai {nav | ×2 | 1.2KB}
+    │   ├── [NAV] symbol #woo_svg_nav_article {nav,article}
+    │   ├── [NAV] symbol #woo_svg_nav_ask {nav | 1.6KB}
+    │   ├── [NAV] symbol #woo_svg_nav_audio {nav,audio | ×2 | 1.5KB}
+    │   ├── [NAV] symbol #woo_svg_nav_close {nav,close}
+    │   ├── [NAV] symbol #woo_svg_nav_collection {nav | ×4 | 1.4KB}
+    │   ├── [NAV] symbol #woo_svg_nav_emoticon {nav,icon | 1.0KB}
+    │   ├── [NAV] symbol #woo_svg_nav_fresh {nav | ×4 | 1.2KB}
+    │   ├── [NAV] symbol #woo_svg_nav_image {nav,image | 1.2KB}
+    │   ├── [NAV] symbol #woo_svg_nav_live {nav | 1.9KB}
+    │   ├── [NAV] symbol #woo_svg_nav_loading {nav,loading | ×2}
+    │   ├── [NAV] symbol #woo_svg_nav_olympic {nav | ×8 | 1.2KB}
+    │   ├── [HIDDEN] [NAV] symbol #woo_svg_nav_rsssuccess {nav,success | 6.7KB}
+    │   │   ├── [NAV] pattern #woo_svg_nav_rsssuccess_c {nav,success | 4.8KB}
+    │   │   ├── [NAV] lineargradient #woo_svg_nav_rsssuccess_a {nav,success | ×6}
+    │   │   └── [NAV] mask #woo_svg_nav_rsssuccess_h {nav,success}
+    │   ├── [NAV] symbol #woo_svg_nav_scomment {nav,comment}
+    │   ├── [NAV] symbol #woo_svg_nav_shop {nav | ×6 | 2.0KB}
+    │   ├── [NAV] symbol #woo_svg_nav_video {nav,video | 1.1KB}
+    │   ├── [NAV] symbol #woo_svg_nav_vote {nav | ×3 | 2.3KB}
+    │   ├── [NAV] symbol #woo_svg_nav_configFlat {nav,config | 1.1KB}
+    │   ├── [NAV] symbol #woo_svg_nav_eCom {nav | ×3 | 1.4KB}
+    │   ├── [NAV] symbol #woo_svg_nav_home {nav,home | ×2}
+    │   ├── [NAV] symbol #woo_svg_nav_hot {nav | ×2 | 1.4KB}
+    │   ├── [NAV] symbol #woo_svg_nav_login {nav,login}
+    │   ├── [NAV] symbol #woo_svg_nav_logo {nav,logo | ×4 | 8.2KB}
+    │   │   └── [NAV] mask #woo_svg_nav_logo_a {nav,logo | ×3}
+    │   ├── [NAV] symbol #woo_svg_nav_messages {nav,message | ×2}
+    │   ├── [NAV] symbol #woo_svg_nav_moon {nav | ×3}
+    │   ├── [NAV] symbol #woo_svg_nav_search {nav,search}
+    │   ├── [NAV] symbol #woo_svg_nav_sicon-clear {nav,icon}
+    │   └── [NAV] symbol #woo_svg_nav_sun {nav | ×3}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

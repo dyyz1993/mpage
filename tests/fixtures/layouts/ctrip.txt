@@ -1,0 +1,30 @@
+└── body {🔍, 📝, i:5, 238.3KB}
+    ├── div #root {🔍, 📝, i:5, 107.3KB}
+    │   ├── [NAV] div #leftSideNavLayer {11.3KB}
+    │   │   └── [NAV] div .lsn_left_nav_container_CT1cL {11.2KB}
+    │   │       └── [NAV] div .lsn_small_left_nav_container_KMgI- {11.1KB}
+    │   │           └── div {10.9KB}
+    │   │               └── div {10.9KB}
+    │   └── div #content_container {🔍, 📝, i:5, 95.4KB}
+    │       ├── [NAV] div #topLayer {🔍, 📝, i:2, l:2, 3.2KB}
+    │       │   └── [NAV] div .tl_header_nav_container_T0v0W {🔍, 📝, i:2, l:2, 3.1KB}
+    │       │       └── [NAV] div .tl_header_nav_fOCFQ {🔍, 📝, i:2, l:2, 3.1KB}
+    │       │           └── [NAV] div .tl_header_nav_small_wrap_gCHc7 {🔍, 📝, i:2, l:2, 3.0KB}
+    │       ├── [NAV] div .root__header_nav_container__q2jIJ {📝, i:3, b:5, 53.3KB}
+    │       │   └── div .root__content__UgoF9 {📝, i:3, b:5, 53.3KB}
+    │       │       ├── div .root__left_content__49FlP {📝, i:3, b:5, 39.3KB}
+    │       │       │   ├── [SEARCH] div #hotelSearchV1 {📝, i:2, 8.3KB}
+    │       │       │   └── [MAIN] div {📝, i:1, b:5, 24.8KB}
+    │       │       └── div #pc_home_right_content {l:1, 14.0KB}
+    │       ├── [FORM] div #platformSeoFoot {📝, b:1, 28.3KB}
+    │       │   └── div .psf_seo_foot_layout_dZeef {28.2KB}
+    │       │       ├── div .psf_ctrip_travel_assure_wrapper_v-oRA {×2, 1.7KB}
+    │       │       ├── div .psf_ctrip_partner_wrapper_hAHis {l:6, 1.4KB}
+    │       │       └── div .psf_seo_recommend_wrapper_W8E4W {22.2KB}
+    │       │           └── [NAV] div .psf_recommend_list_3mqpi {22.1KB}
+    │       └── [FOOTER] div #footerLayer {8.7KB}
+    │           └── div .fl_footer_wrap_ow234 {8.6KB}
+    │               └── div .fl_layout_wrap_g-sIE {8.6KB}
+    │                   ├── div .fl_footer_link_list_OWItH {4.6KB}
+    │                   └── div .fl_footer_copyright_wrapper_xaEbt {3.9KB}
+    └── div #fl_wrap_default {l:1}

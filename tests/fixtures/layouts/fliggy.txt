@@ -1,0 +1,23 @@
+└── body {🔍, 📝, b:2, 63.8KB}
+    ├── div {🔍, 📝, i:1, b:1, l:6, ×3, 7.4KB}
+    │   └── [NAV] div #J_fliggy_top_header {🔍, 📝, i:1, b:1, l:6, 7.2KB}
+    │       └── [NAV] div .flg-site-nav-header {🔍, 📝, i:1, b:1, l:6, 7.1KB}
+    │           ├── [NAV] div .nav-logo
+    │           ├── [NAV] div .nav-search-compact {🔍, 📝, i:1, b:1}
+    │           │   ├── [SEARCH] div .search-prefix
+    │           │   ├── [SEARCH] input .search-input
+    │           │   ├── [SEARCH] button .search-btn
+    │           │   ├── [HIDDEN] [NAV] div .fly-nav-search-suggest
+    │           │   └── [HIDDEN] [NAV] div .fly-nav-search-recommend
+    │           └── [NAV] ul .nav-head-right {l:6, 6.5KB}
+    │               ├── [NAV] li #F_site_nav_login {l:2}
+    │               └── [NAV] li .nav-hot-line
+    └── div {×2, 7.5KB}
+        └── div #J_fliggy_footer {7.5KB}
+            └── div .flg-footer {7.4KB}
+                ├── div .flg-footer-top {4.7KB}
+                │   ├── div .footer-top-wrap {l:2, ×5}
+                │   │   └── [LIST] ul .wrap-list {l:2}
+                │   └── div .footer-right-pic-container
+                └── div .flg-footer-bottom {l:8, 2.6KB}
+                    └── div .footer-record {l:6, 1.8KB}

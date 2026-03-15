@@ -37,7 +37,8 @@ async function main() {
     } else if (args[i] === '--quiet' || args[i] === '-q') {
       quietMode = true;
     } else if (!args[i].startsWith('-') && !commandInput) {
-      commandInput = args[i];
+      commandInput = args.slice(i).join(' ');
+      break;
     }
   }
 

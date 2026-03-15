@@ -1,0 +1,19 @@
+└── body {🔍, 📝, i:1, b:1, 82.6KB}
+    ├── div {🔍, 📝, i:1, b:1, l:10, 2.2KB}
+    │   ├── [NAV] div #anony-nav-banner {l:1}
+    │   └── [NAV] div #anony-nav {🔍, 📝, i:1, b:1, l:9, 1.9KB}
+    │       ├── [NAV] div .anony-nav-links {l:9, 1.2KB}
+    │       │   └── [LIST] ul {l:9, 1.2KB}
+    │       └── div .anony-srh {🔍, 📝, i:1, b:1}
+    │           └── [FORM] form {🔍, 📝, i:1, b:1}
+    ├── div #anony-sns {×8, 8.5KB}
+    │   └── div .wrapper {8.5KB}
+    │       ├── div .side {3.7KB}
+    │       │   ├── div .online {l:9, 2.3KB}
+    │       │   │   └── [LIST] ul {l:9, 2.2KB}
+    │       │   │       └── div #hot-topics-mod {l:9, 1.9KB}
+    │       │   └── div .mod {l:6, 1.1KB}
+    │       │       └── [LIST] ul .rumor-links {l:5}
+    │       └── div .main {4.7KB}
+    │           └── div .mod {4.5KB}
+    └── div .wrapper {2.1KB}

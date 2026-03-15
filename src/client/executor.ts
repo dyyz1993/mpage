@@ -14,6 +14,35 @@ export interface ExecuteResult {
   tips?: string;
 }
 
+function layoutToYaml(node: unknown, indent: number = 0): string {
+  if (!node) return '';
+  const spaces = '  '.repeat(indent);
+  const n = node as Record<string, unknown>;
+
+  let line = `${spaces}- ${n.type}`;
+  if (n.selector) line += ` [${n.selector}]`;
+  if (n.region) line += ` (${n.region})`;
+  if (n.repeatCount) line += ` ×${n.repeatCount}`;
+
+  const tags: string[] = [];
+  if (n.hasSearch) tags.push('🔍search');
+  if (n.hasForm) tags.push('📝form');
+  if (n.inputCount) tags.push(`inputs:${n.inputCount}`);
+  if (n.buttonCount) tags.push(`buttons:${n.buttonCount}`);
+  if (n.linkCount) tags.push(`links:${n.linkCount}`);
+  if (tags.length > 0) line += ` {${tags.join(', ')}}`;
+
+  let result = line + '\n';
+
+  if (n.children && Array.isArray(n.children)) {
+    for (const child of n.children) {
+      result += layoutToYaml(child, indent + 1);
+    }
+  }
+
+  return result;
+}
+
 export async function executeCommand(
   sendRequest: (data: unknown) => Promise<IPCResponse>,
   cmd: string,
@@ -57,7 +86,9 @@ export async function executeCommand(
             typeof c.snapshot === 'string' ? c.snapshot : JSON.stringify(c.snapshot, null, 2);
         } else if (c.elements !== undefined) output = JSON.stringify(c.elements, null, 2);
         else if (c.result !== undefined) output = JSON.stringify(c.result, null, 2);
-        else output = JSON.stringify(content, null, 2);
+        else if (c.structure !== undefined) {
+          output = layoutToYaml(c.structure);
+        } else output = JSON.stringify(content, null, 2);
       }
     }
 

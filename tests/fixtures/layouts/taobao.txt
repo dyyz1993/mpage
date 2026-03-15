@@ -1,0 +1,51 @@
+└── body {🔍, 📝, i:2, 559.9KB}
+    ├── [NAV] div #J_SiteNav {12.3KB}
+    │   └── [NAV] div #J_SiteNavBd {12.2KB}
+    │       ├── [NAV] ul #J_SiteNavBdL {l:8, 7.3KB}
+    │       │   ├── [NAV] li .site-nav-menu {×2, 1.5KB}
+    │       │   │   ├── [NAV] div .site-nav-menu-hd
+    │       │   │   └── [NAV] div .site-nav-menu-bd {1.3KB}
+    │       │   │       └── [NAV] div .site-nav-menu-bd-panel {1.2KB}
+    │       │   ├── [NAV] li #J_SiteNavMobile {l:1, ×2}
+    │       │   │   └── [NAV] div .site-nav-menu-hd {l:1}
+    │       │   └── [NAV] li #J_SiteNavTheme {l:1, 4.1KB}
+    │       │       ├── [NAV] div .site-nav-menu-hd
+    │       │       └── [NAV] div .site-nav-menu-bd {l:1, 3.8KB}
+    │       │           └── [NAV] div .site-nav-menu-bd-panel {l:1, 3.8KB}
+    │       └── [NAV] ul #J_SiteNavBdR {4.8KB}
+    │           ├── [NAV] li #J_SiteNavHome {l:1, ×2}
+    │           │   └── [NAV] div .site-nav-menu-hd {l:1}
+    │           │       └── [NAV] div .site-nav-new-home {l:1}
+    │           └── [NAV] li #J_SiteNavMytaobao {l:3, ×6}
+    │               ├── [NAV] div .site-nav-menu-hd {l:1}
+    │               └── [NAV] div .site-nav-menu-bd {l:2}
+    │                   └── [NAV] div .site-nav-menu-bd-panel {l:2}
+    ├── [HIDDEN] div #ice-container-skeleton {18.5KB}
+    ├── div #ice-container {🔍, 📝, i:2, 506.7KB}
+    │   └── div .tbpc-layout {🔍, 📝, i:2, 506.6KB}
+    │       ├── [SEARCH] div .cup {🔍, 📝, i:2, b:1, 13.2KB}
+    │       │   └── div .top {🔍, 📝, i:2, b:1, 13.1KB}
+    │       │       └── div .top-wrap {🔍, 📝, i:2, b:1, 13.1KB}
+    │       │           └── [SEARCH] div .tbh-search {🔍, 📝, i:2, b:1, 11.9KB}
+    │       ├── div .screen-outer {395.0KB}
+    │       │   ├── div .tbpc-row {l:9, 2.8KB}
+    │       │   │   └── div .tbpc-col {l:9, 2.7KB}
+    │       │   │       └── [NAV] div .tbh-nav {l:9, 2.6KB}
+    │       │   └── [MAIN] div .main {392.1KB}
+    │       │       ├── div .tbh-service {345.5KB}
+    │       │       ├── div .core {25.8KB}
+    │       │       │   └── div .business-entry-container {25.8KB}
+    │       │       └── [SIDEBAR] div .col-right {20.7KB}
+    │       │           └── div .tbh-user {20.6KB}
+    │       └── div .layer {98.4KB}
+    │           └── div .layer-inner {98.4KB}
+    │               └── div .tb-picks-container {98.3KB}
+    │                   └── div .tbpc-layout {98.3KB}
+    ├── div .tbpc-layout {3.1KB}
+    │   └── div {3.0KB}
+    └── div #J_TBPC_POP_home {×3, 3.9KB}
+        └── div .pc-pop-sdk-container {3.9KB}
+            └── div {3.8KB}
+                └── div .custom-pop-tmpl-wrapper {3.8KB}
+                    └── div .index_module_popMask__08721506 {3.7KB}
+                        └── div .index_module_container__c489d90e {3.6KB}

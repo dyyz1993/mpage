@@ -1,0 +1,70 @@
+└── body {📝 | i:3 | 271.3KB}
+    ├── [NAV] div .nav_logo_trigger {nav,logo}
+    ├── [MAIN] main .page_wrap.u-bg-ivory-medium {page | 📝 | i:3 | 216.9KB}
+    │   ├── div .page_code_wrap {page | 15.4KB}
+    │   │   └── div .page_code_base.w-embed {page | ×2 | 7.0KB}
+    │   ├── [NAV] div .nav_component.is-desktop {nav | 123.3KB}
+    │   │   ├── [NAV] a .nav_skip_wrap.w-inline-block {nav,block | ×2}
+    │   │   │   └── [NAV] div .nav_skip_text {nav,text}
+    │   │   └── [NAV] div .nav_wrap.w-variant-bcaa6cc7-fd9c-df6e-98a1-ccc1b40d7604 {nav | ×2 | 64.6KB}
+    │   │       └── [NAV] div .nav_contain.u-container {container,nav | 64.5KB}
+    │   │           ├── [NAV] a .nav_logo_wrap.w-inline-block {nav,logo,block | 15.5KB}
+    │   │           │   └── [NAV] div .nav_logo_lottie {nav,logo | 15.0KB}
+    │   │           └── [NAV] nav .nav_desktop_layout {nav | 49.0KB}
+    │   │               └── [NAV] div .nav_links_component.is-desktop {nav | 48.9KB}
+    │   │                   ├── [NAV] ul .nav_links_wrap.w-list-unstyled {nav,list | 43.4KB}
+    │   │                   │   └── [NAV] li .nav_links_item.is-desktop {nav,item | l:1 | ×6}
+    │   │                   └── [NAV] ul .nav_actions_wrap.w-list-unstyled {nav,list,action | l:3 | 5.5KB}
+    │   │                       ├── [NAV] li .nav_links_item.u-display-none {nav,item | l:1 | 2.4KB}
+    │   │                       └── [NAV] li .nav_buttons_item.is-desktop {nav,item,button | l:2 | 3.1KB}
+    │   ├── [HEADER] header #main {main | l:4 | 3.7KB}
+    │   │   ├── div .g_section_space.w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490 {main,section}
+    │   │   ├── div .u-container {container | l:4 | 3.4KB}
+    │   │   │   └── [TABS] div .home_hero_grid.u-grid-tablet {tab,home | l:4 | 3.4KB}
+    │   │   └── div .g_section_space.w-variant-f1d60206-ffb1-00d2-d5a6-33c49b9a54ab {section}
+    │   ├── [SECTION] section .mars-cta_section {section | l:1 | 2.9KB}
+    │   │   ├── div .mars-cta_scroll-bg {scroll | 2.1KB}
+    │   │   │   └── div .mars-cta_container {container | 2.0KB}
+    │   │   │       └── div .mars-cta_title-wrap {title | ×2}
+    │   │   │           └── h2 .mars-cta_title {title}
+    │   │   │               └── span .mars-cta_title-accent {title}
+    │   │   └── div .g_clickable_wrap {l:1}
+    │   │       ├── a .g_clickable_link.w-inline-block {more,page,home,block}
+    │   │       │   └── span .g_clickable_text.u-sr-only {text}
+    │   │       └── button .g_clickable_btn
+    │   │           └── span .g_clickable_text.u-sr-only {text}
+    │   ├── div .g_section_wrap {section | l:4 | 11.8KB}
+    │   │   ├── div .g_section_space.w-variant-f1d60206-ffb1-00d2-d5a6-33c49b9a54ab {section}
+    │   │   └── div .u-container.u-radius-medium {container | l:4 | 11.7KB}
+    │   │       ├── div .g_heading.w-richtext {text}
+    │   │       └── div .u-grid-desktop {l:4 | 11.6KB}
+    │   │           └── div .u-column-4 {l:1 | ×3 | 3.0KB}
+    │   │               └── div .package_banner.is-pad-m {l:1 | 3.0KB}
+    │   │                   └── div .package_banner_left.is-child-stretch {l:1 | 2.8KB}
+    │   │                       └── div {l:1 | 2.5KB}
+    │   ├── [SECTION] section .g_section_wrap {section | l:5 | 6.0KB}
+    │   │   ├── div .g_section_space {section}
+    │   │   ├── div .u-container {container | l:5 | 5.7KB}
+    │   │   │   └── div .g_section_space.w-variant-f1d60206-ffb1-00d2-d5a6-33c49b9a54ab {section}
+    │   │   └── div .g_section_space.w-variant-f1d60206-ffb1-00d2-d5a6-33c49b9a54ab {section}
+    │   └── [FOOTER] footer #footer {footer | 📝 | i:3 | b:5 | 53.7KB}
+    │       ├── h2 .footer_title.u-sr-only {footer,title}
+    │       └── div .footer_contain.u-container {container,footer | 📝 | i:3 | b:5 | 53.3KB}
+    │           └── [NAV] nav .footer_grid {footer | 📝 | i:3 | b:5 | 53.3KB}
+    │               ├── div #w-node-e05962ee-20a8-0780-627a-6d28b8ec292c-b8ec2927 {footer,logo | l:3 | 4.2KB}
+    │               │   └── div .footer_bottom_contain.cc-desktop {footer | l:3 | 3.8KB}
+    │               │       ├── div .footer_bottom_text {footer,text}
+    │               │       └── [LIST] ul .footer_bottom_list {footer,list | l:3 | 3.6KB}
+    │               │           └── li .footer_bottom_item {footer,item | l:1 | ×3 | 1.4KB}
+    │               ├── div #w-node-_6cd428f2-cfc4-4def-35f3-19b3789b4192-b8ec2927 {content,footer | 📝 | i:3 | b:5 | 45.3KB}
+    │               │   └── [SECTION] section .footer_group_wrap {footer,group | ×4 | 10.1KB}
+    │               │       └── div .footer_group_block {footer,group,block | ×2 | 8.3KB}
+    │               │           ├── h3 .footer_group_title {footer,title,group}
+    │               │           └── [LIST] ul .footer_group_list.w-list-unstyled {footer,list,group | 8.2KB}
+    │               └── [TABS] div #w-node-_1f7589da-b35f-83df-c217-2c60daf900d4-b8ec2927 {footer,tab | l:3 | 3.8KB}
+    │                   ├── div .footer_bottom_text {footer,text}
+    │                   └── [LIST] ul .footer_bottom_list {footer,list | l:3 | 3.6KB}
+    │                       └── li .footer_bottom_item {footer,item | l:1 | ×3 | 1.2KB}
+    │                           └── a .footer_bottom_link_wrap.w-inline-block {footer,block | 1.2KB}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

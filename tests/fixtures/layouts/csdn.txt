@@ -1,0 +1,14 @@
+└── body {🔍, 📝, i:5, 586.3KB}
+    ├── div #csdn-toolbar {🔍, 📝, i:2, b:1, l:6, ×2, 5.7KB}
+    │   └── div .toolbar-inside {🔍, 📝, i:2, b:1, l:6, 5.7KB}
+    │       └── [SIDEBAR] div .toolbar-container {🔍, 📝, i:2, b:1, l:6, 5.6KB}
+    │           ├── div .toolbar-container-left {l:1}
+    │           └── div .toolbar-container-mini-middle {🔍, 📝, i:2, b:1}
+    │               └── [SEARCH] div .toolbar-search {🔍, 📝, i:2, b:1}
+    │                   └── [SEARCH] div .toolbar-search-container {🔍, 📝, i:2, b:1}
+    └── div {📝, i:3, ×2, 1.9KB}
+        └── div .csdn-side-toolbar {📝, i:3, 1.8KB}
+            └── a .option-box {📝, i:3, 1.4KB}
+                └── div .app-qr-box {📝, i:3, 1.2KB}
+                    └── div .bg-box {📝, i:3, 1.1KB}
+                        └── div .tab-pane {📝, i:1, ×3}

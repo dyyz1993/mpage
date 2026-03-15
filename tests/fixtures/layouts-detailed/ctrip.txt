@@ -1,0 +1,92 @@
+└── body {📝 | i:5 | 238.3KB}
+    ├── [HIDDEN] iframe
+    ├── div #root {📝 | i:5 | 107.3KB}
+    │   ├── div #popup {popup}
+    │   ├── [NAV] div #leftSideNavLayer {nav | 11.3KB}
+    │   │   └── [NAV] div .lsn_left_nav_container_CT1cL {container,nav | 11.2KB}
+    │   │       └── [NAV] div .lsn_small_left_nav_container_KMgI- {container,nav | 11.1KB}
+    │   │           ├── div .lsn_top_button_wrap_t3-TA {button}
+    │   │           │   └── div .lsn_button_icon_dvatN {button,icon}
+    │   │           │       └── [TABS] div .pc_home-tabbtnIcon.lsn_ico_9C9TD {tab,icon,home}
+    │   │           └── div {10.9KB}
+    │   │               └── div {10.9KB}
+    │   │                   └── div {10.3KB}
+    │   │                       └── [NAV] div .lsn_nav_content_wrap_ci7QT {content,nav | 10.2KB}
+    │   └── div #content_container {content,container | 📝 | i:5 | 95.4KB}
+    │       ├── [NAV] div #topLayer {header,nav | 📝 | i:2 | l:2 | 3.2KB}
+    │       │   └── [NAV] div .tl_header_nav_container_T0v0W.tl_normal_header_oOjiU {container,header,nav | 📝 | i:2 | l:2 | 3.1KB}
+    │       │       └── [NAV] div .tl_header_nav_fOCFQ {header,nav | 📝 | i:2 | l:2 | 3.1KB}
+    │       │           └── [NAV] div .tl_header_nav_small_wrap_gCHc7 {header,nav | 📝 | i:2 | l:2 | 3.0KB}
+    │       │               ├── [SEARCH] div .tl_logo_search_layout_jqiD8 {search,logo | 📝 | i:2 | l:2 | 1.2KB}
+    │       │               │   ├── div .tl_first_wrap_O-7cj {first | l:1}
+    │       │               │   └── [FORM] form #hp_nfes_searchbar {search | 📝 | i:2 | l:1}
+    │       │               └── div .tl_btn_wrap_EyH-F {1.7KB}
+    │       │                   ├── [LIST] ul #hp_nfes_accountbar {header,count,account,home | 1.3KB}
+    │       │                   └── button .tl_icon_btn_wrap_R8aGe.tl_btn_accessibility_lXwrx {icon | ×2}
+    │       ├── [NAV] div .root__header_nav_container__q2jIJ {container,header,nav | 📝 | i:3 | b:5 | 53.3KB}
+    │       │   └── div .root__content__UgoF9.root__layout_wrap__W1S3- {content | 📝 | i:3 | b:5 | 53.3KB}
+    │       │       ├── div .root__left_content__49FlP {content | 📝 | i:3 | b:5 | 39.3KB}
+    │       │       │   ├── [SEARCH] div #hotelSearchV1 {search | 📝 | i:2 | 8.3KB}
+    │       │       │   │   └── [SEARCH] div .hs_list-search-wrapper_mUSSc {wrapper,search,list | 📝 | i:2 | 8.0KB}
+    │       │       │   │       └── [SEARCH] div .hs_list-search-container_e4Wsg {container,search,list | 📝 | i:2 | 7.9KB}
+    │       │       │   └── [MAIN] div {📝 | i:1 | b:5 | 24.8KB}
+    │       │       │       └── [FORM] div #platformAdvertStairs {form | 📝 | i:1 | b:5 | 24.8KB}
+    │       │       │           └── div .pas_container_0P0Vy {container | 📝 | i:1 | b:5 | 24.8KB}
+    │       │       └── div #pc_home_right_content {content,home | l:1 | 14.0KB}
+    │       │           └── div #businessAdvBlock {block | l:1}
+    │       │               └── div .bab_btlayout_wrapper_wOLXB {wrapper | l:1}
+    │       │                   └── a
+    │       ├── div #businessTravelBlock {content,block | l:3 | 1.7KB}
+    │       │   └── div .btb_layout_wrapper_kkUG6 {wrapper | l:3 | 1.6KB}
+    │       │       ├── div .btb_business_title_fEFEn {title}
+    │       │       └── div .btb_desc_list_MznWM {list | l:3 | 1.5KB}
+    │       │           ├── a .btb_item_wrapper_TE1A-.btb_service_NLAGU {wrapper,item | ×2}
+    │       │           │   ├── [HIDDEN] img .btb_left_img_HfPbW {img}
+    │       │           │   └── div .btb_right_wrapper_2BP8M {wrapper}
+    │       │           │       └── span .btb_title_bBm8g {title}
+    │       │           └── a .btb_item_wrapper_TE1A-.btb_order_wnlYj {wrapper,item,order}
+    │       │               ├── [HIDDEN] img .btb_left_img_HfPbW {img}
+    │       │               └── div .btb_right_wrapper_2BP8M {wrapper}
+    │       │                   └── span .btb_title_bBm8g {title}
+    │       ├── [FORM] div #platformSeoFoot {form | 📝 | b:1 | 28.3KB}
+    │       │   └── div .psf_seo_foot_layout_dZeef {28.2KB}
+    │       │       ├── div .psf_ctrip_travel_assure_wrapper_v-oRA {wrapper | 3.5KB}
+    │       │       │   ├── div .psf_assure_title_ZZwll {title}
+    │       │       │   └── div .psf_assure_module_list_84fIq {list | ×2 | 1.7KB}
+    │       │       │       ├── div .psf_module_list_item_Kh7sq.psf_none-link_mog8P {list,item,first}
+    │       │       │       │   ├── [HIDDEN] img
+    │       │       │       │   └── div .psf_item_text_wrapper_3jBYu {wrapper,item,text}
+    │       │       │       └── div .psf_module_list_item_Kh7sq.psf_none-link_mog8P {list,item | ×3}
+    │       │       │           ├── [HIDDEN] img
+    │       │       │           └── div .psf_item_text_wrapper_3jBYu {wrapper,item,text}
+    │       │       ├── div .psf_ctrip_hotel_join_list_-5STC {list | l:3 | 1.1KB}
+    │       │       │   ├── a .psf_link_wrap_mLmuH.psf_first_link_BZoZ5 {first}
+    │       │       │   │   └── [HIDDEN] img
+    │       │       │   └── a .psf_link_wrap_mLmuH {×2}
+    │       │       │       └── [HIDDEN] img
+    │       │       ├── div .psf_ctrip_partner_wrapper_hAHis {wrapper | l:6 | 1.5KB}
+    │       │       │   ├── div .psf_partner_title_ePpNU {title}
+    │       │       │   └── div .psf_partner_list_kOwWt {list | l:6 | 1.4KB}
+    │       │       │       └── [LIST] ul {l:6 | 1.3KB}
+    │       │       └── div .psf_seo_recommend_wrapper_W8E4W {wrapper,recommend | 22.2KB}
+    │       │           └── [NAV] div .psf_recommend_list_3mqpi {list,recommend | 22.1KB}
+    │       │               ├── div .psf_module_item_xfDGJ.psf_first_module_item_8n3cb {item,first | 1.8KB}
+    │       │               │   ├── div .psf_module_title_5hcvL {title}
+    │       │               │   └── div .psf_link_list_wrapper_ordZI {wrapper,list | 1.6KB}
+    │       │               └── div .psf_module_item_xfDGJ {item | ×5 | 11.7KB}
+    │       │                   ├── div .psf_module_title_5hcvL {title}
+    │       │                   └── div .psf_link_list_wrapper_ordZI {wrapper,list | 11.6KB}
+    │       └── [FOOTER] div #footerLayer {footer | 8.7KB}
+    │           └── div .fl_footer_wrap_ow234 {footer | 8.6KB}
+    │               └── div .fl_layout_wrap_g-sIE.fl_normal_footer_YgQc1 {footer | 8.6KB}
+    │                   ├── div .fl_footer_link_list_OWItH {footer,list | 4.6KB}
+    │                   │   ├── div .fl_footer_item_layout_gZ1W6.fl_first_item_y9897 {footer,item,first | l:7}
+    │                   │   │   └── [LIST] dl .fl_footer_item_vp3yx {footer,item | l:7}
+    │                   │   └── div .fl_footer_item_layout_gZ1W6 {footer,item | l:8 | ×3 | 1.1KB}
+    │                   │       └── [LIST] dl .fl_footer_item_vp3yx {footer,item | l:8 | 1.1KB}
+    │                   └── div .fl_footer_copyright_wrapper_xaEbt {wrapper,footer | 3.9KB}
+    │                       └── p .fl_gns_wrapper_wMJ0P {wrapper | l:5}
+    │                           └── a {×5}
+    ├── input #page_id {page}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

@@ -1,0 +1,41 @@
+└── body {📝 | i:3 | 476.3KB}
+    ├── div .flex.min-w-0 {📝 | i:3 | 192.4KB}
+    │   ├── div .@container.flex-1 {container | 📝 | i:3 | 192.2KB}
+    │   │   ├── div #header-wrapper {wrapper,header,scroll | 92.4KB}
+    │   │   │   └── [HEADER] header .header-module__6nzVrW__header {header | 92.1KB}
+    │   │   │       ├── div .flex.items-center {item | 82.1KB}
+    │   │   │       │   ├── [NAV] a #menu-button-_R_ambqqaivbH1_ {header,nav,menu,item,button}
+    │   │   │       │   │   └── img .geist-hide-on-dark {logo,hide | ×2}
+    │   │   │       │   └── div .header-module__6nzVrW__main {main,header | 81.1KB}
+    │   │   │       │       └── div {81.0KB}
+    │   │   │       │           └── [NAV] nav .navigation-menu-module__AENi4G__root {nav,menu | 81.0KB}
+    │   │   │       └── div .header-module__6nzVrW__right {header | l:3 | 9.9KB}
+    │   │   │           └── div .flex.items-center {item | l:3 | 9.9KB}
+    │   │   │               ├── [HIDDEN] span #ai-chat-header-btn {header,hidden}
+    │   │   │               │   └── button .button-module__QyrFCa__base.reset-module__ylizOa__reset {header,button,option}
+    │   │   │               ├── div #header-content {content,header,item,section | l:3 | 3.1KB}
+    │   │   │               │   ├── div .flex.justify-start {content,section | l:1 | 1.4KB}
+    │   │   │               │   └── div .morphing-button-link-module__KniueW__morphing {button | l:2 | 1.5KB}
+    │   │   │               └── div #mobile-menu-toggle {menu,toggle}
+    │   │   │                   └── div .toggle-module__HksKKG__mobileMenuToggleWrapper {wrapper,menu,toggle}
+    │   │   ├── span {content,wrapper,page}
+    │   │   ├── [MAIN] main .px-4 {l:9 | 70.5KB}
+    │   │   │   └── div .stack-module__UbbKhW__stack.stack {first,page,slot | l:4 | ×2 | 57.2KB}
+    │   │   │       └── [TABS] div .grid-module__4pDFEa__unstable_gridSystemWrapper {wrapper,tab | l:4 | 56.8KB}
+    │   │   └── [FOOTER] footer .max-w-[var(--ds-page-width-with-margin)].mx-auto {text,page | 📝 | i:3 | 29.1KB}
+    │   │       └── [NAV] nav {📝 | i:3 | 29.0KB}
+    │   │           └── div .footer-module__ESbTrq__statusRow {footer,status | 📝 | i:3 | l:1 | 4.1KB}
+    │   │               ├── a .link-module__Q1NRQq__link.status-indicator-module__razUwq__link {footer,status}
+    │   │               │   └── div .status-indicator-module__razUwq__content.!border-none {content,status,order}
+    │   │               │       ├── span .status-indicator-module__razUwq__indicator.status-indicator-module__razUwq__warning {footer,warning,status}
+    │   │               │       └── p .text-copy-14.status-indicator-module__razUwq__statusText {warning,text,status}
+    │   │               └── fieldset .tailwind.theme-switcher-module__q-SprW__root {switch | 📝 | i:3 | 3.3KB}
+    │   │                   └── span {📝 | i:1 | ×3}
+    │   │                       └── input #theme-switch-system-_R_lmbqqaivb_ {switch}
+    │   └── [HIDDEN] [SIDEBAR] aside .shrink-0.z-[100] {form,hidden}
+    ├── div #__cdp_automation_badge_container__ {container,badge}
+    │   └── div {badge}
+    └── [CARD] div .context-card-module__MV3-Va__portal {card,text | 1.2KB}
+        └── [CARD] div .context-card-module__MV3-Va__contextCardRootVisibility {card,text | 1.1KB}
+            └── [CARD] div .context-card-module__MV3-Va__contextCardRoot {card,text | 1.0KB}
+                └── [CARD] div .context-card-module__MV3-Va__contextCardTip {card,text}

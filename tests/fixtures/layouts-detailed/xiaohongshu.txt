@@ -1,0 +1,76 @@
+└── body {📝 | i:1 | 324.0KB}
+    ├── div #app {📝 | i:1 | 106.2KB}
+    │   ├── div #global {📝 | i:1 | b:4 | 101.8KB}
+    │   │   ├── div .header-container {container,header | 📝 | i:1 | b:4 | l:1 | 7.5KB}
+    │   │   │   └── [HEADER] header .mask-paper {📝 | i:1 | b:4 | l:1 | 7.4KB}
+    │   │   │       ├── [ACTIVE] a #link-guide {active | 4.7KB}
+    │   │   │       │   └── img .header-logo {header,logo | 4.6KB}
+    │   │   │       ├── div .input-box {input,box | 📝 | i:1}
+    │   │   │       │   ├── [SEARCH] input #search-input {search,input | 🔍}
+    │   │   │       │   └── div .input-button {button,input}
+    │   │   │       │       └── [SEARCH] div .search-icon {search,icon}
+    │   │   │       ├── [SEARCH] button .min-width-search-icon.large {search,button,icon}
+    │   │   │       │   └── span {button,box}
+    │   │   │       └── div .right {1.6KB}
+    │   │   │           └── div .menu {menu | 1.5KB}
+    │   │   │               ├── [NAV] div .dropdown-nav {nav,dropdown}
+    │   │   │               │   └── div {×2}
+    │   │   │               └── [NAV] div #small-more-info {nav,menu,dropdown,info,icon}
+    │   │   │                   └── div .menu-icon-btn {menu,icon}
+    │   │   └── div .main-container {container,main | 94.2KB}
+    │   │       ├── div .with-side-bar.main-content {content,main | 80.5KB}
+    │   │       │   └── [FEED] div #mfContainer {container,feed,page | 80.4KB}
+    │   │       │       ├── div .channel-container {container | 7.3KB}
+    │   │       │       │   └── div #channel-container {container,scroll | 7.2KB}
+    │   │       │       │       └── div .content-container {content,container | 7.0KB}
+    │   │       │       ├── [FEED] div #feeds-replace-loading {container,feed,loading | 1.3KB}
+    │   │       │       ├── [FEED] div #exploreFeeds {container,feed | 68.3KB}
+    │   │       │       │   └── [SECTION] section .note-item {item | l:3 | ×24 | 2.5KB}
+    │   │       │       └── [FEED] div .feeds-loading {feed,loading | 3.2KB}
+    │   │       └── div .bottom-menu {menu | l:6 | 3.5KB}
+    │   │           └── div .channel-list {list | l:6 | 3.4KB}
+    │   │               ├── li .link-wrapper.bottom-channel {wrapper | l:1}
+    │   │               │   └── a .link-wrapper.bottom-channel {wrapper}
+    │   │               │       ├── div .badge-container {container,badge}
+    │   │               │       └── span .text.channel {text}
+    │   │               ├── li .user.side-bar-component {user | l:1}
+    │   │               │   └── div .link-wrapper {wrapper | l:1}
+    │   │               │       └── a .link-wrapper {wrapper}
+    │   │               └── div .bottom-channel.bottom-menu-component {menu | l:1}
+    │   │                   └── a .bottom-channel
+    │   │                       └── span .text {text}
+    │   ├── div {alert | ×2}
+    │   │   ├── [HIDDEN] div {alert}
+    │   │   └── [HIDDEN] div .slot-content {content,wrapper,alert,slot}
+    │   │       ├── div {alert,title}
+    │   │       ├── div {content,alert}
+    │   │       └── div .vertical {footer,button,alert}
+    │   │           └── button .small.text {footer,button,alert,text | ×2}
+    │   │               └── span {button,box}
+    │   │                   └── span {button,text}
+    │   └── div .container.out {container | 2.4KB}
+    │       ├── div .header.fullscreen-header {header}
+    │       │   ├── div .left
+    │       │   │   └── button .large.icon {button,icon}
+    │       │   │       └── span {button,box}
+    │       │   ├── div .title {title}
+    │       │   └── div .right
+    │       │       └── button .large.icon {button,icon}
+    │       │           └── span {button,box}
+    │       ├── div .header.panel-header {header,panel | 1.4KB}
+    │       │   ├── div .left
+    │       │   │   └── div
+    │       │   │       └── button .dragger.large {button,icon}
+    │       │   │           └── span {button,box}
+    │       │   ├── div .title {title}
+    │       │   └── div .right
+    │       │       ├── div .anchor
+    │       │       │   └── button .share-icon.large {button,icon,share}
+    │       │       │       └── span {button,box}
+    │       │       └── button .close-icon.large {button,icon,close}
+    │       │           └── span {button,box}
+    │       └── iframe
+    ├── div .dropdown-container {container,dropdown | l:3 | ×2 | 1.6KB}
+    │   └── [HIDDEN] div .dropdown-items {item,dropdown | l:3 | 1.5KB}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

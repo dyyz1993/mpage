@@ -1,0 +1,151 @@
+└── body {📝 | i:1 | 704.1KB}
+    ├── div #channel-app {📝 | i:1 | 590.9KB}
+    │   └── div .web-page.large-focus {page | 📝 | i:1 | 590.9KB}
+    │       ├── [NAV] div .top-nav-wrap {nav | 📝 | i:1 | 93.1KB}
+    │       │   └── [NAV] div #channel-top-nav {nav | 📝 | i:1 | 92.9KB}
+    │       │       └── [NAV] div .top-nav-wrap.head_inner {nav | 📝 | i:1 | 92.6KB}
+    │       │           ├── [SEARCH] div .search-wrap {search | 📝 | i:1 | b:1 | l:1 | 3.9KB}
+    │       │           │   └── [SEARCH] div .mod_search {search | 📝 | i:1 | b:1 | l:1 | 3.9KB}
+    │       │           │       ├── [FORM] form #searchForm {search,form | 📝 | i:1 | b:1 | l:1 | 3.4KB}
+    │       │           │       └── [HIDDEN] [SEARCH] div #searchBoxSdk {container,search,box}
+    │       │           └── div #ssi-user-bar {user | 88.6KB}
+    │       │               └── div .mod_quick {88.3KB}
+    │       │                   ├── div .quick_item.quick_games {item | l:1 | 1.4KB}
+    │       │                   ├── div #quick_access {item,login | 12.9KB}
+    │       │                   ├── div #modHistory {item | l:2 | 2.2KB}
+    │       │                   ├── div #modCreate {item,hide | l:2 | 2.8KB}
+    │       │                   ├── [HIDDEN] div #modApp {item | ×2 | 7.3KB}
+    │       │                   ├── div #pc_client {item,hide | 3.4KB}
+    │       │                   ├── div #modMore {item,more | l:7 | 33.1KB}
+    │       │                   └── div #mod_head_user {item,user | l:9 | 22.9KB}
+    │       ├── [NAV] nav .left-nav-wrap {nav | 26.9KB}
+    │       │   ├── div .logo-wrap {logo | l:1}
+    │       │   │   └── a .logo-link {logo}
+    │       │   │       └── img
+    │       │   └── [NAV] div .nav-wrap {nav | 26.6KB}
+    │       │       └── [NAV] div {nav | 22.1KB}
+    │       └── div .content-wrap {content | 470.9KB}
+    │           └── div #channel-main-container {container,main,page | 470.9KB}
+    │               └── div .flex-container {container | 470.8KB}
+    │                   ├── [TABS] div .webfixed.channel-page__fixed-tabs {tab,page | 23.9KB}
+    │                   │   └── div .channel-page__module.no-focus-module {page | 23.8KB}
+    │                   │       └── div .video-flow {video | 23.8KB}
+    │                   └── div #channel-page-scroller {container,page,scroll | 446.6KB}
+    │                       ├── div .channel-page__module {page | ×3 | 62.1KB}
+    │                       │   └── div #web-focus {video | 62.0KB}
+    │                       ├── [HIDDEN] div .hover-player__banner.channel-page__hover-video {video,page}
+    │                       │   ├── div .danmu-box {box}
+    │                       │   └── [CARD] div #hover-player-card {container,card,video}
+    │                       ├── div .channel-page__tips {page}
+    │                       │   └── [HIDDEN] span .page-tips-text {text,page}
+    │                       └── div .scroll-rec {scroll}
+    ├── div #login_win {container,login}
+    │   └── [HIDDEN] div .web-login-mask {login}
+    ├── [HIDDEN] iframe #sync-cookie-iframe {×2}
+    ├── svg #__svg__icons__dom__page__slice__ {icon,page | 107.2KB}
+    │   ├── symbol #svg-icon__btn-vip {icon}
+    │   ├── symbol #svg-icon__create-txv-logo_dark {icon,logo | ×2 | 5.3KB}
+    │   ├── symbol #svg-icon__icon-create-activity {icon | ×4 | 3.0KB}
+    │   │   └── mask #svg-icon__icon-create-activity_a {icon}
+    │   ├── symbol #svg-icon__icon-create-video {video,icon | 3.0KB}
+    │   │   └── mask #svg-icon__icon-create-video_a {video,icon}
+    │   ├── symbol #svg-icon__icon-right {icon | ×2}
+    │   ├── symbol #svg-icon__left-art-select {select,icon}
+    │   ├── symbol #svg-icon__left-art {icon}
+    │   ├── symbol #svg-icon__left-astro-select {select,icon | 1.4KB}
+    │   ├── symbol #svg-icon__left-astro {icon}
+    │   ├── symbol #svg-icon__left-auto-select {select,icon}
+    │   ├── symbol #svg-icon__left-auto {icon}
+    │   ├── symbol #svg-icon__left-baby-select {select,icon}
+    │   ├── symbol #svg-icon__left-baby {icon}
+    │   ├── symbol #svg-icon__left-cartoon-select {select,icon}
+    │   ├── symbol #svg-icon__left-cartoon {icon}
+    │   ├── [CARD] symbol #svg-icon__left-chesscards_games-select {card,select,icon}
+    │   ├── [CARD] symbol #svg-icon__left-chesscards_games {card,icon}
+    │   ├── symbol #svg-icon__left-child-select {select,icon}
+    │   ├── symbol #svg-icon__left-child {icon}
+    │   ├── symbol #svg-icon__left-choice-select {select,icon}
+    │   ├── symbol #svg-icon__left-choice {icon}
+    │   ├── symbol #svg-icon__left-dejia-select {select,icon | 1.4KB}
+    │   ├── symbol #svg-icon__left-dejia {icon}
+    │   ├── symbol #svg-icon__left-doco-select {select,icon}
+    │   ├── symbol #svg-icon__left-doco {icon}
+    │   ├── symbol #svg-icon__left-education-select {select,icon}
+    │   ├── symbol #svg-icon__left-education {icon}
+    │   ├── symbol #svg-icon__left-egame_new-select {select,icon}
+    │   ├── symbol #svg-icon__left-egame_new {icon}
+    │   ├── symbol #svg-icon__left-emotion-select {select,icon | 1.4KB}
+    │   ├── symbol #svg-icon__left-emotion {icon}
+    │   ├── symbol #svg-icon__left-ent-select {select,icon}
+    │   ├── symbol #svg-icon__left-ent {icon}
+    │   ├── symbol #svg-icon__left-fashion-select {select,icon}
+    │   ├── symbol #svg-icon__left-fashion {icon}
+    │   ├── symbol #svg-icon__left-finance-select {select,icon}
+    │   ├── symbol #svg-icon__left-finance {icon}
+    │   ├── symbol #svg-icon__left-free-select {select,icon | 1.4KB}
+    │   ├── symbol #svg-icon__left-free {icon}
+    │   ├── symbol #svg-icon__left-fun-select {select,icon}
+    │   ├── symbol #svg-icon__left-fun {icon}
+    │   ├── symbol #svg-icon__left-game_new-select {select,icon}
+    │   ├── symbol #svg-icon__left-game_new {icon}
+    │   ├── symbol #svg-icon__left-health-select {select,icon | 1.4KB}
+    │   ├── symbol #svg-icon__left-health {icon}
+    │   ├── symbol #svg-icon__left-hlw-select {select,icon}
+    │   ├── symbol #svg-icon__left-hlw {icon}
+    │   ├── [SEARCH] symbol #svg-icon__left-hotsearch-select {search,select,icon | 1.6KB}
+    │   │   └── [SEARCH] g #svg-icon__left-hotsearch-select_icon/兜底/normal {search,select,icon | 1.5KB}
+    │   │       ├── [SEARCH] g #svg-icon__left-hotsearch-select_00 {search,select,icon}
+    │   │       └── [SEARCH] path #svg-icon__left-hotsearch-select_Fill-1 {search,select,icon | ×2}
+    │   ├── [SEARCH] symbol #svg-icon__left-hotsearch {search,icon}
+    │   ├── symbol #svg-icon__left-house-select {select,icon}
+    │   ├── symbol #svg-icon__left-house {icon}
+    │   ├── symbol #svg-icon__left-huodong-select {select,icon}
+    │   ├── symbol #svg-icon__left-huodong {icon}
+    │   ├── symbol #svg-icon__left-iwan-select {select,icon | ×2 | 1.6KB}
+    │   │   └── g #svg-icon__left-iwan-select_icon/兜底/normal {select,icon | 1.5KB}
+    │   │       ├── g #svg-icon__left-iwan-select_00 {select,icon}
+    │   │       └── path #svg-icon__left-iwan-select_Fill-1 {select,icon | ×2}
+    │   ├── symbol #svg-icon__left-knowledge {icon}
+    │   ├── symbol #svg-icon__left-legend_game-select {select,icon | 3.2KB}
+    │   ├── symbol #svg-icon__left-legend_game {icon | 2.4KB}
+    │   ├── symbol #svg-icon__left-life-select {select,icon}
+    │   ├── symbol #svg-icon__left-life {icon}
+    │   ├── symbol #svg-icon__left-live-select {select,icon}
+    │   ├── symbol #svg-icon__left-live {icon}
+    │   ├── symbol #svg-icon__left-live_mmw-select {select,icon}
+    │   ├── symbol #svg-icon__left-live_mmw {icon}
+    │   ├── symbol #svg-icon__left-mid_video-select {select,video,icon | 1.4KB}
+    │   ├── symbol #svg-icon__left-mid_video {video,icon}
+    │   ├── symbol #svg-icon__left-movie-select {select,icon}
+    │   ├── symbol #svg-icon__left-movie {icon}
+    │   ├── symbol #svg-icon__left-music-select {select,icon}
+    │   ├── symbol #svg-icon__left-music {icon}
+    │   ├── symbol #svg-icon__left-nba-select {select,icon | 2.0KB}
+    │   ├── symbol #svg-icon__left-nba {icon | 2.0KB}
+    │   ├── symbol #svg-icon__left-news-select {select,icon}
+    │   ├── symbol #svg-icon__left-news {icon}
+    │   ├── symbol #svg-icon__left-ouguan-select {select,icon | 1.4KB}
+    │   ├── symbol #svg-icon__left-ouguan {icon}
+    │   ├── symbol #svg-icon__left-rbb-select {select,icon}
+    │   ├── symbol #svg-icon__left-rbb {icon}
+    │   ├── symbol #svg-icon__left-sports_new-select {select,icon}
+    │   ├── symbol #svg-icon__left-sports_new {icon}
+    │   ├── symbol #svg-icon__left-tech-select {select,icon | 1.1KB}
+    │   ├── symbol #svg-icon__left-tech {icon}
+    │   ├── symbol #svg-icon__left-travel-select {select,icon | 1.1KB}
+    │   ├── symbol #svg-icon__left-travel {icon}
+    │   ├── symbol #svg-icon__left-tv-select {select,icon}
+    │   ├── symbol #svg-icon__left-tv {icon}
+    │   ├── symbol #svg-icon__left-variety-select {select,icon}
+    │   ├── symbol #svg-icon__left-variety {icon}
+    │   ├── symbol #svg-icon__left-world_cup-select {select,icon}
+    │   ├── symbol #svg-icon__left-world_cup {icon}
+    │   ├── symbol #svg-icon__left-wwe-select {select,icon | 1.4KB}
+    │   ├── symbol #svg-icon__left-wwe {icon}
+    │   ├── symbol #svg-icon__left-zhongchao-select {select,icon | 1.4KB}
+    │   ├── symbol #svg-icon__left-zhongchao {icon}
+    │   └── symbol #svg-icon__tv-logo {icon,logo | ×3 | 1.2KB}
+    ├── div #toast-container {container}
+    ├── [HIDDEN] iframe {×2}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

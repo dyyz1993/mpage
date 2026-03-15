@@ -1,0 +1,55 @@
+└── body {🔍, 📝, i:2, b:1, 372.3KB}
+    ├── div .mod_container {🔍, 📝, i:2, b:1, 158.7KB}
+    │   ├── div #shortcut {8.7KB}
+    │   │   └── div .jdmcc-topbar {8.6KB}
+    │   │       └── [NAV] div .jdmcc-topbar-wrapper {8.6KB}
+    │   │           ├── [LIST] ul .fl {l:7, 2.0KB}
+    │   │           └── [LIST] ul .fr {l:5, 2.1KB}
+    │   │               └── [NAV] li #ttbar-navs
+    │   ├── div #header {🔍, 📝, i:2, b:1, 7.1KB}
+    │   │   └── div .w {🔍, 📝, i:2, b:1, 7.1KB}
+    │   │       ├── [SEARCH] div #search {🔍, 📝, i:2, b:1, l:2, 3.3KB}
+    │   │       │   └── [SEARCH] div .search-m {🔍, 📝, i:2, b:1, l:2, 3.0KB}
+    │   │       │       ├── [SEARCH] div .search_logo {l:1}
+    │   │       │       ├── [FORM] div .form {🔍, 📝, i:2, b:1, 2.1KB}
+    │   │       │       └── div #settleup {l:1}
+    │   │       └── div #hotwords {l:10, 2.3KB}
+    │   ├── div .fs {132.8KB}
+    │   │   └── div .jd_container {132.7KB}
+    │   │       ├── div .fs_col1 {50.0KB}
+    │   │       │   └── [NAV] div #J_cate {50.0KB}
+    │   │       │       └── [NAV] ul .JS_navCtn {49.7KB}
+    │   │       ├── div .fs_col2 {74.5KB}
+    │   │       │   ├── [NAV] div .nav_container {48.7KB}
+    │   │       │   │   └── [NAV] div #navitems {48.7KB}
+    │   │       │   └── div .core_mod_container {25.7KB}
+    │   │       │       ├── div #J_core {12.8KB}
+    │   │       │       └── div .service_container {12.0KB}
+    │   │       └── div #J_fs_col3 {8.1KB}
+    │   │           ├── div #J_user {6.6KB}
+    │   │           │   └── div .userv4_container {6.5KB}
+    │   │           └── div #J_sideslider
+    │   └── [HIDDEN] div {9.6KB}
+    ├── div #app {149.7KB}
+    │   └── div #J_app {149.7KB}
+    │       ├── div #J_feeds {147.0KB}
+    │       │   └── div .more2 {146.9KB}
+    │       │       └── div .grid_c1 {139.6KB}
+    │       │           └── div .feedContentWrapper {139.6KB}
+    │       └── div #globalToast
+    ├── div #J_footer {14.2KB}
+    │   ├── div .mod_help {5.3KB}
+    │   │   └── div .grid_c1 {5.2KB}
+    │   │       └── div .mod_help_list {5.1KB}
+    │   │           └── [NAV] div .mod_help_nav {l:6, ×5, 1.2KB}
+    │   │               ├── [NAV] h5 .mod_help_nav_tit
+    │   │               └── [NAV] ul .mod_help_nav_con {l:6, 1.1KB}
+    │   └── div .mod_copyright {7.8KB}
+    │       └── div .grid_c1 {7.7KB}
+    │           └── div .mod_copyright_info {3.8KB}
+    │               └── div .mod_copyright_cert {3.2KB}
+    └── div #elevator_from_common_component {l:7, ×3, 15.2KB}
+        └── div .jdmcc_elevator {l:7, 15.2KB}
+            └── div #jdccm-elevator {l:7, 13.1KB}
+                └── [LIST] ul .elevator_list {l:6, 2.3KB}
+                    └── [SEARCH] li #AIResearch {l:1}

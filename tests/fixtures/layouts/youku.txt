@@ -1,0 +1,10 @@
+└── body {🔍, 📝, i:1, 943.9KB}
+    └── div #app {🔍, 📝, i:1, 372.0KB}
+        └── div .channel_container {🔍, 📝, i:1, 372.0KB}
+            └── div .channel_container_modulelist {🔍, 📝, i:1, 371.9KB}
+                └── div #channel_module_container {🔍, 📝, i:1, 371.9KB}
+                    ├── div {🔍, 📝, i:1, 23.4KB}
+                    │   └── div .src_ykheader_box {🔍, 📝, i:1, 23.4KB}
+                    ├── div #maintitle_48260 {126.4KB}
+                    ├── div #maintitle_13901 {221.2KB}
+                    └── div #preview

@@ -1,0 +1,28 @@
+└── body {63.8KB}
+    ├── [HIDDEN] img #logo-src {logo | 6.9KB}
+    ├── [HIDDEN] img #hamburger-src
+    ├── div #root {16.1KB}
+    │   ├── [NAV] nav .gnav {nav | 9.1KB}
+    │   │   ├── [NAV] div .gnav-nav {nav | l:4 | 7.3KB}
+    │   │   │   ├── a .link-logo {logo | 7.0KB}
+    │   │   │   │   └── img {6.9KB}
+    │   │   │   └── [NAV] ul .gnav-nav-list {nav,list | l:3}
+    │   │   ├── a .button.link-signin--mobile {button,signin}
+    │   │   │   ├── span .icon-profile {profile,icon}
+    │   │   │   └── span #signInMobile {signin}
+    │   │   └── [NAV] div .gnav-links {nav | l:6 | 1.5KB}
+    │   │       ├── [NAV] button .gnav-links-button {nav,button}
+    │   │       │   └── img
+    │   │       └── [NAV] ul .gnav-links-list {nav,list | l:6}
+    │   │           ├── li .link-signin {signin | l:1}
+    │   │           │   └── a #signIn {signin}
+    │   │           └── [NAV] li .gnav-mobile-link {nav | l:1 | ×3}
+    │   │               └── a #findJobsMobile
+    │   └── [MAIN] main .error {error | l:3 | 6.9KB}
+    │       ├── div #cf-box-container {container,box | 6.4KB}
+    │       │   └── [MAIN] div .main-wrapper {wrapper,main}
+    │       │       └── div .main-content {content,main}
+    │       │           └── [HIDDEN] div #stNu6 {loading}
+    │       └── a #returnHome {button,home}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

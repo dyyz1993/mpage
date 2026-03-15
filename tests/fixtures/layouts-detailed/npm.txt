@@ -1,0 +1,18 @@
+└── body {📝 | i:1 | b:2 | 62.0KB}
+    ├── div #app {📝 | i:1 | b:2 | 40.0KB}
+    │   └── div .d68c66a8 {📝 | i:1 | b:2 | 40.0KB}
+    │       ├── div .cf325dbd.list {list}
+    │       │   └── div .c746cc21.list {list}
+    │       └── div .flex.flex-column {📝 | i:1 | b:2 | 39.8KB}
+    │           ├── [HEADER] header .bg-white.z-2 {📝 | i:1 | b:2 | 9.5KB}
+    │           │   └── div .bt.b--black-10 {📝 | i:1 | b:2 | l:8 | 8.4KB}
+    │           │       └── div .c5b9953b.center {order,box | 📝 | i:1 | b:2 | l:8 | 8.3KB}
+    │           │           ├── [SEARCH] div #search {search,order | 📝 | i:1 | b:1 | 1.5KB}
+    │           │           │   └── [FORM] form #search {search | 📝 | i:1 | b:1 | 1.4KB}
+    │           │           └── div .ml3.mt2 {order | l:7 | 6.4KB}
+    │           │               └── [NAV] nav {l:7 | 6.3KB}
+    │           ├── [MAIN] main #main {main | 26.9KB}
+    │           └── [FOOTER] footer .cd2827bb.bt {3.3KB}
+    │               └── div #footer {footer | 3.2KB}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

@@ -1,0 +1,28 @@
+└── body {119.2KB}
+    ├── [NAV] div #global-nav-a11y-menu
+    │   └── [NAV] div .global-nav__a11y-menu-container
+    │       └── [NAV] button #global-nav-a11y-menu-skip {×2}
+    ├── [HEADER] header .site-header {l:7, 5.0KB}
+    │   └── [NAV] div .primary-navigation-wrapper {l:7, 5.0KB}
+    │       └── [NAV] div .primary-navigation-river {l:7, 4.9KB}
+    │           ├── div .site-title {l:1, 1.7KB}
+    │           └── [NAV] nav .primary-navigation {l:6, 3.1KB}
+    │               └── [NAV] ul .primary-navigation-list {l:6, 3.0KB}
+    │                   └── [NAV] li .primary-navigation-item {l:1, ×6}
+    ├── [SECTION] section .page-alert-container
+    ├── div .container {48.3KB}
+    │   └── div .wrapper {48.2KB}
+    │       ├── [MAIN] section #main {34.2KB}
+    │       │   └── [SECTION] section #content {34.1KB}
+    │       │       └── div .carousel-frame {l:8, 18.0KB}
+    │       │           └── [SECTION] section .carousel-frame {l:8, 18.0KB}
+    │       ├── [FOOTER] footer .page-footer {5.2KB}
+    │       │   └── div .page-footer-foreground {5.2KB}
+    │       │       └── div .page-footer-links {5.1KB}
+    │       │           └── div .footer-legal {5.0KB}
+    │       └── [HIDDEN] [SECTION] section #artdeco-global-alert-container {4.1KB}
+    │           └── div #artdeco-global-alert {4.0KB}
+    │               └── [SECTION] section .artdeco-global-alert__body {3.9KB}
+    │                   └── div .artdeco-global-alert__responsive-container
+    └── div .modal-wrapper {1.4KB}
+        └── [SECTION] section .modal-content {1.3KB}

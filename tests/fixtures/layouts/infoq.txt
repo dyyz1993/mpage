@@ -1,0 +1,19 @@
+└── body {🔍, 📝, i:1, 370.9KB}
+    ├── div #__nuxt {🔍, 📝, i:1, 150.2KB}
+    │   └── div .app {🔍, 📝, i:1, 150.2KB}
+    │       └── div {🔍, 📝, i:1, 150.2KB}
+    │           ├── div .header {🔍, 📝, i:1, l:8, 5.8KB}
+    │           │   └── div #main-container {🔍, 📝, i:1, l:8, 5.6KB}
+    │           │       ├── [NAV] div .nav-search-wrap {🔍, 📝, i:1, l:7, 3.4KB}
+    │           │       └── div .write-btn-warp
+    │           └── div {144.4KB}
+    │               ├── [NAV] div {1.3KB}
+    │               │   └── [NAV] div {1.2KB}
+    │               ├── div .page-home {132.4KB}
+    │               └── div .footer {7.7KB}
+    └── div {×3, 1.2KB}
+        └── [HIDDEN] div .pswp {1.2KB}
+            └── div .pswp__scroll-wrap {1.1KB}
+                ├── div .pswp__container
+                └── [HIDDEN] div .pswp__ui
+                    └── div .pswp__top-bar

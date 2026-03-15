@@ -1,0 +1,17 @@
+└── body {🔍, 📝, i:2, 640.7KB}
+    ├── div #app {🔍, 📝, i:2, ×5, 280.0KB}
+    │   └── [SECTION] section #app {🔍, 📝, i:2, 279.9KB}
+    │       └── [SECTION] section .ant-layout {🔍, 📝, i:2, 279.9KB}
+    │           ├── [HEADER] header .ant-layout-header {🔍, 📝, i:1, 14.9KB}
+    │           │   └── div .header-container {🔍, 📝, i:1, 14.9KB}
+    │           │       ├── div .top-prefix {l:5, 7.4KB}
+    │           │       └── div .header-box {🔍, 📝, i:1, 7.4KB}
+    │           ├── [SECTION] section .ant-layout {📝, i:1, 261.7KB}
+    │           │   └── [MAIN] main .ant-layout-content {📝, i:1, 261.7KB}
+    │           │       ├── div .index {📝, i:1, 259.0KB}
+    │           │       └── div .ant-float-btn-group {2.6KB}
+    │           └── [FOOTER] footer .ant-layout-footer {l:10, 3.1KB}
+    │               └── div .footer {l:10, 3.0KB}
+    │                   ├── div .container {l:7, 2.2KB}
+    │                   └── div .miit {l:3}
+    └── [HIDDEN] div {1.1KB}

@@ -1,0 +1,33 @@
+└── body {📝 | i:1 | l:2 | 18.8KB}
+    ├── div #__next {next | 📝 | i:1 | 16.6KB}
+    │   └── div .home_old_root {home | 📝 | i:1 | 16.6KB}
+    │       ├── div .header-wrapper {wrapper,header | 📝 | i:1 | 1.5KB}
+    │       │   ├── img .dianping-logo-pic {logo}
+    │       │   ├── div .padding-div-pc {📝 | i:1}
+    │       │   │   ├── div .city-select-content {content,select}
+    │       │   │   │   ├── img .city-select-icon {select,icon}
+    │       │   │   │   ├── div .city-select-text {select,text}
+    │       │   │   │   └── div .city-select-drop {select}
+    │       │   │   └── [SEARCH] div .search-bar {search,page | 📝 | i:1}
+    │       │   │       ├── [SEARCH] input #myInput {search,input | 🔍}
+    │       │   │       └── [SEARCH] div #searchBtn {search,input,box}
+    │       │   │           └── [SEARCH] div .search-img {search,img}
+    │       │   └── div .header-r-desc-pc {header}
+    │       │       ├── div .header-service {header}
+    │       │       │   └── a
+    │       │       ├── div .header-help {header,help}
+    │       │       │   └── a
+    │       │       ├── div .self-outline-wrapper {wrapper}
+    │       │       │   ├── img .login-user-face {user,login}
+    │       │       │   └── p .login-tips {login}
+    │       │       └── div .open-app-button {button,open}
+    │       ├── [NAV] div .top-nav-wrapper.mobile-top-nav-wrapper {wrapper,nav}
+    │       ├── div .channel-slot-wrapper.channel-slot-wrapper-pc {wrapper,slot | 4.0KB}
+    │       │   └── div .chanel-item {item | ×10}
+    │       │       └── img .channel-slot-img {img,slot}
+    │       ├── div .recommend-module.null {recommend | 10.9KB}
+    │       ├── [SIDEBAR] div .sidebar {sidebar}
+    │       └── [FOOTER] footer .BottomRecord_bottomRecord__3aLYY
+    ├── div #__cdp_automation_badge_container__ {container,badge}
+    │   └── div {badge}
+    └── [MODAL] div #openAppLaunchModalPC {modal,open | l:2 | 1.4KB}

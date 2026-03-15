@@ -1,0 +1,39 @@
+└── body {📝 | i:1 | 113.6KB}
+    ├── div #__nuxt {📝 | i:1 | 60.2KB}
+    │   └── div #__layout {📝 | i:1 | 60.2KB}
+    │       └── div #juejin {📝 | i:1 | 60.1KB}
+    │           ├── div .container.index-container {container,index | 📝 | i:1 | b:4 | 46.5KB}
+    │           │   └── div .view-container {container | 📝 | i:1 | b:4 | 46.4KB}
+    │           │       ├── div .top-banners-container {container}
+    │           │       ├── [HEADER] header .main-header.main-header {main,header,visible | 📝 | i:1 | b:3 | 8.3KB}
+    │           │       │   └── div .container {container | 📝 | i:1 | b:3 | 8.2KB}
+    │           │       │       ├── a .logo {logo}
+    │           │       │       └── [NAV] nav .main-nav {main,nav | 📝 | i:1 | b:3 | 7.8KB}
+    │           │       ├── [MAIN] main .container.main-container {container,main | 37.9KB}
+    │           │       │   └── div .view.timeline-index-view {index | 37.8KB}
+    │           │       │       ├── [NAV] div .index-nav {nav,index | 17.9KB}
+    │           │       │       ├── [NAV] nav .view-nav.index-nav-before {nav,index | l:10 | 2.2KB}
+    │           │       │       └── div .timeline-container {container | 17.6KB}
+    │           │       └── div .open-button.app-open-button {button,open}
+    │           └── div .global-component-box {box | l:1 | 13.5KB}
+    │               ├── div .alert-list.alert-list {list,alert}
+    │               └── div .suspension-panel.suspension-panel {panel | l:1 | 13.4KB}
+    │                   ├── button .btn.btn-hover {1.5KB}
+    │                   ├── span .more-btn {more | l:1 | 10.0KB}
+    │                   │   └── button .btn.btn-hover
+    │                   └── [HIDDEN] button .btn.btn-hover
+    ├── [MODAL] div .lead.byte-modal {modal | ×3 | 14.5KB}
+    │   ├── [HIDDEN] [MODAL] div .byte-modal__mask {modal}
+    │   └── [HIDDEN] [MODAL] div .byte-modal__wrapper {wrapper,modal | 14.3KB}
+    │       └── [MODAL] div .byte-modal__content {content,modal | 14.3KB}
+    │           ├── [MODAL] div .byte-modal__header {header,modal | 1.2KB}
+    │           │   ├── img .header-bgc {header}
+    │           │   ├── span .header-title {header,title}
+    │           │   └── [MODAL] span .byte-modal__headerbtn {header,modal}
+    │           │       └── i .byte-icon.byte-icon--close {icon,close}
+    │           ├── [MODAL] div .byte-modal__body {modal | 12.8KB}
+    │           │   └── div .classify-box {box | 12.8KB}
+    │           │       └── div .technology-box {box | ×8 | 1.2KB}
+    │           └── [MODAL] div .byte-modal__footer {footer,modal}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

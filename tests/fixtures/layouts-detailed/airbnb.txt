@@ -1,0 +1,24 @@
+└── body {📝 | i:1 | 1005.0KB}
+    ├── [HIDDEN] div #flash-container {container}
+    ├── [HIDDEN] div #education-overlay-root {overlay}
+    ├── [HIDDEN] div #react-application {📝 | i:1 | 603.7KB}
+    │   └── div {📝 | i:1 | 603.7KB}
+    │       └── div .t1bgcr6e.cjz5kiq {📝 | i:1 | 603.6KB}
+    │           └── div {📝 | i:1 | 603.2KB}
+    │               └── div {📝 | i:1 | 603.2KB}
+    │                   └── div .r9m3m4o.atm_eohtre_1wfwpv5 {📝 | i:1 | 603.2KB}
+    │                       └── div {📝 | i:1 | 603.0KB}
+    │                           ├── [SEARCH] div {search}
+    │                           ├── div #homepage-scroll-element-target {page,scroll,home}
+    │                           └── div .mk1c6x6.atm_lcucu6_exct8b {page,home | 📝 | i:1 | 602.3KB}
+    ├── [HIDDEN] [MODAL] div #authModals {modal}
+    ├── [HIDDEN] div #__cdp_automation_badge_container__ {container,badge}
+    │   └── div {badge}
+    └── div {51.6KB}
+        └── div {51.6KB}
+            └── div .t1bgcr6e.cjz5kiq {51.6KB}
+                └── [SECTION] section {51.2KB}
+                    └── [MODAL] div .c193ry1k.atm_wq_z68epy {container,modal | 51.1KB}
+                        └── div .p1psejvv.atm_9s_1bgihbq {50.7KB}
+                            └── div .p1psejvv.atm_9s_1bgihbq {50.2KB}
+                                └── [MODAL] div .dtriyoj.atm_ks_zryt35 {50.2KB}

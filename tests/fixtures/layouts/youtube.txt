@@ -1,0 +1,31 @@
+└── body {🔍, 📝, i:3, 744.3KB}
+    └── ytd-app {🔍, 📝, i:3, 688.2KB}
+        ├── div #content {🔍, 📝, i:2, ×2, 636.3KB}
+        │   ├── div #masthead-container {🔍, 📝, i:1, l:1, 23.7KB}
+        │   │   └── [HEADER] ytd-masthead #masthead {🔍, 📝, i:1, l:1, 23.6KB}
+        │   │       └── div #container {🔍, 📝, i:1, l:1, 23.0KB}
+        │   │           ├── div #start {l:1, 12.7KB}
+        │   │           └── div #center {🔍, 📝, i:1, b:3, ×2, 4.7KB}
+        │   ├── [NAV] tp-yt-app-drawer #guide {108.4KB}
+        │   │   └── div #contentContainer {107.8KB}
+        │   │       └── div #guide-wrapper {107.6KB}
+        │   │           └── div #guide-content {107.5KB}
+        │   ├── [HIDDEN] [NAV] ytd-mini-guide-renderer .style-scope
+        │   └── ytd-page-manager #page-manager {📝, i:1, 503.7KB}
+        │       ├── [MAIN] ytd-browse .style-scope {438.6KB}
+        │       │   ├── [HIDDEN] ytd-channel-legal-info-renderer .style-scope {2.7KB}
+        │       │   │   └── tp-yt-paper-material #expand-button {2.0KB}
+        │       │   └── ytd-two-column-browse-results-renderer .style-scope {432.0KB}
+        │       │       └── div #primary {×2, 431.5KB}
+        │       └── [HIDDEN] ytd-watch-flexy .style-scope {📝, i:1, l:1, 64.8KB}
+        │           ├── [FORM] div #microformat {📝}
+        │           ├── div #full-bleed-container {1.1KB}
+        │           │   └── div #player-full-bleed-container
+        │           └── div #columns {📝, i:1, l:1, 62.4KB}
+        │               ├── div #primary {📝, i:1, l:1, 47.4KB}
+        │               └── div #below {14.9KB}
+        └── div #video-preview {📝, i:1, l:4, 36.2KB}
+            └── ytd-video-preview .style-scope {📝, i:1, l:4, 36.2KB}
+                └── div #video-preview-container {📝, i:1, l:4, 31.7KB}
+                    └── div #media-container {📝, i:1, l:4, 31.6KB}
+                        └── div #player-container-wrapper {📝, i:1, l:2, 24.9KB}

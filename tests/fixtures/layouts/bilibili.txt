@@ -1,0 +1,31 @@
+└── body {🔍, 📝, i:1, b:4, 328.9KB}
+    └── div #app {🔍, 📝, i:1, b:4, 276.3KB}
+        └── div .bili-feed4 {🔍, 📝, i:1, b:4, 276.1KB}
+            ├── div .bili-header {🔍, 📝, i:1, 51.6KB}
+            │   ├── div .bili-header__bar {🔍, 📝, i:1, 18.1KB}
+            │   │   ├── [LIST] ul .left-entry {l:8, 3.9KB}
+            │   │   ├── [SEARCH] div .center-search-container {🔍, 📝, i:1, 2.2KB}
+            │   │   │   └── [SEARCH] div .center-search__bar {🔍, 📝, i:1, 2.1KB}
+            │   │   └── [LIST] ul .right-entry {12.0KB}
+            │   ├── div .bili-header__banner {l:1, 10.6KB}
+            │   │   └── div .animated-banner {9.5KB}
+            │   └── div .bili-header__channel {22.8KB}
+            │       └── div .right-channel-container {18.1KB}
+            │           ├── div .channel-items__left {7.3KB}
+            │           └── div .channel-items__right {l:6, 10.7KB}
+            ├── [HIDDEN] div .header-channel {13.5KB}
+            │   └── div .header-channel-fixed {13.4KB}
+            │       └── div .header-channel-fixed-right {6.4KB}
+            │           ├── div .header-channel-fixed-right-left {3.4KB}
+            │           ├── div .header-channel-fixed-right-right {l:6}
+            │           └── div .left-bottom {2.0KB}
+            ├── [MAIN] main .bili-feed4-layout {201.9KB}
+            │   └── div .feed2 {201.8KB}
+            │       └── div .recommended-container_floor-aside {201.8KB}
+            │           ├── div .container {198.5KB}
+            │           └── div .feed-roll-btn {3.2KB}
+            └── div .palette-button-outer {l:2, 9.1KB}
+                └── div .palette-button-inner {l:2, 9.0KB}
+                    └── div .palette-button-wrap {l:2, 9.0KB}
+                        ├── [HIDDEN] div .storage-box {l:2, 3.3KB}
+                        └── div .top-btn-wrap

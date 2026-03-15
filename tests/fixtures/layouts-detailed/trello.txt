@@ -1,0 +1,45 @@
+└── body {📝 | i:2 | 136.4KB}
+    ├── div #BXP-APP {📝 | i:2 | 129.6KB}
+    │   ├── [NAV] div .UiHeaderNavstyles__Skip-sc-1ne5rbv-0.BYsQb {header,nav | l:1}
+    │   │   └── [HIDDEN] a #skip-to-content {content,hidden}
+    │   ├── [NAV] header .BigNavstyles__Header-sc-1mttgq7-1.hNNfeR {header,nav | ×2 | 37.3KB}
+    │   │   └── [NAV] div .BigNavstyles__InnerHeader-sc-1mttgq7-2.kuxyBF {header,nav | 37.2KB}
+    │   │       ├── [NAV] div .BigNavstyles__NavBar-sc-1mttgq7-3.caTbTe {nav | l:4 | 6.7KB}
+    │   │       │   ├── a .Logostyles__LogoLink-sc-mm495s-0.hHvFIJ {logo | 3.3KB}
+    │   │       │   ├── [TABS] div .Tabsstyles__TabGroup-sc-1grh34k-2.hniXih {tab,group | l:1 | 2.5KB}
+    │   │       │   │   ├── [NAV] button .Tabsstyles__Tab-sc-1grh34k-1.fvBJJk {nav,tab | ×3}
+    │   │       │   │   ├── [TABS] a .Tabsstyles__Link-sc-1grh34k-0.ILpDE {tab}
+    │   │       │   │   ├── [NAV] button .Tabsstyles__Tab-sc-1grh34k-1.fvBJJk {nav,tab}
+    │   │       │   │   └── [TABS] div .Tabsstyles__Underline-sc-1grh34k-3.eDeTrr {tab}
+    │   │       │   └── div .Buttonsstyles__ButtonGroup-sc-1jwidxo-3.jnMZCI {button,group | l:2}
+    │   │       │       ├── a .Buttonsstyles__Button-sc-1jwidxo-0.kTwZBr {button,login}
+    │   │       │       └── a .Buttonsstyles__Button-sc-1jwidxo-0.Buttonsstyles__PrimaryButton-sc-1jwidxo-1 {button,signup}
+    │   │       └── [NAV] div .BigNavstyles__DetailWrapper-sc-1mttgq7-0.dkkioH {wrapper,nav,detail | 30.4KB}
+    │   ├── [MAIN] main #skip-target {📝 | i:2 | 38.7KB}
+    │   │   ├── [SECTION] section .UiSectionstyles__Section-sc-4xxafg-0.giGyPu {section | l:1 | ×2}
+    │   │   │   └── div .grid__Container-sc-p40pqe-0.ctsbPE {container,section | l:1}
+    │   │   │       └── div .grid__Row-sc-p40pqe-1.oFuOf {section | l:1}
+    │   │   ├── div .UiSectionGroupstyles__SectionGroup-sc-1nf7lnh-0.gIELpv {group,section | 13.5KB}
+    │   │   │   ├── div .grid__Container-sc-p40pqe-0.ctsbPE {container}
+    │   │   │   └── [SECTION] section .UiSectionstyles__Section-sc-4xxafg-0.dupAVh {section | 12.7KB}
+    │   │   │       └── div .grid__Container-sc-p40pqe-0.ctsbPE {container,section | 12.7KB}
+    │   │   │           └── div .grid__Row-sc-p40pqe-1.oFuOf {section | 12.6KB}
+    │   │   │               └── div .grid__StyledColumn-sc-p40pqe-2.ggdMbf {12.5KB}
+    │   │   │                   └── div .grid__Row-sc-p40pqe-1.oFuOf {list,carousel | 12.4KB}
+    │   │   ├── [SECTION] section .UiSectionstyles__Section-sc-4xxafg-0.jeyvnb {section | 8.6KB}
+    │   │   │   └── div .grid__Container-sc-p40pqe-0.ctsbPE {container,section | 8.5KB}
+    │   │   │       └── div .grid__Row-sc-p40pqe-1.esQJBv {section | 8.4KB}
+    │   │   ├── div .grid__Container-sc-p40pqe-0.ctsbPE {container}
+    │   │   └── [SECTION] section .UiSectionstyles__Section-sc-4xxafg-0.dupAVh {section | l:3 | ×4 | 2.7KB}
+    │   │       └── div .grid__Container-sc-p40pqe-0.ctsbPE {container,section | l:3 | 2.6KB}
+    │   │           └── div .grid__Row-sc-p40pqe-1.oFuOf {section | l:3 | 2.5KB}
+    │   │               └── div .grid__StyledColumn-sc-p40pqe-2.cRLxjt {text | l:1 | ×3}
+    │   │                   └── div .UiBlockstyles__Block-sc-1xmll5s-0.ePkMgG {block | l:1}
+    │   └── [NAV] footer .UiFooterNavstyles__Footer-sc-15b6nfk-0.bLomOy {footer,nav | 16.4KB}
+    │       ├── [SECTION] section {l:5 | 7.7KB}
+    │       │   └── div .grid__Container-sc-p40pqe-0.ctsbPE {container | l:5 | 7.6KB}
+    │       ├── [NAV] div .UiFooterNavstyles__Divider-sc-15b6nfk-3.kiNAmQ {footer,nav}
+    │       └── [SECTION] section {l:8 | 8.6KB}
+    │           └── div .grid__Container-sc-p40pqe-0.ctsbPE {container | l:8 | 8.6KB}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

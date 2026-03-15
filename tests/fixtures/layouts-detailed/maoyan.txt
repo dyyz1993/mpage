@@ -1,0 +1,25 @@
+└── body {📝 | i:1 | b:1 | 163.1KB}
+    ├── div .header {header | 📝 | i:1 | b:1 | l:7 | 117.0KB}
+    │   └── div .header-inner {header | 📝 | i:1 | b:1 | l:7 | 117.0KB}
+    │       ├── div .city-container {container | 115.2KB}
+    │       │   ├── [ACTIVE] div .city-selected {select,selected}
+    │       │   └── div .city-list {list | 114.9KB}
+    │       │       ├── div .city-list-header {header,list}
+    │       │       │   └── a .js-geo-city
+    │       │       └── [LIST] ul {114.7KB}
+    │       ├── [NAV] div .nav {nav | l:4}
+    │       ├── div .user-info {user,info | l:1}
+    │       │   └── div .user-avatar.J-login {user,avatar,login | l:1}
+    │       │       ├── img
+    │       │       └── [LIST] ul .user-menu.no-login-menu {menu,user,login | l:1}
+    │       └── [HIDDEN] [FORM] form .search-form {search,form | 📝 | i:1 | b:1}
+    │           ├── [SEARCH] input .search {search | 🔍}
+    │           └── input .submit
+    ├── div .header-placeholder {header,placeholder}
+    ├── div #app {container | 41.5KB}
+    │   └── div .content {content | 41.4KB}
+    │       └── div .main {main | 18.4KB}
+    ├── div #footer {footer | 2.7KB}
+    ├── img .small-guide
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

@@ -1,0 +1,110 @@
+└── body {📝 | i:1 | 119.0KB}
+    ├── div #__next {next | 📝 | i:1 | 89.3KB}
+    │   ├── div .d-none.d-lg-block {text,block}
+    │   ├── div #root-top-container {container}
+    │   ├── [NAV] header #sf-header {content,header,nav,item,expand | 📝 | i:1 | b:3 | 11.4KB}
+    │   │   ├── [NAV] button .me-2.navbar-toggler {nav,toggle,collapse}
+    │   │   │   └── [NAV] span .navbar-toggler-icon {nav,toggle,icon}
+    │   │   ├── [NAV] div .left-wrap.d-flex {content,nav,item | l:3}
+    │   │   │   ├── [NAV] a .me-3.me-md-0 {nav}
+    │   │   │   │   └── img .d-none.d-lg-block {block | ×2}
+    │   │   │   └── div .d-flex.d-lg-none {item | l:2}
+    │   │   │       ├── a .d-inline-block.text-center {text,block}
+    │   │   │       └── a .btn.btn-primary
+    │   │   ├── [NAV] div .justify-content-between.d-none {content,nav,collapse | 📝 | i:1 | l:7 | 1.9KB}
+    │   │   │   ├── [NAV] div .fw-bold.navbar-nav {nav | l:2}
+    │   │   │   │   └── [NAV] div .nav-item.dropdown {nav,item,dropdown | l:1 | ×2}
+    │   │   │   │       └── [NAV] a .dropdown-toggle.nav-link {nav,toggle,dropdown}
+    │   │   │   ├── div .px-3.flex-fill {content | 📝 | i:1 | l:4 | 1.3KB}
+    │   │   │   │   └── [SEARCH] div #header-tsearch-toogle {header,search,dropdown | 📝 | i:1 | l:4 | 1.3KB}
+    │   │   │   │       ├── div #react-aria-3 {toggle,dropdown | 📝 | i:1}
+    │   │   │   │       │   ├── [SEARCH] div .icon-search {search,icon}
+    │   │   │   │       │   │   └── i .far.fa-magnifying-glass {text}
+    │   │   │   │       │   └── [FORM] form {📝 | i:1}
+    │   │   │   │       │       └── [FORM] input .me-sm-2.w-100 {form,input | 🔍 | 📝}
+    │   │   │   │       └── div .w-100.dropdown-menu {menu,dropdown | l:4}
+    │   │   │   │           ├── a .dropdown-item {item,dropdown | ×3}
+    │   │   │   │           │   └── [SEARCH] span .search-name {search}
+    │   │   │   │           └── [ACTIVE] a .dropdown-item.active {item,dropdown,active}
+    │   │   │   │               └── [SEARCH] span .search-name {search}
+    │   │   │   └── [NAV] nav .p-0.navbar {nav,expand | l:1}
+    │   │   │       └── [NAV] div .me-2.me-md-0 {nav,item | l:1}
+    │   │   │           └── a .btn.btn-primary
+    │   │   └── div .d-block.d-lg-none {block | 8.4KB}
+    │   │       ├── div .offcanvas-header {header}
+    │   │       │   └── button .btn-close {close}
+    │   │       └── div .p-0.offcanvas-body {8.3KB}
+    │   │           └── [SIDEBAR] div .sidebar-wrap.position-sticky {sidebar,order | 8.2KB}
+    │   │               ├── [NAV] div .flex-column.nav {nav | l:6}
+    │   │               │   ├── [NAV] a .nav-link {nav | ×3}
+    │   │               │   │   └── i .fas.fa-fw {text}
+    │   │               │   ├── [NAV] a .nav-link {nav,tag}
+    │   │               │   │   └── i .fas.fa-tags {tag,text}
+    │   │               │   ├── [NAV] a .nav-link {nav,user}
+    │   │               │   │   └── i .fas.fa-user-group-simple {user,text,group}
+    │   │               │   └── [NAV] a .nav-link {nav}
+    │   │               │       └── i .fas.fa-calendar-days {text}
+    │   │               ├── hr .border-top.opacity-100 {order}
+    │   │               ├── [NAV] div .flex-column.nav {nav | l:3}
+    │   │               │   ├── [NAV] a .d-flex.align-items-center {nav,item | ×2}
+    │   │               │   │   └── img .me-2
+    │   │               │   └── [NAV] a .d-flex.align-items-center {nav,item,next}
+    │   │               │       └── img .me-2
+    │   │               ├── hr .border-top.opacity-100 {order}
+    │   │               ├── div .accordion.accordion-flush {5.2KB}
+    │   │               │   └── [NAV] div .flex-column.nav {nav | 5.2KB}
+    │   │               │       └── [NAV] div .w-100.nav-item {nav,item | 5.1KB}
+    │   │               ├── hr .border-top.opacity-100 {order}
+    │   │               └── [NAV] div .flex-column.mb-4 {nav | l:2 | 1.1KB}
+    │   │                   └── [NAV] a .d-flex.align-items-center {nav,item | ×2}
+    │   │                       └── img .me-2
+    │   └── div .d-flex {77.3KB}
+    │       ├── [SIDEBAR] div .sidebar-wrap.position-sticky {sidebar,order,block | 8.2KB}
+    │       │   ├── [NAV] div .flex-column.nav {nav | l:6}
+    │       │   │   ├── [NAV] a .nav-link {nav | ×3}
+    │       │   │   │   └── i .fas.fa-fw {text}
+    │       │   │   ├── [NAV] a .nav-link {nav,tag}
+    │       │   │   │   └── i .fas.fa-tags {tag,text}
+    │       │   │   ├── [NAV] a .nav-link {nav,user}
+    │       │   │   │   └── i .fas.fa-user-group-simple {user,text,group}
+    │       │   │   └── [NAV] a .nav-link {nav}
+    │       │   │       └── i .fas.fa-calendar-days {text}
+    │       │   ├── hr .border-top.opacity-100 {order}
+    │       │   ├── [NAV] div .flex-column.nav {nav | l:3}
+    │       │   │   ├── [NAV] a .d-flex.align-items-center {nav,item | ×2}
+    │       │   │   │   └── img .me-2
+    │       │   │   └── [NAV] a .d-flex.align-items-center {nav,item,next}
+    │       │   │       └── img .me-2
+    │       │   ├── hr .border-top.opacity-100 {order}
+    │       │   ├── div .accordion.accordion-flush {5.2KB}
+    │       │   │   └── [NAV] div .flex-column.nav {nav | 5.2KB}
+    │       │   │       └── [NAV] div .w-100.nav-item {nav,item | 5.1KB}
+    │       │   │           ├── [NAV] button .text-nowrap.d-flex {nav,item,text}
+    │       │   │           │   ├── span .me-auto.text-truncate {text}
+    │       │   │           │   └── i .collapse-indicator.far {collapse}
+    │       │   │           └── div .accordion-collapse.collapse {collapse | 4.9KB}
+    │       │   │               └── [NAV] div .w-100.nav-item {nav,item | l:1 | ×19}
+    │       │   ├── hr .border-top.opacity-100 {order}
+    │       │   └── [NAV] div .flex-column.mb-4 {nav | l:2 | 1.1KB}
+    │       │       └── [NAV] a .d-flex.align-items-center {nav,item | ×2}
+    │       │           └── img .me-2
+    │       └── div .flex-fill.mw-100 {69.0KB}
+    │           ├── div .d-none.d-xl-flex {content}
+    │           ├── div .mt-4.mb-5 {container | 64.2KB}
+    │           │   └── div .row {64.1KB}
+    │           │       └── div .d-none.d-xl-block {block | 15.8KB}
+    │           │           ├── [CARD] div .bg-success-subtle.mb-4 {card,success}
+    │           │           │   └── [CARD] div .card-body {card}
+    │           │           ├── [CARD] div #hotArticles {card,article | l:9 | ×2 | 2.9KB}
+    │           │           │   ├── [CARD] div .d-flex.justify-content-between {content,header,item,card | l:1}
+    │           │           │   └── div .py-2.list-group {list,group | l:8 | 2.7KB}
+    │           │           ├── [CARD] div .mb-4.card {card | ×2 | 7.9KB}
+    │           │           │   ├── [CARD] div .d-flex.justify-content-between {content,header,item,card | l:1}
+    │           │           │   └── [CARD] div .card-body {card | 7.5KB}
+    │           │           └── a .d-flex.align-items-center {item}
+    │           │               ├── i .far.fa-rss {warning,text}
+    │           │               └── span .text-secondary {text}
+    │           └── [FOOTER] footer #footer {footer,order,block | 4.7KB}
+    │               └── div .container {container | 4.6KB}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

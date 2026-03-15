@@ -1,0 +1,40 @@
+└── body {📝 | i:1 | 370.9KB}
+    ├── div #__nuxt {📝 | i:1 | ×2 | 150.2KB}
+    │   └── div .app {📝 | i:1 | 150.2KB}
+    │       └── div {📝 | i:1 | 150.2KB}
+    │           ├── div .header.common-header-pc {header | 📝 | i:1 | l:8 | 5.8KB}
+    │           │   └── div #main-container {content,container,main,header | 📝 | i:1 | l:8 | 5.6KB}
+    │           │       ├── div .logo.header-logo {header,logo | l:1}
+    │           │       │   └── a
+    │           │       │       └── img
+    │           │       ├── [NAV] div .nav-search-wrap {nav,search | 📝 | i:1 | l:7 | 3.4KB}
+    │           │       │   └── [SEARCH] div .search-container {container,search | 📝 | i:1}
+    │           │       │       └── [SEARCH] div .search-wrap {search | 📝 | i:1}
+    │           │       └── div .account {count,account | 1.1KB}
+    │           │           └── [ACTIVE] div .slide-in-enter-active.slide-in-enter-to {active,slide}
+    │           │               ├── h3 {title}
+    │           │               └── div {button}
+    │           └── div {content | 144.4KB}
+    │               ├── [NAV] div {nav | 1.3KB}
+    │               │   └── [NAV] div {nav | 1.2KB}
+    │               │       └── [NAV] ul {nav,list | 1.2KB}
+    │               │           └── li {more}
+    │               ├── div .page-home.layout-content {content,page,home | 135.2KB}
+    │               │   ├── div {home | l:4 | 2.8KB}
+    │               │   │   └── div {list | l:4 | 2.7KB}
+    │               │   │       └── a {item,tag | ×4}
+    │               │   └── div .home-content {content,home | 132.4KB}
+    │               │       ├── div .main {main | 88.5KB}
+    │               │       │   ├── div .layout-section.home-banner {home,section | l:8 | 12.1KB}
+    │               │       │   └── div .recommond-wrapper.recommond-section {wrapper,section | 57.6KB}
+    │               │       └── [SIDEBAR] div .sidebar {sidebar | 43.8KB}
+    │               │           ├── div .layout-section.home-ai-briefs {home,section | l:1 | 15.1KB}
+    │               │           ├── div .layout-section.hot-wrapper {wrapper,section | ×4 | 5.2KB}
+    │               │           ├── div .layout-section.weekly-sub-section {section | l:3 | 5.2KB}
+    │               │           ├── div .layout-section.home-follow-section {follow,home,section | l:1 | 3.4KB}
+    │               │           └── [SIDEBAR] div .layout-sidebar-fixed {sidebar}
+    │               └── div {footer | 7.7KB}
+    │                   └── div .footer {footer | 7.7KB}
+    │                       └── [LIST] ul .layout-content {content | 3.8KB}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

@@ -1,0 +1,111 @@
+└── body {📝 | i:1 | b:2 | 486.3KB}
+    ├── div #header_root {container,header,home | 📝 | i:1 | b:2 | 123.6KB}
+    │   ├── div #icbu-buyer-pc-top-banner {home}
+    │   └── [SEARCH] div .header-and-searchbar.products {header,search | 📝 | i:1 | b:2 | 119.7KB}
+    │       ├── img .bg-img {img}
+    │       ├── div .home-dot-element.header-wrapper {wrapper,header,home | 109.7KB}
+    │       │   └── div #icbu-the-new-header-container {container,wrapper,header | 109.6KB}
+    │       │       └── [HEADER] div #the-new-header {header,home | 109.5KB}
+    │       │           ├── div .header-content {content,header | l:1 | 2.1KB}
+    │       │           │   ├── [SIDEBAR] div #popup-root {popup}
+    │       │           │   └── div .tnh-main {main | l:1 | 2.0KB}
+    │       │           │       └── div .tnh-logo-content {content,logo}
+    │       │           └── div .sub-header {header | 107.1KB}
+    │       │               └── div .sub-header-default {header | 107.1KB}
+    │       │                   ├── div .sub-header-main {main,header | 78.7KB}
+    │       │                   └── div .sub-header-sub {header | 28.3KB}
+    │       └── div .content-container {content,container | 📝 | i:1 | b:1 | l:3 | 9.8KB}
+    │           └── div .main-content {content,main | 📝 | i:1 | b:1 | l:3 | 9.8KB}
+    │               ├── [NAV] nav .new-header-search-tab {header,search,tab | l:3 | 2.7KB}
+    │               │   ├── div .ai-mode-entry-wrapper {wrapper | l:1 | 2.1KB}
+    │               │   │   └── a .home-dot-element.ai-mode-entry {home | 1.8KB}
+    │               │   │       ├── span .ai-mode-text {text}
+    │               │   │       └── svg .[object.SVGAnimatedString] {text,icon | 1.5KB}
+    │               │   ├── [TABS] span .tab-divider {tab}
+    │               │   ├── [ACTIVE] [SEARCH] div .home-dot-element.search-tab-item {search,item,tab,active,home}
+    │               │   └── [SEARCH] a .home-dot-element.search-tab-item {search,item,tab,home | ×2}
+    │               └── [SEARCH] div .home-dot-element {search,home | 📝 | i:1 | b:1 | 4.5KB}
+    │                   └── [SEARCH] div .home-search.header-search-full-screen {header,search,login,home | 📝 | i:1 | b:1 | 4.4KB}
+    │                       └── div .theme-wrapper {wrapper | 📝 | i:1 | b:1 | 4.3KB}
+    │                           └── [SEARCH] div .home-search-input-panel.default {search,input,panel,home | 📝 | i:1 | b:1 | 4.2KB}
+    ├── div #root {container,home | 248.3KB}
+    │   ├── [HEADER] section .welcome-user {user | l:3 | 1.8KB}
+    │   ├── div .mixed-tools-floor-container {container | 42.5KB}
+    │   │   ├── [NAV] div .category-block {nav,category,block | 21.4KB}
+    │   │   │   └── div .category-panel {category,panel | 21.3KB}
+    │   │   │       └── div .left-panel-container {container,panel | 21.3KB}
+    │   │   │           └── div .left-panel {panel | 21.2KB}
+    │   │   │               └── [NAV] div .level1-cate-unit {nav,category,panel,title,home | ×39}
+    │   │   │                   ├── div .img {img}
+    │   │   │                   └── span .title {title}
+    │   │   ├── div .klf-scroller-block {scroll,block | 15.0KB}
+    │   │   │   └── div .slider-container {container,slide,slider | 14.9KB}
+    │   │   │       └── div .slick-slider.slick-initialized {slide,slider | 14.9KB}
+    │   │   │           └── div .slick-list {list | 14.8KB}
+    │   │   └── div .banner-block {block | l:9 | 6.1KB}
+    │   │       └── div .banner-content {content | l:9 | 6.1KB}
+    │   │           └── div .rx-carousel-container.slideshow_wrapper {container,wrapper,show,slide,carousel | l:9 | 6.0KB}
+    │   │               ├── div .rx-image-list {list,image | l:9 | 5.3KB}
+    │   │               │   └── div .rx-image-item {item,image | l:1 | ×9}
+    │   │               │       └── a .home-dot-element.slideshow_item {item,show,slide,home}
+    │   │               ├── div .home-dot-element.slider_arrow {button,prev,slide,slider,home}
+    │   │               │   └── img
+    │   │               ├── div .home-dot-element.slider_arrow {button,next,slide,slider,home}
+    │   │               │   └── img
+    │   │               └── div .indicator-container {container}
+    │   │                   └── [ACTIVE] span .indicator-dot.active {active}
+    │   ├── [MAIN] main {58.8KB}
+    │   │   ├── a .home-dot-element.user-discount-floor {user,count,title,home}
+    │   │   │   └── div .user-discount-floor-left {user,count}
+    │   │   │       ├── div .user-discount-floor-left-title {user,count,title}
+    │   │   │       │   └── span .user-discount-floor-left-title-text {user,count,text,title}
+    │   │   │       ├── div .user-discount-floor-left-benefits-text {user,count,text}
+    │   │   │       └── div .user-discount-floor-left-button {user,button,count}
+    │   │   ├── div .user-discount-floor-right {user,count | 7.9KB}
+    │   │   │   ├── a .home-dot-element.user-discount-floor {user,count,title,home}
+    │   │   │   └── div .slider-container {container,slide,slider | 7.5KB}
+    │   │   │       ├── a .home-dot-element.user-discount-floor {user,count,title,home}
+    │   │   │       └── div .slick-slider.slick-initialized {slide,slider | 7.2KB}
+    │   │   │           ├── a .home-dot-element.user-discount-floor {user,count,title,home}
+    │   │   │           └── div .slick-list {list | l:10 | 6.8KB}
+    │   │   │               └── a .home-dot-element.user-discount-floor {user,count,title,home}
+    │   │   └── div .smart-source-list {list | 19.3KB}
+    │   │       ├── a .home-dot-element {title,home}
+    │   │       └── div .slider-container {container,slide,slider | 18.6KB}
+    │   │           └── div .slick-slider.slick-initialized {slide,slider | 18.5KB}
+    │   │               └── div .slick-list {list | 18.5KB}
+    │   └── [FOOTER] footer {141.3KB}
+    │       ├── div .just-for-you.floor-container {container | 124.5KB}
+    │       │   └── [CARD] div #cdn-pc-recommend_home-new__just_for_you {card,recommend,page,home | 124.5KB}
+    │       ├── [SIDEBAR] aside .home-sidebar-layout {sidebar,home | l:1 | 3.2KB}
+    │       │   └── [NAV] nav .home-sidebar {sidebar,home | l:1 | 3.2KB}
+    │       │       ├── [SIDEBAR] div .home-dot-element.sidebar-chat-now {sidebar,item,home | 1.1KB}
+    │       │       │   └── div .im-alitalk-container {container | 1.0KB}
+    │       │       │       └── div .chatbox.hover-tip {box}
+    │       │       │           ├── div .chatbox-icon-wrapper {wrapper,icon,box}
+    │       │       │           └── div .chatbox-tip {box}
+    │       │       └── div .home-dot-element.lens-container {container,home | l:1 | 2.0KB}
+    │       │           └── [SIDEBAR] a .sidebar-item.lens-item {sidebar,item,action,home | 1.9KB}
+    │       │               ├── [SIDEBAR] img .lens-icon.searchx-toolbar-lens-icon-item {sidebar,search,item,icon}
+    │       │               ├── [SIDEBAR] div .sidebar-text.lens-icon-item-text {sidebar,item,text,icon}
+    │       │               └── [SEARCH] div .searchx-layout-right-toolbar__lens-tip.lens-module-panel {search,panel | 1.2KB}
+    │       │                   └── [SEARCH] div .pc-search-education-tip.pc-search-education-tip_arrow {wrapper,search,home,filter | 1.1KB}
+    │       └── div .floor-container {container | 13.6KB}
+    │           └── div #the-new-footer {footer | 13.5KB}
+    │               ├── div .tnf-content {content,home | 9.8KB}
+    │               │   ├── div .tnf-links {home | 5.0KB}
+    │               │   │   └── div .get-support {support | l:5}
+    │               │   │       └── [LIST] ul {l:5}
+    │               │   └── div .payment-wrapper {wrapper | 2.8KB}
+    │               │       ├── [LIST] div .payment-icon-box {icon,box}
+    │               │       └── [LIST] div .payment-security-box {box | 1.9KB}
+    │               └── div .tnf-info {info,home | 3.6KB}
+    │                   ├── div .group-links {group | l:9}
+    │                   │   └── a {×9}
+    │                   └── div .tnh-infos-content {content,info | l:7 | 1.4KB}
+    │                       └── a {×7}
+    ├── div #icbu-marketing-popup-container {container,popup}
+    ├── [HIDDEN] iframe ##weblite-iframe {home}
+    ├── div #__cdp_automation_badge_container__ {container,badge}
+    │   └── div {badge}
+    └── [HIDDEN] iframe #sem-remarketing

@@ -1,0 +1,71 @@
+└── body {119.2KB}
+    ├── [NAV] div #global-nav-a11y-menu {nav,menu}
+    │   └── [NAV] div .global-nav__a11y-menu-container {container,nav,menu}
+    │       └── [NAV] button #global-nav-a11y-menu-skip {nav,menu,button | ×2}
+    │           └── span .button__text {button,text}
+    ├── [HIDDEN] div .site-header-spacer.js-site-header-spacer {header}
+    ├── [HEADER] header .site-header.has-link {header | l:7 | 5.0KB}
+    │   └── [NAV] div .primary-navigation-wrapper {wrapper,nav | l:7 | 5.0KB}
+    │       └── [NAV] div .primary-navigation-river {nav | l:7 | 4.9KB}
+    │           ├── div .site-title {title | l:1 | 1.7KB}
+    │           │   ├── a .site-title-link.js-analytics-event {content,header,category,label,title}
+    │           │   │   ├── span .site-title-logo {title,logo}
+    │           │   │   │   ├── span .a11y-text.full {text}
+    │           │   │   │   └── span .a11y-text.icon {text,icon}
+    │           │   │   ├── span .site-title-spacer {title}
+    │           │   │   └── span .site-title-text.standard {text,title}
+    │           │   └── button .site-title-menu.hamburger {menu,title,open,close}
+    │           │       └── span .site-title-icon {title,icon}
+    │           │           ├── [HIDDEN] li-icon .closed {close}
+    │           │           └── [HIDDEN] li-icon .open {open}
+    │           └── [NAV] nav .primary-navigation {nav | l:6 | 3.1KB}
+    │               └── [NAV] ul .primary-navigation-list.link {nav,list | l:6 | 3.0KB}
+    │                   └── [NAV] li .primary-navigation-item.none {nav,item | l:1 | ×6}
+    │                       └── [NAV] a .primary-navigation-link.js-analytics-event {header,nav,category,label,action}
+    ├── [SECTION] section .page-alert-container {container,alert,page}
+    ├── div .container.js-root-container {container | 48.3KB}
+    │   └── div .wrapper {wrapper | 48.2KB}
+    │       ├── [MAIN] section #main {wrapper,main | 34.2KB}
+    │       │   └── [SECTION] section #content {content,group | 34.1KB}
+    │       │       ├── div .carousel-frame.parbase {carousel,section | l:8 | 18.0KB}
+    │       │       │   └── [SECTION] section .carousel-frame {carousel | l:8 | 18.0KB}
+    │       │       │       ├── div .ink-carousel-frame.carousel-frame-container {content,container,carousel | l:8 | 13.4KB}
+    │       │       │       │   └── [LIST] ol .carousel-frame-slides {slide,carousel | l:8 | 13.3KB}
+    │       │       │       └── [NAV] nav .carousel-nav-directional.dark-polychrome {nav,carousel | ×2 | 1.8KB}
+    │       │       │           └── [LIST] ul {1.6KB}
+    │       │       └── div .flexible-column-frame.parbase {section | l:4 | ×2 | 4.4KB}
+    │       │           └── [SECTION] section .flexible-column-frame-component.layout-component {l:4 | 4.3KB}
+    │       ├── [FOOTER] footer .page-footer.js-page-footer {footer,page | 5.2KB}
+    │       │   └── div .page-footer-foreground {footer,page | 5.2KB}
+    │       │       └── div .page-footer-links {footer,page | 5.1KB}
+    │       │           ├── div .page-footer-spacer {footer,page}
+    │       │           └── div .footer-legal {footer | 5.0KB}
+    │       │               └── div .footer-legal-nowrap {footer | 5.0KB}
+    │       │                   ├── [LIST] ul .footer-legal-items {footer,item | l:6 | 2.9KB}
+    │       │                   ├── [LIST] ul .li-footer__list.li-footer__list--china {footer,list | l:5 | 1.8KB}
+    │       │                   └── span .footer-legal-copyright {footer}
+    │       └── [HIDDEN] [SECTION] section #artdeco-global-alert-container {container,alert | 4.1KB}
+    │           └── div #artdeco-global-alert {alert | 4.0KB}
+    │               └── [SECTION] section .artdeco-global-alert__body {alert | 3.9KB}
+    │                   ├── [HIDDEN] li-icon .artdeco-global-alert__icon.artdeco-global-alert__icon--notice {notice,alert,icon}
+    │                   ├── [HIDDEN] li-icon .artdeco-global-alert__icon.artdeco-global-alert__icon--error {error,alert,icon | 1.0KB}
+    │                   ├── [HIDDEN] li-icon .artdeco-global-alert__icon.artdeco-global-alert__icon--yield {alert,icon}
+    │                   ├── div .artdeco-global-alert__responsive-container {container,alert}
+    │                   │   ├── div #artdeco-global-alert-title-header {header,alert,title}
+    │                   │   ├── div #artdeco-global-alert-content {content,alert}
+    │                   │   └── div #artdeco-global-alert-action-container {container,wrapper,alert,action}
+    │                   └── button #artdeco-global-alert-dismiss {alert}
+    │                       ├── [HIDDEN] li-icon .artdeco-global-alert__icon.artdeco-global-alert__icon--dismiss {alert,icon}
+    │                       └── span .a11y-text {text}
+    ├── [MODAL] div .modal-wrapper {wrapper,modal | 1.4KB}
+    │   └── [SECTION] section .modal-content {content,modal | 1.3KB}
+    │       ├── [HIDDEN] [MODAL] li-icon .light-gray.modal-loader {modal,loader}
+    │       │   └── div .artdeco-spinner {spinner}
+    │       │       └── span .artdeco-spinner-bars {spinner | ×12}
+    │       ├── [MODAL] div #modal-title {modal,title}
+    │       ├── [MODAL] button .modal-close {modal,close}
+    │       │   ├── [HIDDEN] [MODAL] li-icon .modal-close-icon {modal,icon,close}
+    │       │   └── [HIDDEN] span .a11y-hidden {hidden}
+    │       └── [MODAL] iframe .modal-frame {modal}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

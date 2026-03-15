@@ -1,0 +1,10 @@
+└── body {142.2KB}
+    ├── div #__next {next | 112.9KB}
+    │   ├── div .hx.header-light {header | 23.7KB}
+    │   │   ├── [HIDDEN] div .absolute.pl-6 {hidden}
+    │   │   ├── [HIDDEN] [NAV] nav .hidden.xl:flex {item,hidden | 7.7KB}
+    │   │   │   └── [HIDDEN] [LIST] ul .hidden.xl:flex {hidden | 7.6KB}
+    │   │   └── [HIDDEN] div .hidden.h-20 {item,hidden | l:1 | 3.3KB}
+    │   └── [FOOTER] footer .hV {11.5KB}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

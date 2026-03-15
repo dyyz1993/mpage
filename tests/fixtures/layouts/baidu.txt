@@ -1,0 +1,27 @@
+└── body {🔍, 📝, i:1, b:2, 477.8KB}
+    └── [SEARCH] div #wrapper {🔍, 📝, i:1, b:2, 188.0KB}
+        ├── div #head {🔍, 📝, i:1, b:2, 172.9KB}
+        │   ├── div .s_top_container {33.3KB}
+        │   │   ├── div #s_top_wrap
+        │   │   │   └── [NAV] div .s-top-nav
+        │   │   ├── div #s-top-left {10.1KB}
+        │   │   │   ├── [NAV] a .mnav {×9}
+        │   │   │   └── [NAV] div .mnav {2.9KB}
+        │   │   │       └── div #s-top-more {l:10, 2.8KB}
+        │   │   └── div #u1 {l:9, 23.0KB}
+        │   ├── [SEARCH] div #head_wrapper {🔍, 📝, i:1, b:2, l:8, 87.0KB}
+        │   │   ├── [FORM] div #s_fm {🔍, 📝, i:1, b:2, l:5, 65.4KB}
+        │   │   │   └── [FORM] div #s_form_wrapper {🔍, 📝, i:1, b:2, l:5, 65.3KB}
+        │   │   │       ├── div #main-wrapper {l:1, 61.6KB}
+        │   │   │       ├── [FORM] form #form {🔍, 📝, i:1, b:1, l:3, 1.7KB}
+        │   │   │       ├── [SEARCH] div #s_new_search_guide
+        │   │   │       └── [HIDDEN] [SEARCH] div #s_lm_wrap
+        │   │   └── div #u {l:3, 21.1KB}
+        │   ├── div #s_wrap {48.0KB}
+        │   │   └── div .aigc-skin-bg {47.9KB}
+        │   │       └── [SEARCH] div #s_main {47.9KB}
+        │   │           └── div #s_mancard_main {47.6KB}
+        │   └── div #bottom_layer {3.9KB}
+        │       └── div .s-bottom-layer-content {l:7, 2.0KB}
+        └── div #s_tab {l:9, 14.2KB}
+            └── div .s_tab_inner {l:9, 14.1KB}

@@ -1,0 +1,38 @@
+└── body {📝, i:3, 271.3KB}
+    ├── [NAV] div .nav_logo_trigger
+    └── [MAIN] main .page_wrap {📝, i:3, 216.9KB}
+        ├── div .page_code_wrap {15.4KB}
+        ├── [NAV] div .nav_component {123.3KB}
+        │   ├── [NAV] a .nav_skip_wrap {×2}
+        │   │   └── [NAV] div .nav_skip_text
+        │   ├── [NAV] div .nav_wrap {64.6KB}
+        │   │   └── [NAV] div .nav_contain {64.5KB}
+        │   │       ├── [NAV] a .nav_logo_wrap {15.5KB}
+        │   │       │   └── [NAV] div .nav_logo_lottie {15.0KB}
+        │   │       └── [NAV] nav .nav_desktop_layout {49.0KB}
+        │   │           └── [NAV] div .nav_links_component {48.9KB}
+        │   └── [NAV] div .nav_wrap {50.5KB}
+        │       ├── [NAV] div .nav_contain {50.2KB}
+        │       │   ├── [NAV] a .nav_logo_wrap
+        │       │   ├── [NAV] nav .nav_menu_wrap {49.1KB}
+        │       │   │   └── [NAV] div .nav_menu_scroll {49.0KB}
+        │       │   └── [NAV] div .nav_btn_wrap
+        │       │       └── [NAV] div .nav_btn_layout
+        │       └── [NAV] div #w-nav-overlay-0
+        ├── [HEADER] header #main {l:4, 3.7KB}
+        ├── [SECTION] section .mars-cta_section {l:1, 2.9KB}
+        │   └── div .g_clickable_wrap {l:1}
+        ├── div .g_section_wrap {l:4, 11.8KB}
+        │   └── div .u-container {l:4, 11.7KB}
+        │       └── div .u-grid-desktop {l:4, 11.6KB}
+        │           └── div .u-column-4 {l:1, ×3, 3.0KB}
+        │               └── div .package_banner {l:1, 3.0KB}
+        ├── [SECTION] section .g_section_wrap {l:5, 6.0KB}
+        │   └── div .u-container {l:5, 5.5KB}
+        └── [FOOTER] footer #footer {📝, i:3, b:5, 53.7KB}
+            └── div .footer_contain {📝, i:3, b:5, 53.3KB}
+                └── [NAV] nav .footer_grid {📝, i:3, b:5, 53.3KB}
+                    ├── div #w-node-_6cd428f2-cfc4-4def-35f3-19b3789b4192-b8ec2927 {📝, i:3, b:5, 45.3KB}
+                    │   └── [SECTION] section .footer_group_wrap {×4, 10.1KB}
+                    └── div #w-node-_1f7589da-b35f-83df-c217-2c60daf900d4-b8ec2927 {l:3, 3.8KB}
+                        └── [LIST] ul .footer_bottom_list {l:3, 3.6KB}

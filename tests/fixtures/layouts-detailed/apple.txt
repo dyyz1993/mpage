@@ -1,0 +1,63 @@
+└── body {📝 | i:1 | 338.9KB}
+    ├── [HIDDEN] h1 .visuallyhidden {hidden}
+    ├── div #globalheader {header | 📝 | i:1 | 121.0KB}
+    │   ├── [SIDEBAR] aside #globalmessage-segment {message}
+    │   │   └── [LIST] ul .globalmessage-segment-content {content,message,home}
+    │   ├── [NAV] nav #globalnav {nav,open,close,status | 📝 | i:1 | 120.4KB}
+    │   │   └── [NAV] div .globalnav-content {content,nav | 📝 | i:1 | 120.0KB}
+    │   │       ├── [NAV] div .globalnav-item.globalnav-menuback {nav,menu,item}
+    │   │       │   └── [NAV] button .globalnav-menuback-button {nav,menu,button}
+    │   │       │       └── [NAV] span .globalnav-chevron-icon {nav,icon}
+    │   │       ├── [NAV] ul #globalnav-list {nav,list | 📝 | i:1 | 117.5KB}
+    │   │       │   ├── [NAV] li .globalnav-item.globalnav-item-apple {nav,item | l:1 | 1.9KB}
+    │   │       │   │   └── [NAV] a .globalnav-link.globalnav-link-apple {nav,home | 1.8KB}
+    │   │       │   │       ├── [NAV] span .globalnav-image-regular.globalnav-link-image {nav,image | ×2}
+    │   │       │   │       └── [NAV] span .globalnav-link-text {nav,text}
+    │   │       │   ├── [NAV] li .globalnav-item.globalnav-menu {nav,menu,item | 101.9KB}
+    │   │       │   │   └── [NAV] div .globalnav-flyout {nav,menu | 101.7KB}
+    │   │       │   │       └── [NAV] div .globalnav-menu-list {nav,menu,list | 101.6KB}
+    │   │       │   │           └── [NAV] div .globalnav-item.globalnav-item-store {nav,menu,item | ×11 | 8.8KB}
+    │   │       │   ├── [NAV] li .globalnav-item.globalnav-search {nav,search,item | 📝 | i:1 | b:2 | l:6 | 11.4KB}
+    │   │       │   │   ├── [NAV] a #globalnav-menubutton-link-search {nav,menu,search,button,open | 1.2KB}
+    │   │       │   │   │   └── [NAV] span .globalnav-image-regular {nav,image | ×2}
+    │   │       │   │   └── [NAV] div #globalnav-submenu-search {nav,menu,search | 📝 | i:1 | b:2 | l:5 | 10.0KB}
+    │   │       │   │       └── [NAV] div .globalnav-flyout-scroll-container {container,nav,scroll | 📝 | i:1 | b:2 | l:5 | 9.7KB}
+    │   │       │   │           └── [NAV] div .globalnav-flyout-content.globalnav-submenu-content {content,nav,menu | 📝 | i:1 | b:2 | l:5 | 9.7KB}
+    │   │       │   └── [NAV] li #globalnav-bag {nav,item | l:1 | 2.4KB}
+    │   │       │       ├── [NAV] div .globalnav-bag-wrapper {wrapper,nav | l:1 | 1.8KB}
+    │   │       │       │   ├── [NAV] a #globalnav-menubutton-link-bag {nav,menu,button,open | 1.5KB}
+    │   │       │       │   │   └── [NAV] span .globalnav-image-regular {nav,image | ×2}
+    │   │       │       │   └── [HIDDEN] [NAV] span .globalnav-bag-badge {nav,badge,open}
+    │   │       │       │       ├── [NAV] span .globalnav-bag-badge-separator {nav,badge}
+    │   │       │       │       ├── [NAV] span .globalnav-bag-badge-number {nav,badge,number}
+    │   │       │       │       └── [NAV] span .globalnav-bag-badge-unit {nav,badge}
+    │   │       │       └── [NAV] div #globalnav-submenu-bag {nav,menu}
+    │   │       │           └── [NAV] div .globalnav-flyout-scroll-container {container,nav,scroll}
+    │   │       │               └── [NAV] div .globalnav-flyout-content.globalnav-submenu-content {content,nav,menu}
+    │   │       └── [NAV] div .globalnav-menutrigger {nav,menu | 1.8KB}
+    │   │           └── [NAV] button #globalnav-menutrigger-button {nav,menu,button,close | 1.8KB}
+    │   ├── [NAV] div #globalnav-curtain {nav}
+    │   └── [NAV] div #globalnav-placeholder {nav,placeholder}
+    ├── [MAIN] main .main {main | 113.0KB}
+    │   └── [SECTION] section .homepage-section.collection-module {page,home,section | l:9 | ×3 | 4.4KB}
+    ├── [FOOTER] footer #ac-globalfooter {footer | 67.0KB}
+    │   └── div .ac-gf-content {content | 66.8KB}
+    │       ├── h2 #ac-gf-label {label}
+    │       ├── [SECTION] section .ac-gf-sosumi {l:1 | 34.0KB}
+    │       │   └── [LIST] ul {l:1 | 33.9KB}
+    │       ├── [NAV] nav .ac-gf-directory.with-5-columns {29.4KB}
+    │       │   └── div .ac-gf-directory-column {×5 | 5.8KB}
+    │       │       └── div .ac-gf-directory-column-section {section | ×2 | 3.5KB}
+    │       │           ├── h3 .ac-gf-directory-column-section-title {title,section | 1.3KB}
+    │       │           │   ├── span .ac-gf-directory-column-section-title-text {text,title,section}
+    │       │           │   └── button .ac-gf-directory-column-section-title-button {button,title,section | 1.2KB}
+    │       │           │       ├── span .ac-gf-directory-column-section-title-text {text,title,section}
+    │       │           │       └── [HIDDEN] span .ac-gf-directory-column-section-title-icon {title,icon,section | 1.0KB}
+    │       │           └── [LIST] ul #footer-directory-column-section-products {footer,list,section | 2.1KB}
+    │       │               └── li .ac-gf-directory-column-section-item {item,section | l:1 | ×11}
+    │       │                   └── a .ac-gf-directory-column-section-link {section}
+    │       └── [SECTION] section .ac-gf-footer {footer | l:9 | 1.9KB}
+    │           └── div .ac-gf-footer-shop {footer | l:3 | ×3}
+    │               └── a {×2}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

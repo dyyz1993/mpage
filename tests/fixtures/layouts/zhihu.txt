@@ -1,0 +1,11 @@
+└── body {📝, i:2, 33.9KB}
+    └── div #root {📝, i:2, ×4, 10.6KB}
+        └── div {📝, i:2, 10.6KB}
+            ├── [MAIN] main .App-main {📝, i:2, 9.8KB}
+            │   └── div {📝, i:2, 9.8KB}
+            │       └── div .SignFlowHomepage {📝, i:2, 9.8KB}
+            │           ├── div .SignFlowHomepage-content {📝, i:2, l:3, 7.1KB}
+            │           └── [FOOTER] footer .SignFlowHomepage-footer {2.6KB}
+            └── [SIDEBAR] div
+                └── div .CornerButtons
+                    └── [HIDDEN] div .CornerAnimayedFlex

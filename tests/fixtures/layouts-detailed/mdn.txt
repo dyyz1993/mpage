@@ -1,0 +1,44 @@
+└── body {63.0KB}
+    ├── [LIST] ul .a11y-menu {menu | l:2}
+    ├── div .page-layout__banner {page}
+    ├── [HEADER] header .page-layout__header {header,page | 31.9KB}
+    │   ├── [NAV] nav .navigation {nav | 30.0KB}
+    │   │   ├── [NAV] div .navigation__logo {nav,logo | l:1 | 1.7KB}
+    │   │   │   └── a .logo {logo | 1.6KB}
+    │   │   ├── [NAV] div .navigation__search {nav,search}
+    │   │   ├── [NAV] button .navigation__button {nav,button}
+    │   │   └── [NAV] div #navigation__popup {nav,popup | 28.0KB}
+    │   │       ├── [NAV] div .navigation__menu {nav,menu | 27.7KB}
+    │   │       │   └── [NAV] nav .menu {menu | 27.7KB}
+    │   │       │       ├── [TABS] div .menu__tab {menu,tab | ×7 | 3.7KB}
+    │   │       │       │   └── mdn-dropdown {3.7KB}
+    │   │       │       │       ├── [TABS] button .menu__tab-button {menu,button,tab}
+    │   │       │       │       └── div #uid_0j5udkzfapb8 {menu,panel | 3.4KB}
+    │   │       │       ├── [TABS] div .menu__tab {menu,tab,about | l:4 | 1.7KB}
+    │   │       │       │   └── mdn-dropdown {l:4 | 1.7KB}
+    │   │       │       │       ├── [TABS] button .menu__tab-button {menu,button,tab}
+    │   │       │       │       └── div #uid_wre1vsymjtn {menu,panel | l:4 | 1.4KB}
+    │   │       │       └── [TABS] div .menu__tab {menu,tab | l:1}
+    │   │       │           └── [TABS] a .menu__tab-link {menu,tab}
+    │   │       └── [NAV] div .navigation__search {nav,search}
+    │   └── [SEARCH] mdn-search-modal #search {search}
+    ├── div .page-layout__main {main,page | 20.5KB}
+    │   ├── div #content {content,page,home | l:3 | 7.2KB}
+    │   │   └── div .homepage-header {header,page,home | l:3 | 7.1KB}
+    │   │       ├── div .homepage-header__copy {header,page,home | l:3}
+    │   │       │   └── [SECTION] section .homepage-hero {page,home | l:3}
+    │   │       ├── [SEARCH] div .homepage-header__search {header,search,page,home}
+    │   │       └── div .homepage-header__mandala {header,page,home | 6.5KB}
+    │   └── div .homepage {page,home | ×2 | 11.4KB}
+    │       └── div .homepage-body {page,home | 11.3KB}
+    │           └── [SECTION] section {l:6 | ×3 | 2.1KB}
+    │               └── [LIST] ul .featured-articles {article | l:6 | 2.0KB}
+    ├── div .page-layout__footer {footer,page | 10.1KB}
+    │   └── [FOOTER] footer .footer {footer | 10.0KB}
+    │       └── div .footer__mdn {footer | ×2 | 7.4KB}
+    │           ├── div .footer__intro {footer | l:1 | 1.6KB}
+    │           │   └── a .footer__logo {footer,logo | 1.5KB}
+    │           ├── [LIST] ul .footer__socials {footer | l:5 | 1.0KB}
+    │           └── [LIST] dl .footer__links {footer | l:6 | ×3 | 1.6KB}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

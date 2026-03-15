@@ -1,0 +1,29 @@
+└── body {📝 | 302.7KB}
+    ├── div #__next {next | 📝 | 270.7KB}
+    │   └── div .base_theme__K5IIh.agentsLaunch_palette_theme__2nbm0 {📝 | 270.4KB}
+    │       └── div .base_theme__K5IIh.theme_theme__XHAvb {📝 | 270.3KB}
+    │           └── div .blue_theme__VG1s8 {📝 | 270.2KB}
+    │               ├── div .NotificationBanner_banner__dpbLL.NotificationBanner_ltr__WOSxX {notification | l:1 | 2.4KB}
+    │               │   └── div .NotificationBanner_bannerContent__aqHx0 {content,notification | l:1 | 2.3KB}
+    │               ├── [HIDDEN] [NAV] div .globalNavigation_scrollSentinel__gP74N {nav,scroll}
+    │               ├── [NAV] div .globalNavigation_globalNavigationWrapper__dUhMe.globalNavigation_stickyWrapper__SYZfy {wrapper,nav | 50.6KB}
+    │               │   └── div .base_theme__K5IIh.theme_theme__XHAvb {50.5KB}
+    │               │       └── div .blue_theme__VG1s8 {50.4KB}
+    │               │           └── [NAV] nav .globalNavigation_globalNavigation__7c1YP {nav | 50.4KB}
+    │               ├── [MAIN] main .layout_main__LAl4b.layout_withoutPadding__qQ631 {main | 📝 | 171.8KB}
+    │               │   ├── div .base_theme__K5IIh.agentsLaunch_palette_theme__2nbm0 {l:10 | 90.3KB}
+    │               │   │   └── div .isCampaignAgentsHomepageHero.homepage_main__sRG4_ {main,page,home,section | l:10 | 90.2KB}
+    │               │   │       └── div .homepage_section___Tv7x.homepage_heroAndLogowall__p2DiO {logo,page,home,section | l:10 | 90.1KB}
+    │               │   └── div .homepage_main__sRG4_.homepage_lightGrayBg__JAkIe {main,page,home | ×4 | 38.1KB}
+    │               │       └── div .homepage_section___Tv7x {page,home,section | 38.0KB}
+    │               │           ├── div .homepage_bentoContainer__x8Gz_.homepage_bentoContainerAgents__MSUK9 {container,page,home | 37.3KB}
+    │               │           └── div #:Rjm: {page,home}
+    │               └── div .base_theme__K5IIh.black_palette_theme__nPj29 {45.1KB}
+    │                   └── div .base_theme__FJXCL {45.0KB}
+    │                       └── [FOOTER] footer .footer_footerOuter__kubGm.footer_hideSeparator__dapn6 {footer,hide | 45.0KB}
+    │                           ├── div .analyticsScrollPoint_analyticsScrollPoint__EZ4T_ {footer,scroll}
+    │                           └── [NAV] nav .footer_footerInner__MQQSo {footer | 44.8KB}
+    ├── [HIDDEN] iframe
+    ├── div #__cdp_automation_badge_container__ {container,badge}
+    │   └── div {badge}
+    └── [HIDDEN] img #podscribe-request

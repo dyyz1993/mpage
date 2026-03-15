@@ -1,0 +1,63 @@
+└── body {🔍, 📝, 410.7KB}
+    ├── div {🔍, 📝, i:1, b:2, 11.3KB}
+    │   ├── div .v2-header-wrapper-with-banner {🔍, 📝, i:1, b:2, l:9, 9.6KB}
+    │   │   ├── div .v2-banner {l:1, 2.9KB}
+    │   │   │   └── div .v2-banner-content {l:1, 2.8KB}
+    │   │   └── [HEADER] header .v2-header {🔍, 📝, i:1, b:1, l:8, 6.6KB}
+    │   │       └── div .v2-header-inner {🔍, 📝, i:1, b:1, l:8, 6.6KB}
+    │   │           └── div .v2-header-container {🔍, 📝, i:1, b:1, l:8, 6.5KB}
+    │   │               ├── div .v2-header-wrapper {🔍, 📝, i:1, l:1, 3.9KB}
+    │   │               ├── [NAV] div .v2-header-desktop-nav {l:7, 2.0KB}
+    │   │               └── [NAV] div .v2-header-mobile-nav
+    │   └── [HIDDEN] [NAV] div #_R_955_ {l:8, 1.7KB}
+    │       └── [NAV] div .v2-header-mobile-nav-disclosure-inner {l:8, 1.6KB}
+    │           └── [NAV] div .v2-header-mobile-nav-disclosure-container {l:8, 1.6KB}
+    │               └── [NAV] nav .v2-header-mobile-nav-disclosure-nav {l:8, 1.5KB}
+    ├── [SECTION] section #hero {l:7, 11.5KB}
+    │   └── div .relative {l:7, 11.4KB}
+    │       └── div .container {l:7, 10.8KB}
+    │           └── div .flex {l:7, 10.7KB}
+    │               └── div .xl:flex {l:6, 9.6KB}
+    │                   └── [HIDDEN] div #code-snippet {l:1, 4.7KB}
+    ├── [SECTION] section #collections {📝, ×2, 62.6KB}
+    │   └── div .pb-8 {📝, 62.6KB}
+    │       ├── div {📝, 3.7KB}
+    │       │   └── div .container {📝, 3.7KB}
+    │       │       └── [FORM] div .bg-white {📝, 3.7KB}
+    │       │           └── div .flex {📝, 3.2KB}
+    │       └── div .-mt-4 {58.8KB}
+    │           └── div {58.8KB}
+    │               └── div .marquee {58.7KB}
+    │                   └── [LIST] ul .marquee__group {l:8, ×2, 29.3KB}
+    ├── div .bg-gradient-to-br {54.7KB}
+    │   └── div .container {54.7KB}
+    │       ├── div .pt-8 {l:4, 16.3KB}
+    │       │   └── div .lg:px-4 {l:4, 16.3KB}
+    │       │       └── div .bg-r8-gray-1 {l:4, 16.3KB}
+    │       │           └── div .pl-6 {l:4, 16.2KB}
+    │       └── div .lg:px-4 {l:10, 38.3KB}
+    │           └── div .bg-white {l:10, 38.3KB}
+    │               └── div .bg-r8-gray-12 {l:10, 38.2KB}
+    │                   └── div .px-6 {l:10, 37.9KB}
+    ├── [SECTION] section #imagine-what-you-can-build {10.4KB}
+    │   └── div .container {10.3KB}
+    │       ├── [HIDDEN] div .absolute
+    │       └── div .pt-16 {9.2KB}
+    │           └── div .pb-16 {9.2KB}
+    │               └── [HIDDEN] div .hidden {l:5, 4.5KB}
+    ├── [FOOTER] footer .site-footer {76.8KB}
+    │   ├── div .site-footer-goo-container
+    │   ├── div .site-footer-expanded {5.3KB}
+    │   │   └── div .site-footer-grid {5.2KB}
+    │   │       ├── div .site-footer-product-section {l:6}
+    │   │       │   └── [LIST] ul .site-footer-link-list {l:6}
+    │   │       └── div {l:3, ×2}
+    │   │           └── [LIST] ul .site-footer-link-list {l:3}
+    │   └── div .site-footer-bottom {l:1, 2.6KB}
+    │       └── div .site-footer-bottom-container {l:1, 2.5KB}
+    │           ├── [FORM] div .site-footer-platform-status {📝, l:1}
+    │           │   └── [FORM] div .platform-status {📝, l:1}
+    │           └── div .site-footer-bottom-content {2.1KB}
+    │               └── div .site-footer-dark-mode-toggle {2.1KB}
+    │                   └── div {2.0KB}
+    └── div #portal/_R_hd555_ {l:1, ×2, 2.2KB}

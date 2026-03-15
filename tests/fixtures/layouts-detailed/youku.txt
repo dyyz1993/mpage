@@ -1,0 +1,27 @@
+└── body {📝 | i:1 | 943.9KB}
+    ├── div #app {📝 | i:1 | 372.0KB}
+    │   └── div .channel_container {container | 📝 | i:1 | 372.0KB}
+    │       └── div .channel_container_modulelist {container,list | 📝 | i:1 | 371.9KB}
+    │           └── div #channel_module_container {container | 📝 | i:1 | 371.9KB}
+    │               ├── div {📝 | i:1 | 23.4KB}
+    │               │   └── div .src_ykheader_box {header,box | 📝 | i:1 | 23.4KB}
+    │               │       ├── div .topheader_top_header_box.topheader_top_filter_no {header,filter,box | 📝 | i:1 | l:4 | 5.9KB}
+    │               │       │   └── div .topheader_left_box {header,box | ×2}
+    │               │       └── [NAV] div .leftnav_left_box.leftnav_left_box_z {nav,box | 17.1KB}
+    │               │           ├── [NAV] div .leftnav_left_logo {nav,logo}
+    │               │           └── [NAV] div .leftnav_nav_box {nav,list,box | 16.3KB}
+    │               ├── div #maintitle_48260 {container,main,title | ×2 | 126.5KB}
+    │               │   └── div .module_content {content | 126.4KB}
+    │               ├── [HIDDEN] div .loading_component_box_YVgAF {loading,box}
+    │               │   └── div .loading_component_content_1WkhO {content,loading}
+    │               └── div #preview {preview,prev}
+    │                   ├── div .preview_content_wrap_3bSOx {content,preview,prev}
+    │                   └── [HIDDEN] div .toast_wrapper_2Xq-X {wrapper}
+    ├── div #YK-login-container {container,login}
+    │   └── div .loginnew_yk_login_wrap {login}
+    │       ├── div .loginnew_close {close,login}
+    │       │   └── span .iconfontheader.icon-close {header,icon,close,login}
+    │       └── div .loginnew_login_loading {loading,login}
+    ├── div #YK-login-mask {login}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

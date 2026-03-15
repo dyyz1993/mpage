@@ -1,0 +1,15 @@
+└── body {🔍, 📝, i:1, b:2, 62.0KB}
+    └── div #app {🔍, 📝, i:1, b:2, ×2, 40.0KB}
+        └── div .d68c66a8 {🔍, 📝, i:1, b:2, 40.0KB}
+            └── div .flex {🔍, 📝, i:1, b:2, 39.8KB}
+                ├── [HEADER] header .bg-white {🔍, 📝, i:1, b:2, 9.5KB}
+                │   ├── div .e7070742 {l:6, 1.1KB}
+                │   └── div .bt {🔍, 📝, i:1, b:2, l:8, 8.4KB}
+                │       └── div .c5b9953b {🔍, 📝, i:1, b:2, l:8, 8.3KB}
+                ├── [MAIN] main #main {26.9KB}
+                │   └── div .pb4 {26.9KB}
+                │       ├── div .pt2 {13.2KB}
+                │       └── div .pt2 {13.1KB}
+                └── [FOOTER] footer .cd2827bb {3.3KB}
+                    └── div #footer {3.2KB}
+                        └── div .flex-auto {l:2, 1.6KB}

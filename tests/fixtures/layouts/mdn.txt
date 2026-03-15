@@ -1,0 +1,20 @@
+└── body {63.0KB}
+    ├── [LIST] ul .a11y-menu {l:2}
+    ├── [HEADER] header .page-layout__header {31.9KB}
+    │   ├── [NAV] nav .navigation {30.0KB}
+    │   │   ├── [NAV] div .navigation__logo {l:1, 1.7KB}
+    │   │   ├── [NAV] div .navigation__search
+    │   │   ├── [NAV] button .navigation__button
+    │   │   └── [NAV] div #navigation__popup {28.0KB}
+    │   │       ├── [NAV] div .navigation__menu {27.7KB}
+    │   │       │   └── [NAV] nav .menu {27.7KB}
+    │   │       │       └── div .menu__tab {×9, 3.7KB}
+    │   │       └── [NAV] div .navigation__search
+    │   └── [SEARCH] mdn-search-modal #search
+    ├── div .page-layout__main {20.5KB}
+    └── [FOOTER] footer .page-layout__footer {10.0KB}
+        ├── div .footer__mdn {7.4KB}
+        │   ├── [LIST] ul .footer__socials {l:5, 1.0KB}
+        │   └── [LIST] dl .footer__links {l:6, ×3, 1.6KB}
+        └── div .footer__mozilla {l:8, 2.5KB}
+            └── [LIST] ul {l:4}

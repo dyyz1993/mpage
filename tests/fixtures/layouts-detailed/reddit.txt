@@ -1,0 +1,76 @@
+└── body {📝 | i:1 | b:5 | 308.6KB}
+    ├── a #shreddit-skip-link {item,button,order}
+    │   └── span .flex.items-center {item}
+    │       └── span .flex.items-center {item}
+    ├── [FEED] shreddit-app .overflow-visible.pt-[var(--page-y-padding)] {feed,visible,page | 📝 | i:1 | b:5 | 300.2KB}
+    │   ├── shreddit-activated-feature-meta {content,action}
+    │   ├── reddit-header-large .nd:visible.top-0 {visible | 📝 | i:1 | b:3 | l:4 | 29.8KB}
+    │   │   └── reddit-header-action-items .contents.nd:visible {content,visible | 📝 | i:1 | b:3 | l:4 | 25.0KB}
+    │   │       └── [HEADER] header .v2.bg-neutral-background {order | 📝 | i:1 | b:3 | l:4 | 24.9KB}
+    │   │           └── [NAV] nav .h-header-large.flex {header,item | 📝 | i:1 | b:3 | l:4 | 24.7KB}
+    │   │               ├── div .pe-lg.flex {item | l:1 | 3.9KB}
+    │   │               │   ├── rpl-tooltip #hamburger-button-tooltip {content,button,visible | 1.7KB}
+    │   │               │   │   └── faceplate-tracker .relative.nd:visible {visible | 1.4KB}
+    │   │               │   └── faceplate-tracker .nd:visible.flex {item,visible | l:1 | 2.2KB}
+    │   │               │       └── rpl-tooltip .nd:visible.contents {content,visible | l:1 | 2.1KB}
+    │   │               ├── div .h-[40px].flex-1 {📝 | i:1 | 10.7KB}
+    │   │               │   └── div .flex.justify-stretch {📝 | i:1 | 10.6KB}
+    │   │               │       └── div .flex.justify-stretch {block | 📝 | i:1 | 10.4KB}
+    │   │               └── div .ps-lg.gap-xs {item | l:3 | 10.1KB}
+    │   │                   ├── span .contents {content}
+    │   │                   ├── div .flex.h-[40px] {l:3 | 7.4KB}
+    │   │                   │   ├── span .contents {content | l:1 | ×3 | 2.1KB}
+    │   │                   │   └── span .contents {content,box | l:1 | 1.5KB}
+    │   │                   └── div .flex.items-center {item | 2.6KB}
+    │   │                       └── rpl-dropdown {2.5KB}
+    │   └── [NAV] div .grid-container.theme-rpl {container,nav,expand | 259.4KB}
+    │       ├── div #subgrid-container {container,header,order,box | 201.2KB}
+    │       │   └── [SIDEBAR] div .main-container.gap-lg {content,container,main,sidebar | 200.8KB}
+    │       │       ├── [MAIN] main #main-content {content,main | 172.4KB}
+    │       │       │   ├── hr .border-0.border-b-sm {order}
+    │       │       │   ├── [HIDDEN] div .hidden {hidden}
+    │       │       │   └── shreddit-feed .nd:visible {visible | 154.0KB}
+    │       │       │       ├── [SECTION] article .w-full.m-0 {l:4 | 19.4KB}
+    │       │       │       │   └── shreddit-post #t3_1ru63sv {visible,group,block | l:4 | 18.6KB}
+    │       │       │       ├── hr .border-0.border-b-sm {order}
+    │       │       │       ├── [SECTION] article .w-full.m-0 {l:4 | 13.9KB}
+    │       │       │       │   └── shreddit-post #t3_1rro8ta {visible,group,block | l:4 | 13.2KB}
+    │       │       │       ├── hr .border-0.border-b-sm {order}
+    │       │       │       ├── shreddit-ad-post #t3_1rg41iy {post,visible,block | l:2 | 26.4KB}
+    │       │       │       │   ├── div .flex.justify-between {item | l:2 | 3.7KB}
+    │       │       │       │   └── [HIDDEN] div .relative.relative {hidden | 3.9KB}
+    │       │       │       ├── hr .border-0.border-b-sm {order}
+    │       │       │       ├── [SECTION] article .w-full.m-0 {l:4 | 18.1KB}
+    │       │       │       │   └── shreddit-post #t3_1rtydve {visible,group,block | l:4 | 17.4KB}
+    │       │       │       ├── hr .border-0.border-b-sm {order}
+    │       │       │       ├── [SECTION] article .w-full.m-0 {l:5 | 11.5KB}
+    │       │       │       │   └── shreddit-post #t3_1ru5u1a {visible,group,block | l:5 | 10.9KB}
+    │       │       │       ├── hr .border-0.border-b-sm {order}
+    │       │       │       ├── [SECTION] article .w-full.m-0 {l:4 | 27.2KB}
+    │       │       │       │   └── shreddit-post #t3_1rtfst2 {visible,group,block | l:4 | 26.5KB}
+    │       │       │       ├── hr .border-0.border-b-sm {order}
+    │       │       │       ├── [SECTION] article .w-full.m-0 {l:4 | 20.2KB}
+    │       │       │       │   └── shreddit-post #t3_1ru3jur {visible,group,block | l:4 | 19.5KB}
+    │       │       │       ├── hr .border-0.border-b-sm {order}
+    │       │       │       ├── [SECTION] article .w-full.m-0 {l:4 | 15.8KB}
+    │       │       │       │   └── shreddit-post #t3_1rtzdxs {visible,group,block | l:4 | 15.1KB}
+    │       │       │       ├── hr .border-0.border-b-sm {order}
+    │       │       │       └── [FEED] faceplate-partial #feed-next-page-partial {feed,next,page}
+    │       │       ├── [HIDDEN] [SIDEBAR] div #right-sidebar-container {container,sidebar,header,hidden,scroll | 28.1KB}
+    │       │       │   └── [SIDEBAR] div #right-sidebar-contents {content,sidebar | l:9 | 25.2KB}
+    │       │       │       ├── [SIDEBAR] aside #right-rail-experience-root {content}
+    │       │       │       └── [SIDEBAR] aside .flex.flex-col {feed,home,order,box | l:9 | 25.0KB}
+    │       │       └── [SIDEBAR] aside #right-rail-entity-panel-root {content,panel}
+    │       └── [HIDDEN] [SIDEBAR] flex-left-nav-container #left-sidebar-container {container,sidebar,hidden,first,order | 58.1KB}
+    │           └── [NAV] div #flex-left-nav-container {container,nav | 57.8KB}
+    │               ├── [NAV] div #flex-nav-buttons {nav,button | 1.9KB}
+    │               │   └── rpl-tooltip {×2}
+    │               │       └── [NAV] button #flex-nav-expand-button {nav,item,button,icon,expand}
+    │               │           └── span .flex.items-center {item}
+    │               └── [NAV] div #flex-left-nav-contents {content,nav | 55.9KB}
+    │                   └── [NAV] div #left-nav-persistent-container {content,container,nav | 55.9KB}
+    │                       └── [HIDDEN] [SIDEBAR] reddit-sidebar-nav #left-sidebar {sidebar,header,hidden,visible,scroll | 55.0KB}
+    │                           └── [NAV] nav .z-2.box-border {header,select,order,box | 54.8KB}
+    ├── [HIDDEN] img
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

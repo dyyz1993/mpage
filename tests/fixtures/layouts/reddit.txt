@@ -1,0 +1,22 @@
+└── body {🔍, 📝, i:1, b:5, 308.6KB}
+    └── shreddit-app .overflow-visible {🔍, 📝, i:1, b:5, 300.2KB}
+        ├── reddit-header-large .nd:visible {🔍, 📝, i:1, b:3, l:4, 29.8KB}
+        │   └── reddit-header-action-items .contents {🔍, 📝, i:1, b:3, l:4, 25.0KB}
+        │       └── [HEADER] header .v2 {🔍, 📝, i:1, b:3, l:4, 24.9KB}
+        │           └── [NAV] nav .h-header-large {🔍, 📝, i:1, b:3, l:4, 24.7KB}
+        │               ├── div .pe-lg {l:1, 3.9KB}
+        │               ├── div .h-[40px] {🔍, 📝, i:1, 10.7KB}
+        │               └── div .ps-lg {l:3, 10.1KB}
+        └── [NAV] div .grid-container {259.4KB}
+            ├── [SIDEBAR] div #subgrid-container {200.8KB}
+            │   ├── [MAIN] main #main-content {172.4KB}
+            │   │   └── div .my-xs {l:7, 8.1KB}
+            │   ├── [HIDDEN] [SIDEBAR] div #right-sidebar-container {28.1KB}
+            │   │   └── [SIDEBAR] div #right-sidebar-contents {l:9, 25.2KB}
+            │   └── [SIDEBAR] aside #right-rail-entity-panel-root
+            └── [HIDDEN] [SIDEBAR] flex-left-nav-container #left-sidebar-container {58.1KB}
+                └── [NAV] div #flex-left-nav-container {57.8KB}
+                    ├── [NAV] div #flex-nav-buttons {1.9KB}
+                    │   └── rpl-tooltip {×2}
+                    └── [NAV] div #flex-left-nav-contents {55.9KB}
+                        └── [NAV] div #left-nav-persistent-container {55.9KB}

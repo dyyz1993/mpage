@@ -1,0 +1,33 @@
+└── body {🔍, 📝, i:1, 324.0KB}
+    └── div #app {🔍, 📝, i:1, 106.2KB}
+        ├── div #global {🔍, 📝, i:1, b:4, 101.8KB}
+        │   ├── div .header-container {🔍, 📝, i:1, b:4, l:1, 7.5KB}
+        │   │   └── [HEADER] header .mask-paper {🔍, 📝, i:1, b:4, l:1, 7.4KB}
+        │   │       ├── div .input-box {🔍, 📝, i:1}
+        │   │       │   └── [SEARCH] input #search-input
+        │   │       ├── [SEARCH] button .min-width-search-icon
+        │   │       └── div .right {1.6KB}
+        │   │           └── div .menu {1.5KB}
+        │   └── div .main-container {94.2KB}
+        │       ├── div .side-bar {10.1KB}
+        │       │   ├── [LIST] ul .channel-list {6.7KB}
+        │       │   │   ├── div .channel-list-content {l:6, 3.5KB}
+        │       │   │   └── div .app-info {3.0KB}
+        │       │   └── [FORM] div #explore-guide-menu {📝, 3.4KB}
+        │       │       ├── [FORM] div .information-wrapper {📝}
+        │       │       └── div .app-info {3.0KB}
+        │       ├── div .with-side-bar {80.4KB}
+        │       │   ├── div #feeds-replace-loading {1.3KB}
+        │       │   └── div #exploreFeeds {68.3KB}
+        │       └── div .bottom-menu {l:6, 3.5KB}
+        │           └── div .channel-list {l:6, 3.4KB}
+        ├── div
+        │   └── [HIDDEN] div .slot-content
+        │       └── div .vertical
+        ├── div
+        │   └── [HIDDEN] div .slot-content
+        │       └── div .vertical
+        └── div .container {2.4KB}
+            └── div .header {×2}
+                ├── div .left
+                └── div .right

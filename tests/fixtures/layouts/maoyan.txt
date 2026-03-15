@@ -1,0 +1,19 @@
+└── body {🔍, 📝, i:1, b:1, 163.1KB}
+    ├── div .header {🔍, 📝, i:1, b:1, l:7, 117.0KB}
+    │   └── div .header-inner {🔍, 📝, i:1, b:1, l:7, 117.0KB}
+    │       ├── div .city-container {114.9KB}
+    │       │   └── [LIST] ul {114.7KB}
+    │       ├── [NAV] div .nav {l:4}
+    │       └── [HIDDEN] [FORM] form .search-form {🔍, 📝, i:1, b:1}
+    │           └── [SEARCH] input .search
+    ├── div #app {41.4KB}
+    │   ├── div .aside {23.0KB}
+    │   │   ├── div .most-expect-wrapper {5.7KB}
+    │   │   │   └── div .panel-content {l:10, 5.3KB}
+    │   │   └── div .top100-wrapper {5.2KB}
+    │   │       └── div .panel-content {l:10, 4.8KB}
+    │   └── div .main {18.4KB}
+    │       └── div .movie-grid {18.4KB}
+    │           └── div .panel {×2, 8.9KB}
+    │               └── div .panel-content {8.5KB}
+    └── div #footer {2.7KB}

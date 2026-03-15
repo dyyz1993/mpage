@@ -1,0 +1,26 @@
+└── body {🔍, 📝, i:2, 241.9KB}
+    └── div #app {🔍, 📝, i:2, 144.0KB}
+        ├── div .woo-box-flex {🔍, 📝, i:2, 123.3KB}
+        │   ├── div {🔍, 📝, i:1, b:5, l:7, 23.2KB}
+        │   │   └── div {🔍, 📝, i:1, b:5, l:7, 23.2KB}
+        │   │       └── div {🔍, 📝, i:1, b:5, l:7, 23.1KB}
+        │   │           └── [NAV] div {🔍, 📝, i:1, b:5, l:7, 23.1KB}
+        │   └── div .woo-box-flex {📝, i:1, 100.1KB}
+        │       ├── div .grayTheme {l:10, 3.4KB}
+        │       │   └── div {l:10, 3.4KB}
+        │       │       └── div .woo-panel-main {l:10, 3.3KB}
+        │       └── div {📝, i:1, 96.2KB}
+        │           └── [MAIN] main .woo-box-flex {📝, i:1, 96.2KB}
+        │               ├── div {📝, i:1, 75.5KB}
+        │               └── div {20.7KB}
+        ├── div {1.0KB}
+        │   └── [HIDDEN] div .woo-box-flex {1.0KB}
+        └── [HIDDEN] div .mini-player {19.4KB}
+            └── div #vjs_video_3 {19.3KB}
+                ├── [HIDDEN] div .vjs-title-bar
+                ├── div .vjs-control-bar {1.2KB}
+                │   └── div .vjs-miniplayer-time-display
+                ├── [HIDDEN] div .vjs-modal-dialog {16.1KB}
+                │   └── div .vjs-modal-dialog-content {15.4KB}
+                │       └── div .vjs-track-settings-controls
+                └── div .vjs-miniplayer-control

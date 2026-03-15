@@ -1,0 +1,18 @@
+└── body {🔍, 📝, i:1, 704.1KB}
+    ├── div #channel-app {🔍, 📝, i:1, 590.9KB}
+    │   └── div .web-page {🔍, 📝, i:1, 590.9KB}
+    │       ├── [NAV] div .top-nav-wrap {🔍, 📝, i:1, 93.1KB}
+    │       │   └── [NAV] div #channel-top-nav {🔍, 📝, i:1, 92.9KB}
+    │       │       └── [NAV] div .top-nav-wrap {🔍, 📝, i:1, 92.6KB}
+    │       │           ├── [SEARCH] div .search-wrap {🔍, 📝, i:1, b:1, l:1, 3.9KB}
+    │       │           └── div #ssi-user-bar {88.6KB}
+    │       ├── [NAV] nav .left-nav-wrap {26.9KB}
+    │       │   └── [NAV] div .nav-wrap {26.6KB}
+    │       │       ├── div {22.1KB}
+    │       │       └── div #ssi-policy {4.4KB}
+    │       │           └── [NAV] div .nav-policy-wrap {4.1KB}
+    │       └── div .content-wrap {470.9KB}
+    │           └── div #channel-main-container {470.9KB}
+    │               └── div .flex-container {470.8KB}
+    │                   └── div #channel-page-scroller {446.6KB}
+    └── div #shortcut {l:4, 3.1KB}

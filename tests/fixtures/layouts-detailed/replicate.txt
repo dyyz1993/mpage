@@ -1,0 +1,81 @@
+└── body {📝 | 410.7KB}
+    ├── div {📝 | i:1 | b:2 | 11.3KB}
+    │   ├── div .v2-header-wrapper-with-banner {wrapper,header | 📝 | i:1 | b:2 | l:9 | 9.6KB}
+    │   │   ├── div .v2-banner {l:1 | 2.9KB}
+    │   │   │   └── div .v2-banner-content {content | l:1 | 2.8KB}
+    │   │   │       ├── div .v2-banner-content-spacer {content}
+    │   │   │       ├── a .v2-banner-link {2.2KB}
+    │   │   │       │   ├── div .v2-banner-logo {logo | 1.8KB}
+    │   │   │       │   └── span .v2-banner-text {text}
+    │   │   │       └── button .r8-btn.r8-btn--clear {button,icon,close}
+    │   │   │           └── span .r8-btn__icon {icon}
+    │   │   └── [HEADER] header .v2-header {header | 📝 | i:1 | b:1 | l:8 | 6.6KB}
+    │   │       └── div .v2-header-inner {header | 📝 | i:1 | b:1 | l:8 | 6.6KB}
+    │   │           ├── div .v2-header-transparent-backdrop {header}
+    │   │           └── div .v2-header-container {container,header | 📝 | i:1 | b:1 | l:8 | 6.5KB}
+    │   │               ├── div .v2-header-wrapper {wrapper,header | 📝 | i:1 | l:1 | 3.9KB}
+    │   │               │   ├── a .v2-marketing-logo {logo | 3.0KB}
+    │   │               │   │   └── div .v2-marketing-logo-glyph {logo | ×2}
+    │   │               │   └── [SEARCH] div .v2-header-search {header,search | 📝 | i:1}
+    │   │               │       └── div .w-full.max-w-lg {📝 | i:1}
+    │   │               └── [NAV] div .v2-header-desktop-nav {header,nav | l:7 | ×2 | 2.0KB}
+    │   │                   └── div .v2-menubar {menu | l:7 | 2.0KB}
+    │   │                       ├── a #_R_al555_ {item,dropdown,group}
+    │   │                       └── a #_R_cl555_ {menu,item,group | ×6}
+    │   └── [HIDDEN] [NAV] div #_R_955_ {header,nav | l:8 | 1.7KB}
+    │       └── [NAV] div .v2-header-mobile-nav-disclosure-inner {header,nav | l:8 | 1.6KB}
+    │           └── [NAV] div .v2-header-mobile-nav-disclosure-container {container,header,nav | l:8 | 1.6KB}
+    │               └── [NAV] nav .v2-header-mobile-nav-disclosure-nav {header,nav | l:8 | 1.5KB}
+    │                   ├── a .v2-header-mobile-link {header | ×7}
+    │                   ├── hr .v2-header-mobile-divider {header}
+    │                   └── a .v2-header-mobile-link.v2-header-mobile-link--playground {header}
+    │                       └── span .v2-playground-label-part-1 {label | ×2}
+    ├── [SECTION] section #hero {l:7 | ×3 | 11.5KB}
+    │   └── div .relative.flex {l:7 | 11.4KB}
+    │       ├── [HIDDEN] div .hidden.md:block {hidden,block}
+    │       ├── [HIDDEN] div .absolute.inset-0 {hidden}
+    │       │   └── [HIDDEN] video .absolute.inset-0 {hidden}
+    │       └── div .container.px-6 {container | l:7 | 10.8KB}
+    │           └── div .flex.flex-col {l:7 | 10.7KB}
+    │               └── div .xl:flex {l:6 | 9.6KB}
+    │                   ├── [HIDDEN] div #code-snippet {hidden | l:1 | 4.7KB}
+    │                   │   ├── [TABS] div .r8-tabs.r8-tabs--bordered {tab,order | 1.3KB}
+    │                   │   │   └── [ACTIVE] [TABS] button #node {tab | ×3}
+    │                   │   └── [TABS] div #_R_cr655_ {content,tab | l:1 | ×3 | 3.0KB}
+    │                   │       └── div .group.relative {group | l:1 | 2.9KB}
+    │                   └── div .max-w-2xl.xl:max-w-md {order | l:5 | 4.9KB}
+    ├── div .bg-gradient-to-br.from-branding-pink {54.7KB}
+    │   └── div .container.mx-auto {container | 54.7KB}
+    │       └── div .pt-8.relative {text | l:4 | 16.3KB}
+    │           └── div .lg:px-4 {l:4 | 16.3KB}
+    │               └── div .bg-r8-gray-1.mx-auto {l:4 | 16.3KB}
+    │                   └── div .pl-6 {l:4 | 16.2KB}
+    │                       └── div .border-branding-red.border-l {order | l:4 | 16.2KB}
+    │                           └── div {l:4 | 15.9KB}
+    ├── [SECTION] section #imagine-what-you-can-build {10.4KB}
+    │   └── div .container.mx-auto {container | 10.3KB}
+    ├── [FOOTER] footer .site-footer {footer | 76.8KB}
+    │   ├── [HIDDEN] div .site-footer-goo-container {container,footer | 68.9KB}
+    │   │   ├── [HIDDEN] div #goo-wrap {wrapper | 68.7KB}
+    │   │   └── div .site-footer-goo-overlay {footer,overlay}
+    │   │       └── div .site-footer-goo-stripe {footer | ×3}
+    │   ├── div .site-footer-expanded {footer,expand | 5.3KB}
+    │   │   └── div .site-footer-grid {footer | 5.2KB}
+    │   │       ├── div .site-footer-logo-section {footer,logo,section | l:1 | 3.0KB}
+    │   │       │   └── div .site-footer-logo {footer,logo | l:1 | 3.0KB}
+    │   │       │       └── a .v2-marketing-logo {logo | 3.0KB}
+    │   │       │           └── div .v2-marketing-logo-glyph {logo | ×2}
+    │   │       └── div .site-footer-product-section {footer,section | l:6}
+    │   │           ├── p .site-footer-section-title {footer,title,section}
+    │   │           └── [LIST] ul .site-footer-link-list {footer,list | l:6}
+    │   └── div .site-footer-bottom {footer | l:1 | 2.6KB}
+    │       └── div .site-footer-bottom-container {container,footer | l:1 | 2.5KB}
+    │           ├── [FORM] div .site-footer-platform-status {footer,form,status | 📝 | l:1}
+    │           │   └── [FORM] div .platform-status {form,status | 📝 | l:1}
+    │           └── div .site-footer-bottom-content {content,footer | 2.1KB}
+    │               └── div .site-footer-dark-mode-toggle {footer,toggle | 2.1KB}
+    │                   └── div {2.0KB}
+    │                       └── button .r8-btn.r8-btn--outlined {icon | ×3}
+    │                           └── span .r8-btn__icon {icon}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

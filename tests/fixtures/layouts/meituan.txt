@@ -1,0 +1,20 @@
+└── body {142.2KB}
+    ├── div #__next {112.9KB}
+    │   ├── div .hx {23.7KB}
+    │   │   ├── [HIDDEN] [NAV] nav .hidden {7.7KB}
+    │   │   │   └── [HIDDEN] [LIST] ul .hidden {7.6KB}
+    │   │   ├── [HIDDEN] div .hidden {l:1, 3.3KB}
+    │   │   └── div .i1 {11.5KB}
+    │   │       └── [NAV] nav .i2 {11.5KB}
+    │   │           └── div .i4 {11.2KB}
+    │   │               └── div .i5 {11.1KB}
+    │   ├── div {33.5KB}
+    │   └── [FOOTER] footer .hV {11.5KB}
+    │       └── div .hX {10.1KB}
+    │           └── div .flex {9.8KB}
+    │               ├── div .flex {l:9, 5.6KB}
+    │               │   └── div .hZ {l:3, ×3, 1.8KB}
+    │               └── div .h7 {l:4, 4.1KB}
+    │                   ├── div .ko {l:4, 2.0KB}
+    │                   └── div .flex {2.0KB}
+    └── div #headlessui-portal-root

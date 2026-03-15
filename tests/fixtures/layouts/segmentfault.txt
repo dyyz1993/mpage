@@ -1,0 +1,40 @@
+└── body {🔍, 📝, i:1, 119.0KB}
+    └── div #__next {🔍, 📝, i:1, 89.3KB}
+        ├── [NAV] header #sf-header {🔍, 📝, i:1, b:3, 11.4KB}
+        │   ├── [NAV] button .me-2
+        │   ├── [NAV] div .left-wrap {l:3}
+        │   │   └── [NAV] a .me-3
+        │   ├── [NAV] div .justify-content-between {🔍, 📝, i:1, l:7, 1.9KB}
+        │   │   ├── [NAV] div .fw-bold {l:2}
+        │   │   │   └── [NAV] div .nav-item {l:1, ×2}
+        │   │   │       └── [NAV] a .dropdown-toggle
+        │   │   ├── div .px-3 {🔍, 📝, i:1, l:4, 1.3KB}
+        │   │   │   └── [SEARCH] div #header-tsearch-toogle {🔍, 📝, i:1, l:4, 1.3KB}
+        │   │   │       └── div #react-aria-3 {🔍, 📝, i:1}
+        │   │   └── [NAV] nav .p-0 {l:1}
+        │   │       └── [NAV] div .me-2 {l:1}
+        │   └── div .d-block {8.4KB}
+        │       ├── div .offcanvas-header
+        │       └── div .p-0 {8.3KB}
+        │           └── [SIDEBAR] div .sidebar-wrap {8.2KB}
+        │               ├── [NAV] div .flex-column {l:6, ×2}
+        │               ├── div .accordion {5.2KB}
+        │               └── [NAV] div .flex-column {l:2, 1.1KB}
+        └── div .d-flex {77.3KB}
+            ├── [SIDEBAR] div .sidebar-wrap {8.2KB}
+            │   ├── [NAV] div .flex-column {l:6, ×2}
+            │   │   └── [NAV] a .nav-link {×6}
+            │   ├── div .accordion {5.2KB}
+            │   │   └── [NAV] div .flex-column {5.2KB}
+            │   │       └── [NAV] div .w-100 {5.1KB}
+            │   └── [NAV] div .flex-column {l:2, 1.1KB}
+            │       └── [NAV] a .d-flex {×2}
+            └── div .flex-fill {69.0KB}
+                ├── div .mt-4 {64.2KB}
+                │   └── div .row {64.1KB}
+                │       ├── div .mb-3 {48.3KB}
+                │       └── div .d-none {15.8KB}
+                └── [FOOTER] footer #footer {4.7KB}
+                    └── div .container {4.6KB}
+                        ├── div .row {3.8KB}
+                        └── div .row {l:3}

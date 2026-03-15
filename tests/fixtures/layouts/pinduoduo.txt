@@ -1,0 +1,14 @@
+└── body {27.1KB}
+    └── div #__next {×2, 25.9KB}
+        └── div {25.9KB}
+            ├── div #index {19.1KB}
+            │   └── div .body {18.6KB}
+            │       └── div .content-group {17.7KB}
+            └── div .pdd-foot {5.3KB}
+                ├── div .pdd-foot-head {1.1KB}
+                │   └── div .qrcode-group
+                ├── [NAV] div .pdd-bottom-nav {1.2KB}
+                │   └── [NAV] ul .pd-nav-list {1.1KB}
+                │       └── [NAV] li .pd-nav-list-item {×12}
+                ├── div .copyright {l:7, 1.6KB}
+                └── div .foot-ft {l:7, 1.0KB}

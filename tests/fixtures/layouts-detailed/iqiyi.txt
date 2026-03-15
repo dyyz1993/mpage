@@ -1,0 +1,25 @@
+└── body {📝 | i:1 | 288.8KB}
+    ├── div #root {📝 | i:1 | 286.1KB}
+    │   └── div .app_App__K8HqS {📝 | i:1 | 285.9KB}
+    │       └── div .pages_pages__UkzcY {page | 📝 | i:1 | 285.9KB}
+    │           ├── div .fullLayer_pageBk__8xmct {page | ×2}
+    │           ├── div #topbar {📝 | i:1 | 13.2KB}
+    │           │   ├── div #bk_cover {hide}
+    │           │   └── div .topbar_flexArea__aQyJC {area | 📝 | i:1 | 9.6KB}
+    │           │       ├── div #emptyArea {area}
+    │           │       └── [SEARCH] div #searchbar {search | 📝 | i:1 | 9.5KB}
+    │           │           ├── [SEARCH] div #searchinput {search,input | 📝 | i:1}
+    │           │           │   ├── [SEARCH] div .search-button-filter.free {search,button,filter}
+    │           │           │   ├── [SEARCH] div .search-placeholder {search,placeholder}
+    │           │           │   ├── [SEARCH] div .search-button-triggle {search,button}
+    │           │           │   └── input
+    │           │           └── [HIDDEN] [SEARCH] div #search-auto-suggest {search,suggest | 9.0KB}
+    │           │               └── [SEARCH] div #search-recommend {search,recommend | 8.9KB}
+    │           └── div .pages_page__o3Cjc {page | ×2 | 244.5KB}
+    │               ├── div .pages_container__t6j9W {container,page | 244.0KB}
+    │               │   └── div .pages_page_item__0Z0DF {item,page | 244.0KB}
+    │               │       └── [CARD] div #card_page {container,card,page | 243.9KB}
+    │               └── div .pages_sustainCommon__tl-bX {page | ×3}
+    ├── div #qy_pca_login_root {login}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

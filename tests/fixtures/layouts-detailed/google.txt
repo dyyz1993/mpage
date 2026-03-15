@@ -1,0 +1,7 @@
+└── body {117.9KB}
+    ├── div .L3eUgb {71.1KB}
+    │   └── [NAV] div .o3j99.n1xJcf {l:4 | ×2 | 4.5KB}
+    ├── [HIDDEN] textarea .csi
+    ├── [HIDDEN] iframe #hfcr
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

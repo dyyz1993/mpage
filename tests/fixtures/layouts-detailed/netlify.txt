@@ -1,0 +1,166 @@
+└── body {📝 | i:2 | 221.5KB}
+    ├── [ACTIVE] div #hs-web-interactives-top-push-anchor {active}
+    ├── [HEADER] header .site-header {header | 📝 | i:1 | 58.6KB}
+    │   └── [SECTION] section .wrapper.l-breakout {wrapper | 📝 | i:1 | 58.1KB}
+    │       ├── [NAV] nav #site-nav {nav | 35.6KB}
+    │       │   ├── [HIDDEN] [NAV] h2 #site-nav-label {nav,label,hidden}
+    │       │   ├── [NAV] a #mainNav-netlifyLogo {main,nav,logo | 4.3KB}
+    │       │   │   └── [HIDDEN] span .visually-hidden {hidden}
+    │       │   ├── a .skip-to-content {content}
+    │       │   ├── [LIST] ul .menu {menu | l:1}
+    │       │   │   └── li
+    │       │   │       └── [NAV] button #main-nav-compact-search {main,nav,search,toggle}
+    │       │   │           ├── [HIDDEN] span .visually-hidden {hidden}
+    │       │   │           └── [HIDDEN] [SEARCH] svg .[object.SVGAnimatedString] {search}
+    │       │   │               └── [SEARCH] symbol #ai:local:search {search}
+    │       │   ├── [NAV] button #main-nav-compact-hamburger {main,nav,toggle}
+    │       │   │   ├── [HIDDEN] span .visually-hidden {hidden}
+    │       │   │   └── [HIDDEN] svg .[object.SVGAnimatedString] {menu}
+    │       │   │       └── symbol #ai:local:menu {menu}
+    │       │   ├── [LIST] ul .menu {menu | 29.5KB}
+    │       │   │   ├── li .has-submenu {menu | l:9 | ×4 | 2.6KB}
+    │       │   │   │   ├── [NAV] span #main-nav-platform {main,nav,form}
+    │       │   │   │   └── submenu-utils {l:9 | 2.5KB}
+    │       │   │   │       ├── button .submenu-toggle {menu,toggle}
+    │       │   │   │       │   └── [HIDDEN] span .visually-hidden {hidden}
+    │       │   │   │       └── [FORM] div #platform-submenu {menu,form | 📝 | l:9 | 1.8KB}
+    │       │   │   │           └── div .section.l-stack {section | l:1 | ×2}
+    │       │   │   └── [NAV] li .nav-search {nav,search}
+    │       │   │       └── [NAV] button #cta-main-nav-search {main,nav,search,toggle}
+    │       │   │           ├── [HIDDEN] span .visually-hidden {hidden}
+    │       │   │           └── [HIDDEN] [SEARCH] svg .[object.SVGAnimatedString] {search}
+    │       │   └── a #signup {button,signup}
+    │       └── astro-island {📝 | i:1 | b:3 | l:4 | 18.7KB}
+    │           └── [SEARCH] dialog .n-search-modal.quick-search-modal {search,modal | 📝 | i:1 | b:3 | l:4 | 18.2KB}
+    │               └── [SEARCH] div .n-search-container {container,search | 📝 | i:1 | b:3 | l:4 | 18.0KB}
+    │                   ├── [SEARCH] div .n-search-input-wrapper {wrapper,search,input | 📝 | i:1 | b:1 | 1.6KB}
+    │                   │   ├── [SEARCH] label .n-search-label {search,label | 1.4KB}
+    │                   │   │   ├── [HIDDEN] span .visually-hidden {hidden}
+    │                   │   │   └── [SEARCH] div .n-search-icon {search,icon | 1.3KB}
+    │                   │   ├── [SEARCH] input .n-search-input {search,input | 🔍}
+    │                   │   └── [SEARCH] button .n-search-input-clear {search,input}
+    │                   ├── [SEARCH] div .n-search-window {search | l:4 | 16.1KB}
+    │                   │   └── [SEARCH] div .n-search-links {search | l:4 | 16.1KB}
+    │                   │       ├── [SEARCH] button .n-search-link {search | 3.3KB}
+    │                   │       ├── [SEARCH] h2 .n-search-heading {search}
+    │                   │       └── [SEARCH] button .n-search-link {search | 2.0KB}
+    │                   └── [SEARCH] div .n-search-footer {footer,search}
+    │                       └── [SEARCH] p .n-search-footer-tip {footer,search | ×2}
+    ├── [MAIN] main #main {main | 134.1KB}
+    │   ├── [SECTION] section .n-page-section.n-breakout {page,home,section | l:2 | 70.4KB}
+    │   │   └── div .n-page-hero-graphic-container.n-flex-grid {container,page | l:2 | 70.3KB}
+    │   │       └── div .n-heading-block.n-flow {block | l:2}
+    │   │           ├── h1 .n-heading-block-heading.h1 {block}
+    │   │           ├── p .n-heading-block-text {text,block}
+    │   │           └── div .n-heading-block-ctas.n-cluster {block | l:2}
+    │   │               ├── a #cta-hero-get-started {button}
+    │   │               └── a #cta-hero-contact-sales {button,contact}
+    │   ├── [SECTION] section #section-logos {logo,page,section | 6.8KB}
+    │   ├── [FORM] section #section-platform {form,page,section | 📝 | l:3 | 6.3KB}
+    │   │   ├── div .n-heading-block.n-flow {block}
+    │   │   │   ├── div .eyebrow.n-heading-block-eyebrow {block}
+    │   │   │   ├── h2 .n-heading-block-heading.h1 {block}
+    │   │   │   └── p .n-heading-block-text {text,block}
+    │   │   └── div .n-switchback-group {switch,group | l:3 | 5.6KB}
+    │   │       └── [SIDEBAR] div .n-switchback.n-sidebar-left {sidebar,item,switch | l:1 | ×3 | 1.9KB}
+    │   │           ├── div .n-switchback-content.n-flow {content,switch | l:1 | 1.3KB}
+    │   │           │   ├── h3 .n-switchback-heading.h5 {switch}
+    │   │           │   ├── p .text {text}
+    │   │           │   ├── [LIST] ul
+    │   │           │   └── div .n-switchback-cta {switch | l:1}
+    │   │           │       └── [FORM] a #cta-platform-deploy {form,action | 📝}
+    │   │           │           └── div .n-action-arrow {action}
+    │   │           └── div .n-switchback-media {switch,media}
+    │   │               └── img
+    │   ├── [SECTION] section #section-primitives {page,section | l:5 | 49.7KB}
+    │   │   ├── div .n-heading-block.n-flow {block}
+    │   │   │   ├── div .eyebrow.n-heading-block-eyebrow {block}
+    │   │   │   ├── h2 .n-heading-block-heading.h1 {block}
+    │   │   │   └── p .n-heading-block-text {text,block}
+    │   │   └── [TABS] n-tabs .n-tabbed-content {content,tab | l:5 | 46.8KB}
+    │   │       ├── [TABS] div {6.0KB}
+    │   │       │   └── [ACTIVE] [TABS] button #mmriucyr-tab-0 {tab | ×5 | 1.4KB}
+    │   │       └── [TABS] div .n-tabpanel-group.n-tabpanel-group-no-padding {tab,panel,group | l:5 | 40.7KB}
+    │   │           └── [TABS] div #mmriucyr-panel-0 {content,tab,panel | l:1 | ×5 | 10.0KB}
+    │   │               └── [TABS] div .n-tabbed-content-wrapper.n-tabbed-content-wrapper-split {content,wrapper,tab | l:1 | 9.8KB}
+    │   │                   └── [TABS] div .n-tabbed-content-body.n-flow {content,tab | l:1 | ×2}
+    │   │                       ├── [LIST] ul {list}
+    │   │                       └── [TABS] div .n-tabbed-content-ctas {content,tab | l:1}
+    │   └── [SECTION] section #section-conversion-panel {panel,page,section | l:2}
+    │       └── div .n-heading-block.n-flow {block | l:2}
+    │           ├── h2 .n-heading-block-heading.h1 {block}
+    │           ├── p .n-heading-block-text {text,block}
+    │           └── div .n-heading-block-ctas.n-cluster {block | l:2}
+    │               └── a #cta-conversion-panel-get-started {button,panel | ×2}
+    ├── [FOOTER] footer .site-footer.| {footer | 📝 | i:1 | b:2 | 19.7KB}
+    │   ├── div .wrapper.| {wrapper | l:7 | 7.8KB}
+    │   │   ├── a #cta-footer-netlifyLogo {footer,logo | 1.9KB}
+    │   │   │   └── [HIDDEN] span .visually-hidden {hidden}
+    │   │   └── [LIST] ul .social.| {l:6 | 5.8KB}
+    │   ├── [NAV] nav {7.9KB}
+    │   │   ├── details .section.l-stack {section | l:8 | 1.3KB}
+    │   │   │   ├── summary
+    │   │   │   │   └── h2 .text-0.font-bold {text}
+    │   │   │   └── [LIST] ul .l-stack.l-stack-xs {l:8}
+    │   │   ├── [SECTION] section .section.l-stack {section | l:8 | 1.1KB}
+    │   │   │   ├── h2 .text-0.font-bold {text}
+    │   │   │   └── [LIST] ul .l-stack.l-stack-xs {l:8}
+    │   │   ├── details .section.l-stack {section | l:8 | 1.2KB}
+    │   │   │   ├── summary
+    │   │   │   │   └── h2 .text-0.font-bold {text}
+    │   │   │   └── [LIST] ul .l-stack.l-stack-xs {l:8}
+    │   │   ├── [SECTION] section .section.l-stack {section | l:8}
+    │   │   │   ├── h2 .text-0.font-bold {text}
+    │   │   │   └── [LIST] ul .l-stack.l-stack-xs {l:8}
+    │   │   ├── details .section.l-stack {section | l:7 | 1.0KB}
+    │   │   │   ├── summary
+    │   │   │   │   └── h2 .text-0.font-bold {text}
+    │   │   │   └── [LIST] ul .l-stack.l-stack-xs {l:7}
+    │   │   ├── [SECTION] section .section.l-stack {section | l:7}
+    │   │   │   ├── h2 .text-0.font-bold {text}
+    │   │   │   └── [LIST] ul .l-stack.l-stack-xs {l:7}
+    │   │   ├── details .section.l-stack {section | l:4}
+    │   │   │   ├── summary
+    │   │   │   │   └── h2 .text-0.font-bold {text}
+    │   │   │   └── [LIST] ul .l-stack.l-stack-xs {l:4}
+    │   │   └── [SECTION] section .section.l-stack {section | l:4}
+    │   │       ├── h2 .text-0.font-bold {text}
+    │   │       └── [LIST] ul .l-stack.l-stack-xs {l:4}
+    │   ├── [FORM] section .newsletter-form.| {form | 📝 | i:1 | b:1 | 2.0KB}
+    │   │   ├── h2 .text-0 {text}
+    │   │   └── [FORM] article .hubspot-form-wrapper.| {wrapper,form,overlay | 📝 | i:1 | b:1 | 1.4KB}
+    │   │       ├── [FORM] div #hubspot-form-site-footer {footer,form | 📝}
+    │   │       └── [FORM] form .hs-form.l-cluster {form | 📝 | i:1 | b:1 | 1.2KB}
+    │   │           ├── [FORM] div .hs-form-field {form | 📝 | i:1 | ×6}
+    │   │           │   └── input #email
+    │   │           ├── input {×2}
+    │   │           └── div .hs-submit
+    │   │               └── input .button {button}
+    │   ├── div .wrapper.| {wrapper | l:4 | 1.1KB}
+    │   │   └── [LIST] ul .legal.| {l:4}
+    │   │       └── li
+    │   │           └── button #cta-legal-footer-cookie-settings-toggle {footer,toggle,setting}
+    │   └── label .theme-switcher.site-theme-select {select,switch}
+    │       ├── [HIDDEN] span .visually-hidden {hidden}
+    │       └── select #site-theme-select {select}
+    ├── div .ask-netlify-button {button | 1.5KB}
+    │   └── button #cta-ask-netlify-chat {button,visible | 1.4KB}
+    ├── div #onetrust-consent-sdk {l:1 | 1.3KB}
+    │   ├── div .onetrust-pc-dark-filter.ot-hide {hide,filter}
+    │   └── div #onetrust-banner-sdk {l:1 | 1.2KB}
+    │       └── div .ot-sdk-container {container | l:1 | 1.1KB}
+    │           └── div .ot-sdk-row {l:1}
+    │               ├── div #onetrust-group-container {container,group | l:1}
+    │               ├── div #onetrust-button-group-parent {button,group}
+    │               │   ├── div #onetrust-button-group {button,group}
+    │               │   │   ├── div .onetrust-banner-options {option}
+    │               │   │   │   └── button #onetrust-reject-all-handler {×2}
+    │               │   │   └── button #onetrust-pc-btn-handler {setting}
+    │               │   └── div .banner_logo {logo}
+    │               └── div #onetrust-close-btn-container {container,close}
+    ├── [ACTIVE] div #hs-web-interactives-top-anchor {active | ×2}
+    │   └── [ACTIVE] [MODAL] div #hs-interactives-modal-overlay {modal,overlay,active}
+    ├── [ACTIVE] div #hs-web-interactives-floating-container {container,active}
+    │   └── [ACTIVE] div #hs-web-interactives-floating-top-left-anchor {active | ×4}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

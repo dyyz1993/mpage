@@ -1,0 +1,19 @@
+└── body {🔍, 📝, i:2, 459.8KB}
+    ├── div .errorContainer {l:6, 1.3KB}
+    ├── div #react-root {📝, i:1, 206.4KB}
+    │   └── div .r-13awgt0 {📝, i:1, 206.4KB}
+    │       └── div .r-13awgt0 {📝, i:1, 206.3KB}
+    │           ├── div #layers {3.2KB}
+    │           │   └── div .r-aqfbo4 {3.2KB}
+    │           │       └── div .r-12vffkv {×3, 1.5KB}
+    │           └── div .r-1f2l425 {📝, i:1, 202.4KB}
+    │               ├── [HEADER] header .r-lrvibr {20.3KB}
+    │               │   └── div .r-o96wvk {20.2KB}
+    │               └── [MAIN] main .r-16y2uox {📝, i:1, 179.5KB}
+    │                   └── div .r-150rngu {📝, i:1, 179.5KB}
+    └── div .r-aqfbo4 {🔍, 📝, i:1, 38.7KB}
+        └── div .r-1pi2tsx {🔍, 📝, i:1, 38.6KB}
+            └── div .r-1hycxz {🔍, 📝, i:1, 38.5KB}
+                └── div .r-1adg3ll {🔍, 📝, i:1, 38.4KB}
+                    └── div {🔍, 📝, i:1, 38.4KB}
+                        └── div .r-vacyoi {🔍, 📝, i:1, 38.3KB}

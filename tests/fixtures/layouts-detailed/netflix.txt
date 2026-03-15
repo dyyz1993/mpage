@@ -1,0 +1,3 @@
+└── body
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

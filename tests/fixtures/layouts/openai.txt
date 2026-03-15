@@ -1,0 +1,43 @@
+└── body {🔍, 📝, i:1, 543.6KB}
+    ├── [HEADER] header {l:2, 13.4KB}
+    │   ├── div .h-header-h {l:1, 5.7KB}
+    │   │   └── div .md:-me-5xs {5.1KB}
+    │   │       └── div .gap-4xs {2.7KB}
+    │   │           ├── div .relative {2.0KB}
+    │   │           │   └── div .duration-short {×2}
+    │   │           └── [HIDDEN] div .gap-4xs
+    │   │               └── div .bg-secondary-44
+    │   ├── [FORM] div .-ms-5xs {📝, b:1, l:1, 7.5KB}
+    │   │   └── div .gap-3xs {l:1, 7.4KB}
+    │   └── [HIDDEN] [SIDEBAR] div .duration-sidebar
+    └── [NAV] div .duration-sidebar {🔍, 📝, i:1, 191.6KB}
+        ├── [HIDDEN] [SIDEBAR] div #sidebar-drawer {60.9KB}
+        │   ├── [HIDDEN] [NAV] nav #navigation-sidebar-desktop {l:10, 15.0KB}
+        │   │   ├── [HIDDEN] div .fixed {l:10, 12.4KB}
+        │   │   │   └── [NAV] div .animate-sidebarSlideInStart {l:10, 12.4KB}
+        │   │   │       └── [NAV] ul .text-nav-mobile {l:10, 12.3KB}
+        │   │   └── div .bottom-sm {2.5KB}
+        │   │       └── [HIDDEN] div .h-md {1.2KB}
+        │   └── [HIDDEN] [NAV] nav #navigation-sidebar-mobile {45.8KB}
+        │       ├── [NAV] div .text-nav-mobile {42.5KB}
+        │       │   └── [LIST] ul .space-y-0.5 {42.2KB}
+        │       │       └── li .hover:before:bg-primary-4 {l:10, ×6, 9.2KB}
+        │       └── [NAV] div .duration-short {3.1KB}
+        │           └── [HIDDEN] div .h-md {1.2KB}
+        └── div .pt-header-h {🔍, 📝, i:1, b:5, 128.9KB}
+            ├── div {🔍, 📝, i:1, b:5, 128.7KB}
+            │   ├── [HIDDEN] [FORM] dialog .ease-out-cubic {📝, b:1, 1.6KB}
+            │   │   └── [FORM] div .ease-out-cubic {📝, b:1, 1.3KB}
+            │   │       └── div .p-sm {1.0KB}
+            │   ├── [MAIN] main #main {96.2KB}
+            │   │   └── [SECTION] article .flex {96.0KB}
+            │   │       ├── div .-mb-2xl {l:4, 11.8KB}
+            │   │       └── div .@container {l:7, ×4, 28.5KB}
+            │   └── [FOOTER] footer .@container {🔍, 📝, i:1, b:2, 30.9KB}
+            │       ├── [NAV] div .@md:px-md {15.1KB}
+            │       │   └── div .@md:gap-sm {15.0KB}
+            │       └── div .px-sm {🔍, 📝, i:1, b:2, l:7, 15.7KB}
+            │           ├── div .@md:w-auto {l:7, 11.2KB}
+            │           ├── div .flex
+            │           └── div .relative {🔍, 📝, i:1, b:1, 4.1KB}
+            └── [HIDDEN] [SIDEBAR] div .duration-sidebar

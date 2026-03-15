@@ -1,0 +1,19 @@
+└── body {🔍, 📝, i:1, l:2, 18.8KB}
+    ├── div #__next {🔍, 📝, i:1, ×2, 16.6KB}
+    │   └── div .home_old_root {🔍, 📝, i:1, 16.6KB}
+    │       ├── div .header-wrapper {🔍, 📝, i:1, 1.5KB}
+    │       │   ├── div .padding-div-pc {🔍, 📝, i:1}
+    │       │   │   ├── div .city-select-content
+    │       │   │   └── [SEARCH] div .search-bar {🔍, 📝, i:1}
+    │       │   │       ├── [SEARCH] input #myInput
+    │       │   │       └── [SEARCH] div #searchBtn
+    │       │   └── div .header-r-desc-pc
+    │       ├── [NAV] div .top-nav-wrapper
+    │       ├── div .channel-slot-wrapper {4.0KB}
+    │       ├── [SIDEBAR] div .sidebar
+    │       └── [FOOTER] footer .BottomRecord_bottomRecord__3aLYY
+    └── div #openAppLaunchModalPC {l:2, 1.4KB}
+        ├── div #oapWide {l:1}
+        │   ├── div .oap-qrcode-wrap
+        │   └── div .oap-download-wrap {l:1}
+        └── div #oapNarrow {l:1}

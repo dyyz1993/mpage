@@ -1,0 +1,25 @@
+└── body {📝 | i:2 | 459.8KB}
+    ├── div .errorContainer {container,error | l:6 | 1.3KB}
+    │   ├── p .errorButton {button,error | l:1}
+    │   │   └── a
+    │   └── p .errorFooter {footer,error | l:5}
+    │       └── a {×5}
+    ├── div #react-root {📝 | i:1 | 206.4KB}
+    │   └── div .r-13awgt0.r-12vffkv {📝 | i:1 | 206.4KB}
+    │       └── div .r-13awgt0.r-12vffkv {📝 | i:1 | 206.3KB}
+    │           └── div #layers {×2 | 3.2KB}
+    │               └── div .r-aqfbo4.r-zchlnj {3.2KB}
+    │                   └── div .r-12vffkv {1.5KB}
+    │                       └── div .r-12vffkv {1.4KB}
+    │                           └── div .r-633pao.r-173mn98 {1.3KB}
+    ├── [SIDEBAR] div .r-aqfbo4.r-10f7w94 {sidebar | 📝 | i:1 | 38.7KB}
+    │   └── div .r-1pi2tsx {📝 | i:1 | 38.6KB}
+    │       └── div .r-1hycxz.r-gtdqiz {📝 | i:1 | 38.5KB}
+    │           └── div .r-1adg3ll {📝 | i:1 | 38.4KB}
+    │               └── div {📝 | i:1 | 38.4KB}
+    │                   └── div .r-vacyoi.r-ttdzmv {📝 | i:1 | 38.3KB}
+    │                       └── div .r-1awozwy.r-aqfbo4 {📝 | i:1 | ×4 | 2.4KB}
+    │                           └── div .r-1oszu61.r-1iusvr4 {📝 | i:1 | 2.3KB}
+    ├── img #partner_id_sync_pixel
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

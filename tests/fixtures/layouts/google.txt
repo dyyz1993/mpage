@@ -1,0 +1,8 @@
+└── body {117.9KB}
+    ├── div .L3eUgb {71.1KB}
+    │   ├── [NAV] div .o3j99 {l:4, 4.5KB}
+    │   ├── div .o3j99 {13.4KB}
+    │   └── div .o3j99 {9.3KB}
+    │       └── [FOOTER] div .c93Gbe {9.3KB}
+    │           └── div .KxwPGc {8.5KB}
+    └── div .Fgvgjc {6.2KB}

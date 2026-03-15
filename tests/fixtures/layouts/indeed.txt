@@ -1,0 +1,10 @@
+└── body {63.8KB}
+    └── div #root {16.1KB}
+        ├── [NAV] nav .gnav {9.1KB}
+        │   ├── [NAV] div .gnav-nav {l:4, 7.3KB}
+        │   │   └── [NAV] ul .gnav-nav-list {l:3}
+        │   └── [NAV] div .gnav-links {l:6, 1.5KB}
+        │       ├── [NAV] button .gnav-links-button
+        │       └── [NAV] ul .gnav-links-list {l:6}
+        │           └── [NAV] li .gnav-mobile-link {l:1, ×3}
+        └── [MAIN] main .error {l:3, 6.9KB}

@@ -1,0 +1,33 @@
+└── body {🔍, 📝, 889.4KB}
+    ├── div .logged-in {🔍, 📝, 884.4KB}
+    │   ├── div .position-relative {🔍, 📝, 106.7KB}
+    │   │   ├── react-partial .loaded {🔍, 📝, i:4, 63.8KB}
+    │   │   │   └── div {🔍, 📝, i:4, 62.2KB}
+    │   │   │       └── [NAV] header .GlobalNav {🔍, 📝, i:4, 62.0KB}
+    │   │   │           └── div .prc-Stack-Stack-UQ9k6 {🔍, 📝, i:4, 61.7KB}
+    │   │   ├── [HIDDEN] div .js-global-bar {🔍, 📝, i:4, l:2, 39.0KB}
+    │   │   │   └── [SEARCH] qbsearch-input .search-input {🔍, 📝, i:4, l:2, 38.7KB}
+    │   │   │       ├── [SEARCH] div .search-input-container {🔍, 📝, i:1, b:2, l:1, 30.8KB}
+    │   │   │       │   ├── [SEARCH] input .js-site-search-type-field
+    │   │   │       │   └── [HIDDEN] div .Overlay--hidden {🔍, 📝, i:1, b:2, l:1, 30.5KB}
+    │   │   │       └── div .color-fg-default {🔍, 📝, i:3, l:1, 7.2KB}
+    │   │   │           ├── dialog-helper {📝, i:1, b:3, 2.7KB}
+    │   │   │           └── custom-scopes {🔍, 📝, i:2, b:3, l:1, 4.4KB}
+    │   │   └── [HIDDEN] div .js-stale-session-flash {l:3, 2.1KB}
+    │   ├── div .application-main {🔍, 📝, 770.3KB}
+    │   │   └── div .color-bg-default {🔍, 📝, 770.1KB}
+    │   │       ├── [HIDDEN] [SIDEBAR] aside .hide-xl {l:4, 8.3KB}
+    │   │       │   └── div .d-flex {l:4, 8.2KB}
+    │   │       │       └── select-panel #switch_dashboard_context_three_column {l:4, 8.0KB}
+    │   │       └── div .d-md-flex {🔍, 📝, 761.7KB}
+    │   │           ├── [HIDDEN] [SIDEBAR] aside .feed-left-sidebar {🔍, 📝, i:1, b:3, 25.6KB}
+    │   │           │   └── [SIDEBAR] div .dashboard-sidebar {🔍, 📝, i:1, b:3, 25.4KB}
+    │   │           └── div .flex-auto {🔍, 📝, 736.0KB}
+    │   │               └── div .d-md-flex {🔍, 📝, 735.9KB}
+    │   └── [HIDDEN] div #ajax-error-message {1.1KB}
+    └── [NAV] nav .octotree-sidebar {📝, i:3, b:2, l:2, 4.6KB}
+        ├── [HIDDEN] div .octotree-toggle
+        └── div .octotree-views {📝, i:3, b:2, l:2, 3.7KB}
+            ├── div .octotree-view
+            └── div .octotree-view {×2}
+                └── [FORM] form .octotree-view-body {📝}

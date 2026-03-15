@@ -1,0 +1,16 @@
+└── body {📝, i:3, 476.3KB}
+    └── div .flex {📝, i:3, 192.4KB}
+        ├── div .@container {📝, i:3, 192.2KB}
+        │   ├── div #header-wrapper {92.4KB}
+        │   │   └── [HEADER] header .header-module__6nzVrW__header {92.1KB}
+        │   │       ├── div .flex {82.1KB}
+        │   │       │   └── div .header-module__6nzVrW__main {81.1KB}
+        │   │       └── div .header-module__6nzVrW__right {l:3, 9.9KB}
+        │   │           └── div .flex {l:3, 9.9KB}
+        │   ├── [MAIN] main .px-4 {l:9, 70.5KB}
+        │   └── [FOOTER] footer .max-w-[var(--ds-page-width-with-margin)] {📝, i:3, 29.1KB}
+        │       └── [NAV] nav {📝, i:3, 29.0KB}
+        │           ├── div .grid {24.8KB}
+        │           └── div .footer-module__ESbTrq__statusRow {📝, i:3, l:1, 4.1KB}
+        │               └── fieldset .tailwind {📝, i:3, 3.3KB}
+        └── [HIDDEN] [SIDEBAR] aside .shrink-0

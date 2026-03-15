@@ -1,0 +1,13 @@
+└── body {📝, 302.7KB}
+    └── div #__next {📝, 270.7KB}
+        └── div .base_theme__K5IIh {📝, 270.4KB}
+            └── div .base_theme__K5IIh {📝, 270.3KB}
+                └── div .blue_theme__VG1s8 {📝, 270.2KB}
+                    ├── [HIDDEN] [NAV] div .globalNavigation_scrollSentinel__gP74N
+                    ├── [NAV] div .globalNavigation_globalNavigationWrapper__dUhMe {50.6KB}
+                    │   └── div .base_theme__K5IIh {50.5KB}
+                    ├── [MAIN] main .layout_main__LAl4b {📝, 171.8KB}
+                    │   ├── div .base_theme__K5IIh {l:10, 90.3KB}
+                    │   └── div .homepage_main__sRG4_ {×4, 38.1KB}
+                    └── div .base_theme__K5IIh {45.1KB}
+                        └── div .base_theme__FJXCL {45.0KB}

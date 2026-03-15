@@ -1,0 +1,68 @@
+└── body {📝 | i:1 | b:4 | 328.9KB}
+    ├── div #app {📝 | i:1 | b:4 | 276.3KB}
+    │   ├── [CARD] div .bili-video-card__wrap {card,video | l:1}
+    │   │   └── a
+    │   └── [FEED] div .bili-feed4 {feed | 📝 | i:1 | b:4 | 276.1KB}
+    │       ├── div .bili-header.large-header {header | 📝 | i:1 | ×2 | 51.6KB}
+    │       │   └── div .bili-header__bar {header | 📝 | i:1 | ×3 | 18.1KB}
+    │       │       ├── [LIST] ul .left-entry {l:8 | 3.9KB}
+    │       │       ├── [SEARCH] div .center-search-container.offset-center-search {container,search | 📝 | i:1 | 2.2KB}
+    │       │       │   └── [SEARCH] div .center-search__bar {search | 📝 | i:1 | 2.1KB}
+    │       │       │       ├── [NAV] form #nav-searchform {nav,search,form | 📝 | i:1 | 2.0KB}
+    │       │       │       │   ├── [NAV] div .nav-search-content {content,nav,search | 📝 | i:1 | 1.1KB}
+    │       │       │       │   └── [NAV] div .nav-search-btn {nav,search}
+    │       │       │       └── [HIDDEN] [SEARCH] div .search-panel {search,panel}
+    │       │       └── [LIST] ul .right-entry {12.0KB}
+    │       │           ├── li .v-popover-wrap.header-avatar-wrap {header,avatar | l:2 | 1.2KB}
+    │       │           │   └── div .header-avatar-wrap--container.mini-avatar--init {container,header,avatar | l:2 | 1.1KB}
+    │       │           │       ├── a .header-entry-mini {header}
+    │       │           │       └── a .header-entry-avatar {header,avatar}
+    │       │           ├── li .v-popover-wrap.right-entry__outside {message | l:6 | 2.1KB}
+    │       │           │   ├── div .red-point--message {message}
+    │       │           │   └── a .right-entry__outside {1.1KB}
+    │       │           │       └── span .right-entry-text {text}
+    │       │           └── li .right-entry-item {item | l:1 | ×2 | 1.8KB}
+    │       │               └── a .right-entry__outside {1.8KB}
+    │       │                   └── span .right-entry-text {text}
+    │       ├── [MAIN] main .bili-feed4-layout {feed | 201.9KB}
+    │       │   └── [FEED] div .feed2 {feed | 201.8KB}
+    │       │       └── div .recommended-container_floor-aside {container,recommend | 201.8KB}
+    │       │           ├── div .container.is-version8 {container | 198.5KB}
+    │       │           │   ├── div .recommended-swipe {recommend | 18.1KB}
+    │       │           │   │   └── div .recommended-swipe-core {recommend | 18.0KB}
+    │       │           │   ├── [CARD] div .feed-card {card,feed | l:3 | ×10 | 15.5KB}
+    │       │           │   │   └── [CARD] div .bili-feed-card {card,feed | l:3 | 15.5KB}
+    │       │           │   ├── [CARD] div .floor-single-card {card | l:5 | 8.1KB}
+    │       │           │   │   └── [CARD] div .floor-card.single-card {card | l:5 | 8.0KB}
+    │       │           │   ├── [CARD] div .bili-video-card {card,video | ×4}
+    │       │           │   │   └── [CARD] div .bili-video-card__skeleton {card,video,skeleton}
+    │       │           │   ├── div .load-more-anchor {more}
+    │       │           │   │   └── [CARD] div .floor-single-card {card}
+    │       │           │   ├── [CARD] div .bili-video-card {card,video | ×4}
+    │       │           │   │   └── [CARD] div .bili-video-card__skeleton {card,video,skeleton}
+    │       │           │   ├── [CARD] div .floor-single-card {card}
+    │       │           │   │   └── [CARD] div .floor-card.single-card {card,skeleton}
+    │       │           │   ├── [CARD] div .bili-video-card {card,video | ×4}
+    │       │           │   │   └── [CARD] div .bili-video-card__skeleton {card,video,skeleton}
+    │       │           │   └── [CARD] div .floor-single-card {card}
+    │       │           │       └── [CARD] div .floor-card.single-card {card,skeleton}
+    │       │           └── [FEED] div .feed-roll-btn {feed | 3.2KB}
+    │       │               └── button .primary-btn.roll-btn {3.1KB}
+    │       ├── [FEED] div .palette-button-outer.palette-feed4 {feed,button | l:2 | 9.1KB}
+    │       │   └── div .palette-button-inner {button | l:2 | 9.0KB}
+    │       │       └── div .palette-button-wrap {button | l:2 | 9.0KB}
+    │       │           ├── div .watchlater-pip-button {button | 3.6KB}
+    │       │           │   └── div .watchlater-pip-button-inner-wrap {button | 3.5KB}
+    │       │           │       └── div .watchlater-pip-button-inner {button | 2.2KB}
+    │       │           ├── [HIDDEN] div .flexible-roll-btn.hidden {hidden | 1.3KB}
+    │       │           ├── [HIDDEN] div .storage-box.hidden {hidden,box | l:2 | 3.3KB}
+    │       │           │   └── [HIDDEN] div .storable-items {item | l:2 | 2.3KB}
+    │       │           │       ├── [FEED] a .primary-btn.feedback {feed,feedback}
+    │       │           │       └── a .primary-btn {2.1KB}
+    │       │           └── div .top-btn-wrap
+    │       │               └── button .primary-btn.top-btn
+    │       │                   └── span .primary-btn-text {text}
+    │       └── [HIDDEN] div #biliMainFooter {main,footer,info}
+    ├── [HIDDEN] iframe #TG4rlbWAV7 {×2}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

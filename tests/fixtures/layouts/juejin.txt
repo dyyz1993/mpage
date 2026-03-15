@@ -1,0 +1,18 @@
+└── body {🔍, 📝, i:1, 113.6KB}
+    ├── div #__nuxt {🔍, 📝, i:1, 60.2KB}
+    │   └── div #__layout {🔍, 📝, i:1, 60.2KB}
+    │       └── div #juejin {🔍, 📝, i:1, 60.1KB}
+    │           ├── div .container {🔍, 📝, i:1, b:4, 46.5KB}
+    │           │   └── div .view-container {🔍, 📝, i:1, b:4, 46.4KB}
+    │           │       ├── [HEADER] header .main-header {🔍, 📝, i:1, b:3, 8.3KB}
+    │           │       └── [MAIN] main .container {37.9KB}
+    │           └── div .global-component-box {l:1, 13.5KB}
+    │               └── div .suspension-panel {l:1, 13.4KB}
+    ├── div .lead {14.5KB}
+    ├── div .upgrade-new-modal
+    └── div .risk-modal
+        └── [HIDDEN] div .byte-modal__wrapper
+            └── div .byte-modal__content
+                └── div .byte-modal__body
+                    └── div .risk-modal-inner
+                        └── div .risk-modal-footer

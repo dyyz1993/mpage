@@ -118,6 +118,13 @@ export const commands: Record<string, CommandDefinition> = {
     schema: z.object({ timeout: z.number() }),
     description: 'Wait for specified milliseconds',
   },
+  structure: {
+    schema: z.object({
+      selector: z.string().optional(),
+      maxDepth: z.number().optional(),
+    }),
+    description: 'Get page structure layout with selectors and array detection',
+  },
 };
 
 export function getCommandNames(): string[] {

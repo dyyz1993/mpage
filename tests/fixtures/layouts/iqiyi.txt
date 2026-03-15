@@ -1,0 +1,22 @@
+└── body {🔍, 📝, i:1, 288.8KB}
+    └── div #root {🔍, 📝, i:1, 286.1KB}
+        └── div .app_App__K8HqS {🔍, 📝, i:1, 285.9KB}
+            └── div .pages_pages__UkzcY {🔍, 📝, i:1, 285.9KB}
+                ├── div #topbar {🔍, 📝, i:1, 13.2KB}
+                │   ├── div .topbar_flexArea__aQyJC {🔍, 📝, i:1, 9.6KB}
+                │   │   └── [SEARCH] div #searchbar {🔍, 📝, i:1, 9.5KB}
+                │   └── div #pcw_topbar {3.5KB}
+                │       ├── div #btn_vipBtnB
+                │       ├── div #btn_vipBtnS
+                │       ├── div #btn_weatherBtn
+                │       ├── div #btn_gameBtn
+                │       ├── div #btn_uploadBtn
+                │       ├── div #clientBtn
+                │       ├── div #pwaBtn {1.2KB}
+                │       └── div #btn_msgBellBtn
+                ├── div .pages_page__o3Cjc {244.5KB}
+                │   ├── div .pages_container__t6j9W {244.0KB}
+                │   └── div .backTop_sideTools__Wecas
+                └── div .pages_side__pWNLH {27.9KB}
+                    └── div {27.9KB}
+                        └── div .side_container__-kzh4 {27.9KB}

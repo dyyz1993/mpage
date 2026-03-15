@@ -1,0 +1,93 @@
+└── body {🔍, 📝, i:1, 685.0KB}
+    └── div #a-page {🔍, 📝, i:1, 684.9KB}
+        ├── [NAV] a #nav-top
+        ├── [NAV] nav #shortcut-menu {l:5, 9.4KB}
+        │   ├── [NAV] h2 #nav-assistant-links-heading
+        │   ├── [NAV] ul .nav-assistant-links-container {l:1}
+        │   │   └── [NAV] li .nav-assistant-list-item {l:1}
+        │   │       └── [NAV] a #nav-assist-skip-to-main-content
+        │   ├── [HIDDEN] [NAV] hr .nav-assistant-separator
+        │   ├── [NAV] h2 #nav-assist-shortcuts-heading
+        │   ├── [NAV] ul #nav-assist-shortcuts-container {l:4, 8.0KB}
+        │   │   └── [NAV] li .nav-assistant-list-item {l:1, ×5, 1.7KB}
+        │   │       └── [NAV] a #nav-assist-search {1.6KB}
+        │   └── [NAV] div #nav-assist-shortcut-help
+        ├── [NAV] header #navbar-main {🔍, 📝, i:1, 31.2KB}
+        │   └── [NAV] div #navbar {🔍, 📝, i:1, 31.1KB}
+        │       ├── [NAV] div #nav-belt {🔍, 📝, i:1, b:4, l:6, 11.6KB}
+        │       │   ├── [NAV] div .nav-left {l:2, 3.5KB}
+        │       │   │   ├── [NAV] div #nav-logo {l:1, ×2}
+        │       │   │   └── [NAV] div #nav-global-location-toaster-script-container
+        │       │   ├── [NAV] div #nav-fill-search {🔍, 📝, i:1, b:2, 4.9KB}
+        │       │   │   └── [NAV] div #nav-search {🔍, 📝, i:1, b:2, 4.7KB}
+        │       │   └── [NAV] div .nav-right {l:4, 3.1KB}
+        │       │       └── [NAV] div #nav-tools {l:4, 2.8KB}
+        │       ├── [NAV] div #nav-flyout-iss-anchor {2.8KB}
+        │       │   ├── [NAV] div #nav-flyout-searchAjax
+        │       │   │   └── [NAV] div .nav-template
+        │       │   └── [NAV] div .a-section {2.3KB}
+        │       │       └── div .glow-toaster-content {1.9KB}
+        │       ├── [NAV] div #nav-flyout-anchor {12.1KB}
+        │       │   └── [NAV] div #nav-flyout-amazonprime {×21}
+        │       │       ├── [NAV] div .nav-arrow
+        │       │       ├── [NAV] div .nav-template
+        │       │       ├── [NAV] div .nav-flyout-buffer-left
+        │       │       ├── [NAV] div .nav-flyout-buffer-right
+        │       │       ├── [NAV] div .nav-flyout-buffer-top
+        │       │       └── [NAV] div .nav-flyout-buffer-bottom
+        │       ├── [NAV] div #nav-belt-search
+        │       ├── [NAV] div #nav-main {l:8, 4.2KB}
+        │       │   ├── [NAV] div .nav-left {l:1, 1.3KB}
+        │       │   │   └── [NAV] a #nav-hamburger-menu
+        │       │   ├── [NAV] div .nav-fill {l:7, 2.5KB}
+        │       │   │   ├── [NAV] div #nav-shop
+        │       │   │   └── [NAV] div #nav-xshop-container {l:7, 2.4KB}
+        │       │   └── [NAV] div .nav-right
+        │       │       └── [NAV] div #nav-swmslot
+        │       └── [NAV] div #nav-subnav-toaster {×2}
+        ├── [MAIN] div #pageContent {479.3KB}
+        │   └── div #gw-layout {425.2KB}
+        │       ├── div #gw-card-layout {114.2KB}
+        │       └── div #gw-content-grid {298.0KB}
+        │           └── div #main-content {×19, 81.7KB}
+        ├── [SIDEBAR] div #rhf {l:2, 1.5KB}
+        │   └── [HIDDEN] div .rhf-frame {l:2, 1.4KB}
+        │       └── div #rhf-container
+        └── [NAV] div #navFooter {14.5KB}
+            ├── [NAV] button #navBackToTop
+            │   └── [NAV] div .navFooterBackToTop
+            ├── [NAV] div .navFooterVerticalColumn {4.6KB}
+            │   └── [NAV] div .navFooterVerticalRow {4.5KB}
+            │       ├── [NAV] div .navFooterLinkCol {l:6}
+            │       │   ├── [NAV] div .navFooterColHead
+            │       │   └── [LIST] ul {l:6}
+            │       ├── [NAV] div .navFooterColSpacerInner
+            │       ├── [NAV] div .navFooterLinkCol {l:8, 1.4KB}
+            │       │   ├── [NAV] div .navFooterColHead
+            │       │   └── [LIST] ul {l:8, 1.3KB}
+            │       ├── [NAV] div .navFooterColSpacerInner
+            │       ├── [NAV] div .navFooterLinkCol {l:3}
+            │       │   ├── [NAV] div .navFooterColHead
+            │       │   └── [LIST] ul {l:3}
+            │       ├── [NAV] div .navFooterColSpacerInner
+            │       └── [NAV] div .navFooterLinkCol {l:7, 1.2KB}
+            │           ├── [NAV] div .navFooterColHead
+            │           └── [LIST] ul {l:7, 1.1KB}
+            ├── [NAV] div .nav-footer-line
+            ├── [NAV] div .navFooterLine {l:4, 1.6KB}
+            └── [NAV] div .navFooterLine {×2, 7.3KB}
+                └── [NAV] div .navFooterMoreOnAmazon {7.2KB}
+                    └── [LIST] ul {l:7, ×4, 1.9KB}
+                        ├── [NAV] li .navFooterDescItem {l:1}
+                        ├── [HIDDEN] [NAV] li .navFooterDescSpacer
+                        ├── [NAV] li .navFooterDescItem {l:1}
+                        ├── [HIDDEN] [NAV] li .navFooterDescSpacer
+                        ├── [NAV] li .navFooterDescItem {l:1}
+                        ├── [HIDDEN] [NAV] li .navFooterDescSpacer
+                        ├── [NAV] li .navFooterDescItem {l:1}
+                        ├── [HIDDEN] [NAV] li .navFooterDescSpacer
+                        ├── [NAV] li .navFooterDescItem {l:1}
+                        ├── [HIDDEN] [NAV] li .navFooterDescSpacer
+                        ├── [NAV] li .navFooterDescItem {l:1}
+                        ├── [HIDDEN] [NAV] li .navFooterDescSpacer
+                        └── [NAV] li .navFooterDescItem {l:1}

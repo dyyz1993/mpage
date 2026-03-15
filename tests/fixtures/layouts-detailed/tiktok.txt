@@ -1,0 +1,59 @@
+└── body {📝 | i:1 | 358.8KB}
+    ├── svg #svg-sprite-container {container}
+    ├── div #app {📝 | i:1 | 81.1KB}
+    │   ├── [SECTION] section
+    │   ├── [HIDDEN] div #app-header {container,header | 📝 | i:1 | l:2 | 11.4KB}
+    │   │   └── div .eqg6i5j2 {wrapper,main,header | 📝 | i:1 | l:2 | 11.3KB}
+    │   │       ├── button .e3ajq9v0.ebef5j00 {button}
+    │   │       └── div .ehs3vh71 {container,header | l:1 | ×3 | 2.9KB}
+    │   │           └── a .e3rduz80.link-a11y-focus {logo | 2.9KB}
+    │   ├── div .e1pgfmdu0 {container | 67.3KB}
+    │   │   ├── [NAV] div .e1l950oe0 {container,nav,placeholder | 28.4KB}
+    │   │   │   └── [NAV] div .e1l950oe1 {container,nav | 28.3KB}
+    │   │   │       ├── div .e1l950oe2 {content,container | l:1 | 5.7KB}
+    │   │   │       │   ├── div .e1l950oe3 {wrapper,logo | l:1 | 4.8KB}
+    │   │   │       │   │   └── a .esyfx990.link-a11y-focus {logo | 4.7KB}
+    │   │   │       │   └── [SEARCH] div .e1l950oe4 {wrapper,search}
+    │   │   │       │       └── [NAV] button .TUXButton.TUXButton--capsule {nav,search,button}
+    │   │   │       │           └── div .TUXButton-content {content,button}
+    │   │   │       └── div .e1l950oe5 {content,container,scroll | 22.5KB}
+    │   │   │           ├── [NAV] div .e1vp56d85 {container,main,nav | l:9 | 15.1KB}
+    │   │   │           │   ├── h2 {l:1 | ×7 | 1.0KB}
+    │   │   │           │   │   └── div .TUXTooltip-reference.e1vp56d81 {l:1 | 1.0KB}
+    │   │   │           │   ├── div .TUXTooltip-reference.e1vp56d81 {×2 | 1.0KB}
+    │   │   │           │   │   └── [NAV] button .TUXButton.TUXButton--default {nav,button}
+    │   │   │           │   ├── h2 {l:1 | 1.1KB}
+    │   │   │           │   │   └── div .TUXTooltip-reference.e1vp56d81 {l:1 | 1.1KB}
+    │   │   │           │   └── div .TUXTooltip-reference.e1vp56d81 {1.0KB}
+    │   │   │           │       └── [NAV] button .TUXButton.TUXButton--default {nav,menu,button,more}
+    │   │   │           ├── [NAV] div .e1l950oe7 {content,container,main,nav | 6.9KB}
+    │   │   │           │   ├── div .e1l950oe8 {container,button}
+    │   │   │           │   └── div .e3ll3zf0 {container,user | 6.7KB}
+    │   │   │           │       ├── p .TUXText.TUXText--tiktok-sans {count,text,follow,account}
+    │   │   │           │       └── div {6.4KB}
+    │   │   │           └── [NAV] div .e1l950oe9 {container,main,footer,nav}
+    │   │   │               └── div .enjgv3a0 {container,footer}
+    │   │   │                   └── h3 .enjgv3a8 {header,list | ×3}
+    │   │   └── [MAIN] main #main-content-homepage_hot {content,container,main,page,home | 38.8KB}
+    │   │       ├── div #column-list-container {container,list | 33.6KB}
+    │   │       │   └── [SECTION] article #one-column-item-0 {container,list,item,article,recommend | l:8 | ×9 | 18.1KB}
+    │   │       │       └── div .e1l1r7cp1 {content | l:8 | 18.0KB}
+    │   │       │           ├── [SECTION] section #media-card-0 {container,card,feed,video,media | l:7 | 11.2KB}
+    │   │       │           │   ├── [CARD] canvas .e1reenm10 {card,media,placeholder}
+    │   │       │           │   └── div .e1reenm13 {container,video | l:7 | 10.9KB}
+    │   │       │           └── [SECTION] section .e12arnib0 {container,action,section | l:1 | 6.7KB}
+    │   │       │               ├── div .efqn7qw0 {container,item,avatar,action | l:1 | 1.4KB}
+    │   │       │               ├── button .efpxn6t0 {item,button,action | ×2 | 2.0KB}
+    │   │       │               ├── div {1.0KB}
+    │   │       │               └── button .efpxn6t0 {item,button,action | 1.4KB}
+    │   │       ├── [SIDEBAR] aside .e1xmvfos0 {sidebar | 1.5KB}
+    │   │       │   └── [NAV] div .e87f1nv0 {container,nav,feed | 1.5KB}
+    │   │       │       └── div {×2}
+    │   │       │           └── button .TUXButton.TUXButton--capsule {item,button,disabled,action}
+    │   │       │               └── div .TUXButton-content {content,button}
+    │   │       └── div .e1sleddd1 {container | ×3}
+    │   └── div .e1pgfmdu3 {wrapper}
+    ├── div #__cdp_automation_badge_container__ {container,badge}
+    │   └── div {badge}
+    └── [HIDDEN] [MODAL] div .ec9omd60 {container,modal | ×6}
+        └── [MODAL] div .ec9omd62 {modal}

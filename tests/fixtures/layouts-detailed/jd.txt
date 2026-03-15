@@ -1,0 +1,42 @@
+└── body {📝 | i:2 | b:1 | 372.3KB}
+    ├── div .mod_container {container | 📝 | i:2 | b:1 | 158.7KB}
+    │   └── div #header {header | 📝 | i:2 | b:1 | 7.1KB}
+    │       └── div .w {📝 | i:2 | b:1 | 7.1KB}
+    │           ├── div #logo {logo | l:2}
+    │           │   ├── h1 .logo_tit {logo | l:1}
+    │           │   │   └── a .logo_tit_lk {logo}
+    │           │   ├── h2 .logo_subtit {logo}
+    │           │   └── div .logo_extend {logo | l:1}
+    │           └── [SEARCH] div #search {search | 📝 | i:2 | b:1 | l:2 | 3.3KB}
+    │               ├── div #jingyanWrapperBox {wrapper,box}
+    │               │   └── div #jingyanWrapper {wrapper}
+    │               └── [SEARCH] div .search-m {search | 📝 | i:2 | b:1 | l:2 | 3.0KB}
+    │                   ├── [SEARCH] div .search_logo {search,logo | l:1}
+    │                   │   └── [SEARCH] a .search_logo_lk {search,logo}
+    │                   ├── [FORM] div .form.include_jingyan {form | 📝 | i:2 | b:1 | 2.1KB}
+    │                   │   ├── [HIDDEN] [SEARCH] ul #shelper {search,help}
+    │                   │   ├── [SEARCH] div #J_searchbg {search}
+    │                   │   │   └── div .item {item | ×10}
+    │                   │   ├── input #key {text}
+    │                   │   ├── [SEARCH] span .photo-search-btn {search | 📝 | i:1}
+    │                   │   │   └── [SEARCH] div .img_search_wrap___3DMxZ {search,img | 📝 | i:1}
+    │                   │   ├── button .button {button}
+    │                   │   └── div .custom-select {select}
+    │                   │       ├── [ACTIVE] span #selected {select,selected}
+    │                   │       ├── img .select-img {select,img}
+    │                   │       └── [HIDDEN] [LIST] ul .dropdown-options {dropdown,option}
+    │                   └── div #settleup {dropdown | l:1}
+    │                       ├── div .cw-icon {icon | l:1}
+    │                       │   ├── i .iconfont {icon}
+    │                       │   ├── a
+    │                       │   └── i #shopping-amount {count}
+    │                       └── div .dropdown-layer {dropdown}
+    ├── div #J_footer {footer | 14.2KB}
+    │   └── div .mod_help {help | 5.3KB}
+    │       └── div .grid_c1.mod_help_inner {help | 5.2KB}
+    │           └── div .mod_help_list {list,help | 5.1KB}
+    │               └── [NAV] div .mod_help_nav {nav,help | l:6 | ×5 | 1.2KB}
+    │                   ├── [NAV] h5 .mod_help_nav_tit {nav,help}
+    │                   └── [NAV] ul .mod_help_nav_con {nav,help | l:6 | 1.1KB}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

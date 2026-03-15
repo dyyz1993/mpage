@@ -1,0 +1,73 @@
+└── body {📝 | i:1 | 543.6KB}
+    ├── [HEADER] header {l:2 | 13.4KB}
+    │   ├── div .h-header-h.duration-medium {header,scroll | l:1 | 5.7KB}
+    │   │   ├── a .transition.duration-short {item,disabled,visible,text}
+    │   │   └── div .md:-me-5xs.flex {item | 5.1KB}
+    │   │       ├── [HIDDEN] button .p-xs.text-primary-44 {hidden,text | 2.3KB}
+    │   │       └── div .gap-4xs.flex {item | 2.7KB}
+    │   │           ├── div .relative.z-[51] {2.0KB}
+    │   │           │   └── div .duration-short.ease-primary {×2}
+    │   │           │       └── button .transition.duration-200 {item,disabled,visible,text}
+    │   │           └── [HIDDEN] div .gap-4xs.hidden {hidden}
+    │   │               └── div .bg-secondary-44.dark:bg-secondary-12
+    │   │                   └── button #radix-_R_1t5dpsnpfivb_ {item,disabled,text,close}
+    │   ├── [FORM] div .-ms-5xs.is-sm {form | 📝 | b:1 | l:1 | 7.5KB}
+    │   │   └── div .gap-3xs.h-header-h {header | l:1 | 7.4KB}
+    │   │       └── [HIDDEN] button .p-xs.text-primary-44 {hidden,text,block | 2.3KB}
+    │   └── [HIDDEN] [SIDEBAR] div .duration-sidebar.ease-curve-sidebar {sidebar,hidden,filter,block}
+    ├── [NAV] div .duration-sidebar.ease-curve-sidebar {sidebar,nav | 📝 | i:1 | 191.6KB}
+    │   ├── [HIDDEN] div .relative.hidden {hidden,block | l:3 | 1.6KB}
+    │   │   └── [HIDDEN] [NAV] div #site-switcher-desktop {nav,switch,text | l:3 | 1.5KB}
+    │   │       └── [NAV] div .fixed.w-[calc(var(--spacing-nav-width)-2*var(--spacing-xs))] {nav,select | l:3 | 1.4KB}
+    │   │           ├── div .text-primary-60.px-4xs {text}
+    │   │           └── [LIST] ul .mt-0.5.space-y-0.5 {l:3 | 1.2KB}
+    │   │               └── li .group.relative {group | l:1 | ×3}
+    │   │                   └── a .transition.ease-curve-a {switch,visible,group,block}
+    │   ├── [HIDDEN] [SIDEBAR] div #sidebar-drawer {sidebar,hidden | 60.9KB}
+    │   │   ├── [HIDDEN] [NAV] nav #navigation-sidebar-desktop {sidebar,nav,hidden,block | l:10 | 15.0KB}
+    │   │   │   ├── [HIDDEN] div .fixed.max-h-[calc(100svh-192px)] {hidden | l:10 | 12.4KB}
+    │   │   │   │   └── [NAV] div .animate-sidebarSlideInStart.w-[calc(var(--spacing-nav-width)-2*var(--spacing-xs))] {sidebar,nav,slide | l:10 | 12.4KB}
+    │   │   │   │       └── [NAV] ul .text-nav-mobile.space-y-0.5 {nav,text | l:10 | 12.3KB}
+    │   │   │   │           └── li .group.relative {group | l:1 | ×10 | 1.5KB}
+    │   │   │   │               └── div .focus-visible:before:bg-primary-4.focus-visible:before:outline-primary-44 {item,visible | l:1 | 1.5KB}
+    │   │   │   └── div .bottom-sm.fixed {2.5KB}
+    │   │   │       ├── [HIDDEN] div .h-md.flex {hidden | 1.2KB}
+    │   │   │       │   └── [HIDDEN] button #radix-_R_cqdpsnpfivb_ {hidden,text,close | 1.2KB}
+    │   │   │       └── [HIDDEN] button .p-4xs.text-primary-44 {hidden,text,block | 1.2KB}
+    │   │   └── [HIDDEN] [NAV] nav #navigation-sidebar-mobile {sidebar,nav,form,hidden | 45.8KB}
+    │   │       ├── [NAV] div .text-nav-mobile.md:text-nav-desktop {nav,text | 42.5KB}
+    │   │       │   └── [LIST] ul .space-y-0.5 {42.2KB}
+    │   │       │       └── li .hover:before:bg-primary-4.focus-visible:before:bg-primary-4 {item,visible | l:10 | ×10 | 9.2KB}
+    │   │       │           ├── button .px-4xs.py-3xs {text}
+    │   │       │           └── [NAV] div .fixed.z-[1] {sidebar,nav,visible | l:10 | 8.5KB}
+    │   │       │               └── [HIDDEN] div .px-sm.pt-2xs {hidden}
+    │   │       └── [NAV] div .duration-short.fixed {nav,item | 3.1KB}
+    │   │           ├── [HIDDEN] div .h-md.flex {hidden | 1.2KB}
+    │   │           │   └── [HIDDEN] button #radix-_R_1dadpsnpfivb_ {hidden,text,close | 1.2KB}
+    │   │           ├── [HIDDEN] button .p-4xs.text-primary-44 {hidden,text,block | 1.2KB}
+    │   │           └── button #radix-_R_ladpsnpfivb_ {item,disabled,text,close}
+    │   └── div .pt-header-h.relative {header | 📝 | i:1 | b:5 | 128.9KB}
+    │       ├── div {📝 | i:1 | b:5 | 128.7KB}
+    │       │   ├── [FORM] dialog .ease-out-cubic.fixed {form,visible,scroll,filter | 📝 | b:1 | 1.6KB}
+    │       │   │   └── [FORM] div .ease-out-cubic.flex {form,filter | 📝 | b:1 | 1.3KB}
+    │       │   │       ├── div .p-sm.flex {1.0KB}
+    │       │   │       │   └── button .text-primary-100.bg-primary-4 {item,disabled,visible,text}
+    │       │   │       └── [MODAL] div #modal-portal {container,item,modal}
+    │       │   ├── [MAIN] main #main {container,main | 96.2KB}
+    │       │   │   └── [SECTION] article .flex.flex-col {96.0KB}
+    │       │   │       ├── div .-mb-2xl.px-sm {container,header | l:4 | 11.8KB}
+    │       │   │       │   └── div .relative.flex {l:4 | 11.7KB}
+    │       │   │       │       └── div .flex.h-full {l:4 | 11.6KB}
+    │       │   │       └── div .@container.w-full {container | l:5 | ×6 | 22.4KB}
+    │       │   │           └── div .@lg:max-w-container.@lg:grid-cols-4 {container | l:5 | 22.3KB}
+    │       │   │               └── div .@lg:col-span-3.@lg:sticky {header | l:2 | 12.2KB}
+    │       │   └── [FOOTER] footer .@container.mt-3xl {container | 📝 | i:1 | b:2 | 30.9KB}
+    │       │       ├── [NAV] div .@md:px-md.px-sm {container,nav,text | 15.1KB}
+    │       │       └── div .px-sm.gap-md {container,item | 📝 | i:1 | b:2 | l:7 | 15.7KB}
+    │       │           └── div .flex.flex-wrap {×2}
+    │       │               ├── [NAV] span .text-nav {nav,text}
+    │       │               └── [NAV] button .text-nav.decoration-gray-40 {nav,text,close}
+    │       └── [HIDDEN] [SIDEBAR] div .duration-sidebar.ease-curve-sidebar {sidebar,hidden,filter}
+    ├── [HIDDEN] iframe
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

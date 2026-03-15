@@ -1,0 +1,22 @@
+└── body {📝 | i:2 | 33.9KB}
+    ├── a #ariaTipText {text}
+    │   └── img
+    ├── div #root {📝 | i:2 | 10.6KB}
+    │   └── div {📝 | i:2 | 10.6KB}
+    │       ├── div .LoadingBar {loading}
+    │       ├── [MAIN] main .App-main {main | 📝 | i:2 | 9.8KB}
+    │       │   └── div {📝 | i:2 | 9.8KB}
+    │       │       └── div .SignFlowHomepage {page,home | 📝 | i:2 | 9.8KB}
+    │       │           ├── div .SignFlowHomepage-content {content,page,home | 📝 | i:2 | l:3 | 7.1KB}
+    │       │           │   ├── img .SignFlowHomepage-logo {logo,page,home}
+    │       │           │   └── div .signQr-container {container | 📝 | i:2 | l:3 | 6.9KB}
+    │       │           │       └── div .signQr-leftContainer {container | ×2}
+    │       │           └── [FOOTER] footer .SignFlowHomepage-footer {footer,page,home | 2.6KB}
+    │       │               └── div .ZhihuReports {report | l:5}
+    │       │                   └── a {×5}
+    │       └── [SIDEBAR] div
+    │           └── div .CornerButtons {button}
+    │               └── [HIDDEN] div .CornerAnimayedFlex.CornerAnimayedFlex--hidden {hidden}
+    │                   └── button .Button.CornerButton {button}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

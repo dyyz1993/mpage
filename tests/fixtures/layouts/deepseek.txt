@@ -1,0 +1,4 @@
+└── body {90.6KB}
+    └── [MAIN] main .flex {42.2KB}
+        └── div .w-full {l:5, ×2, 19.3KB}
+            └── div .flex {l:3, 18.5KB}

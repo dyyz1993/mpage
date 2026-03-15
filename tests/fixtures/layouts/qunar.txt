@@ -1,0 +1,14 @@
+└── body {9.0KB}
+    └── div #app {×2, 8.6KB}
+        └── div .home {8.6KB}
+            ├── div .home-pc {5.6KB}
+            │   ├── div .header-pc {1.5KB}
+            │   │   └── div .width2000 {1.5KB}
+            │   │       └── [NAV] div .nav {l:10, 1.4KB}
+            │   └── div .home-container {4.0KB}
+            │       ├── div .home-content {l:3}
+            │       └── div .footer-pc {l:9, 2.3KB}
+            │           └── div .footer-text {l:5}
+            └── div .home-touch {l:5, 3.0KB}
+                └── div .home-touch-service {1.8KB}
+                    └── div .service-card-list {1.7KB}

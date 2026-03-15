@@ -1,0 +1,73 @@
+└── body {🔍, 📝, i:2, 221.5KB}
+    ├── [HEADER] header .site-header {🔍, 📝, i:1, 58.6KB}
+    │   └── [SECTION] section .wrapper {🔍, 📝, i:1, 58.1KB}
+    │       ├── [NAV] nav #site-nav {35.6KB}
+    │       │   ├── [HIDDEN] [NAV] h2 #site-nav-label
+    │       │   ├── [NAV] a #mainNav-netlifyLogo {4.3KB}
+    │       │   ├── [LIST] ul .menu {l:1}
+    │       │   │   └── li
+    │       │   │       └── [NAV] button #main-nav-compact-search
+    │       │   ├── [NAV] button #main-nav-compact-hamburger
+    │       │   └── [LIST] ul .menu {29.5KB}
+    │       │       ├── li .has-submenu {l:9, ×4, 2.6KB}
+    │       │       │   └── submenu-utils {l:9, 2.5KB}
+    │       │       └── [NAV] li .nav-search
+    │       │           └── [NAV] button #cta-main-nav-search
+    │       └── astro-island {🔍, 📝, i:1, b:3, l:4, 18.7KB}
+    │           └── [SEARCH] dialog .n-search-modal {🔍, 📝, i:1, b:3, l:4, 18.2KB}
+    │               └── [SEARCH] div .n-search-container {🔍, 📝, i:1, b:3, l:4, 18.0KB}
+    │                   ├── [SEARCH] div .n-search-input-wrapper {🔍, 📝, i:1, b:1, 1.6KB}
+    │                   ├── [SEARCH] div .n-search-window {l:4, 16.1KB}
+    │                   └── [SEARCH] div .n-search-footer
+    ├── [MAIN] main #main {134.1KB}
+    │   ├── [SECTION] section .n-page-section {l:2, ×2, 70.4KB}
+    │   ├── [FORM] section #section-platform {📝, l:3, 6.3KB}
+    │   │   └── div .n-switchback-group {l:3, 5.6KB}
+    │   │       └── [SIDEBAR] div .n-switchback {l:1, ×3, 1.9KB}
+    │   │           └── [LIST] ul .n-switchback-content
+    │   └── [SECTION] section #section-primitives {l:5, ×2, 49.7KB}
+    │       └── n-tabs .n-tabbed-content {l:5, 46.8KB}
+    │           ├── div {6.0KB}
+    │           └── div .n-tabpanel-group {l:5, 40.7KB}
+    │               └── div #mmriucyr-panel-0 {l:1, ×5, 10.0KB}
+    │                   └── div .n-tabbed-content-wrapper {l:1, 9.8KB}
+    ├── [FOOTER] footer .site-footer {📝, i:1, b:2, 19.7KB}
+    │   ├── [LIST] ul .wrapper {l:6, 5.8KB}
+    │   ├── [NAV] nav {7.9KB}
+    │   │   ├── details .section {l:8, 1.3KB}
+    │   │   │   ├── summary
+    │   │   │   └── [LIST] ul .l-stack {l:8}
+    │   │   ├── [SECTION] section .section {l:8, 1.1KB}
+    │   │   │   └── [LIST] ul .l-stack {l:8}
+    │   │   ├── details .section {l:8, 1.2KB}
+    │   │   │   ├── summary
+    │   │   │   └── [LIST] ul .l-stack {l:8}
+    │   │   ├── [SECTION] section .section {l:8}
+    │   │   │   └── [LIST] ul .l-stack {l:8}
+    │   │   ├── details .section {l:7, 1.0KB}
+    │   │   │   ├── summary
+    │   │   │   └── [LIST] ul .l-stack {l:7}
+    │   │   ├── [SECTION] section .section {l:7}
+    │   │   │   └── [LIST] ul .l-stack {l:7}
+    │   │   ├── details .section {l:4}
+    │   │   │   ├── summary
+    │   │   │   └── [LIST] ul .l-stack {l:4}
+    │   │   └── [SECTION] section .section {l:4}
+    │   │       └── [LIST] ul .l-stack {l:4}
+    │   ├── [FORM] section .newsletter-form {📝, i:1, b:1, 2.0KB}
+    │   │   └── [FORM] article .hubspot-form-wrapper {📝, i:1, b:1, 1.4KB}
+    │   │       ├── [FORM] div #hubspot-form-site-footer {📝}
+    │   │       └── [FORM] form .hs-form {📝, i:1, b:1, 1.2KB}
+    │   │           ├── [FORM] div .hs-form-field {📝, i:1, ×6}
+    │   │           └── div .hs-submit
+    │   └── div .wrapper {l:4, 1.1KB}
+    │       └── [LIST] ul .legal {l:4}
+    │           └── li
+    ├── div .ask-netlify-button {1.5KB}
+    ├── div #onetrust-consent-sdk {l:1, 1.3KB}
+    │   └── div #onetrust-banner-sdk {l:1, 1.2KB}
+    │       └── div .ot-sdk-container {l:1, 1.1KB}
+    │           └── div .ot-sdk-row {l:1}
+    │               └── div #onetrust-button-group-parent
+    │                   └── div #onetrust-button-group
+    └── div #hs-web-interactives-floating-container

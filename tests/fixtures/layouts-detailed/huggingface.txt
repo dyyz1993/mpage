@@ -1,0 +1,58 @@
+└── body {📝 | i:1 | b:5 | 140.8KB}
+    ├── div .flex.min-h-dvh {📝 | i:1 | b:5 | 139.4KB}
+    │   ├── div .SVELTE_HYDRATER.contents {content | ×2}
+    │   ├── div .SVELTE_HYDRATER.contents {content,main,header,order | 📝 | i:1 | b:2 | l:10 | 11.4KB}
+    │   │   └── [HEADER] header .border-b.border-gray-100 {order | 📝 | i:1 | b:2 | l:10 | 11.2KB}
+    │   │       └── div .w-full.px-4 {container,item | 📝 | i:1 | b:2 | l:10 | 11.1KB}
+    │   │           ├── div .flex.flex-1 {item | 📝 | i:1 | b:1 | l:1 | 2.1KB}
+    │   │           │   ├── a .mr-5.flex {item}
+    │   │           │   │   ├── img .w-7.md:mr-2
+    │   │           │   │   └── [HIDDEN] span .hidden.whitespace-nowrap {hidden,text,block}
+    │   │           │   ├── div .relative.flex-1 {📝 | i:1}
+    │   │           │   │   └── [FORM] input .w-full.dark:bg-gray-950 {form,input | 🔍 | 📝}
+    │   │           │   └── [HIDDEN] div .flex.flex-none {item,hidden | 1.1KB}
+    │   │           │       └── button .relative.z-40 {item | 1.0KB}
+    │   │           └── [HIDDEN] [NAV] nav .ml-auto.hidden {hidden,block | l:9 | 9.0KB}
+    │   │               └── [LIST] ul .flex.items-center {item | l:9 | 8.9KB}
+    │   │                   ├── li .hover:text-indigo-700 {text | l:1 | ×3}
+    │   │                   │   └── a .group.flex {item,text,group}
+    │   │                   ├── [HIDDEN] li .hover:text-blue-800.dark:text-blue-400 {hidden,text | l:1 | 1.2KB}
+    │   │                   │   └── a .group.flex {item,text,group | 1.1KB}
+    │   │                   ├── li .hover:text-yellow-700 {text | l:1 | 1.4KB}
+    │   │                   │   └── a .group.flex {item,text,group | 1.4KB}
+    │   │                   ├── [HIDDEN] li .hover:text-black.dark:hover:text-white {hidden,text | l:1}
+    │   │                   │   └── a .group.flex {item,text,group}
+    │   │                   └── li {1.7KB}
+    │   │                       └── div .relative.group {group | 1.7KB}
+    │   ├── div .SVELTE_HYDRATER.contents {content}
+    │   ├── [MAIN] main .flex.flex-1 {123.8KB}
+    │   │   └── div .container.pt-2 {container | l:3 | ×4 | 6.6KB}
+    │   │       └── [HIDDEN] div .relative.flex {item,hidden,text | l:3 | 6.5KB}
+    │   │           ├── [HIDDEN] div .SVELTE_HYDRATER.contents {content,hidden | l:1 | 3.7KB}
+    │   │           │   └── [HIDDEN] div .absolute.top-4 {hidden | l:1 | 2.8KB}
+    │   │           │       └── a .bg-linear-to-r.shadow-xs {item,text,order | 2.7KB}
+    │   │           │           ├── div .dark:bg-yellow-500/10.group {text,group}
+    │   │           │           ├── [HIDDEN] [LIST] ul .scrollbar-hidden.relative {item,hidden,scroll}
+    │   │           │           └── div .flex.items-center {item | 1.4KB}
+    │   │           ├── img .-mt-3.mb-7
+    │   │           ├── h1 .relative.mb-8 {text}
+    │   │           ├── p .max-w-lg.text-balance {text}
+    │   │           ├── div .text-white!.flex {item,text | l:2 | 1.3KB}
+    │   │           │   ├── div .group.relative {group | l:1}
+    │   │           │   │   ├── a .bg-linear-to-r.group {item,order,group}
+    │   │           │   │   └── [HIDDEN] div .pointer-events-none.absolute {group | ×2}
+    │   │           │   ├── span .lg:text-smd.text-sm {text}
+    │   │           │   └── a .text-gray-200!.underline {text}
+    │   │           ├── [HIDDEN] img .pointer-events-none.relative {select,hidden}
+    │   │           ├── [HIDDEN] img .pointer-events-none.absolute {select,hidden,block}
+    │   │           └── [HIDDEN] img .pointer-events-none.absolute {select,hidden}
+    │   └── [FOOTER] footer .border-t.border-gray-100 {order | 3.9KB}
+    │       └── div .container.pb-32 {container | 3.8KB}
+    │           └── div .grid.gap-8 {3.8KB}
+    │               └── div .sm:col-span-2.md:col-span-1 {1.2KB}
+    │                   └── div .SVELTE_HYDRATER.contents {content,switch | 1.2KB}
+    │                       └── div .relative.inline-block {block | 1.0KB}
+    │                           └── button .rounded-full.border {item,text,order}
+    ├── div #__cdp_automation_badge_container__ {container,badge}
+    │   └── div {badge}
+    └── [HIDDEN] iframe

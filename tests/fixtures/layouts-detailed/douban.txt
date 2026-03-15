@@ -1,0 +1,36 @@
+└── body {📝 | i:1 | b:1 | 82.6KB}
+    ├── div {📝 | i:1 | b:1 | l:10 | 2.2KB}
+    │   └── [NAV] div #anony-nav-banner {nav | l:1 | ×2}
+    │       └── h1 #douban-logo {logo | l:1}
+    │           └── a
+    ├── div #anony-sns {section | 8.5KB}
+    │   └── div .wrapper {wrapper | 8.5KB}
+    │       ├── div #dale_anonymous_homepage_top_for_crazy_ad {page,home}
+    │       └── div .main {main | 4.7KB}
+    ├── div #anony-group {group,section | 11.1KB}
+    │   └── div .wrapper {wrapper | 11.1KB}
+    │       ├── [NAV] div .sidenav {nav | 2.1KB}
+    │       │   ├── h2 .section-title {title,section | l:1}
+    │       │   │   └── a
+    │       │   └── [NAV] div .side-links.nav-anon {nav | 2.0KB}
+    │       │       └── [LIST] ul {1.9KB}
+    │       └── div .main {main | 8.9KB}
+    │           └── div .group-list.list {list,group | 8.6KB}
+    │               └── [LIST] ul {8.6KB}
+    ├── div #anony-movie {section | ×6 | 7.0KB}
+    │   └── div .wrapper {wrapper | 7.0KB}
+    │       ├── [NAV] div .sidenav {nav | l:6}
+    │       │   ├── h2 .section-title {title,section | l:1}
+    │       │   │   └── a
+    │       │   ├── [NAV] div .side-links.nav-anon {nav | l:5}
+    │       │   │   └── [LIST] ul {l:5}
+    │       │   │       └── [NAV] li .site-nav-bt {nav | l:1}
+    │       │   │           └── a
+    │       │   └── div .apps-list {list}
+    │       │       └── [LIST] ul
+    │       └── div .main {main | 5.0KB}
+    │           └── div .movie-list.list {list | 4.8KB}
+    │               └── [LIST] ul {4.7KB}
+    ├── div .wrapper {wrapper | 2.2KB}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

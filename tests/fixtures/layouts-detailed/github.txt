@@ -1,0 +1,91 @@
+└── body {📝 | 889.4KB}
+    ├── div .logged-in.env-production {page | 📝 | 884.4KB}
+    │   ├── div .position-relative.header-wrapper {wrapper,header | 📝 | 106.7KB}
+    │   │   ├── a .tmp-p-3.color-bg-accent-emphasis {content,show}
+    │   │   ├── span .progress-pjax-loader.Progress {progress,loader}
+    │   │   │   └── span .Progress-item.progress-pjax-loader-bar {item,progress,loader}
+    │   │   ├── react-partial .loaded {📝 | i:4 | 63.8KB}
+    │   │   │   └── div {📝 | i:4 | 62.2KB}
+    │   │   │       └── [NAV] header .GlobalNav.styles-module__appHeader__YzYWk {header,nav | 📝 | i:4 | 62.0KB}
+    │   │   │           └── div {📝 | i:4 | 61.7KB}
+    │   │   │               └── [NAV] div .styles-module__left__Fylw7 {nav | l:4 | ×3 | 7.1KB}
+    │   │   │                   ├── div
+    │   │   │                   └── a .styles-module__appHeaderHome__nkA_U {header,button,visible,icon,home | 1.3KB}
+    │   │   └── [HIDDEN] div .js-global-bar {📝 | i:4 | l:2 | ×2 | 39.0KB}
+    │   │       ├── [NAV] qbsearch-input .search-input {nav,search,suggest,input | 📝 | i:4 | l:2 | 38.7KB}
+    │   │       │   ├── [SEARCH] div .search-input-container.search-with-dialog {container,search,item,input,dialog | 📝 | i:1 | b:2 | l:1 | 30.8KB}
+    │   │       │   │   ├── [SEARCH] input .js-site-search-type-field {search}
+    │   │       │   │   └── [HIDDEN] div .Overlay--hidden {overlay,hidden | 📝 | i:1 | b:2 | l:1 | 30.5KB}
+    │   │       │   │       └── [SEARCH] modal-dialog #search-suggestions-dialog {search,suggest,input,dialog,overlay | 📝 | i:1 | b:2 | l:1 | 30.4KB}
+    │   │       │   │           ├── [SEARCH] h1 #search-suggestions-dialog-header {header,search,suggest,dialog}
+    │   │       │   │           └── div .Overlay-body.Overlay-body--paddingNone {overlay | 📝 | i:1 | b:2 | l:1 | 30.0KB}
+    │   │       │   ├── [HIDDEN] [SEARCH] div .dark-backdrop.position-fixed {search,input}
+    │   │       │   └── div .color-fg-default {📝 | i:3 | l:1 | 7.2KB}
+    │   │       │       ├── dialog-helper {📝 | i:1 | b:3 | 2.7KB}
+    │   │       │       │   └── [SEARCH] dialog #feedback-dialog {search,feed,input,dialog,overlay | 📝 | i:1 | b:3 | 2.7KB}
+    │   │       │       │       ├── div .Overlay-header {header,overlay}
+    │   │       │       │       ├── [MODAL] scrollable-region {feed,dialog,title,feedback | 📝 | i:1}
+    │   │       │       │       └── div .Overlay-footer.Overlay-footer--alignEnd {footer,overlay}
+    │   │       │       └── [SEARCH] custom-scopes {search,input | 📝 | i:2 | b:3 | l:1 | 4.4KB}
+    │   │       │           └── dialog-helper {📝 | i:2 | b:3 | l:1 | 4.3KB}
+    │   │       │               └── [SEARCH] dialog #custom-scopes-dialog {search,input,modal,dialog,overlay | 📝 | i:2 | b:3 | l:1 | 4.2KB}
+    │   │       └── input .js-data-jump-to-suggestions-path-csrf {suggest}
+    │   ├── div #start-of-content {content,show}
+    │   ├── div #js-flash-container {container}
+    │   ├── notification-shelf-watcher .js-socket-channel {notification}
+    │   ├── [HIDDEN] div {notification,placeholder}
+    │   ├── div .application-main {main | 📝 | 770.3KB}
+    │   │   └── div .color-bg-default {📝 | 770.1KB}
+    │   │       ├── [SIDEBAR] aside .hide-xl.hide-lg {hide,order | l:4 | 8.3KB}
+    │   │       │   └── div .d-flex.flex-items-center {item | l:4 | 8.2KB}
+    │   │       │       ├── img .avatar.avatar-small {avatar}
+    │   │       │       └── select-panel #switch_dashboard_context_three_column {switch,text,dashboard | l:4 | 8.0KB}
+    │   │       │           └── dialog-helper {l:4 | 7.7KB}
+    │   │       │               ├── button #switch_dashboard_context_three_column-button {button,switch,visible,count,text}
+    │   │       │               └── [MODAL] dialog #switch_dashboard_context_three_column-dialog {select,switch,panel,dialog,overlay | l:4 | 6.8KB}
+    │   │       └── [FEED] div .d-md-flex.feed-background {feed | 📝 | 761.7KB}
+    │   │           ├── [SIDEBAR] aside .feed-left-sidebar.col-md-4 {sidebar,feed,hide,order | 📝 | i:1 | b:3 | 25.6KB}
+    │   │           │   └── [SIDEBAR] div .dashboard-sidebar {sidebar,dashboard | 📝 | i:1 | b:3 | 25.4KB}
+    │   │           │       └── div .top-0.overflow-y-auto {container,scroll | 📝 | i:1 | b:3 | 25.4KB}
+    │   │           │           ├── div .tmp-px-3.tmp-pt-3 {l:4 | 8.3KB}
+    │   │           │           └── loading-context .loading-context.position-relative {loading,text | 📝 | i:1 | b:1 | 16.9KB}
+    │   │           └── div .flex-auto.col-md-8 {📝 | 736.0KB}
+    │   │               └── div .d-md-flex {📝 | 735.9KB}
+    │   │                   └── [FEED] div .tmp-pt-4.d-flex {content,feed,order | 📝 | 735.8KB}
+    │   │                       ├── [HIDDEN] [FEED] div .overflow-x-hidden.d-flex {main,feed,hidden,dashboard | 📝 | 729.8KB}
+    │   │                       └── [SIDEBAR] aside .feed-right-sidebar.tmp-mb-5 {sidebar,feed | l:5 | 5.9KB}
+    │   ├── [HIDDEN] div #ajax-error-message {error,message | 1.1KB}
+    │   │   └── button .flash-close.js-ajax-error-dismiss {error,close}
+    │   ├── [MODAL] template #site-details-dialog {dialog,detail | 1.0KB}
+    │   ├── [HIDDEN] [CARD] div .Popover.js-hovercard-content {content,card}
+    │   │   └── div .Popover-message.Popover-message--bottom-left {message,box}
+    │   └── template #snippet-clipboard-copy-button {button | ×2 | 1.3KB}
+    ├── div #js-global-screen-reader-notice {notice | ×2}
+    ├── [NAV] nav .octotree-sidebar.octotree-github-sidebar {sidebar | 📝 | i:3 | b:2 | l:2 | 4.6KB}
+    │   ├── [HIDDEN] div .octotree-toggle {toggle}
+    │   │   ├── i .octotree-toggle-icon {toggle,icon}
+    │   │   └── div .octotree-toggle__brand {toggle | ×2}
+    │   ├── div .octotree-main-icons {main,icon}
+    │   │   ├── [SIDEBAR] a .octotree-pin {sidebar}
+    │   │   └── a .octotree-settings {setting}
+    │   ├── div .octotree-views {📝 | i:3 | b:2 | l:2 | 3.7KB}
+    │   │   ├── div .octotree-view.octotree-error-view {error}
+    │   │   │   ├── div .octotree-view-header.octotree-header-text-top {header,text}
+    │   │   │   └── [FORM] form .octotree-view-body {📝}
+    │   │   │       └── div .message {message}
+    │   │   └── div .octotree-view.octotree-settings-view {setting | 📝 | i:3 | b:2 | l:2 | 3.0KB}
+    │   │       ├── div .octotree-view-header.octotree-header-text-top {header,text}
+    │   │       └── [FORM] form .octotree-view-body {📝 | i:3 | b:2 | l:2 | 2.9KB}
+    │   │           ├── div .octotree-settings-token {setting | 📝 | i:1 | b:1 | l:2 | ×4 | 1.0KB}
+    │   │           │   ├── div .octotree-settings-gh-btn {setting}
+    │   │           │   │   └── button .btn.btn-primary
+    │   │           │   └── div .is-flex.octotree-settings-token-wrapper {wrapper,setting | 📝 | i:1 | l:1}
+    │   │           │       ├── [FORM] input .form-control.input-block {form,input,block | 📝}
+    │   │           │       └── a .octotree-create-token
+    │   │           └── div
+    │   │               └── button .btn.btn-primary
+    │   └── div .octotree-footer {footer}
+    │       └── div .octotree-footer-login {footer,login}
+    │           └── a .octotree-login-action {action,login}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

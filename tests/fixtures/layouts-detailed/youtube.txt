@@ -1,0 +1,104 @@
+└── body {📝 | i:3 | 744.3KB}
+    ├── ytd-app {📝 | i:3 | 688.2KB}
+    │   ├── div #content {content | 📝 | i:2 | 636.3KB}
+    │   │   ├── div #masthead-container {container | 📝 | i:1 | l:1 | 23.7KB}
+    │   │   │   └── [HEADER] ytd-masthead #masthead {📝 | i:1 | l:1 | 23.6KB}
+    │   │   │       └── div #container {container | 📝 | i:1 | l:1 | 23.0KB}
+    │   │   │           └── div #start {l:1 | ×3 | 12.7KB}
+    │   │   │               ├── yt-icon-button #back-button {button}
+    │   │   │               │   ├── button #button {button,icon}
+    │   │   │               │   └── yt-interaction #interaction {button,icon,action}
+    │   │   │               ├── tp-yt-paper-tooltip #back-button-tooltip {button}
+    │   │   │               ├── yt-icon-button #guide-button {button | 1.6KB}
+    │   │   │               │   ├── button #button {button,icon}
+    │   │   │               │   └── yt-interaction #interaction {button,icon,action}
+    │   │   │               ├── ytd-topbar-logo-renderer #logo {logo | l:1 | 8.9KB}
+    │   │   │               │   ├── a #logo {logo | 8.6KB}
+    │   │   │               │   └── span #country-code {count,logo}
+    │   │   │               └── [NAV] div #skip-navigation {nav}
+    │   │   │                   └── ytd-button-renderer .style-scope.ytd-masthead
+    │   │   ├── [NAV] tp-yt-app-drawer #guide {108.4KB}
+    │   │   │   └── div #contentContainer {content,container | 107.8KB}
+    │   │   │       └── div #guide-wrapper {wrapper | 107.6KB}
+    │   │   │           └── div #guide-content {content | 107.5KB}
+    │   │   │               ├── [HIDDEN] div #header {header | l:1 | 10.7KB}
+    │   │   │               │   └── yt-icon-button #guide-button {button | 1.7KB}
+    │   │   │               └── div #guide-inner-content {content | 96.7KB}
+    │   │   ├── [HIDDEN] [NAV] ytd-mini-guide-renderer .style-scope.ytd-app
+    │   │   │   └── div #items {item}
+    │   │   └── ytd-page-manager #page-manager {page | 📝 | i:1 | 503.7KB}
+    │   │       ├── [MAIN] ytd-browse .style-scope.ytd-page-manager {page | 438.6KB}
+    │   │       │   ├── div #alert-banner {alert}
+    │   │       │   ├── div #header {header}
+    │   │       │   ├── div #alerts {alert}
+    │   │       │   ├── [HIDDEN] ytd-channel-legal-info-renderer .style-scope.ytd-browse {2.7KB}
+    │   │       │   │   ├── yt-formatted-string #text {info,text}
+    │   │       │   │   │   └── [FORM] yt-attributed-string .style-scope.yt-formatted-string {form | 📝}
+    │   │       │   │   └── tp-yt-paper-material #expand-button {button,info,expand | 2.0KB}
+    │   │       │   │       └── yt-icon-button .style-scope.ytd-channel-legal-info-renderer {info | 1.6KB}
+    │   │       │   │           ├── button #button {button,icon}
+    │   │       │   │           └── yt-interaction #interaction {button,icon,action}
+    │   │       │   ├── ytd-two-column-browse-results-renderer .style-scope.ytd-browse {disabled | 432.0KB}
+    │   │       │   │   └── div #primary {431.5KB}
+    │   │       │   │       └── ytd-rich-grid-renderer .style-scope.ytd-two-column-browse-results-renderer {431.4KB}
+    │   │       │   │           ├── div #header {header | 14.7KB}
+    │   │       │   │           ├── [HIDDEN] div #title-container {container,title}
+    │   │       │   │           └── div #contents {content | ×2 | 415.7KB}
+    │   │       │   └── div #footer {footer}
+    │   │       └── [HIDDEN] ytd-watch-flexy .style-scope.ytd-page-manager {page | 📝 | i:1 | l:1 | 64.8KB}
+    │   │           ├── [FORM] div #microformat {form | 📝}
+    │   │           ├── div #full-bleed-container {container | ×2 | 1.1KB}
+    │   │           │   ├── div #player-full-bleed-container {container}
+    │   │           │   │   └── div .player-container-background.style-scope {container | ×2}
+    │   │           │   │       └── ytd-thumbnail .player-container-background-image.style-scope {container,image}
+    │   │           │   └── div #panels-full-bleed-container {container,panel}
+    │   │           └── div #columns {📝 | i:1 | l:1 | 62.4KB}
+    │   │               └── div #primary {📝 | i:1 | l:1 | 47.4KB}
+    │   │                   ├── div #primary-inner {📝 | i:1 | l:1 | 47.2KB}
+    │   │                   │   └── div #player {📝 | i:1 | l:1 | 47.1KB}
+    │   │                   └── [HIDDEN] yt-playability-error-supported-renderers #error-screen {error}
+    │   ├── div #secondary {11.1KB}
+    │   │   ├── [HIDDEN] div #secondary-split-scroll-spacer {scroll}
+    │   │   └── div #secondary-inner {11.0KB}
+    │   │       ├── [HIDDEN] ytd-playlist-panel-renderer #playlist {list | 6.7KB}
+    │   │       │   └── div #container {container,list,panel | 6.4KB}
+    │   │       │       ├── div .header.style-scope {header,list,panel | 6.2KB}
+    │   │       │       │   └── div #header-contents {content,header,list,panel | 6.1KB}
+    │   │       │       │       ├── div #header-top-row {header,list,panel | 5.6KB}
+    │   │       │       │       └── div #playlist-actions {list,panel,action}
+    │   │       │       ├── [HIDDEN] div #content-header {content,header,list,panel}
+    │   │       │       └── div #items {list,item,panel}
+    │   │       ├── div #panels {panel}
+    │   │       ├── div #chat-container {container}
+    │   │       └── div #persistent-panel-container {container,panel}
+    │   ├── [HIDDEN] div #engagement-panel-scrim {panel}
+    │   ├── [HIDDEN] div #persistent-panel-container {container,panel}
+    │   ├── snackbar-container .ytSnackbarContainerHost {container}
+    │   ├── div #video-preview {video,preview,prev | 📝 | i:1 | l:4 | 36.2KB}
+    │   │   └── ytd-video-preview .style-scope.ytd-app {📝 | i:1 | l:4 | 36.2KB}
+    │   │       ├── div #video-preview-container {container,video,preview,prev | 📝 | i:1 | l:4 | 31.7KB}
+    │   │       │   └── div #media-container {container,video,media,preview,prev | 📝 | i:1 | l:4 | 31.6KB}
+    │   │       │       ├── a #media-container-link {container,video,media,preview,prev | 2.7KB}
+    │   │       │       ├── div #thumbnail-container {container,video,thumbnail,preview,prev | l:1 | 3.9KB}
+    │   │       │       │   ├── a #media-container-link {container,video,media,preview,prev | 3.1KB}
+    │   │       │       │   │   └── ytd-thumbnail .style-scope.ytd-video-preview {video,preview,prev}
+    │   │       │       │   └── [HIDDEN] a #thumbnail {thumbnail,block}
+    │   │       │       │       ├── yt-image .style-scope.ytd-thumbnail {thumbnail}
+    │   │       │       │       └── div #overlays {overlay,thumbnail | ×3}
+    │   │       │       └── div #player-container-wrapper {container,wrapper,video,preview,prev | 📝 | i:1 | l:2 | 24.9KB}
+    │   │       │           └── div #player-container {container,video,preview,prev | 📝 | i:1 | l:2 | 24.8KB}
+    │   │       │               └── ytd-player #inline-player {video,preview,prev | 📝 | i:1 | l:2 | 24.7KB}
+    │   │       ├── div #overlays {overlay,video,preview,prev}
+    │   │       ├── div #player-controls {video,preview,prev | 3.6KB}
+    │   │       │   ├── yt-inline-player-controls .ytInlinePlayerControlsHost {3.4KB}
+    │   │       │   │   ├── div .ytInlinePlayerControlsDarkenedOverlay {overlay}
+    │   │       │   │   └── div {3.2KB}
+    │   │       │   │       └── div .ytInlinePlayerControlsTopRightControls {2.8KB}
+    │   │       │   │           └── div .ytInlinePlayerControlsTopRightControlsCircleButton {button | ×2}
+    │   │       │   └── dom-if .style-scope.ytd-video-preview {video,preview,prev}
+    │   │       └── [HIDDEN] div #metadata {hidden,video,preview,prev}
+    │   ├── yt-ephemeral-actions .ytEphemeralActionsHost {action}
+    │   └── [HIDDEN] yt-tooltip .ytTooltipContainerHost {container}
+    ├── [HIDDEN] iframe {×2}
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

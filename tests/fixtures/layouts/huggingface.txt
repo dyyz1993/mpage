@@ -1,0 +1,40 @@
+└── body {🔍, 📝, i:1, b:5, 140.8KB}
+    └── div .flex {🔍, 📝, i:1, b:5, 139.4KB}
+        ├── div .SVELTE_HYDRATER {🔍, 📝, i:1, b:2, l:10, 11.4KB}
+        │   └── [HEADER] header .border-b {🔍, 📝, i:1, b:2, l:10, 11.2KB}
+        │       └── div .w-full {🔍, 📝, i:1, b:2, l:10, 11.1KB}
+        │           ├── div .flex {🔍, 📝, i:1, b:1, l:1, 2.1KB}
+        │           │   ├── div .relative {🔍, 📝, i:1}
+        │           │   └── [HIDDEN] div .flex {1.1KB}
+        │           └── [HIDDEN] [NAV] nav .ml-auto {l:9, 9.0KB}
+        │               └── [LIST] ul .flex {l:9, 8.9KB}
+        ├── [MAIN] main .flex {123.8KB}
+        │   ├── div .container {l:3, 6.6KB}
+        │   │   └── [HIDDEN] div .relative {l:3, 6.5KB}
+        │   │       └── div .SVELTE_HYDRATER {l:1, 3.7KB}
+        │   │           └── [HIDDEN] div .absolute {l:1, 2.8KB}
+        │   ├── div .container {54.6KB}
+        │   │   ├── div .mb-10
+        │   │   └── div .relative {54.1KB}
+        │   │       └── div .relative {l:6, ×3, 10.7KB}
+        │   │           └── div .mb-3 {l:5, 9.4KB}
+        │   └── div .container {62.2KB}
+        │       ├── div .mx-auto {l:1, 3.7KB}
+        │       │   ├── [HIDDEN] div .shadow-xs {×2}
+        │       │   └── [HIDDEN] div .shadow-xs {l:1, 1.2KB}
+        │       ├── div .mx-auto {20.2KB}
+        │       │   ├── div .bg-linear-to-b {l:7, 8.1KB}
+        │       │   │   └── div .col-span-1 {l:6, 7.2KB}
+        │       │   ├── [HIDDEN] div .shadow-xs {l:1, ×2, 1.3KB}
+        │       │   └── div .col-span-1 {l:8, 9.2KB}
+        │       │       ├── div .mb-8
+        │       │       └── div .grid {l:8, 8.7KB}
+        │       └── [HIDDEN] div .relative {34.4KB}
+        │           └── [FORM] a .relative {📝, ×12, 2.8KB}
+        └── [FOOTER] footer .border-t {3.9KB}
+            └── div .container {3.8KB}
+                └── div .grid {3.8KB}
+                    ├── div .sm:col-span-2 {1.2KB}
+                    │   └── div .SVELTE_HYDRATER {1.2KB}
+                    └── div {l:6, ×4}
+                        └── [LIST] ul .space-y-1 {l:6}

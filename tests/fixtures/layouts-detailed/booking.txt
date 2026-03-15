@@ -1,0 +1,17 @@
+└── body {📝 | i:5 | b:1 | l:4 | 23.0KB}
+    ├── [HEADER] header .bui-header.bui-header--logo-large {header,logo | 5.1KB}
+    │   └── [NAV] nav .bui-header__bar {header | 5.0KB}
+    │       └── div .bui-header__main {main,header | 5.0KB}
+    │           └── div .bui-header__logo {header,logo | 5.0KB}
+    ├── div {📝 | i:5 | b:1 | l:4 | 6.2KB}
+    │   └── div .b7ef425131.e65bb8178d {📝 | i:5 | b:1 | l:4 | 6.1KB}
+    │       └── div .f6e3a11b0d.ae5dbab14d {📝 | i:5 | b:1 | l:4 | 5.9KB}
+    │           ├── div .b99b6ef58f.a10a015434 {📝 | i:1}
+    │           │   └── input #:r0:
+    │           ├── fieldset .b99b6ef58f.a10a015434 {📝 | i:4 | l:2 | 3.8KB}
+    │           │   └── div .f6e3a11b0d.ae5dbab14d {📝 | i:4 | l:2 | 3.8KB}
+    │           │       └── div .b99b6ef58f.a10a015434 {📝 | i:1 | l:2 | ×4 | 1.4KB}
+    │           │           └── input #:r3:
+    │           └── button .de576f5064.b46cd7aad7
+    └── div #__cdp_automation_badge_container__ {container,badge}
+        └── div {badge}

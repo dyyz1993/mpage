@@ -1,0 +1,33 @@
+└── body {🔍, 📝, i:1, 358.8KB}
+    ├── div #app {🔍, 📝, i:1, 81.1KB}
+    │   ├── [SECTION] section
+    │   ├── [HIDDEN] div #app-header {🔍, 📝, i:1, l:2, 11.4KB}
+    │   │   └── div .eqg6i5j2 {🔍, 📝, i:1, l:2, 11.3KB}
+    │   │       ├── div .ehs3vh70 {🔍, 📝, i:1, b:1, 1.4KB}
+    │   │       │   └── [FORM] div .e17qpoe50 {🔍, 📝, i:1, b:1, 1.4KB}
+    │   │       │       └── [FORM] form .search-input {🔍, 📝, i:1, b:1, 1.3KB}
+    │   │       └── div .e1ke3b1r0 {l:1, 6.7KB}
+    │   │           └── div .ekguzh40 {5.2KB}
+    │   │               └── div {3.9KB}
+    │   └── div .e1pgfmdu0 {67.3KB}
+    │       ├── [NAV] div .e1l950oe0 {28.4KB}
+    │       │   └── [NAV] div .e1l950oe1 {28.3KB}
+    │       │       ├── div .e1l950oe2 {l:1, 5.7KB}
+    │       │       │   └── [SEARCH] div .e1l950oe4
+    │       │       └── div .e1l950oe5 {22.5KB}
+    │       │           ├── [NAV] div .e1vp56d85 {l:9, 15.1KB}
+    │       │           ├── [NAV] div .e1l950oe7 {6.9KB}
+    │       │           └── [NAV] div .e1l950oe9
+    │       └── [MAIN] main #main-content-homepage_hot {38.8KB}
+    │           ├── div #column-list-container {33.6KB}
+    │           │   ├── [SECTION] article #one-column-item-0 {l:8, ×2, 18.1KB}
+    │           │   │   └── div .e1l1r7cp1 {l:8, 18.0KB}
+    │           │   └── [SECTION] article .e1l1r7cp0 {×7}
+    │           ├── [SIDEBAR] aside .e1xmvfos0 {1.5KB}
+    │           │   └── [NAV] div .e87f1nv0 {1.5KB}
+    │           │       └── div {×2}
+    │           └── div #fixed-top-container {3.4KB}
+    │               └── div .e184xsy92 {3.3KB}
+    │                   └── div #top-right-action-bar {3.3KB}
+    └── div #:r0:
+        └── div .TUXToastProvider-bottomOutletContainer

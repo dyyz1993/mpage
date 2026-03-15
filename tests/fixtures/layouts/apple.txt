@@ -1,0 +1,55 @@
+└── body {🔍, 📝, i:1, 338.9KB}
+    ├── div #globalheader {🔍, 📝, i:1, 121.0KB}
+    │   ├── [SIDEBAR] aside #globalmessage-segment
+    │   │   └── [LIST] ul .globalmessage-segment-content
+    │   ├── [NAV] nav #globalnav {🔍, 📝, i:1, 120.4KB}
+    │   │   └── [NAV] div .globalnav-content {🔍, 📝, i:1, 120.0KB}
+    │   │       ├── [NAV] div .globalnav-item
+    │   │       │   └── [NAV] button .globalnav-menuback-button
+    │   │       ├── [NAV] ul #globalnav-list {🔍, 📝, i:1, 117.5KB}
+    │   │       │   ├── [NAV] li .globalnav-item {l:1, 1.9KB}
+    │   │       │   │   └── [NAV] a .globalnav-link {1.8KB}
+    │   │       │   ├── [NAV] li .globalnav-item {×2, 101.9KB}
+    │   │       │   │   └── [NAV] div .globalnav-flyout {101.7KB}
+    │   │       │   └── [NAV] li #globalnav-bag {l:1, 2.4KB}
+    │   │       │       ├── [NAV] div .globalnav-bag-wrapper {l:1, 1.8KB}
+    │   │       │       └── [NAV] div #globalnav-submenu-bag
+    │   │       └── [NAV] div .globalnav-menutrigger {1.8KB}
+    │   │           └── [NAV] button #globalnav-menutrigger-button {1.8KB}
+    │   ├── [NAV] div #globalnav-curtain
+    │   └── [NAV] div #globalnav-placeholder
+    ├── [MAIN] main .main {113.0KB}
+    │   ├── [SECTION] section .homepage-section {l:9, 4.4KB}
+    │   ├── [SECTION] section .homepage-section {10.8KB}
+    │   └── [SECTION] section .homepage-section {97.7KB}
+    │       └── div .module-content {97.6KB}
+    │           └── div .endless-entertainment {97.4KB}
+    │               ├── [NAV] div .media-gallery-dotnav {l:9, 6.2KB}
+    │               │   ├── [NAV] ul .media-gallery-dotnav-items {l:9, 4.3KB}
+    │               │   └── [NAV] button .media-gallery-dotnav-iconcontrol {1.6KB}
+    │               └── div #tv-media-gallery {l:9, ×2, 40.7KB}
+    │                   └── [LIST] ul .media-gallery-item-container {l:9, 40.4KB}
+    └── [FOOTER] footer #ac-globalfooter {67.0KB}
+        └── div .ac-gf-content {66.8KB}
+            ├── [SECTION] section .ac-gf-sosumi {l:1, 34.0KB}
+            │   └── [LIST] ul {l:1, 33.9KB}
+            ├── [NAV] nav .ac-gf-directory {29.4KB}
+            │   ├── div .ac-gf-directory-column {×2, 5.8KB}
+            │   │   └── div .ac-gf-directory-column-section {×2, 3.5KB}
+            │   │       ├── h3 .ac-gf-directory-column-section-title {1.3KB}
+            │   │       └── [LIST] ul #footer-directory-column-section-products {2.1KB}
+            │   ├── div .ac-gf-directory-column {4.0KB}
+            │   │   └── div .ac-gf-directory-column-section {4.0KB}
+            │   │       ├── h3 .ac-gf-directory-column-section-title {1.3KB}
+            │   │       └── [LIST] ul #footer-directory-column-section-storeservices {2.6KB}
+            │   ├── div .ac-gf-directory-column {l:10, 8.2KB}
+            │   │   └── div .ac-gf-directory-column-section {l:2, ×4, 1.9KB}
+            │   │       ├── h3 .ac-gf-directory-column-section-title {1.3KB}
+            │   │       └── [LIST] ul #footer-directory-column-section-business {l:2}
+            │   └── div .ac-gf-directory-column {5.8KB}
+            │       └── div .ac-gf-directory-column-section {l:7, ×2, 2.9KB}
+            │           ├── h3 .ac-gf-directory-column-section-title {1.3KB}
+            │           └── [LIST] ul #footer-directory-column-section-responsibility {l:7, 1.5KB}
+            └── [SECTION] section .ac-gf-footer {l:9, 1.9KB}
+                └── div .ac-gf-footer-legal {l:5, 1.2KB}
+                    └── [LIST] ul .ac-gf-footer-legal-links {l:5}

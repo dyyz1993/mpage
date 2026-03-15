@@ -1,0 +1,39 @@
+└── body {49.0KB}
+    └── div .wrap {48.7KB}
+        ├── div .wrap_head {5.3KB}
+        │   └── div .head_con {5.1KB}
+        │       └── [LIST] ul .menu_list {4.4KB}
+        ├── div .ten_root {29.6KB}
+        │   ├── div .whats-new-container {13.4KB}
+        │   │   ├── [SECTION] section .ten_banner {l:6, 5.9KB}
+        │   │   │   └── div .ten_banner_swiper {l:6, 5.9KB}
+        │   │   │       ├── div .ten_banner_wrapper {l:6, 4.6KB}
+        │   │   │       └── [NAV] div .ten_banner_nav
+        │   │   └── [SECTION] section .ten_cards {7.4KB}
+        │   │       └── div .ten_main {7.3KB}
+        │   │           └── div .ten_card_grid {7.3KB}
+        │   ├── [SECTION] section {l:3}
+        │   ├── div .ten_bg--dark {7.7KB}
+        │   │   └── div .ten_main {7.6KB}
+        │   │       ├── div .ten_home--mobile {l:3, 1.3KB}
+        │   │       │   └── div .ten_img {l:1, ×3}
+        │   │       └── div .ten_home {6.3KB}
+        │   │           └── div .ten_home_r {5.7KB}
+        │   └── [SECTION] section .ten_subbanner {l:5, ×2, 4.3KB}
+        │       └── div .ten_main {l:5, 4.3KB}
+        │           └── div .swiper-container {l:4, 4.0KB}
+        │               ├── div .swiper-wrapper {l:2, 3.3KB}
+        │               └── [NAV] div .ten_subbanner_nav {l:2}
+        ├── div .wrap_footer {4.2KB}
+        │   └── div .footer_con {4.1KB}
+        │       ├── div .join_us {l:3}
+        │       │   └── [LIST] ul .join_list {l:3}
+        │       ├── div .contact_us {l:5}
+        │       │   └── [LIST] ul .contact_list {l:5}
+        │       ├── div .legal_info {l:2}
+        │       │   └── [LIST] ul .legal_list {l:2}
+        │       └── div .footer_area {l:9, 1.3KB}
+        │           └── [LIST] ul .links {l:6}
+        └── div .cookie-pop {l:3, 2.1KB}
+            └── div .pop {l:1, ×3}
+                └── div .btn-box
