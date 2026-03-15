@@ -196,6 +196,33 @@ function extractLayoutMedium(rootEl: Element): LayoutNode | null {
   ]);
 
   function getSelector(el: Element): string {
+    const semanticTags = new Set([
+      'ARTICLE',
+      'SECTION',
+      'NAV',
+      'MAIN',
+      'ASIDE',
+      'HEADER',
+      'FOOTER',
+      'FORM',
+      'FIGURE',
+      'FIGcapTION',
+      'DIALOG',
+      'DETAILS',
+      'SUMMARY',
+      'ADDRESS',
+      'H1',
+      'H2',
+      'H3',
+      'H4',
+      'H5',
+      'H6',
+    ]);
+
+    if (semanticTags.has(el.tagName)) {
+      return el.tagName.toLowerCase();
+    }
+
     const id = el.id;
     if (id && !id.startsWith(':') && !/^[a-z]?[0-9a-f]{6,}$/i.test(id) && id.length < 30) {
       return '#' + id;
@@ -205,7 +232,7 @@ function extractLayoutMedium(rootEl: Element): LayoutNode | null {
       return `[data-testid="${testId}"]`;
     }
     const e2e = el.getAttribute('data-e2e');
-    if (e2e && e2e.length > 0 && e2e.length < 30) {
+    if (e2e && e2e.length > 1 && e2e.length < 30) {
       return `[data-e2e="${e2e}"]`;
     }
     const classAttr = el.getAttribute('class') || '';
@@ -642,6 +669,11 @@ function extractLayoutMedium(rootEl: Element): LayoutNode | null {
     if (a.type !== b.type) return false;
     if (a.region !== b.region) return false;
     if (!isSimilarSelector(a.selector, b.selector)) return false;
+
+    if (a.type === 'article') {
+      return true;
+    }
+
     if (Math.abs((a.inputCount || 0) - (b.inputCount || 0)) > 1) return false;
     if (Math.abs((a.buttonCount || 0) - (b.buttonCount || 0)) > 1) return false;
     if (Math.abs((a.linkCount || 0) - (b.linkCount || 0)) > 3) return false;
@@ -708,7 +740,7 @@ function extractLayoutMedium(rootEl: Element): LayoutNode | null {
 
   function buildLayout(el: Element, depth: number = 0): LayoutNode | null {
     if (excludeTags.has(el.tagName)) return null;
-    if (depth > 10) return null;
+    if (depth > 20) return null;
 
     const tag = el.tagName.toLowerCase();
     const selector = getSelector(el);

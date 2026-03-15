@@ -24,6 +24,14 @@ export const LAYOUT_EXTRACTOR_FN = `
   ];
 
   function getSelector(el) {
+    var semanticTags = new Set([
+      "ARTICLE","SECTION","NAV","MAIN","ASIDE","HEADER","FOOTER","FORM",
+      "FIGURE","FIGCAPTION","DIALOG","DETAILS","SUMMARY","ADDRESS",
+      "H1","H2","H3","H4","H5","H6"
+    ]);
+    if (semanticTags.has(el.tagName)) {
+      return el.tagName.toLowerCase();
+    }
     if (el.id) return "#" + el.id;
     var classes = (el.className || "").toString().trim().split(/\\\\s+/)
       .filter(function(c) { return c && c.indexOf("reds-") !== 0 && c.indexOf("_") !== 0 && c.indexOf("css-") !== 0 && c.indexOf("prc-") !== 0 && c.length > 2 && c.length < 30; });
@@ -110,6 +118,7 @@ export const LAYOUT_EXTRACTOR_FN = `
 
   function isSameLayout(a, b) {
     if (a.tagName !== b.tagName) return false;
+    if (a.tagName === "ARTICLE") return true;
     var aRegion = getRegionType(a);
     var bRegion = getRegionType(b);
     if (aRegion !== bRegion) return false;
@@ -171,7 +180,7 @@ export const LAYOUT_EXTRACTOR_FN = `
 
   function buildLayout(el, depth) {
     if (excludeTags.has(el.tagName)) return null;
-    if (depth > 6) return null;
+    if (depth > 12) return null;
 
     var tag = el.tagName.toLowerCase();
     var selector = getSelector(el);
