@@ -1,0 +1,46 @@
+{
+  "name": "mpage",
+  "version": "1.0.0",
+  "description": "Playwright browser automation CLI with CDP support",
+  "type": "module",
+  "bin": {
+    "mpage": "./bin/mpage.ts"
+  },
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
+    }
+  },
+  "scripts": {
+    "mpage": "npx tsx bin/mpage.ts",
+    "build": "tsc",
+    "dev": "npx tsx bin/mpage.ts",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/**/*.test.ts"
+  },
+  "dependencies": {
+    "playwright-core": "^1.58.2",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "playwright",
+    "browser",
+    "automation",
+    "cdp",
+    "cli"
+  ],
+  "license": "MIT"
+}
