@@ -13,7 +13,6 @@ export default defineConfig([
     dts: false,
     external: ['playwright-core'],
     shims: true,
-    shebang: true,
   },
   {
     entry: ['src/index.ts'],
