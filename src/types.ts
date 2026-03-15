@@ -21,4 +21,4 @@ export interface CommandDefinition {
   description: string;
 }
 
-export type ZodSchema = import("zod").ZodType<unknown>;
+export type ZodSchema = import('zod').ZodType<unknown>;

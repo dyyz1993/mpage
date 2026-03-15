@@ -8,5 +8,5 @@ export {
   deleteSessionInfo,
   listSessions,
   getSocketPath,
-  isProcessRunning
-} from "./storage.js";
+  isProcessRunning,
+} from './storage.js';

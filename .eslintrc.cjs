@@ -5,10 +5,11 @@ module.exports = {
     ecmaVersion: 2022,
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint'],
+  plugins: ['@typescript-eslint', 'prettier'],
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
+    'plugin:prettier/recommended',
   ],
   env: {
     node: true,
@@ -20,6 +21,7 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'warn',
     'no-console': 'off',
     'no-empty': ['error', { allowEmptyCatch: true }],
+    'prettier/prettier': 'error',
   },
   ignorePatterns: ['dist', 'node_modules', '*.js'],
 };
