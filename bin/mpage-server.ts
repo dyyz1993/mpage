@@ -13,6 +13,7 @@ import {
 } from '../src/index.js';
 import { executePageCommand, hasCommand } from '../src/server/commands/index.js';
 import type { SessionInfo } from '../src/types.js';
+import { RecorderController, PlaybackEngine } from '../src/server/recorder/index.js';
 
 const sessionName = process.argv[2] || 'default';
 const cdpEndpoint = process.argv[3] || '';
@@ -27,6 +28,7 @@ interface Session {
   isCDP: boolean;
   createdAt: number;
   lastUsed: number;
+  recorder: RecorderController | null;
 }
 
 const session: Session = {
@@ -39,6 +41,7 @@ const session: Session = {
   isCDP: !!cdpEndpoint,
   createdAt: Date.now(),
   lastUsed: Date.now(),
+  recorder: null,
 };
 
 function saveCurrentSessionInfo(): void {
@@ -65,10 +68,39 @@ async function initSession(): Promise<boolean> {
       await new Promise((r) => setTimeout(r, 500));
 
       const contexts = session.browser.contexts();
-      session.context = contexts[0] || (await session.browser.newContext());
 
-      session.page = await session.context.newPage();
-      console.error(`[mpage-server] CDP session '${sessionName}' created new page`);
+      let targetPage = null;
+      for (const ctx of contexts) {
+        const pages = ctx.pages();
+        for (const p of pages) {
+          const url = p.url();
+          if (url && url !== 'about:blank' && !url.startsWith('chrome://')) {
+            targetPage = p;
+            session.context = ctx;
+            break;
+          }
+        }
+        if (targetPage) break;
+      }
+
+      if (targetPage) {
+        session.page = targetPage;
+        console.error(
+          `[mpage-server] CDP session '${sessionName}' using existing page: ${targetPage.url()}`
+        );
+      } else {
+        session.context = contexts[0] || (await session.browser.newContext());
+        const pages = session.context.pages();
+        if (pages.length > 0) {
+          session.page = pages[0];
+          console.error(
+            `[mpage-server] CDP session '${sessionName}' using first page: ${pages[0].url()}`
+          );
+        } else {
+          session.page = await session.context.newPage();
+          console.error(`[mpage-server] CDP session '${sessionName}' created new page`);
+        }
+      }
     } else {
       const cdpPort = 9222 + Math.floor(Math.random() * 1000);
       const chromiumPath = '/Applications/Chromium.app/Contents/MacOS/Chromium';
@@ -202,6 +234,67 @@ async function handleConnection(conn: net.Socket) {
               },
             }) + '\n'
           );
+          return;
+        }
+
+        if (action === 'record_start') {
+          try {
+            if (!session.recorder && session.page) {
+              session.recorder = new RecorderController(session.page);
+            }
+            if (!session.recorder) {
+              throw new Error('No page available for recording');
+            }
+            await session.recorder.start({
+              url: req.url,
+              name: req.name,
+            });
+            conn.write(JSON.stringify({ success: true }) + '\n');
+          } catch (e: unknown) {
+            conn.write(JSON.stringify({ success: false, error: (e as Error).message }) + '\n');
+          }
+          return;
+        }
+
+        if (action === 'record_stop') {
+          try {
+            if (!session.recorder) {
+              throw new Error('No recording in progress');
+            }
+            const result = await session.recorder.stop(req.outputPath);
+            conn.write(
+              JSON.stringify({
+                success: true,
+                content: {
+                  path: result.path,
+                  eventCount: result.session.events.length,
+                },
+              }) + '\n'
+            );
+            session.recorder = null;
+          } catch (e: unknown) {
+            conn.write(JSON.stringify({ success: false, error: (e as Error).message }) + '\n');
+          }
+          return;
+        }
+
+        if (action === 'record_status') {
+          const status = session.recorder?.getStatus() || null;
+          conn.write(JSON.stringify({ success: true, content: status }) + '\n');
+          return;
+        }
+
+        if (action === 'replay') {
+          try {
+            if (!session.page) {
+              throw new Error('No page available');
+            }
+            const player = await PlaybackEngine.fromFile(session.page, req.filePath);
+            const result = await player.play(req.options);
+            conn.write(JSON.stringify({ success: true, content: result }) + '\n');
+          } catch (e: unknown) {
+            conn.write(JSON.stringify({ success: false, error: (e as Error).message }) + '\n');
+          }
           return;
         }
 

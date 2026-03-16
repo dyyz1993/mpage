@@ -103,6 +103,162 @@ async function main() {
     process.exit(0);
   }
 
+  if (commandInput.startsWith('record')) {
+    const parts = commandInput.split(' ');
+    const subCommand = parts[1];
+
+    const serverPath = path.join(__dirname, 'mpage-server.ts');
+    const sessionInfo = await getOrCreateSession(serverPath, sessionName, cdpEndpoint);
+    if (!sessionInfo) {
+      console.error('Failed to create session');
+      process.exit(1);
+    }
+
+    if (subCommand === 'start') {
+      let url = '';
+      let name = '';
+
+      for (let i = 0; i < args.length; i++) {
+        if (args[i] === '--url' || args[i] === '-u') {
+          url = args[++i];
+        } else if (args[i] === '--name' || args[i] === '-n') {
+          name = args[++i];
+        }
+      }
+
+      const result = await sendRequest(sessionInfo.socketPath, {
+        action: 'record_start',
+        url,
+        name,
+      });
+
+      if (result.success) {
+        console.log('🎬 开始录制...');
+        if (url) console.log(`📍 URL: ${url}`);
+        console.log('💡 使用 "mpage record stop" 停止录制');
+      } else {
+        console.error('启动录制失败:', result.error);
+        process.exit(1);
+      }
+      process.exit(0);
+    }
+
+    if (subCommand === 'stop') {
+      let outputPath = '';
+
+      for (let i = 0; i < args.length; i++) {
+        if (args[i] === '--output' || args[i] === '-o') {
+          outputPath = args[++i];
+        }
+      }
+
+      const result = await sendRequest(sessionInfo.socketPath, {
+        action: 'record_stop',
+        outputPath,
+      });
+
+      if (result.success) {
+        const content = result.content as { eventCount: number; path: string };
+        console.log('⏹️  录制已停止');
+        console.log(`📊 事件数量: ${content.eventCount}`);
+        console.log(`📄 已保存到: ${content.path}`);
+      } else {
+        console.error('停止录制失败:', result.error);
+        process.exit(1);
+      }
+      process.exit(0);
+    }
+
+    if (subCommand === 'status') {
+      const result = await sendRequest(sessionInfo.socketPath, {
+        action: 'record_status',
+      });
+
+      const content = result.content as {
+        isRecording: boolean;
+        eventCount: number;
+        duration: number;
+      } | null;
+      if (content?.isRecording) {
+        console.log('🎬 正在录制...');
+        console.log(`📊 已记录事件: ${content.eventCount}`);
+        console.log(`⏱️  持续时间: ${Math.round(content.duration / 1000)}s`);
+      } else {
+        console.log('当前没有进行中的录制');
+      }
+      process.exit(0);
+    }
+
+    console.log('Usage: mpage record <command>');
+    console.log('');
+    console.log('Commands:');
+    console.log('  start --url <url>     Start recording');
+    console.log('  stop --output <path>  Stop recording and save');
+    console.log('  status                Show recording status');
+    process.exit(0);
+  }
+
+  if (commandInput.startsWith('replay')) {
+    const parts = commandInput.split(' ');
+    const filePath = parts[1];
+
+    if (!filePath) {
+      console.error('请指定录制文件路径');
+      process.exit(1);
+    }
+
+    let slowMo = 0;
+    let stopOnError = true;
+
+    for (let i = args.indexOf('replay') + 2; i < args.length; i++) {
+      if (args[i] === '--slow-mo') {
+        slowMo = parseInt(args[++i], 10);
+      } else if (args[i] === '--continue-on-error') {
+        stopOnError = false;
+      }
+    }
+
+    const serverPath = path.join(__dirname, 'mpage-server.ts');
+    const sessionInfo = await getOrCreateSession(serverPath, sessionName, cdpEndpoint);
+    if (!sessionInfo) {
+      console.error('Failed to create session');
+      process.exit(1);
+    }
+
+    console.log('🔄 开始回放...');
+    console.log(`📄 文件: ${filePath}`);
+
+    const result = await sendRequest(sessionInfo.socketPath, {
+      action: 'replay',
+      filePath,
+      options: { slowMo, stopOnError },
+    });
+
+    if (result.success) {
+      const content = result.content as {
+        eventsPlayed: number;
+        totalEvents: number;
+        duration: number;
+        errors?: Array<{ eventIndex: number; event: { type: string }; error: string }>;
+      };
+      console.log('✅ 回放完成');
+      console.log(`📊 成功: ${content.eventsPlayed}/${content.totalEvents}`);
+      console.log(`⏱️  耗时: ${Math.round(content.duration / 1000)}s`);
+
+      if (content.errors && content.errors.length > 0) {
+        console.log('');
+        console.log('❌ 错误:');
+        for (const err of content.errors) {
+          console.log(`  [${err.eventIndex}] ${err.event.type}: ${err.error}`);
+        }
+      }
+    } else {
+      console.error('❌ 回放失败:', result.error);
+      process.exit(1);
+    }
+    process.exit(0);
+  }
+
   if (!commandInput) {
     console.log('Usage: mpage [options] <command>');
     console.log('');
@@ -114,11 +270,18 @@ async function main() {
     console.log('  kill                  Kill all sessions');
     console.log('  close                 Close current session');
     console.log('  session list          List all sessions');
+    console.log('  record start          Start recording user actions');
+    console.log('  record stop           Stop recording and save');
+    console.log('  record status         Show recording status');
+    console.log('  replay <file>         Replay recorded actions');
     console.log('');
     console.log('Examples:');
     console.log('  mpage "goto https://example.com && title"');
     console.log("  mpage --session test \"goto baidu.com && fill '#kw' 'hello'\"");
     console.log('  mpage --cdp ws://localhost:8080/client "url"');
+    console.log('  mpage record start --url https://example.com');
+    console.log('  mpage record stop --output my-recording.yaml');
+    console.log('  mpage replay my-recording.yaml');
     process.exit(0);
   }
 
