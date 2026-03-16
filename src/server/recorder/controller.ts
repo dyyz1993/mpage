@@ -8,6 +8,7 @@ import type { RecordingSession, RecordedEvent, RecorderStatus } from './types.js
 const activeRecorders: Map<string, { events: RecordedEvent[]; controller: RecorderController }> =
   new Map();
 const exposedContexts: WeakSet<BrowserContext> = new WeakSet();
+const initializedContexts: WeakSet<BrowserContext> = new WeakSet();
 
 export class RecorderController {
   private page: Page;
@@ -18,7 +19,6 @@ export class RecorderController {
   private startTime: number = 0;
   private startUrl: string = '';
   private name: string = '';
-  private navigationHandler: (() => Promise<void>) | null = null;
 
   constructor(page: Page) {
     this.page = page;
@@ -39,7 +39,7 @@ export class RecorderController {
 
     activeRecorders.set(this.recordingId, { events: this.events, controller: this });
 
-    // Expose function on context FIRST
+    // 1. Expose function on context FIRST (before addInitScript)
     if (!exposedContexts.has(this.context)) {
       await this.context.exposeFunction(
         '__mpage_record_event__',
@@ -55,26 +55,15 @@ export class RecorderController {
       exposedContexts.add(this.context);
     }
 
-    // Set up navigation handler to inject script on new pages
-    this.navigationHandler = async () => {
-      if (!this.isRecordingFlag) return;
-      try {
-        await this.injectRecorderScript();
-        await this.page.evaluate((recordingId) => {
-          if (!(window as any).__pageRecorder) {
-            return;
-          }
-          if (!(window as any).__pageRecorder.isRecording) {
-            (window as any).__pageRecorder.start(recordingId);
-          }
-        }, this.recordingId);
-      } catch {
-        // Ignore errors
-      }
-    };
+    // 2. Use context.addInitScript to inject recorder script into MAIN world
+    // This runs on every page load and can access exposeFunction
+    if (!initializedContexts.has(this.context)) {
+      const script = getRecorderScript();
+      await this.context.addInitScript(script);
+      initializedContexts.add(this.context);
+    }
 
-    this.page.on('framenavigated', this.navigationHandler);
-
+    // 3. Navigate to URL
     if (options.url) {
       await this.page.goto(options.url);
       this.startUrl = options.url;
@@ -82,23 +71,10 @@ export class RecorderController {
       this.startUrl = this.page.url();
     }
 
-    // Inject recorder script AFTER navigation (when page is loaded)
-    await this.injectRecorderScript();
-
-    // Start recording on current page
+    // 4. Start recording on current page
     await this.page.evaluate((recordingId) => {
       (window as any).__pageRecorder?.start(recordingId);
     }, this.recordingId);
-  }
-
-  private async injectRecorderScript(): Promise<void> {
-    const script = getRecorderScript();
-    await this.page.evaluate((scriptContent) => {
-      const scriptEl = document.createElement('script');
-      scriptEl.id = '__mpage_recorder__';
-      scriptEl.textContent = scriptContent;
-      (document.head || document.documentElement).appendChild(scriptEl);
-    }, script);
   }
 
   async stop(outputPath?: string): Promise<{ path: string; session: RecordingSession }> {
@@ -116,11 +92,6 @@ export class RecorderController {
       });
     } catch {
       // Ignore errors if page is already closed
-    }
-
-    if (this.navigationHandler) {
-      this.page.off('framenavigated', this.navigationHandler);
-      this.navigationHandler = null;
     }
 
     const session: RecordingSession = {
