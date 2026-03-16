@@ -49,6 +49,9 @@ export function getRecorderScript(): string {
       this._handleChange = this.handleChange.bind(this);
       this._handleFocus = this.handleFocus.bind(this);
       this._handleBlur = this.handleBlur.bind(this);
+      this._handleHashChange = this.handleHashChange.bind(this);
+      this._handlePopState = this.handlePopState.bind(this);
+      this._handlePageShow = this.handlePageShow.bind(this);
 
       document.addEventListener('click', this._handleClick, true);
       document.addEventListener('dblclick', this._handleDblClick, true);
@@ -65,9 +68,13 @@ export function getRecorderScript(): string {
       document.addEventListener('change', this._handleChange, true);
       document.addEventListener('focus', this._handleFocus, true);
       document.addEventListener('blur', this._handleBlur, true);
+      window.addEventListener('hashchange', this._handleHashChange, true);
+      window.addEventListener('popstate', this._handlePopState, true);
+      window.addEventListener('pageshow', this._handlePageShow, true);
 
       this._listenersBound = true;
       this.monitorNetwork();
+      this.interceptHistory();
     }
 
     start(recordingId) {
@@ -414,6 +421,71 @@ export function getRecorderScript(): string {
         selector: this.getSelector(e.target),
         data: {}
       });
+    }
+
+    handleHashChange(e) {
+      this.record({
+        type: 'hash_change',
+        data: {
+          url: window.location.href,
+          oldURL: e.oldURL,
+          newURL: e.newURL,
+          hash: window.location.hash
+        }
+      });
+    }
+
+    handlePopState(e) {
+      this.record({
+        type: 'navigation',
+        data: {
+          url: window.location.href,
+          navigationType: 'history',
+          state: e.state ? JSON.stringify(e.state) : undefined
+        }
+      });
+    }
+
+    handlePageShow(e) {
+      this.record({
+        type: 'page_load',
+        data: {
+          url: window.location.href,
+          persisted: e.persisted
+        }
+      });
+    }
+
+    interceptHistory() {
+      var self = this;
+      var originalPushState = history.pushState;
+      var originalReplaceState = history.replaceState;
+
+      history.pushState = function(state, title, url) {
+        var result = originalPushState.apply(this, arguments);
+        self.record({
+          type: 'navigation',
+          data: {
+            url: window.location.href,
+            navigationType: 'pushState',
+            state: state ? JSON.stringify(state) : undefined
+          }
+        });
+        return result;
+      };
+
+      history.replaceState = function(state, title, url) {
+        var result = originalReplaceState.apply(this, arguments);
+        self.record({
+          type: 'navigation',
+          data: {
+            url: window.location.href,
+            navigationType: 'replaceState',
+            state: state ? JSON.stringify(state) : undefined
+          }
+        });
+        return result;
+      };
     }
 
     monitorNetwork() {
