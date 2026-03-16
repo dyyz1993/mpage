@@ -23,6 +23,9 @@ export type EventType =
   | 'navigation'
   | 'page_load'
   | 'hash_change'
+  | 'tab_open'
+  | 'tab_close'
+  | 'tab_switch'
   | 'wait'
   | 'assert';
 
@@ -68,7 +71,14 @@ export interface EventData {
   checked?: boolean;
   files?: string[];
   url?: string;
-  navigationType?: 'link' | 'form' | 'script' | 'history';
+  navigationType?: 'link' | 'form' | 'script' | 'history' | 'pushState' | 'replaceState';
+  persisted?: boolean;
+  oldURL?: string;
+  newURL?: string;
+  hash?: string;
+  state?: string;
+  openerUrl?: string;
+  tabId?: string;
 }
 
 export interface WaitCondition {

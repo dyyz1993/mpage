@@ -45,6 +45,8 @@ function createMockPage(overrides: Partial<Page> = {}): Page {
     exposeFunction: mock.fn(async () => {}),
     addInitScript: mock.fn(async () => {}),
     route: mock.fn(async () => {}),
+    on: mock.fn(() => {}),
+    off: mock.fn(() => {}),
   } as unknown as BrowserContext;
 
   const mockPage = {
@@ -61,6 +63,7 @@ function createMockPage(overrides: Partial<Page> = {}): Page {
     exposeFunction: mock.fn(async () => {}),
     viewportSize: mock.fn(() => ({ width: 1280, height: 720 })),
     url: mock.fn(() => 'https://example.com'),
+    title: mock.fn(async () => 'Example Domain'),
     click: mock.fn(async () => {}),
     fill: mock.fn(async () => {}),
     hover: mock.fn(async () => {}),
@@ -152,7 +155,7 @@ describe('RecorderController', () => {
 
       const status = recorder.getStatus();
       assert.ok(status?.isRecording);
-      assert.strictEqual(status?.eventCount, 0);
+      assert.strictEqual(status?.eventCount, 1);
     });
 
     it('should throw error if already recording', async () => {

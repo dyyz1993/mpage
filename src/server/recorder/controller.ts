@@ -19,6 +19,8 @@ export class RecorderController {
   private startUrl: string = '';
   private name: string = '';
   private navigationHandler: ((frame: Frame) => Promise<void>) | null = null;
+  private pageHandler: ((page: Page) => Promise<void>) | null = null;
+  private trackedPages: Set<Page> = new Set();
 
   constructor(page: Page) {
     this.page = page;
@@ -91,6 +93,25 @@ export class RecorderController {
       content: `if (window.__pageRecorder) { window.__pageRecorder.start('${this.recordingId}'); }`,
     });
 
+    // 4.1 Record initial page_load event for the starting page
+    const initialUrl = this.page.url();
+    const initialPageLoadEvent: RecordedEvent = {
+      id: `evt_${String(this.events.length + 1).padStart(3, '0')}`,
+      type: 'page_load',
+      timestamp: Date.now() - this.startTime,
+      data: {
+        url: initialUrl,
+        persisted: false,
+      },
+      pageState: {
+        url: initialUrl,
+        title: await this.page.title().catch(() => ''),
+        readyState: 'complete',
+      },
+    };
+    this.events.push(initialPageLoadEvent);
+    console.log('[Recorder] Initial page load event recorded:', initialUrl);
+
     // 5. Setup navigation listener to auto-restart recording on new pages
     // Use 'framenavigated' instead of 'load' as it's more reliable for detecting navigation
     this.navigationHandler = async (frame: Frame) => {
@@ -101,6 +122,25 @@ export class RecorderController {
 
       if (this.isRecordingFlag) {
         try {
+          // Record navigation event for browser-level navigations
+          const currentUrl = frame.url();
+          const navEvent: RecordedEvent = {
+            id: `evt_${String(this.events.length + 1).padStart(3, '0')}`,
+            type: 'navigation',
+            timestamp: Date.now() - this.startTime,
+            data: {
+              url: currentUrl,
+              navigationType: 'link',
+            },
+            pageState: {
+              url: currentUrl,
+              title: await frame.title().catch(() => ''),
+              readyState: 'loading',
+            },
+          };
+          this.events.push(navEvent);
+          console.log('[Recorder] Navigation event recorded:', currentUrl);
+
           // Wait for the page to be fully ready
           await this.page.waitForLoadState('domcontentloaded');
 
@@ -108,6 +148,24 @@ export class RecorderController {
           await this.page.addScriptTag({
             content: `if (window.__pageRecorder) { window.__pageRecorder.start('${this.recordingId}'); }`,
           });
+
+          // Record page_load event after page is ready
+          const pageLoadEvent: RecordedEvent = {
+            id: `evt_${String(this.events.length + 1).padStart(3, '0')}`,
+            type: 'page_load',
+            timestamp: Date.now() - this.startTime,
+            data: {
+              url: currentUrl,
+              persisted: false,
+            },
+            pageState: {
+              url: currentUrl,
+              title: await frame.title().catch(() => ''),
+              readyState: 'complete',
+            },
+          };
+          this.events.push(pageLoadEvent);
+          console.log('[Recorder] Page load event recorded:', currentUrl);
         } catch {
           // Ignore errors if page is not ready
         }
@@ -115,6 +173,47 @@ export class RecorderController {
     };
 
     this.page.on('framenavigated', this.navigationHandler);
+
+    // 6. Setup context 'page' listener to handle new tabs
+    this.pageHandler = async (newPage: Page) => {
+      if (!this.isRecordingFlag) return;
+
+      // Track this page for cleanup
+      this.trackedPages.add(newPage);
+
+      try {
+        // Wait for the new page to be ready
+        await newPage.waitForLoadState('domcontentloaded');
+
+        // Start recording on the new page
+        await newPage.addScriptTag({
+          content: `if (window.__pageRecorder) { window.__pageRecorder.start('${this.recordingId}'); }`,
+        });
+
+        // Record tab_open event
+        const tabOpenEvent: RecordedEvent = {
+          id: `evt_${String(this.events.length + 1).padStart(3, '0')}`,
+          type: 'tab_open',
+          timestamp: Date.now() - this.startTime,
+          data: {
+            url: newPage.url(),
+            openerUrl: this.page.url(),
+          },
+          pageState: {
+            url: newPage.url(),
+            title: await newPage.title().catch(() => ''),
+            readyState: 'complete',
+          },
+        };
+        this.events.push(tabOpenEvent);
+        console.log('[Recorder] Tab opened:', newPage.url());
+      } catch {
+        // Ignore errors if page is not ready
+      }
+    };
+
+    this.context.on('page', this.pageHandler);
+    this.trackedPages.add(this.page);
   }
 
   private async injectRecorderScript(): Promise<void> {
@@ -133,6 +232,24 @@ export class RecorderController {
       this.page.off('framenavigated', this.navigationHandler);
       this.navigationHandler = null;
     }
+
+    // Remove page listener
+    if (this.pageHandler) {
+      this.context.off('page', this.pageHandler);
+      this.pageHandler = null;
+    }
+
+    // Stop recording on all tracked pages
+    for (const trackedPage of this.trackedPages) {
+      try {
+        await trackedPage.addScriptTag({
+          content: `if (window.__pageRecorder) { window.__pageRecorder.stop(); }`,
+        });
+      } catch {
+        // Ignore errors if page is already closed
+      }
+    }
+    this.trackedPages.clear();
 
     activeRecorders.delete(this.recordingId);
 

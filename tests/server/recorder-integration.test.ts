@@ -278,4 +278,88 @@ describe('Recorder Integration Tests', { timeout: 120000 }, () => {
       await context.close();
     }
   });
+
+  it('should record events in new tab opened by link with target="_blank"', async () => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+
+    const recorder = new RecorderController(page);
+
+    try {
+      // 先启动录制器
+      await recorder.start({ url: 'about:blank' });
+      await page.waitForTimeout(100);
+
+      // 使用 evaluate 设置 HTML 内容
+      await page.evaluate(() => {
+        document.body.innerHTML = `
+          <h1>Test Page</h1>
+          <a href="https://example.com" target="_blank" id="new-tab-link">Open New Tab</a>
+        `;
+      });
+      await page.waitForTimeout(100);
+
+      // 断言1: 初始页面录制器已启动
+      const hasRecorderInitial = await page.evaluate(
+        'typeof window.__pageRecorder !== "undefined" && window.__pageRecorder.isRecording'
+      );
+      assert.ok(hasRecorderInitial, 'Initial page should have active recorder');
+      console.log('   ✅ 断言1: 初始页面录制器已启动');
+
+      // 点击打开新 tab 的链接
+      await page.click('#new-tab-link');
+
+      // 等待新 tab 打开
+      const newPage = await context.waitForEvent('page', { timeout: 10000 });
+      console.log(`   新 tab 已打开: ${newPage.url()}`);
+
+      await newPage.waitForLoadState('domcontentloaded');
+      await newPage.waitForTimeout(500);
+
+      // 断言2: 新 tab 应该有 __pageRecorder 对象
+      const hasRecorderInNewTab = await newPage.evaluate(
+        'typeof window.__pageRecorder !== "undefined"'
+      );
+      assert.ok(hasRecorderInNewTab, 'New tab should have __pageRecorder injected');
+      console.log('   ✅ 断言2: 新 tab 有 __pageRecorder 对象');
+
+      // 断言3: 新 tab 的录制器应该处于录制状态
+      const isRecordingInNewTab = await newPage.evaluate(
+        'typeof window.__pageRecorder !== "undefined" && window.__pageRecorder.isRecording'
+      );
+      assert.ok(isRecordingInNewTab, 'New tab recorder should be in recording state');
+      console.log('   ✅ 断言3: 新 tab 录制器处于录制状态');
+
+      // 断言4: 新 tab 应该有录制指示器
+      const hasIndicatorInNewTab = await newPage.evaluate(
+        'document.getElementById("__mpage_recorder_indicator__") !== null'
+      );
+      assert.ok(hasIndicatorInNewTab, 'New tab should have recording indicator visible');
+      console.log('   ✅ 断言4: 新 tab 有录制指示器');
+
+      // 在新 tab 中点击，验证事件录制
+      await newPage.click('body');
+      await newPage.waitForTimeout(300);
+
+      // 断言5: 应该记录了 tab_open 事件
+      const status = recorder.getStatus();
+      console.log(`   录制事件数: ${status?.eventCount || 0}`);
+
+      // 检查是否有 tab_open 事件
+      const result = await recorder.stop('/tmp/test-recording-new-tab.yaml');
+      const tabOpenEvents = result.session.events.filter((e) => e.type === 'tab_open');
+      console.log(`   tab_open 事件数: ${tabOpenEvents.length}`);
+
+      assert.ok(tabOpenEvents.length >= 1, 'Should have at least 1 tab_open event');
+      console.log('   ✅ 断言5: 记录了 tab_open 事件');
+
+      // 输出所有事件类型
+      console.log(
+        '   事件类型:',
+        result.session.events.map((e) => e.type)
+      );
+    } finally {
+      await context.close();
+    }
+  });
 });
