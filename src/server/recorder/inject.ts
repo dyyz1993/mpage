@@ -1,7 +1,12 @@
 export function getRecorderScript(): string {
   return `
 (function() {
-  if (window.__pageRecorder) return;
+  if (window.__pageRecorder) {
+    console.log('[PageRecorder] Already exists, skipping initialization');
+    return;
+  }
+
+  console.log('[PageRecorder] Initializing...');
 
   class PageRecorder {
     constructor() {
@@ -11,65 +16,145 @@ export function getRecorderScript(): string {
       this.eventId = 0;
       this.indicator = null;
       this.eventCountEl = null;
-      
+
       this.MOUSE_THROTTLE = 50;
       this.SCROLL_THROTTLE = 100;
-      
+
       this.lastMouseMove = 0;
       this.lastScroll = 0;
       this.networkRequests = 0;
       this.pendingWaits = [];
+
+      this._listenersBound = false;
+
+      console.log('[PageRecorder] Constructor called');
+    }
+
+    // Bind event listeners - must be called when document is ready
+    bindEventListeners() {
+      if (this._listenersBound) return;
+
+      this._handleClick = this.handleClick.bind(this);
+      this._handleDblClick = this.handleDblClick.bind(this);
+      this._handleContextMenu = this.handleContextMenu.bind(this);
+      this._handleMouseDown = this.handleMouseDown.bind(this);
+      this._handleMouseUp = this.handleMouseUp.bind(this);
+      this._handleMouseMove = this.handleMouseMove.bind(this);
+      this._handleMouseEnter = this.handleMouseEnter.bind(this);
+      this._handleMouseLeave = this.handleMouseLeave.bind(this);
+      this._handleScroll = this.handleScroll.bind(this);
+      this._handleKeyDown = this.handleKeyDown.bind(this);
+      this._handleKeyUp = this.handleKeyUp.bind(this);
+      this._handleInput = this.handleInput.bind(this);
+      this._handleChange = this.handleChange.bind(this);
+      this._handleFocus = this.handleFocus.bind(this);
+      this._handleBlur = this.handleBlur.bind(this);
+
+      document.addEventListener('click', this._handleClick, true);
+      document.addEventListener('dblclick', this._handleDblClick, true);
+      document.addEventListener('contextmenu', this._handleContextMenu, true);
+      document.addEventListener('mousedown', this._handleMouseDown, true);
+      document.addEventListener('mouseup', this._handleMouseUp, true);
+      document.addEventListener('mousemove', this._handleMouseMove, true);
+      document.addEventListener('mouseenter', this._handleMouseEnter, true);
+      document.addEventListener('mouseleave', this._handleMouseLeave, true);
+      document.addEventListener('scroll', this._handleScroll, true);
+      document.addEventListener('keydown', this._handleKeyDown, true);
+      document.addEventListener('keyup', this._handleKeyUp, true);
+      document.addEventListener('input', this._handleInput, true);
+      document.addEventListener('change', this._handleChange, true);
+      document.addEventListener('focus', this._handleFocus, true);
+      document.addEventListener('blur', this._handleBlur, true);
+
+      this._listenersBound = true;
+      this.monitorNetwork();
     }
 
     start(recordingId) {
+      // If already recording with the same ID, just ensure indicator is shown
+      if (this.isRecording && this.recordingId === recordingId) {
+        this.showIndicator();
+        return;
+      }
+
       this.recordingId = recordingId;
       this.startTime = Date.now();
       this.isRecording = true;
       this.eventId = 0;
-      this.attachAllListeners();
+
+      // Bind listeners when starting (document should be ready now)
+      this.bindEventListeners();
       this.showIndicator();
     }
 
     stop() {
       this.isRecording = false;
-      this.detachAllListeners();
       this.hideIndicator();
-    }
-
-    showIndicator() {
-      if (this.indicator) return;
-      
-      this.indicator = document.createElement('div');
-      this.indicator.id = '__mpage_recorder_indicator__';
-      this.indicator.style.cssText = 'position:fixed;top:10px;right:10px;z-index:2147483647;background:#e74c3c;color:white;padding:8px 16px;border-radius:4px;font-family:Arial,sans-serif;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.3);cursor:pointer;';
-      this.indicator.innerHTML = '🎬 录制中... <span id="__mpage_event_count__">0</span> 事件';
-      document.body.appendChild(this.indicator);
-      
-      this.eventCountEl = document.getElementById('__mpage_event_count__');
     }
 
     hideIndicator() {
       if (this.indicator) {
         this.indicator.remove();
         this.indicator = null;
-        this.eventCountEl = null;
       }
     }
 
+    showIndicator() {
+      // Check if indicator already exists in DOM
+      var existingIndicator = document.getElementById('__mpage_recorder_indicator__');
+      if (existingIndicator) {
+        this.indicator = existingIndicator;
+        return;
+      }
+
+      // Wait for body if needed
+      if (!document.body) {
+        var self = this;
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function() { self.showIndicator(); });
+        } else {
+          setTimeout(function() { self.showIndicator(); }, 50);
+        }
+        return;
+      }
+
+      // Create indicator
+      this.indicator = document.createElement('div');
+      this.indicator.id = '__mpage_recorder_indicator__';
+      this.indicator.style.cssText = 'position:fixed;top:10px;right:10px;z-index:2147483647;background:#e74c3c;color:white;padding:8px 16px;border-radius:4px;font-family:Arial,sans-serif;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.3);';
+      this.indicator.innerHTML = '🎬 录制中... <span id="__mpage_event_count__">' + this.eventId + '</span> 事件';
+      document.body.appendChild(this.indicator);
+    }
+
     updateIndicator() {
-      if (this.eventCountEl) {
-        this.eventCountEl.textContent = this.eventId;
+      // Always get fresh reference from DOM
+      var countEl = document.getElementById('__mpage_event_count__');
+      if (countEl) {
+        countEl.textContent = this.eventId;
+      } else if (this.isRecording) {
+        // Indicator was removed, recreate it
+        this.showIndicator();
       }
     }
 
     send(event) {
-      if (typeof window.__mpage_record_event__ === 'function') {
-        window.__mpage_record_event__(event);
-      }
+      // Use fetch to POST event to the route handler
+      // This is more reliable than exposeFunction for cross-world communication
+      fetch('/__mpage_record_event__', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(event)
+      }).catch(function(err) {
+        console.log('[PageRecorder] Error sending event:', err.message);
+      });
     }
 
     record(event) {
-      if (!this.isRecording) return;
+      console.log('[PageRecorder] record() called, isRecording:', this.isRecording);
+      if (!this.isRecording) {
+        console.log('[PageRecorder] Not recording, skipping');
+        return;
+      }
 
       var fullEvent = {
         id: 'evt_' + String(++this.eventId).padStart(3, '0'),
@@ -87,6 +172,7 @@ export function getRecorderScript(): string {
         }
       };
 
+      console.log('[PageRecorder] Recording event:', fullEvent.type, fullEvent.id);
       this.send(fullEvent);
       this.updateIndicator();
     }
@@ -174,61 +260,8 @@ export function getRecorderScript(): string {
       return conditions.length > 0 ? conditions : undefined;
     }
 
-    attachAllListeners() {
-      this._handleClick = this.handleClick.bind(this);
-      this._handleDblClick = this.handleDblClick.bind(this);
-      this._handleContextMenu = this.handleContextMenu.bind(this);
-      this._handleMouseDown = this.handleMouseDown.bind(this);
-      this._handleMouseUp = this.handleMouseUp.bind(this);
-      this._handleMouseMove = this.handleMouseMove.bind(this);
-      this._handleMouseEnter = this.handleMouseEnter.bind(this);
-      this._handleMouseLeave = this.handleMouseLeave.bind(this);
-      this._handleScroll = this.handleScroll.bind(this);
-      this._handleKeyDown = this.handleKeyDown.bind(this);
-      this._handleKeyUp = this.handleKeyUp.bind(this);
-      this._handleInput = this.handleInput.bind(this);
-      this._handleChange = this.handleChange.bind(this);
-      this._handleFocus = this.handleFocus.bind(this);
-      this._handleBlur = this.handleBlur.bind(this);
-
-      document.addEventListener('click', this._handleClick, true);
-      document.addEventListener('dblclick', this._handleDblClick, true);
-      document.addEventListener('contextmenu', this._handleContextMenu, true);
-      document.addEventListener('mousedown', this._handleMouseDown, true);
-      document.addEventListener('mouseup', this._handleMouseUp, true);
-      document.addEventListener('mousemove', this._handleMouseMove, true);
-      document.addEventListener('mouseenter', this._handleMouseEnter, true);
-      document.addEventListener('mouseleave', this._handleMouseLeave, true);
-      document.addEventListener('scroll', this._handleScroll, true);
-      document.addEventListener('keydown', this._handleKeyDown, true);
-      document.addEventListener('keyup', this._handleKeyUp, true);
-      document.addEventListener('input', this._handleInput, true);
-      document.addEventListener('change', this._handleChange, true);
-      document.addEventListener('focus', this._handleFocus, true);
-      document.addEventListener('blur', this._handleBlur, true);
-
-      this.monitorNetwork();
-    }
-
-    detachAllListeners() {
-      document.removeEventListener('click', this._handleClick, true);
-      document.removeEventListener('dblclick', this._handleDblClick, true);
-      document.removeEventListener('contextmenu', this._handleContextMenu, true);
-      document.removeEventListener('mousedown', this._handleMouseDown, true);
-      document.removeEventListener('mouseup', this._handleMouseUp, true);
-      document.removeEventListener('mousemove', this._handleMouseMove, true);
-      document.removeEventListener('mouseenter', this._handleMouseEnter, true);
-      document.removeEventListener('mouseleave', this._handleMouseLeave, true);
-      document.removeEventListener('scroll', this._handleScroll, true);
-      document.removeEventListener('keydown', this._handleKeyDown, true);
-      document.removeEventListener('keyup', this._handleKeyUp, true);
-      document.removeEventListener('input', this._handleInput, true);
-      document.removeEventListener('change', this._handleChange, true);
-      document.removeEventListener('focus', this._handleFocus, true);
-      document.removeEventListener('blur', this._handleBlur, true);
-    }
-
     handleClick(e) {
+      console.log('[PageRecorder] handleClick triggered!', e.target);
       this.record({
         type: 'click',
         selector: this.getSelector(e.target),
@@ -409,6 +442,19 @@ export function getRecorderScript(): string {
   }
 
   window.__pageRecorder = new PageRecorder();
+  console.log('[PageRecorder] Instance created and attached to window');
+
+  // Bind event listeners immediately in addInitScript context
+  // This is where exposeFunction is accessible
+  // Use DOMContentLoaded or bind immediately if document is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      window.__pageRecorder.bindEventListeners();
+    });
+  } else {
+    // Document is already ready
+    window.__pageRecorder.bindEventListeners();
+  }
 })();
 `;
 }

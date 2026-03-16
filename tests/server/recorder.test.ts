@@ -44,6 +44,7 @@ function createMockPage(overrides: Partial<Page> = {}): Page {
     newCDPSession: mock.fn(async () => cdpSession),
     exposeFunction: mock.fn(async () => {}),
     addInitScript: mock.fn(async () => {}),
+    route: mock.fn(async () => {}),
   } as unknown as BrowserContext;
 
   const mockPage = {
@@ -56,6 +57,7 @@ function createMockPage(overrides: Partial<Page> = {}): Page {
       return 'mocked result';
     }),
     addInitScript: mock.fn(async () => {}),
+    addScriptTag: mock.fn(async () => {}),
     exposeFunction: mock.fn(async () => {}),
     viewportSize: mock.fn(() => ({ width: 1280, height: 720 })),
     url: mock.fn(() => 'https://example.com'),
@@ -659,7 +661,8 @@ describe('PlaybackEngine', () => {
 
     it('should call onProgress callback', async () => {
       const mockPage = createMockPage();
-      const progressCalls: any[] = [];
+      type ProgressInfo = { current: number; total: number; event: RecordedEvent };
+      const progressCalls: ProgressInfo[] = [];
 
       const recording: RecordingSession = {
         id: 'test-recording',

@@ -1,4 +1,4 @@
-import type { Page, BrowserContext } from 'playwright-core';
+import type { Page, BrowserContext, Frame } from 'playwright-core';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'yaml';
@@ -7,7 +7,6 @@ import type { RecordingSession, RecordedEvent, RecorderStatus } from './types.js
 
 const activeRecorders: Map<string, { events: RecordedEvent[]; controller: RecorderController }> =
   new Map();
-const exposedContexts: WeakSet<BrowserContext> = new WeakSet();
 const initializedContexts: WeakSet<BrowserContext> = new WeakSet();
 
 export class RecorderController {
@@ -19,6 +18,7 @@ export class RecorderController {
   private startTime: number = 0;
   private startUrl: string = '';
   private name: string = '';
+  private navigationHandler: ((frame: Frame) => Promise<void>) | null = null;
 
   constructor(page: Page) {
     this.page = page;
@@ -39,29 +39,43 @@ export class RecorderController {
 
     activeRecorders.set(this.recordingId, { events: this.events, controller: this });
 
-    // 1. Expose function on context FIRST (before addInitScript)
-    if (!exposedContexts.has(this.context)) {
-      await this.context.exposeFunction(
-        '__mpage_record_event__',
-        (event: RecordedEvent & { recordingId?: string }) => {
-          if (event.recordingId) {
-            const recorder = activeRecorders.get(event.recordingId);
-            if (recorder) {
-              recorder.events.push(event);
+    // 1. Setup route to intercept event communication
+    // This is more reliable than exposeFunction for cross-world communication
+    // The browser will POST events to /__mpage_record_event__
+    if (!initializedContexts.has(this.context)) {
+      await this.context.route('**/__mpage_record_event__', async (route) => {
+        const request = route.request();
+        const body = request.postData();
+
+        if (body) {
+          try {
+            const event = JSON.parse(body) as RecordedEvent & { recordingId?: string };
+            console.log('[Recorder] Event received:', event.type);
+            if (event.recordingId) {
+              const recorder = activeRecorders.get(event.recordingId);
+              if (recorder) {
+                recorder.events.push(event);
+              }
             }
+          } catch {
+            // Ignore parsing errors
           }
         }
-      );
-      exposedContexts.add(this.context);
-    }
 
-    // 2. Use context.addInitScript to inject recorder script into MAIN world
-    // This runs on every page load and can access exposeFunction
-    if (!initializedContexts.has(this.context)) {
-      const script = getRecorderScript();
-      await this.context.addInitScript(script);
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ success: true }),
+        });
+      });
+
       initializedContexts.add(this.context);
     }
+
+    // 2. Add init script with the recorder
+    // Pass the recordingId so it can auto-start on every page
+    const initScript = getRecorderScript();
+    await this.context.addInitScript(initScript);
 
     // 3. Navigate to URL
     if (options.url) {
@@ -69,12 +83,42 @@ export class RecorderController {
       this.startUrl = options.url;
     } else {
       this.startUrl = this.page.url();
+      await this.injectRecorderScript();
     }
 
     // 4. Start recording on current page
-    await this.page.evaluate((recordingId) => {
-      (window as any).__pageRecorder?.start(recordingId);
-    }, this.recordingId);
+    await this.page.addScriptTag({
+      content: `if (window.__pageRecorder) { window.__pageRecorder.start('${this.recordingId}'); }`,
+    });
+
+    // 5. Setup navigation listener to auto-restart recording on new pages
+    // Use 'framenavigated' instead of 'load' as it's more reliable for detecting navigation
+    this.navigationHandler = async (frame: Frame) => {
+      // Only handle main frame navigations
+      if (frame !== this.page.mainFrame()) {
+        return;
+      }
+
+      if (this.isRecordingFlag) {
+        try {
+          // Wait for the page to be fully ready
+          await this.page.waitForLoadState('domcontentloaded');
+
+          // Always call start() on new pages to show indicator and ensure recording
+          await this.page.addScriptTag({
+            content: `if (window.__pageRecorder) { window.__pageRecorder.start('${this.recordingId}'); }`,
+          });
+        } catch {
+          // Ignore errors if page is not ready
+        }
+      }
+    };
+
+    this.page.on('framenavigated', this.navigationHandler);
+  }
+
+  private async injectRecorderScript(): Promise<void> {
+    await this.page.addScriptTag({ content: getRecorderScript() });
   }
 
   async stop(outputPath?: string): Promise<{ path: string; session: RecordingSession }> {
@@ -84,11 +128,17 @@ export class RecorderController {
 
     this.isRecordingFlag = false;
 
+    // Remove navigation listener
+    if (this.navigationHandler) {
+      this.page.off('framenavigated', this.navigationHandler);
+      this.navigationHandler = null;
+    }
+
     activeRecorders.delete(this.recordingId);
 
     try {
-      await this.page.evaluate(() => {
-        (window as any).__pageRecorder?.stop();
+      await this.page.addScriptTag({
+        content: `if (window.__pageRecorder) { window.__pageRecorder.stop(); }`,
       });
     } catch {
       // Ignore errors if page is already closed
