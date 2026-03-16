@@ -117,6 +117,9 @@ async function initSession(): Promise<boolean> {
           `--user-data-dir=${userDataDir}`,
           '--no-first-run',
           '--no-default-browser-check',
+          '--no-sandbox',
+          '--disable-gpu',
+          '--disable-dev-shm-usage',
         ],
         { detached: true, stdio: 'ignore' }
       );
