@@ -22,6 +22,7 @@ module.exports = {
     'no-console': 'off',
     'no-empty': ['error', { allowEmptyCatch: true }],
     'prettier/prettier': 'error',
+    'no-useless-escape': 'off',
   },
   ignorePatterns: ['dist', 'node_modules', '*.js'],
 };

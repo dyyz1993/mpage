@@ -1,4 +1,4 @@
-import type { Page, BrowserContext, Frame } from 'playwright-core';
+import type { Page, BrowserContext, Frame, CDPSession } from 'playwright-core';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'yaml';
@@ -21,6 +21,8 @@ export class RecorderController {
   private navigationHandler: ((frame: Frame) => Promise<void>) | null = null;
   private pageHandler: ((page: Page) => Promise<void>) | null = null;
   private trackedPages: Set<Page> = new Set();
+  private browserCDPSession: CDPSession | null = null;
+  private cdpClient: CDPSession | null = null; // CDP client for navigation monitoring
 
   constructor(page: Page) {
     this.page = page;
@@ -112,8 +114,55 @@ export class RecorderController {
     this.events.push(initialPageLoadEvent);
     console.log('[Recorder] Initial page load event recorded:', initialUrl);
 
-    // 5. Setup navigation listener to auto-restart recording on new pages
-    // Use 'framenavigated' instead of 'load' as it's more reliable for detecting navigation
+    // 5. Setup CDP-level navigation listener to detect user-initiated navigations
+    // This distinguishes between user input (CDP) and JS-triggered navigations
+    console.log('[Recorder] Setting up CDP navigation listener...');
+    try {
+      const client = await this.page.context().newCDPSession(this.page);
+      console.log('[Recorder] CDP session created for navigation monitoring');
+
+      // Enable Page domain to receive navigation events
+      await client.send('Page.enable');
+
+      // Listen for frame navigated events from CDP (user-initiated)
+      client.on('Page.frameNavigated', async (params: any) => {
+        if (!this.isRecordingFlag) return;
+
+        const frame = params.frame;
+        // Only handle main frame navigations
+        if (!frame?.parentId) {
+          const currentUrl = frame?.url || this.page.url();
+          console.log('[Recorder] CDP Navigation detected:', currentUrl);
+
+          // Record navigation event with CDP source (user-initiated)
+          const navEvent: RecordedEvent = {
+            id: `evt_${String(this.events.length + 1).padStart(3, '0')}`,
+            type: 'navigation',
+            timestamp: Date.now() - this.startTime,
+            data: {
+              url: currentUrl,
+              navigationType: 'cdp',
+              source: 'cdp', // CDP = user input in address bar or link click
+            },
+            pageState: {
+              url: currentUrl,
+              title: await this.page.title().catch(() => ''),
+              readyState: 'loading',
+            },
+          };
+          this.events.push(navEvent);
+          console.log('[Recorder] CDP Navigation event recorded:', currentUrl);
+        }
+      });
+
+      // Store client for cleanup
+      this.cdpClient = client;
+    } catch (e) {
+      console.log('[Recorder] Failed to setup CDP navigation listener:', e);
+    }
+
+    // 6. Setup Playwright navigation handler as backup for JS-triggered navigations
+    // This will be marked as 'js' source
     this.navigationHandler = async (frame: Frame) => {
       // Only handle main frame navigations
       if (frame !== this.page.mainFrame()) {
@@ -122,15 +171,28 @@ export class RecorderController {
 
       if (this.isRecordingFlag) {
         try {
-          // Record navigation event for browser-level navigations
           const currentUrl = frame.url();
+
+          // Check if we already recorded this navigation from CDP
+          const lastNav = this.events.filter((e) => e.type === 'navigation').pop();
+          if (
+            lastNav &&
+            lastNav.data?.url === currentUrl &&
+            Date.now() - this.startTime - lastNav.timestamp < 1000
+          ) {
+            console.log('[Recorder] Skipping duplicate navigation event:', currentUrl);
+            return;
+          }
+
+          // Record navigation event with JS source (program-triggered)
           const navEvent: RecordedEvent = {
             id: `evt_${String(this.events.length + 1).padStart(3, '0')}`,
             type: 'navigation',
             timestamp: Date.now() - this.startTime,
             data: {
               url: currentUrl,
-              navigationType: 'link',
+              navigationType: 'js',
+              source: 'js', // JS = program-triggered (history API, location.href, etc.)
             },
             pageState: {
               url: currentUrl,
@@ -139,7 +201,7 @@ export class RecorderController {
             },
           };
           this.events.push(navEvent);
-          console.log('[Recorder] Navigation event recorded:', currentUrl);
+          console.log('[Recorder] JS Navigation event recorded:', currentUrl);
 
           // Wait for the page to be fully ready
           await this.page.waitForLoadState('domcontentloaded');
@@ -214,6 +276,185 @@ export class RecorderController {
 
     this.context.on('page', this.pageHandler);
     this.trackedPages.add(this.page);
+
+    // 7. Setup browser-level CDP listener for new tabs (more reliable in CDP mode)
+    console.log('[Recorder] Setting up browser-level CDP listener...');
+    try {
+      const browser = this.page.context().browser();
+      console.log('[Recorder] Browser object:', browser ? 'exists' : 'null');
+
+      if (browser) {
+        console.log('[Recorder] Creating new browser CDP session...');
+        this.browserCDPSession = await browser.newBrowserCDPSession();
+        console.log(
+          '[Recorder] Browser CDP session created:',
+          this.browserCDPSession ? 'success' : 'failed'
+        );
+
+        // Enable target discovery
+        await this.browserCDPSession.send('Target.setDiscoverTargets', { discover: true });
+        console.log('[Recorder] Target discovery enabled');
+
+        // Listen for new targets
+        this.browserCDPSession.on('Target.targetCreated', async (params: any) => {
+          if (!this.isRecordingFlag) return;
+
+          const { targetInfo } = params;
+          console.log('[Recorder] CDP: Target created:', targetInfo?.type, targetInfo?.url);
+
+          // Check if it's a new page with an opener (opened from another page)
+          if (targetInfo?.type === 'page' && targetInfo?.openerId) {
+            console.log('[Recorder] CDP: New tab detected:', targetInfo.url);
+
+            // Find the page object for this target
+            const allPages = browser.contexts().flatMap((ctx) => ctx.pages());
+            const newPage = allPages.find((p) => {
+              try {
+                return p.url() === targetInfo.url || p.url().includes(targetInfo.url);
+              } catch {
+                return false;
+              }
+            });
+
+            if (newPage && !this.trackedPages.has(newPage)) {
+              console.log('[Recorder] CDP: Found new page, injecting script...');
+              this.trackedPages.add(newPage);
+
+              // Inject recorder script
+              try {
+                await newPage.waitForLoadState('domcontentloaded', { timeout: 5000 });
+                await newPage.addScriptTag({ content: getRecorderScript() });
+                await newPage.addScriptTag({
+                  content: `if (window.__pageRecorder) { window.__pageRecorder.start('${this.recordingId}'); }`,
+                });
+                console.log('[Recorder] CDP: Script injected successfully');
+              } catch (e) {
+                console.log('[Recorder] CDP: Failed to inject script:', e);
+              }
+
+              // Record tab_open event
+              const tabOpenEvent: RecordedEvent = {
+                id: `evt_${String(this.events.length + 1).padStart(3, '0')}`,
+                type: 'tab_open',
+                timestamp: Date.now() - this.startTime,
+                data: {
+                  url: targetInfo.url,
+                  openerUrl: this.page.url(),
+                },
+                pageState: {
+                  url: targetInfo.url,
+                  title: targetInfo.title || '',
+                  readyState: 'complete',
+                },
+              };
+              this.events.push(tabOpenEvent);
+              console.log('[Recorder] CDP: Tab opened:', targetInfo.url);
+            }
+          }
+        });
+
+        console.log('[Recorder] Browser-level CDP session created');
+      }
+    } catch (e) {
+      console.log('[Recorder] Failed to create browser CDP session:', e);
+    }
+
+    // 8. Poll for new pages (backup method for CDP mode)
+    const pollInterval = setInterval(async () => {
+      if (!this.isRecordingFlag) {
+        clearInterval(pollInterval);
+        return;
+      }
+
+      try {
+        // Get all pages from all contexts (important for CDP mode)
+        const browser = this.page.context().browser();
+        const allPages: Page[] = [];
+        if (browser) {
+          for (const ctx of browser.contexts()) {
+            allPages.push(...ctx.pages());
+          }
+        } else {
+          allPages.push(...this.context.pages());
+        }
+
+        // Check for new pages
+        for (const newPage of allPages) {
+          if (!this.trackedPages.has(newPage)) {
+            const pageUrl = newPage.url();
+            console.log('[Recorder] New page detected:', pageUrl);
+
+            // Track this page (including about:blank)
+            this.trackedPages.add(newPage);
+
+            // Skip blank pages but track them for later URL changes
+            if (pageUrl === 'about:blank' || !pageUrl) {
+              console.log('[Recorder] Tracking blank page, waiting for navigation...');
+
+              // Wait for the page to navigate to a real URL
+              try {
+                await newPage.waitForURL(/^(?!about:blank).*/, { timeout: 10000 });
+                const realUrl = newPage.url();
+                console.log('[Recorder] Page navigated to:', realUrl);
+
+                // Now inject script and record event
+                await this.injectScriptToPage(newPage, realUrl);
+              } catch (e) {
+                console.log('[Recorder] Blank page did not navigate:', e);
+              }
+            } else {
+              // Non-blank page, inject immediately
+              await this.injectScriptToPage(newPage, pageUrl);
+            }
+          }
+        }
+      } catch (e) {
+        console.log('[Recorder] Poll error:', e);
+      }
+    }, 500); // Check every 500ms for faster detection
+
+    // Store interval ID for cleanup
+    (this as any).pollIntervalId = pollInterval;
+  }
+
+  private async injectScriptToPage(newPage: Page, pageUrl: string): Promise<void> {
+    // Start recording on the new page
+    try {
+      // Wait for page to be ready with shorter timeout
+      await newPage.waitForLoadState('domcontentloaded', { timeout: 5000 });
+
+      // Inject full recorder script for new pages
+      await newPage.addScriptTag({
+        content: getRecorderScript(),
+      });
+
+      // Start recording on the new page
+      await newPage.addScriptTag({
+        content: `if (window.__pageRecorder) { window.__pageRecorder.start('${this.recordingId}'); }`,
+      });
+
+      console.log('[Recorder] Script injected successfully');
+    } catch (e) {
+      console.log('[Recorder] Failed to inject script:', e);
+    }
+
+    // Record tab_open event
+    const tabOpenEvent: RecordedEvent = {
+      id: `evt_${String(this.events.length + 1).padStart(3, '0')}`,
+      type: 'tab_open',
+      timestamp: Date.now() - this.startTime,
+      data: {
+        url: pageUrl,
+        openerUrl: this.page.url(),
+      },
+      pageState: {
+        url: pageUrl,
+        title: await newPage.title().catch(() => ''),
+        readyState: 'complete',
+      },
+    };
+    this.events.push(tabOpenEvent);
+    console.log('[Recorder] Tab opened:', pageUrl);
   }
 
   private async injectRecorderScript(): Promise<void> {
@@ -239,8 +480,25 @@ export class RecorderController {
       this.pageHandler = null;
     }
 
+    // Clear poll interval
+    if ((this as any).pollIntervalId) {
+      clearInterval((this as any).pollIntervalId);
+      (this as any).pollIntervalId = null;
+    }
+
+    // Close browser CDP session
+    if (this.browserCDPSession) {
+      try {
+        await this.browserCDPSession.send('Target.setDiscoverTargets', { discover: false });
+        await this.browserCDPSession.detach();
+      } catch {
+        // Ignore errors
+      }
+      this.browserCDPSession = null;
+    }
+
     // Stop recording on all tracked pages
-    for (const trackedPage of this.trackedPages) {
+    this.trackedPages.forEach(async (trackedPage) => {
       try {
         await trackedPage.addScriptTag({
           content: `if (window.__pageRecorder) { window.__pageRecorder.stop(); }`,
@@ -248,7 +506,7 @@ export class RecorderController {
       } catch {
         // Ignore errors if page is already closed
       }
-    }
+    });
     this.trackedPages.clear();
 
     activeRecorders.delete(this.recordingId);

@@ -182,7 +182,12 @@ async function handleCommand(cmd: string, args: Record<string, unknown>): Promis
         page = session.page;
         console.error(`[mpage-server] Recreated page for session '${session.name}'`);
       } catch {
-        throw new Error('No page available and failed to create new page');
+        console.error(`[mpage-server] Failed to create page, attempting to reconnect...`);
+        const success = await initSession();
+        if (!success) {
+          throw new Error('No page available and failed to create new page');
+        }
+        page = session.page;
       }
     } else {
       throw new Error('No page available');

@@ -38,7 +38,18 @@ export function saveSessionInfo(info: SessionInfo): void {
 export function deleteSessionInfo(name: string): void {
   const sessionPath = getSessionPath(name);
   if (fs.existsSync(sessionPath)) {
-    fs.rmSync(sessionPath, { recursive: true, force: true });
+    for (let i = 0; i < 3; i++) {
+      try {
+        fs.rmSync(sessionPath, { recursive: true, force: true });
+        break;
+      } catch (e) {
+        if (i < 2) {
+          setTimeout(() => {}, 100);
+        } else {
+          console.error(`Failed to delete session directory: ${e}`);
+        }
+      }
+    }
   }
 }
 

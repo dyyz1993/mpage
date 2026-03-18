@@ -23,9 +23,6 @@ export type EventType =
   | 'navigation'
   | 'page_load'
   | 'hash_change'
-  | 'tab_open'
-  | 'tab_close'
-  | 'tab_switch'
   | 'wait'
   | 'assert';
 
@@ -77,8 +74,6 @@ export interface EventData {
   newURL?: string;
   hash?: string;
   state?: string;
-  openerUrl?: string;
-  tabId?: string;
 }
 
 export interface WaitCondition {

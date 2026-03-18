@@ -37,7 +37,8 @@ export class PlaybackEngine {
       await this.page.setViewportSize(this.recording.viewport);
     }
 
-    const events = this.recording.events || [];
+    // Aggregate consecutive mousemove events into trajectories
+    const events = this.aggregateMouseMoveEvents(this.recording.events || []);
 
     for (let i = 0; i < events.length; i++) {
       const event = events[i];
@@ -96,6 +97,65 @@ export class PlaybackEngine {
     }
   }
 
+  private aggregateMouseMoveEvents(events: RecordedEvent[]): RecordedEvent[] {
+    const result: RecordedEvent[] = [];
+    let i = 0;
+
+    console.log(`[Playback] Aggregating mousemove events, total events: ${events.length}`);
+
+    while (i < events.length) {
+      const event = events[i];
+
+      // Check if this is a mousemove event
+      if (event.type === 'mousemove') {
+        const trajectoryPoints: Array<{ x: number; y: number; delay: number }> = [];
+        const startTime = event.timestamp;
+
+        // Collect consecutive mousemove events
+        while (i < events.length && events[i].type === 'mousemove') {
+          const currentEvent = events[i];
+          const data = currentEvent.data || {};
+
+          if (data.x !== undefined && data.y !== undefined) {
+            trajectoryPoints.push({
+              x: data.x,
+              y: data.y,
+              delay: i > 0 ? currentEvent.timestamp - events[i - 1].timestamp : 0,
+            });
+          }
+          i++;
+        }
+
+        console.log(`[Playback] Found ${trajectoryPoints.length} consecutive mousemove events`);
+
+        // If we have multiple points, create a trajectory event
+        if (trajectoryPoints.length > 1) {
+          result.push({
+            id: `trajectory_${startTime}`,
+            type: 'mousemove' as any,
+            timestamp: startTime,
+            data: {
+              points: trajectoryPoints,
+              isTrajectory: true,
+            },
+            pageState: event.pageState,
+          } as any);
+          console.log(`[Playback] Created trajectory event with ${trajectoryPoints.length} points`);
+        } else if (trajectoryPoints.length === 1) {
+          // Single mousemove, keep as is
+          result.push(event);
+        }
+      } else {
+        // Not a mousemove event, add as is
+        result.push(event);
+        i++;
+      }
+    }
+
+    console.log(`[Playback] Aggregated events: ${result.length} (reduced from ${events.length})`);
+    return result;
+  }
+
   private async executeWait(condition: WaitCondition): Promise<void> {
     const timeout = condition.timeout || 30000;
 
@@ -124,12 +184,24 @@ export class PlaybackEngine {
         }
         break;
 
-      case 'page_load':
-        await this.page.waitForLoadState('domcontentloaded');
+      case 'text_present':
+        if (condition.text) {
+          await this.page.waitForFunction(
+            (text) => document.body.innerText.includes(text),
+            condition.text,
+            { timeout }
+          );
+        }
         break;
 
-      case 'network_idle':
-        await this.page.waitForLoadState('networkidle', { timeout });
+      case 'text_gone':
+        if (condition.text) {
+          await this.page.waitForFunction(
+            (text) => !document.body.innerText.includes(text),
+            condition.text,
+            { timeout }
+          );
+        }
         break;
 
       case 'url_match':
@@ -138,18 +210,46 @@ export class PlaybackEngine {
         }
         break;
 
-      case 'text_present':
-        if (condition.text) {
-          await this.page.waitForSelector(`text=${condition.text}`, { timeout });
-        }
+      case 'page_load':
+        await this.page.waitForLoadState('load', { timeout });
+        break;
+
+      case 'network_idle':
+        await this.page.waitForLoadState('networkidle', { timeout });
         break;
 
       case 'timeout':
-        if (condition.timeout) {
-          await this.page.waitForTimeout(condition.timeout);
-        }
+        await this.page.waitForTimeout(condition.timeout || 1000);
         break;
     }
+  }
+
+  private async waitForAICompletion(): Promise<void> {
+    // Wait for AI streaming to complete
+    // Check for loading indicators to disappear
+    const loadingSelectors = [
+      '[class*="generating"]',
+      '[class*="loading"]',
+      '[data-status="generating"]',
+      '[data-state="streaming"]',
+    ];
+
+    for (const selector of loadingSelectors) {
+      try {
+        await this.page
+          .waitForSelector(selector, {
+            state: 'hidden',
+            timeout: 30000,
+          })
+          .catch(() => {});
+      } catch (e) {}
+    }
+
+    // Wait for network to be idle
+    await this.page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {});
+
+    // Additional wait for DOM to stabilize
+    await this.page.waitForTimeout(500);
   }
 
   private async executeAssertions(conditions: AssertCondition[]): Promise<void> {
@@ -239,6 +339,16 @@ export class PlaybackEngine {
     switch (event.type) {
       case 'click':
         if (event.selector) {
+          // Auto-wait for AI message to complete if clicking on message action buttons
+          if (
+            event.selector.includes('message_action') ||
+            event.selector.includes('copy') ||
+            event.selector.includes('regenerate') ||
+            event.selector.includes('share')
+          ) {
+            console.log('[Playback] Clicking on message action, waiting for message completion...');
+            await this.waitForAICompletion();
+          }
           await this.page.click(event.selector);
         }
         break;
@@ -266,7 +376,18 @@ export class PlaybackEngine {
         break;
 
       case 'mousemove':
-        if (data.x !== undefined && data.y !== undefined) {
+        if (data.points && Array.isArray(data.points)) {
+          // Trajectory mode - multiple points
+          for (const point of data.points) {
+            if (point.x !== undefined && point.y !== undefined) {
+              await this.page.mouse.move(point.x, point.y);
+              if (point.delay && point.delay > 0) {
+                await this.page.waitForTimeout(point.delay);
+              }
+            }
+          }
+        } else if (data.x !== undefined && data.y !== undefined) {
+          // Single point mode
           await this.page.mouse.move(data.x, data.y);
         }
         break;
@@ -283,9 +404,13 @@ export class PlaybackEngine {
         break;
 
       case 'scroll':
-        await this.page.evaluate((scrollData) => {
-          window.scrollTo(scrollData.scrollX || 0, scrollData.scrollY || 0);
-        }, data);
+        try {
+          await this.page.evaluate((scrollData) => {
+            window.scrollTo(scrollData.scrollX || 0, scrollData.scrollY || 0);
+          }, data);
+        } catch (e) {
+          console.log(`[Playback] Scroll failed (possibly cross-origin frame): ${e}`);
+        }
         break;
 
       case 'keydown':
@@ -324,14 +449,26 @@ export class PlaybackEngine {
 
       case 'change':
         if (event.selector) {
-          if (data.checked !== undefined) {
-            if (data.checked) {
-              await this.page.check(event.selector);
-            } else {
-              await this.page.uncheck(event.selector);
+          // Always use fill for text inputs, only use check/uncheck for actual checkboxes/radios
+          if (data.value !== undefined) {
+            await this.page.fill(event.selector, data.value);
+          } else if (data.checked !== undefined) {
+            // Only handle checked for actual checkboxes/radios
+            const element = await this.page.$(event.selector);
+            const isCheckboxOrRadio = element
+              ? await element.evaluate((el) => {
+                  const input = el as HTMLInputElement;
+                  return input.type === 'checkbox' || input.type === 'radio';
+                })
+              : false;
+
+            if (isCheckboxOrRadio) {
+              if (data.checked) {
+                await this.page.check(event.selector);
+              } else {
+                await this.page.uncheck(event.selector);
+              }
             }
-          } else if (data.value !== undefined) {
-            await this.page.selectOption(event.selector, data.value);
           }
         }
         break;
@@ -355,7 +492,11 @@ export class PlaybackEngine {
 
       case 'navigation':
         if (data.url) {
-          await this.page.goto(data.url);
+          try {
+            await this.page.goto(data.url, { timeout: 15000 });
+          } catch (e) {
+            console.log(`[Playback] Navigation timeout for ${data.url}, continuing...`);
+          }
         }
         break;
 
@@ -365,6 +506,14 @@ export class PlaybackEngine {
 
       case 'hash_change':
         if (data.url) {
+          await this.page.goto(data.url);
+        }
+        break;
+
+      case 'tab_open':
+        // Handle new tab opening - navigate to the URL
+        if (data.url) {
+          console.log(`[Playback] Opening tab: ${data.url}`);
           await this.page.goto(data.url);
         }
         break;

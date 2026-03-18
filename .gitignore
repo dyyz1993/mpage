@@ -8,3 +8,43 @@ dist/
 coverage/
 *.tsbuildinfo
 tmp/
+
+# 测试和调试文件
+*.test.ts
+*.spec.ts
+test-*.ts
+test-*.js
+debug-*.ts
+debug-*.js
+check-*.cjs
+verify-*.ts
+*debug*.ts
+*debug*.js
+test-*
+
+# YAML 录制文件
+*.yaml
+!README.md
+
+# 根目录调试文件
+cdp-*.ts
+replay.js
+replay.py
+demo-*.ts
+doubao-*.json
+
+# scripts 目录下的调试和工具文件
+scripts/buildDomTree.js
+scripts/highlight-renderer.js
+scripts/visualize-structure.ts
+scripts/extract-*.ts
+scripts/check-*.ts
+scripts/clean-*.ts
+scripts/save-snapshot*.ts
+scripts/simple-*.ts
+scripts/structure-extractor*.js
+scripts/*-recording*.ts
+scripts/test-extractor-code.cjs
+
+# Trae 相关
+.trae/

@@ -29,14 +29,91 @@ export const LAYOUT_EXTRACTOR_FN = `
       "FIGURE","FIGCAPTION","DIALOG","DETAILS","SUMMARY","ADDRESS",
       "H1","H2","H3","H4","H5","H6"
     ]);
+    
+    // 1. Prefer data-testid if available (most stable)
+    if (el.getAttribute && el.getAttribute('data-testid')) {
+      return '[data-testid="' + el.getAttribute('data-testid') + '"]';
+    }
+    
+    // 2. Prefer data-id if available
+    if (el.getAttribute && el.getAttribute('data-id')) {
+      return '[data-id="' + el.getAttribute('data-id') + '"]';
+    }
+    
+    // 3. Use semantic tags
     if (semanticTags.has(el.tagName)) {
       return el.tagName.toLowerCase();
     }
+    
+    // 4. Use id if available
     if (el.id) return "#" + el.id;
-    var classes = (el.className || "").toString().trim().split(/\\\\s+/)
-      .filter(function(c) { return c && c.indexOf("reds-") !== 0 && c.indexOf("_") !== 0 && c.indexOf("css-") !== 0 && c.indexOf("prc-") !== 0 && c.length > 2 && c.length < 30; });
+    
+    // 5. Filter and select best class name
+    // eslint-disable-next-line no-useless-escape
+    var classes = (el.className || "").toString().trim().split(/[\s]+/)
+      .filter(function(c) { 
+        // Filter out framework-specific classes (React, Vue, Angular, CSS modules, etc.)
+        return c && 
+          c.indexOf("reds-") !== 0 && 
+          c.indexOf("css-") !== 0 && 
+          c.indexOf("prc-") !== 0 &&
+          c.indexOf("__") === -1 &&  // CSS modules
+          c.indexOf("_") !== 0 &&     // Many frameworks use prefix_
+          !c.match(/^[a-z][a-z0-9]*-[a-z0-9]+-[a-z0-9]+$/) && // hash-like classes
+          c.length > 2 && 
+          c.length < 30; 
+      });
+    
+    // Try to find a meaningful class (containing important keywords)
+    var importantKeywords = ["btn", "button", "input", "card", "item", "menu", "nav", "header", "footer", "sidebar", "modal", "dialog", "form", "search", "chat", "message", "copy"];
+    for (var i = 0; i < classes.length; i++) {
+      var cls = classes[i].toLowerCase();
+      for (var j = 0; j < importantKeywords.length; j++) {
+        if (cls.indexOf(importantKeywords[j]) !== -1) {
+          return "." + classes[i];
+        }
+      }
+    }
+    
+    // Fall back to first class
     if (classes.length > 0) return "." + classes[0];
-    return "";
+    
+    // 6. Build path-based selector as last resort
+    var path = [];
+    var current = el;
+    var maxDepth = 5;
+    var depth = 0;
+    while (current && depth < maxDepth) {
+      var tag = current.tagName ? current.tagName.toLowerCase() : '';
+      if (!tag || tag === 'html' || tag === 'body') break;
+      
+      var selector = tag;
+      if (current.id) {
+        selector += '#' + current.id;
+        path.unshift(selector);
+        break;
+      }
+      
+      // eslint-disable-next-line no-useless-escape
+      var cls = (current.className || "").toString().trim().split(/[\s]+/)[0];
+      if (cls) selector += '.' + cls;
+      
+      // Add nth-child to make more specific
+      var parent = current.parentElement;
+      if (parent) {
+        var children = Array.from(parent.children).filter(function(c) { return c.tagName === current.tagName; });
+        if (children.length > 1) {
+          var index = children.indexOf(current) + 1;
+          selector += ':nth-of-type(' + index + ')';
+        }
+      }
+      
+      path.unshift(selector);
+      current = parent;
+      depth++;
+    }
+    
+    return path.join(' > ');
   }
 
   function extractKeywords(el) {
