@@ -48,7 +48,8 @@ function createBrowserProcess(id: string, sessionName: string, url: string): Pro
     const script = `
 const { chromium } = require('playwright');
 (async () => {
-  const browser = await chromium.launch();
+  const executablePath = process.env.XCLI_CHROMIUM_PATH || '/Applications/Chromium.app/Contents/MacOS/Chromium';
+  const browser = await chromium.launch({ executablePath });
   const page = await browser.newPage();
   await page.goto('${url}');
   process.send({ type: 'ready' });
