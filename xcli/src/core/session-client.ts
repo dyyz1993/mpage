@@ -1,12 +1,10 @@
-import { mkdirSync, readFileSync, writeFileSync, existsSync, unlinkSync } from 'fs';
+import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
 import { spawn } from 'child_process';
-import net from 'net';
 
 const SESSION_DIR = join(homedir(), '.xcli', 'sessions');
 const DAEMON_CONFIG_PATH = join(SESSION_DIR, 'daemon.json');
-const DAEMON_SOCKET_PATH = join(SESSION_DIR, 'daemon.sock');
 
 export interface SessionInfo {
   id: string;
@@ -31,133 +29,65 @@ function getDaemonPort(): number {
   }
 }
 
-async function checkDaemonRunning(): Promise<boolean> {
-  const port = getDaemonPort();
-  if (!port) return false;
-  try {
-    const res = await fetch(`http://localhost:${port}/api/sessions`);
-    return res.ok;
-  } catch {
-    return false;
-  }
-}
-
-let daemonAutoStartTried = false;
-
 async function ensureDaemon(): Promise<void> {
-  if (daemonAutoStartTried) return;
-  daemonAutoStartTried = true;
+  const port = getDaemonPort();
+  if (port > 0) {
+    try {
+      const res = await fetch(`http://localhost:${port}/api/sessions`);
+      if (res.ok) return;
+    } catch (e) {
+    }
+  }
 
-  const running = await checkDaemonRunning();
-  if (running) return;
-
-  const daemonPath = join(process.cwd(), 'xcli', 'dist', 'session-daemon.cjs');
-  spawn('node', [daemonPath], {
+  const xcliDir = process.cwd();
+  const daemonPath = join(xcliDir, 'dist', 'session-daemon.cjs');
+  const child = spawn('node', [daemonPath], {
     detached: true,
     stdio: 'ignore',
-    cwd: process.cwd(),
-  }).unref();
-
-  await new Promise<void>((resolve) => {
-    const check = async () => {
-      if (await checkDaemonRunning()) {
-        resolve();
-      } else {
-        setTimeout(check, 500);
-      }
-    };
-    check();
+    cwd: xcliDir,
   });
+  child.unref();
+
+  const startTime = Date.now();
+  while (Date.now() - startTime < 15000) {
+    const p = getDaemonPort();
+    if (p > 0) {
+      try {
+        const res = await fetch(`http://localhost:${p}/api/sessions`);
+        if (res.ok) return;
+      } catch {
+      }
+    }
+    await new Promise((r) => setTimeout(r, 500));
+  }
+  throw new Error('Failed to start daemon');
 }
 
 async function daemonRequest(method: string, params?: any): Promise<any> {
   await ensureDaemon();
-
-  if (!existsSync(DAEMON_SOCKET_PATH)) {
+  const port = getDaemonPort();
+  if (!port) {
     throw new Error('Daemon not running. Use "xcli daemon" to start.');
   }
 
-  return new Promise((resolve, reject) => {
-    const body = JSON.stringify({ method, params }) + '\n';
-    const client = net.createConnection(DAEMON_SOCKET_PATH, () => {
-      client.write(body);
-      client.end();
-    });
-
-    let data = '';
-    client.on('data', (chunk) => {
-      data += chunk.toString();
-    });
-
-    client.on('end', () => {
-      try {
-        const result = JSON.parse(data.trim());
-        if (result.error) {
-          reject(new Error(result.error));
-        } else {
-          resolve(result);
-        }
-      } catch (e) {
-        reject(e);
-      }
-    });
-
-    client.on('error', reject);
-    client.setTimeout(60000, () => {
-      client.destroy();
-      reject(new Error('Request timeout'));
-    });
+  const res = await fetch(`http://localhost:${port}/rpc`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ method, params }),
   });
-}
 
-export async function openSession(name: string, url: string): Promise<SessionInfo> {
-  const result = await daemonRequest('session.open', { name, url });
-  const info: SessionInfo = {
-    id: result.id,
-    name: result.name,
-    url: result.url,
-    createdAt: new Date().toISOString(),
-  };
-  ensureSessionDir();
-  writeFileSync(join(SESSION_DIR, `${name}.json`), JSON.stringify(info, null, 2));
-  return info;
-}
-
-export async function htmlSession(name?: string): Promise<string> {
-  const result = await daemonRequest('page.html', { name: name || 'default' });
-  return result.html;
-}
-
-export async function closeSession(name?: string): Promise<void> {
-  await daemonRequest('session.close', { name: name || 'default' });
-  if (name) {
-    const path = join(SESSION_DIR, `${name}.json`);
-    if (existsSync(path)) {
-      unlinkSync(path);
-    }
+  if (!res.ok) {
+    throw new Error(`Request failed: ${res.status}`);
   }
-}
 
-export async function closeAllSessions(): Promise<void> {
-  await daemonRequest('session.closeAll', {});
-}
-
-export async function listSessions(): Promise<SessionInfo[]> {
-  if (!existsSync(DAEMON_SOCKET_PATH)) return [];
-  try {
-    const result = await daemonRequest('session.list');
-    return result.sessions.map((s: any) => ({
-      id: s.id,
-      name: s.name,
-      url: s.url || '',
-      createdAt: new Date().toISOString(),
-    }));
-  } catch {
-    return [];
+  const result = await res.json();
+  if (result.error) {
+    throw new Error(result.error);
   }
+  return result;
 }
 
-export function getSession(name: string): SessionInfo | null {
+export async function getSession(name: string): Promise<SessionInfo | null> {
   const path = join(SESSION_DIR, `${name}.json`);
   if (!existsSync(path)) {
     return null;
@@ -169,35 +99,82 @@ export function getSession(name: string): SessionInfo | null {
   }
 }
 
-export async function getCookies(name?: string): Promise<any[]> {
-  const result = await daemonRequest('storage.get', { name: name || 'default', type: 'cookies' });
-  return result.cookies || [];
+export async function saveSession(session: SessionInfo): Promise<void> {
+  const path = join(SESSION_DIR, `${session.name}.json`);
+  writeFileSync(path, JSON.stringify(session, null, 2));
 }
 
-export async function setCookie(name: string, cookie: any): Promise<void> {
-  await daemonRequest('storage.set', { name, type: 'cookies', data: cookie });
+export async function openSession(name: string, url: string): Promise<SessionInfo> {
+  ensureSessionDir();
+  const result = await daemonRequest('session.open', { name, url });
+  const session: SessionInfo = {
+    id: result.id,
+    name,
+    url,
+    createdAt: new Date().toISOString(),
+  };
+  await saveSession(session);
+  return session;
 }
 
-export async function clearCookies(name?: string): Promise<void> {
-  await daemonRequest('storage.clear', { name: name || 'default', type: 'cookies' });
+export async function htmlSession(name?: string): Promise<string> {
+  const sessionName = name || 'default';
+  const sessionFile = join(SESSION_DIR, `${sessionName}.json`);
+  if (!existsSync(sessionFile)) {
+    throw new Error(`Session '${sessionName}' not found. Use "xcli open <url>" to create one.`);
+  }
+  const result = await daemonRequest('page.html', { name: sessionName });
+  return result.html;
 }
 
-export async function getLocalStorage(name?: string): Promise<Record<string, string>> {
-  const result = await daemonRequest('storage.get', {
-    name: name || 'default',
-    type: 'localStorage',
-  });
-  return result.localStorage || {};
+export async function screenshotSession(name?: string): Promise<string> {
+  const sessionName = name || 'default';
+  const sessionFile = join(SESSION_DIR, `${sessionName}.json`);
+  if (!existsSync(sessionFile)) {
+    throw new Error(`Session '${sessionName}' not found. Use "xcli open <url>" to create one.`);
+  }
+  const result = await daemonRequest('page.screenshot', { name: sessionName });
+  return `data:image/png;base64,${result.screenshot}`;
 }
 
-export async function setLocalStorage(name: string, key: string, value: string): Promise<void> {
-  await daemonRequest('storage.set', { name, type: 'localStorage', key, value });
+export interface SnapshotElement {
+  ref: string;
+  tag: string;
+  text: string;
+  attrs: Record<string, string>;
 }
 
-export async function clearLocalStorage(name?: string): Promise<void> {
-  await daemonRequest('storage.clear', { name: name || 'default', type: 'localStorage' });
+export async function snapshotSession(
+  name?: string,
+  interactiveOnly = false
+): Promise<SnapshotElement[]> {
+  const sessionName = name || 'default';
+  const sessionFile = join(SESSION_DIR, `${sessionName}.json`);
+  if (!existsSync(sessionFile)) {
+    throw new Error(`Session '${sessionName}' not found. Use "xcli open <url>" to create one.`);
+  }
+  const result = await daemonRequest('page.snapshot', { name: sessionName, interactiveOnly });
+  return result.elements || [];
 }
 
-export async function killSession(name: string): Promise<void> {
-  await daemonRequest('session.kill', { name });
+export async function listSessions(): Promise<Array<{ id: string; name: string }>> {
+  await ensureDaemon();
+  const port = getDaemonPort();
+  if (!port) return [];
+  try {
+    const res = await fetch(`http://localhost:${port}/api/sessions`);
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch {
+  }
+  return [];
+}
+
+export async function closeSession(name: string): Promise<void> {
+  await daemonRequest('session.close', { name });
+}
+
+export async function killDaemon(): Promise<void> {
+  await daemonRequest('session.kill', {});
 }
