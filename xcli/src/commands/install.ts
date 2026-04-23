@@ -1,13 +1,25 @@
-import { mkdirSync, writeFileSync, existsSync } from 'fs';
+import { mkdirSync, writeFileSync, existsSync, rmSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
+import { homedir } from 'os';
 
 const OFFICIAL_TEMPLATES = ['static', 'dynamic', 'login', 'api'];
 
-export async function installCommand(args: string[], _values: Record<string, any>) {
+const GLOBAL_PLUGINS_DIR = join(homedir(), '.xcli', 'plugins');
+const LOCAL_PLUGINS_DIR = '.xcli/plugins';
+
+export async function installCommand(args: string[], values: Record<string, any>) {
+  const isGlobal = values.global || values.g || (!values.project && !values.p);
+  const isForce = values.force || values.f;
   const source = args[0];
+
   if (!source) {
-    console.error('Usage: xcli install <source>');
+    console.error('Usage: xcli install [flags] <source>');
+    console.error('');
+    console.error('Flags:');
+    console.error('  -g, --global    全局安装 (默认)');
+    console.error('  -p, --project  本地安装到 .xcli/plugins/');
+    console.error('  -f, --force    覆盖已存在的插件');
     console.error('');
     console.error('Sources:');
     console.error('  git:<url>         Git repository');
@@ -17,23 +29,25 @@ export async function installCommand(args: string[], _values: Record<string, any
     process.exit(1);
   }
 
-  const pluginsDir = '.xcli/plugins';
+  const pluginsDir = isGlobal ? GLOBAL_PLUGINS_DIR : LOCAL_PLUGINS_DIR;
+  const location = isGlobal ? '[global]' : '[local]';
+
   mkdirSync(pluginsDir, { recursive: true });
 
   if (source.startsWith('git:')) {
     const url = source.slice(4);
     const name = extractNameFromUrl(url);
-    await gitClone(url, name, pluginsDir);
+    await gitClone(url, name, pluginsDir, isForce, location);
   } else if (source.startsWith('npm:')) {
     const packageName = source.slice(4);
-    await npmInstall(packageName, pluginsDir);
+    await npmInstall(packageName, pluginsDir, isForce, location);
   } else if (source.startsWith('github:')) {
     const repo = source.slice(7);
     const url = `https://github.com/${repo}.git`;
     const name = repo.split('/')[1] || repo;
-    await gitClone(url, name, pluginsDir);
+    await gitClone(url, name, pluginsDir, isForce, location);
   } else if (OFFICIAL_TEMPLATES.includes(source)) {
-    await installOfficialTemplate(source, pluginsDir);
+    await installOfficialTemplate(source, pluginsDir, isForce, location);
   } else {
     console.error(`Unknown source: ${source}`);
     console.error(`Official templates: ${OFFICIAL_TEMPLATES.join(', ')}`);
@@ -46,44 +60,72 @@ function extractNameFromUrl(url: string): string {
   return match ? match[1] : 'plugin';
 }
 
-async function gitClone(url: string, name: string, pluginsDir: string) {
+async function gitClone(
+  url: string,
+  name: string,
+  pluginsDir: string,
+  force: boolean,
+  location: string
+) {
   const targetDir = join(pluginsDir, name);
   if (existsSync(targetDir)) {
-    console.error(`Plugin "${name}" already exists`);
-    process.exit(1);
+    if (!force) {
+      console.error(`Plugin "${name}" already exists at ${targetDir}`);
+      console.error('Use -f to overwrite');
+      process.exit(1);
+    }
+    rmSync(targetDir, { recursive: true, force: true });
   }
   console.log(`Cloning ${url}...`);
   try {
     execSync(`git clone ${url} ${targetDir}`, { stdio: 'inherit' });
-    console.log(`Installed: ${name}`);
+    console.log(`Installed: ${name} ${location}`);
   } catch {
     console.error(`Failed to clone ${url}`);
     process.exit(1);
   }
 }
 
-async function npmInstall(packageName: string, pluginsDir: string) {
+async function npmInstall(
+  packageName: string,
+  pluginsDir: string,
+  force: boolean,
+  location: string
+) {
   const targetDir = join(pluginsDir, packageName);
   if (existsSync(targetDir)) {
-    console.error(`Plugin "${packageName}" already exists`);
-    process.exit(1);
+    if (!force) {
+      console.error(`Plugin "${packageName}" already exists at ${targetDir}`);
+      console.error('Use -f to overwrite');
+      process.exit(1);
+    }
+    rmSync(targetDir, { recursive: true, force: true });
   }
   console.log(`Installing ${packageName}...`);
   try {
     mkdirSync(targetDir, { recursive: true });
     execSync(`npm install ${packageName}`, { stdio: 'inherit', cwd: targetDir });
-    console.log(`Installed: ${packageName}`);
+    console.log(`Installed: ${packageName} ${location}`);
   } catch {
     console.error(`Failed to install ${packageName}`);
     process.exit(1);
   }
 }
 
-async function installOfficialTemplate(name: string, pluginsDir: string) {
+async function installOfficialTemplate(
+  name: string,
+  pluginsDir: string,
+  force: boolean,
+  location: string
+) {
   const targetDir = join(pluginsDir, name);
   if (existsSync(targetDir)) {
-    console.error(`Plugin "${name}" already exists`);
-    process.exit(1);
+    if (!force) {
+      console.error(`Plugin "${name}" already exists at ${targetDir}`);
+      console.error('Use -f to overwrite');
+      process.exit(1);
+    }
+    rmSync(targetDir, { recursive: true, force: true });
   }
 
   mkdirSync(targetDir, { recursive: true });
@@ -128,5 +170,7 @@ export default function (xcli: XCLIAPI) {
     JSON.stringify({ name, version: '1.0.0', type: 'module' }, null, 2)
   );
 
-  console.log(`Installed: ${name} (official template)`);
+  console.log(`Installed: ${name} ${location} (official template)`);
 }
+
+export { GLOBAL_PLUGINS_DIR, LOCAL_PLUGINS_DIR };

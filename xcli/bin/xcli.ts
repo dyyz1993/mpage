@@ -92,6 +92,12 @@ async function main() {
     return;
   }
 
+  if (cmd === 'remove' || cmd === 'uninstall') {
+    const { removeCommand } = await import('../src/commands/remove');
+    await removeCommand(cmdArgs, values);
+    return;
+  }
+
   await loadPlugins();
 
   const site = globalLoader.getSite(cmd);

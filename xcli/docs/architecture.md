@@ -65,6 +65,9 @@ xcli/
 │   ├── commands/
 │   │   ├── daemon.ts                # daemon 命令
 │   │   ├── create.ts                # create 命令
+│   │   ├── install.ts               # install 命令
+│   │   ├── remove.ts                # remove 命令
+│   │   ├── plugins.ts               # plugins 命令
 │   │   └── execute-site.ts          # 插件命令执行
 │   ├── protocol/
 │   │   └── plugin-protocol.ts       # 插件协议类型定义
@@ -179,6 +182,18 @@ xcli <command> [options]
 | `create --name <id>` | 创建插件 | `xcli create --name 01-static` |
 | `plugins <list\|info>` | 查看插件 | `xcli plugins list` |
 | `install <source>` / `i` | 安装插件 | `xcli i npm:xcli-plugin` |
+| `remove <name>` / `uninstall` | 卸载插件 | `xcli remove baidu` |
+
+### 安装命令格式
+
+```
+xcli i [flags] <source>
+
+Flags:
+  -g, --global    全局安装 (默认)
+  -p, --project  本地安装到 .xcli/plugins/
+  -f, --force    覆盖已存在的插件
+```
 
 ### 安装源格式
 
@@ -258,5 +273,5 @@ export default function (xcli: XCLIAPI) {
 1. **Session 隔离**: 每个 session 对应一个 BrowserContext
 2. **统一通信**: xcli 通过 Unix Socket，Viewer 通过 HTTP/WS
 3. **扁平命令**: 命令设计遵循 agent-browser 风格
-4. **插件扩展**: 插件放在 `.xcli/plugins/` 目录
+4. **插件扩展**: 插件放在 `~/.xcli/plugins/` (全局) 或 `./.xcli/plugins/` (本地)
 5. **YAML 输出**: 默认 YAML 格式，`--json` 切换为 JSON
