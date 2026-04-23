@@ -17,6 +17,7 @@ module.exports = {
   },
   rules: {
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    '@typescript-eslint/no-this-alias': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-explicit-any': 'warn',
     'no-console': 'off',

@@ -76,6 +76,8 @@ export class RecorderController {
       initializedContexts.add(this.context);
     }
 
+    await this.ensureContextValid();
+
     // 2. Add init script with the recorder
     // Pass the recordingId so it can auto-start on every page
     const initScript = getRecorderScript();
@@ -83,7 +85,7 @@ export class RecorderController {
 
     // 3. Navigate to URL
     if (options.url) {
-      await this.page.goto(options.url);
+      await this.page.goto(options.url, { waitUntil: 'domcontentloaded', timeout: 30000 });
       this.startUrl = options.url;
     } else {
       this.startUrl = this.page.url();
@@ -459,6 +461,32 @@ export class RecorderController {
 
   private async injectRecorderScript(): Promise<void> {
     await this.page.addScriptTag({ content: getRecorderScript() });
+  }
+
+  private async ensureContextValid(): Promise<void> {
+    try {
+      const pages = this.context.pages();
+      if (pages.length === 0) {
+        this.page = await this.context.newPage();
+        console.log('[Recorder] Created new page in existing context');
+      } else {
+        try {
+          await this.page.url();
+        } catch {
+          this.page = pages[0];
+          console.log('[Recorder] Switched to existing page');
+        }
+      }
+    } catch {
+      const browser = this.context.browser();
+      if (browser) {
+        const oldContext = this.context;
+        this.context = await browser.newContext();
+        this.page = await this.context.newPage();
+        initializedContexts.delete(oldContext);
+        console.log('[Recorder] Created new context and page');
+      }
+    }
   }
 
   async stop(outputPath?: string): Promise<{ path: string; session: RecordingSession }> {

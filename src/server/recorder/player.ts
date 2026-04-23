@@ -1,4 +1,4 @@
-import type { Page } from 'playwright-core';
+import type { Page, CDPSession } from 'playwright-core';
 import * as fs from 'fs';
 import * as yaml from 'yaml';
 import type {
@@ -14,6 +14,7 @@ import type {
 export class PlaybackEngine {
   private page: Page;
   private recording: RecordingSession;
+  private cdpSession: CDPSession | null = null;
 
   constructor(page: Page, recording: RecordingSession) {
     this.page = page;
@@ -26,12 +27,92 @@ export class PlaybackEngine {
     return new PlaybackEngine(page, recording);
   }
 
+  private async ensureCDPSession(): Promise<CDPSession> {
+    if (!this.cdpSession) {
+      this.cdpSession = await this.page.context().newCDPSession(this.page);
+    }
+    return this.cdpSession;
+  }
+
+  private async sendKeyViaCDP(
+    key: string,
+    type: 'keyDown' | 'keyUp' | 'rawKeyDown' | 'char'
+  ): Promise<void> {
+    try {
+      const cdp = await this.ensureCDPSession();
+      const keyInfo = this.getKeyInfo(key);
+      await cdp.send('Input.dispatchKeyEvent', {
+        type,
+        key: keyInfo.key,
+        code: keyInfo.code,
+        windowsVirtualKeyCode: keyInfo.windowsVirtualKeyCode,
+        nativeVirtualKeyCode: keyInfo.nativeVirtualKeyCode,
+      });
+    } catch (e) {
+      console.log(`[Playback] CDP key event failed: ${e}`);
+    }
+  }
+
+  private getKeyInfo(key: string): {
+    key: string;
+    code: string;
+    windowsVirtualKeyCode: number;
+    nativeVirtualKeyCode: number;
+  } {
+    const keyMap: Record<
+      string,
+      { code: string; windowsVirtualKeyCode: number; nativeVirtualKeyCode: number }
+    > = {
+      Enter: { code: 'Enter', windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 },
+      Tab: { code: 'Tab', windowsVirtualKeyCode: 9, nativeVirtualKeyCode: 9 },
+      Escape: { code: 'Escape', windowsVirtualKeyCode: 27, nativeVirtualKeyCode: 27 },
+      Backspace: { code: 'Backspace', windowsVirtualKeyCode: 8, nativeVirtualKeyCode: 8 },
+      Delete: { code: 'Delete', windowsVirtualKeyCode: 46, nativeVirtualKeyCode: 46 },
+      ArrowUp: { code: 'ArrowUp', windowsVirtualKeyCode: 38, nativeVirtualKeyCode: 38 },
+      ArrowDown: { code: 'ArrowDown', windowsVirtualKeyCode: 40, nativeVirtualKeyCode: 40 },
+      ArrowLeft: { code: 'ArrowLeft', windowsVirtualKeyCode: 37, nativeVirtualKeyCode: 37 },
+      ArrowRight: { code: 'ArrowRight', windowsVirtualKeyCode: 39, nativeVirtualKeyCode: 39 },
+      Shift: { code: 'ShiftLeft', windowsVirtualKeyCode: 16, nativeVirtualKeyCode: 16 },
+      Control: { code: 'ControlLeft', windowsVirtualKeyCode: 17, nativeVirtualKeyCode: 17 },
+      Alt: { code: 'AltLeft', windowsVirtualKeyCode: 18, nativeVirtualKeyCode: 18 },
+      Meta: { code: 'MetaLeft', windowsVirtualKeyCode: 91, nativeVirtualKeyCode: 91 },
+    };
+
+    if (keyMap[key]) {
+      return { key, ...keyMap[key] };
+    }
+
+    if (key.length === 1) {
+      const upperKey = key.toUpperCase();
+      return {
+        key,
+        code: `Key${upperKey}`,
+        windowsVirtualKeyCode: upperKey.charCodeAt(0),
+        nativeVirtualKeyCode: upperKey.charCodeAt(0),
+      };
+    }
+
+    return { key, code: key, windowsVirtualKeyCode: 0, nativeVirtualKeyCode: 0 };
+  }
+
   async play(options: PlaybackOptions = {}): Promise<PlaybackResult> {
     const startTime = Date.now();
     const errors: PlaybackError[] = [];
     const { slowMo = 1, noDelay = false, stopOnError = true, onProgress } = options;
 
-    await this.page.goto(this.recording.startUrl);
+    const currentUrl = this.page.url();
+    if (currentUrl !== this.recording.startUrl) {
+      try {
+        await this.page.goto(this.recording.startUrl, {
+          timeout: 30000,
+          waitUntil: 'domcontentloaded',
+        });
+      } catch (e) {
+        console.log(
+          `[Playback] Failed to goto ${this.recording.startUrl}, continuing with current page...`
+        );
+      }
+    }
 
     if (this.recording.viewport) {
       await this.page.setViewportSize(this.recording.viewport);
@@ -415,35 +496,30 @@ export class PlaybackEngine {
 
       case 'keydown':
         if (data.key) {
-          const modifiers: string[] = [];
-          if (data.ctrlKey) modifiers.push('Control');
-          if (data.shiftKey) modifiers.push('Shift');
-          if (data.altKey) modifiers.push('Alt');
-          if (data.metaKey) modifiers.push('Meta');
-
-          if (modifiers.length > 0) {
-            for (const mod of modifiers) {
-              await this.page.keyboard.down(mod);
-            }
-          }
-
-          await this.page.keyboard.press(data.key);
-
-          if (modifiers.length > 0) {
-            for (const mod of modifiers.reverse()) {
-              await this.page.keyboard.up(mod);
-            }
-          }
+          await this.sendKeyViaCDP(data.key, 'keyDown');
         }
         break;
 
       case 'keyup':
-        // Usually handled by keydown
+        if (data.key) {
+          await this.sendKeyViaCDP(data.key, 'keyUp');
+        }
         break;
 
       case 'input':
         if (event.selector && data.value !== undefined) {
-          await this.page.fill(event.selector, data.value);
+          const currentValue = await this.page.evaluate((sel) => {
+            const el = document.querySelector(sel);
+            return el ? (el as HTMLInputElement).value || el.textContent || '' : '';
+          }, event.selector);
+          if (data.value.length > currentValue.length) {
+            const newChars = data.value.slice(currentValue.length);
+            for (const char of newChars) {
+              await this.sendKeyViaCDP(char, 'char');
+            }
+          } else if (data.value !== currentValue) {
+            await this.page.fill(event.selector, data.value);
+          }
         }
         break;
 

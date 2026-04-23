@@ -1,0 +1,6 @@
+{
+  "name": "10-login",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "登录凭证采集插件"
+}

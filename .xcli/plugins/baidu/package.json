@@ -1,0 +1,9 @@
+{
+  "name": "baidu",
+  "version": "1.0.0",
+  "description": "百度搜索集成",
+  "main": "index.ts",
+  "dependencies": {
+    "xcli": "file:.yalc/xcli"
+  }
+}

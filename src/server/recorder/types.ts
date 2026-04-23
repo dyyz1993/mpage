@@ -23,8 +23,33 @@ export type EventType =
   | 'navigation'
   | 'page_load'
   | 'hash_change'
+  | 'class_change'
+  | 'element_show'
+  | 'element_hide'
+  | 'popup_show'
+  | 'popup_hide'
+  | 'attribute_change'
+  | 'dom_node_added'
+  | 'dom_node_removed'
+  | 'submit'
+  | 'form_reset'
+  | 'media_play'
+  | 'media_pause'
+  | 'media_ended'
+  | 'media_seek'
+  | 'touchstart'
+  | 'touchend'
+  | 'touchmove'
+  | 'swipe_left'
+  | 'swipe_right'
+  | 'swipe_up'
+  | 'swipe_down'
+  | 'window_resize'
+  | 'dropdown_open'
+  | 'dropdown_close'
   | 'wait'
-  | 'assert';
+  | 'assert'
+  | 'tab_open';
 
 export type WaitType =
   | 'element_visible'
@@ -49,6 +74,16 @@ export type AssertType =
   | 'url_contains'
   | 'attribute_equals';
 
+export type NavigationSource =
+  | 'cdp'
+  | 'js'
+  | 'link'
+  | 'form'
+  | 'script'
+  | 'history'
+  | 'pushState'
+  | 'replaceState';
+
 export interface EventData {
   x?: number;
   y?: number;
@@ -68,12 +103,39 @@ export interface EventData {
   checked?: boolean;
   files?: string[];
   url?: string;
-  navigationType?: 'link' | 'form' | 'script' | 'history' | 'pushState' | 'replaceState';
+  navigationType?: NavigationSource;
+  source?: NavigationSource;
   persisted?: boolean;
   oldURL?: string;
   newURL?: string;
   hash?: string;
   state?: string;
+  addedClasses?: string[];
+  removedClasses?: string[];
+  matchedClasses?: string[];
+  visibility?: 'visible' | 'hidden';
+  display?: string;
+  popupType?: 'popup' | 'modal' | 'drawer' | 'tooltip';
+  trigger?: string;
+  attributeName?: string;
+  oldValue?: string;
+  newValue?: string;
+  parentSelector?: string;
+  nodeName?: string;
+  formSelector?: string;
+  method?: string;
+  action?: string;
+  currentTime?: number;
+  duration?: number;
+  muted?: boolean;
+  touches?: Array<{ x: number; y: number }>;
+  points?: Array<{ x?: number; y?: number; delay?: number }>;
+  direction?: 'left' | 'right' | 'up' | 'down';
+  width?: number;
+  height?: number;
+  selectedValue?: string;
+  selectedIndex?: number;
+  openerUrl?: string;
 }
 
 export interface WaitCondition {

@@ -1,0 +1,21 @@
+{
+  "name": "xcli",
+  "version": "1.0.0",
+  "description": "Extensible CLI Framework",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./protocol": "./src/protocol/plugin-protocol.ts",
+    "./core": "./src/core/plugin-loader.ts"
+  },
+  "bin": {
+    "xcli": "./bin/xcli.ts"
+  },
+  "dependencies": {
+    "jiti": "^2.4.0",
+    "zod": "^3.24.0"
+  },
+  "yalcSig": "2faee0eedc423d57535c3c19b4935749"
+}

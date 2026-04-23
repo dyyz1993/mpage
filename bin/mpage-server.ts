@@ -173,7 +173,7 @@ async function closeSession(): Promise<boolean> {
   return true;
 }
 
-async function handleCommand(cmd: string, args: Record<string, unknown>): Promise<unknown> {
+async function ensurePageAvailable(): Promise<Page> {
   let page = session.page;
   if (!page || page.isClosed()) {
     if (session.context) {
@@ -200,6 +200,11 @@ async function handleCommand(cmd: string, args: Record<string, unknown>): Promis
 
   session.lastUsed = Date.now();
   saveCurrentSessionInfo();
+  return page;
+}
+
+async function handleCommand(cmd: string, args: Record<string, unknown>): Promise<unknown> {
+  const page = await ensurePageAvailable();
 
   if (!hasCommand(cmd)) {
     throw new Error(`Unknown command: ${cmd}`);
@@ -247,11 +252,9 @@ async function handleConnection(conn: net.Socket) {
 
         if (action === 'record_start') {
           try {
-            if (!session.recorder && session.page) {
-              session.recorder = new RecorderController(session.page);
-            }
+            const page = await ensurePageAvailable();
             if (!session.recorder) {
-              throw new Error('No page available for recording');
+              session.recorder = new RecorderController(page);
             }
             await session.recorder.start({
               url: req.url,
@@ -294,10 +297,8 @@ async function handleConnection(conn: net.Socket) {
 
         if (action === 'replay') {
           try {
-            if (!session.page) {
-              throw new Error('No page available');
-            }
-            const player = await PlaybackEngine.fromFile(session.page, req.filePath);
+            const page = await ensurePageAvailable();
+            const player = await PlaybackEngine.fromFile(page, req.filePath);
             const result = await player.play(req.options);
             conn.write(JSON.stringify({ success: true, content: result }) + '\n');
           } catch (e: unknown) {

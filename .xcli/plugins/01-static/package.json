@@ -1,0 +1,7 @@
+{
+  "name": "01-static",
+  "version": "1.0.0",
+  "description": "01-static plugin",
+  "main": "index.ts",
+  "dependencies": {}
+}

@@ -1,0 +1,7 @@
+{
+  "name": "settings",
+  "defaultOutput": "text",
+  "plugins": ["doubao"],
+  "pluginDirs": [".xcli/plugins"],
+  "globalDir": "~/.xcli/plugins"
+}

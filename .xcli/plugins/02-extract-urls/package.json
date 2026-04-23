@@ -1,0 +1,7 @@
+{
+  "name": "02-extract-urls",
+  "version": "1.0.0",
+  "description": "02-extract-urls plugin",
+  "main": "index.ts",
+  "dependencies": {}
+}

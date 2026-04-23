@@ -1,0 +1,7 @@
+{
+  "name": "03-extract-content",
+  "version": "1.0.0",
+  "description": "03-extract-content plugin",
+  "main": "index.ts",
+  "dependencies": {}
+}

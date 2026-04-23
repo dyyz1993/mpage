@@ -117,14 +117,30 @@ export const queryCommands: CommandModule = {
       yaml: string;
     }
 
-    const result = await page.evaluate(
-      (params: { code: string; selector: string }): ExtractorResult => {
-        const fn = eval('(' + params.code + ')');
-        return fn({ selector: params.selector });
-      },
-      { code: STRUCTURE_EXTRACTOR_CODE, selector }
-    );
+    const fs = await import('fs');
+    const path = await import('path');
+    const os = await import('os');
 
-    return { structure: result.layout, yaml: result.yaml };
+    const tmpDir = os.tmpdir();
+    const scriptPath = path.join(tmpDir, `mpage-structure-${Date.now()}.js`);
+    fs.writeFileSync(scriptPath, `window.__structureExtractor = ${STRUCTURE_EXTRACTOR_CODE};`);
+
+    try {
+      await page.addScriptTag({ path: scriptPath });
+
+      const result = await page.evaluate((sel: string): ExtractorResult => {
+        const ext = (window as unknown as Record<string, unknown>).__structureExtractor;
+        if (typeof ext === 'function') {
+          return (ext as (opts: { selector: string }) => ExtractorResult)({ selector: sel });
+        }
+        return { layout: null, yaml: 'Extractor not loaded' };
+      }, selector);
+
+      return { structure: result.layout, yaml: result.yaml };
+    } finally {
+      try {
+        fs.unlinkSync(scriptPath);
+      } catch {}
+    }
   },
 };

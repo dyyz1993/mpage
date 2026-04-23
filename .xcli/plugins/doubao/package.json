@@ -1,0 +1,9 @@
+{
+  "name": "doubao",
+  "version": "1.0.0",
+  "description": "豆包 AI 集成",
+  "main": "index.ts",
+  "dependencies": {
+    "xcli": "file:.yalc/xcli"
+  }
+}
