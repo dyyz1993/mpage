@@ -268,6 +268,67 @@ export default function (xcli: XCLIAPI) {
 | `8054` | HTTP Server (viewer/swagger/rpc) |
 | `~/.xcli/sessions/daemon.sock` | Unix Socket (xcli RPC) |
 
+## Hook 异常检测系统
+
+底层自动检测页面异常，通过 `tips` 输出提示，引导用户解决问题。
+
+### 检测类型
+
+| 类型 | 说明 | 严重程度 |
+|------|------|---------|
+| `captcha` | 验证码拦截 | 高 |
+| `popup` | 弹窗遮罩 | 中 |
+| `block` | 访问被拒 (403/404) | 高 |
+| `error` | 页面错误 | 中 |
+
+### 工作流程
+
+```
+Plugin/Session 执行操作
+        │
+        ▼
+┌─────────────────────────────┐
+│   page-hook.analyzePage()   │
+│   自动检测 HTML + 页面内容    │
+└─────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────┐
+│   formatTips() 生成提示     │
+│   输出到 result.tips        │
+└─────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────┐
+│   提供解决方案:              │
+│   📸 xcli viewer            │
+│   📷 xcli screenshot        │
+│   🔗 临时链接               │
+└─────────────────────────────┘
+```
+
+### tips 输出示例
+
+```yaml
+data: [...]
+tips:
+  - "⚠️ 检测到验证码拦截"
+  - "  • 验证码类型: image"
+  - "  • 验证码ID: captcha_abc123"
+  - ""
+  - "📸 打开实时画面: xcli --session <name> viewer"
+  - "🖼️ 验证码类型: image"
+  - "🔑 验证码ID: captcha_abc123"
+  - "🔗 访问临时链接完成验证"
+errors: []
+```
+
+### 核心原则
+
+1. **不自动 OCR** → 交给用户/AI 人工识别
+2. **tips 提示** → 发现问题即提示
+3. **提供能力** → viewer + screenshot + 链接
+
 ## 设计原则
 
 1. **Session 隔离**: 每个 session 对应一个 BrowserContext

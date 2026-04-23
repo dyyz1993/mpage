@@ -2,6 +2,7 @@ import { chromium } from 'playwright';
 import { stringify } from 'yaml';
 import type { CommandContext } from '../protocol/plugin-protocol';
 import { globalLoader } from '../core/plugin-loader';
+import { analyzePage, formatTips } from '../core/page-hook';
 
 export async function executeSiteCommand(
   site: any,
@@ -42,6 +43,19 @@ export async function executeSiteCommand(
   try {
     const params = parseParams(cmd.parameters, args);
     const result = await cmd.handler(params, ctx);
+
+    const url = page.url();
+    const title = await page.title().catch(() => '');
+    const html = await page.content().catch(() => '');
+
+    const detection = analyzePage({ html, url, title });
+
+    if (detection.type !== null && result.tips) {
+      const tips = formatTips(detection);
+      for (const tip of tips) {
+        result.tips.push(tip);
+      }
+    }
 
     if (values.json) {
       console.log(JSON.stringify(result, null, 2));
