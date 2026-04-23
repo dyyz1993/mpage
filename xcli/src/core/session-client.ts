@@ -175,3 +175,139 @@ export async function closeSession(name: string): Promise<void> {
 export async function killDaemon(): Promise<void> {
   await daemonRequest('session.kill', {});
 }
+
+export async function evalScriptSession(name: string, script: string): Promise<any> {
+  const sessionName = name || 'default';
+  const sessionFile = join(SESSION_DIR, `${sessionName}.json`);
+  if (!existsSync(sessionFile)) {
+    throw new Error(`Session '${sessionName}' not found. Use "xcli open <url>" to create one.`);
+  }
+  const result = await daemonRequest('page.eval', { name: sessionName, script });
+  return result.result;
+}
+
+export async function waitForSelector(
+  name: string,
+  selector: string,
+  timeout = 30000
+): Promise<boolean> {
+  const sessionName = name || 'default';
+  const sessionFile = join(SESSION_DIR, `${sessionName}.json`);
+  if (!existsSync(sessionFile)) {
+    throw new Error(`Session '${sessionName}' not found. Use "xcli open <url>" to create one.`);
+  }
+  const result = await daemonRequest('page.waitForSelector', {
+    name: sessionName,
+    selector,
+    timeout,
+  });
+  return result.found;
+}
+
+export async function waitForTimeout(name: string, timeout: number): Promise<void> {
+  const sessionName = name || 'default';
+  const sessionFile = join(SESSION_DIR, `${sessionName}.json`);
+  if (!existsSync(sessionFile)) {
+    throw new Error(`Session '${sessionName}' not found. Use "xcli open <url>" to create one.`);
+  }
+  await daemonRequest('page.waitForTimeout', { name: sessionName, timeout });
+}
+
+export async function navigateSession(
+  name: string,
+  direction: 'back' | 'forward'
+): Promise<{ ok: boolean }> {
+  const sessionName = name || 'default';
+  const sessionFile = join(SESSION_DIR, `${sessionName}.json`);
+  if (!existsSync(sessionFile)) {
+    throw new Error(`Session '${sessionName}' not found. Use "xcli open <url>" to create one.`);
+  }
+  return await daemonRequest('page.navigate', { name: sessionName, direction });
+}
+
+export async function refreshSession(name: string): Promise<{ ok: boolean }> {
+  const sessionName = name || 'default';
+  const sessionFile = join(SESSION_DIR, `${sessionName}.json`);
+  if (!existsSync(sessionFile)) {
+    throw new Error(`Session '${sessionName}' not found. Use "xcli open <url>" to create one.`);
+  }
+  return await daemonRequest('page.refresh', { name: sessionName });
+}
+
+export async function gotoSession(name: string, url: string): Promise<{ ok: boolean }> {
+  const sessionName = name || 'default';
+  const sessionFile = join(SESSION_DIR, `${sessionName}.json`);
+  if (!existsSync(sessionFile)) {
+    throw new Error(`Session '${sessionName}' not found. Use "xcli open <url>" to create one.`);
+  }
+  return await daemonRequest('page.goto', { name: sessionName, url });
+}
+
+export async function scrollSession(
+  name: string,
+  direction: 'up' | 'down',
+  distance = 500
+): Promise<{ ok: boolean }> {
+  const sessionName = name || 'default';
+  const sessionFile = join(SESSION_DIR, `${sessionName}.json`);
+  if (!existsSync(sessionFile)) {
+    throw new Error(`Session '${sessionName}' not found. Use "xcli open <url>" to create one.`);
+  }
+  return await daemonRequest('page.scroll', { name: sessionName, direction, distance });
+}
+
+export async function clickSession(name: string, selector: string): Promise<{ ok: boolean }> {
+  const sessionName = name || 'default';
+  const sessionFile = join(SESSION_DIR, `${sessionName}.json`);
+  if (!existsSync(sessionFile)) {
+    throw new Error(`Session '${sessionName}' not found. Use "xcli open <url>" to create one.`);
+  }
+  return await daemonRequest('page.click', { name: sessionName, selector });
+}
+
+export async function typeSession(
+  name: string,
+  selector: string,
+  text: string
+): Promise<{ ok: boolean }> {
+  const sessionName = name || 'default';
+  const sessionFile = join(SESSION_DIR, `${sessionName}.json`);
+  if (!existsSync(sessionFile)) {
+    throw new Error(`Session '${sessionName}' not found. Use "xcli open <url>" to create one.`);
+  }
+  return await daemonRequest('page.type', { name: sessionName, selector, text });
+}
+
+export async function fillSession(
+  name: string,
+  selector: string,
+  text: string
+): Promise<{ ok: boolean }> {
+  const sessionName = name || 'default';
+  const sessionFile = join(SESSION_DIR, `${sessionName}.json`);
+  if (!existsSync(sessionFile)) {
+    throw new Error(`Session '${sessionName}' not found. Use "xcli open <url>" to create one.`);
+  }
+  return await daemonRequest('page.fill', { name: sessionName, selector, text });
+}
+
+export async function mouseSession(
+  name: string,
+  action: 'move' | 'down' | 'up' | 'click',
+  x?: number,
+  y?: number,
+  steps?: number
+): Promise<{ ok: boolean }> {
+  const sessionName = name || 'default';
+  const sessionFile = join(SESSION_DIR, `${sessionName}.json`);
+  if (!existsSync(sessionFile)) {
+    throw new Error(`Session '${sessionName}' not found. Use "xcli open <url>" to create one.`);
+  }
+  return await daemonRequest('page.mouse', {
+    name: sessionName,
+    action,
+    x: x || 0,
+    y: y || 0,
+    steps,
+  });
+}

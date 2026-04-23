@@ -35,13 +35,14 @@ export async function executeSiteCommand(
       color: !values['no-color'],
       emoji: !values['no-emoji'],
     },
+    error: (msg: string) => console.error(msg),
     config: {},
     site: null as any,
     browser: { executablePath },
   };
 
   try {
-    const params = parseParams(cmd.parameters, args);
+    const params = parseParams(cmd.parameters, args, values);
     const result = await cmd.handler(params, ctx);
 
     const url = page.url();
@@ -67,29 +68,37 @@ export async function executeSiteCommand(
   }
 }
 
-function parseParams(schema: any, args: string[]): Record<string, any> {
+function parseParams(
+  schema: any,
+  args: string[],
+  options: Record<string, any>
+): Record<string, any> {
   const result: Record<string, any> = {};
   if (!schema || !schema._def) return result;
 
   if (schema._def.typeName === 'ZodObject') {
     const shape = schema._def.shape();
-    let i = 0;
     for (const [key, field] of Object.entries(shape)) {
       const f = field as any;
-      if (args[i] !== undefined) {
+
+      if (options[key] !== undefined) {
+        result[key] = options[key];
+      } else if (args.length > 0) {
         if (f._def?.typeName === 'ZodNumber') {
-          result[key] = isNaN(Number(args[i])) ? args[i] : Number(args[i]);
+          result[key] = isNaN(Number(args[0])) ? args[0] : Number(args[0]);
         } else if (f._def?.typeName === 'ZodDefault') {
           const inner = f._def.innerType;
           if (inner?._def?.typeName === 'ZodNumber') {
-            result[key] = isNaN(Number(args[i])) ? args[i] : Number(args[i]);
+            result[key] = isNaN(Number(args[0])) ? args[0] : Number(args[0]);
           } else {
-            result[key] = args[i];
+            result[key] = args[0];
           }
         } else {
-          result[key] = args[i];
+          result[key] = args[0];
         }
-        i++;
+        args = args.slice(1);
+      } else if (f._def?.typeName === 'ZodDefault') {
+        result[key] = f._def.defaultValue();
       }
     }
   }

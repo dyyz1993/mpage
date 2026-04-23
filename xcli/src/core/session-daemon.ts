@@ -124,6 +124,48 @@ async function handleRPCCommandAsync(method: string, params?: any): Promise<any>
       return await getPageScreenshot(params.name);
     case 'page.snapshot':
       return await getPageSnapshot(params.name, params.interactiveOnly || false);
+    case 'page.mouse':
+      return await handlePageMouse(params.name, params.action, params.x, params.y, params.steps);
+    case 'page.click':
+      return await handlePageClick(params.name, params.selector);
+    case 'page.type':
+      return await handlePageType(params.name, params.selector, params.text);
+    case 'page.fill':
+      return await handlePageFill(params.name, params.selector, params.text);
+    case 'page.scroll':
+      return await handlePageScroll(params.name, params.direction, params.distance);
+    case 'page.eval':
+      return await handlePageEval(params.name, params.script);
+    case 'page.waitForSelector':
+      return await handlePageWaitForSelector(params.name, params.selector, params.timeout);
+    case 'page.waitForTimeout':
+      return await handlePageWaitForTimeout(params.name, params.timeout);
+    case 'page.goto':
+      return await handlePageGoto(params.name, params.url);
+    case 'page.navigate':
+      return await handlePageNavigate(params.name, params.direction);
+    case 'page.refresh':
+      return await handlePageRefresh(params.name);
+    case 'page.verifySlider':
+      return await handlePageVerifySlider(params.name, params.baseUrl);
+    case 'page.http':
+      return await handlePageHttp(
+        params.name,
+        params.method,
+        params.url,
+        params.body,
+        params.headers
+      );
+    case 'page.fetch':
+      return await handlePageFetch(
+        params.name,
+        params.method,
+        params.url,
+        params.body,
+        params.headers
+      );
+    case 'page.addCookie':
+      return await handlePageAddCookie(params.name, params.cookie);
     default:
       throw new Error(`Unknown method: ${method}`);
   }
@@ -241,6 +283,280 @@ async function getPageSnapshot(name: string, interactiveOnly: boolean) {
     }
   }
   return { elements: [] };
+}
+
+async function handlePageMouse(name: string, action: string, x: number, y: number, steps?: number) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      if (action === 'move') {
+        await session.page.mouse.move(x, y, { steps: steps || 1 });
+      } else if (action === 'down') {
+        await session.page.mouse.down();
+      } else if (action === 'up') {
+        await session.page.mouse.up();
+      } else if (action === 'click') {
+        await session.page.mouse.click(x, y);
+      }
+      return { ok: true, action, x, y };
+    }
+  }
+  return { ok: false, error: 'Session not found' };
+}
+
+async function handlePageClick(name: string, selector: string) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      await session.page.click(selector);
+      return { ok: true, selector };
+    }
+  }
+  return { ok: false, error: 'Session not found' };
+}
+
+async function handlePageType(name: string, selector: string, text: string) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      await session.page.type(selector, text);
+      return { ok: true, selector, text };
+    }
+  }
+  return { ok: false, error: 'Session not found' };
+}
+
+async function handlePageFill(name: string, selector: string, text: string) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      await session.page.fill(selector, text);
+      return { ok: true, selector, text };
+    }
+  }
+  return { ok: false, error: 'Session not found' };
+}
+
+async function handlePageScroll(name: string, direction: string, distance: number) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      const scrollAmount = direction === 'up' ? -distance : distance;
+      await session.page.evaluate((amount) => window.scrollBy(0, amount), scrollAmount);
+      return { ok: true, direction, distance };
+    }
+  }
+  return { ok: false, error: 'Session not found' };
+}
+
+async function handlePageEval(name: string, script: string) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      try {
+        const result = await session.page.evaluate(`(async () => { return ${script}; })()`);
+        return { result };
+      } catch (err) {
+        return { error: err instanceof Error ? err.message : String(err) };
+      }
+    }
+  }
+  return { error: 'Session not found' };
+}
+
+async function handlePageWaitForSelector(name: string, selector: string, timeout: number) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      await session.page.waitForSelector(selector, { timeout });
+      return { ok: true, selector };
+    }
+  }
+  return { ok: false, error: 'Session not found' };
+}
+
+async function handlePageWaitForTimeout(name: string, timeout: number) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      await session.page.waitForTimeout(timeout);
+      return { ok: true, timeout };
+    }
+  }
+  return { ok: false, error: 'Session not found' };
+}
+
+async function handlePageGoto(name: string, url: string) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      await session.page.goto(url);
+      return { ok: true, url };
+    }
+  }
+  return { ok: false, error: 'Session not found' };
+}
+
+async function handlePageNavigate(name: string, direction: string) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      if (direction === 'back') {
+        await session.page.goBack();
+      } else if (direction === 'forward') {
+        await session.page.goForward();
+      }
+      return { ok: true, direction };
+    }
+  }
+  return { ok: false, error: 'Session not found' };
+}
+
+async function handlePageRefresh(name: string) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      await session.page.reload();
+      return { ok: true };
+    }
+  }
+  return { ok: false, error: 'Session not found' };
+}
+
+async function handlePageVerifySlider(name: string, baseUrl: string) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      const captchaData = await session.page.evaluate(async (url) => {
+        const res = await fetch(url);
+        return res.json();
+      }, `${baseUrl}/examples/33/slider-captcha`);
+
+      const { captchaId, targetX } = captchaData;
+
+      const result = await session.page.evaluate(
+        async ({ cId, tX, verifyUrl }) => {
+          const sliderKnob = document.getElementById('slider-knob');
+          const sliderBg = document.getElementById('slider-bg');
+          if (!sliderKnob || !sliderBg) return { error: 'Elements not found' };
+
+          const currentLeft = parseInt(sliderKnob.style.left || '0', 10);
+          const distance = tX - currentLeft;
+
+          const dispatchDrag = (type, clientX) => {
+            const evt = new MouseEvent(type, {
+              bubbles: true,
+              cancelable: true,
+              clientX: clientX,
+              clientY: 100,
+            });
+            sliderKnob.dispatchEvent(evt);
+          };
+
+          dispatchDrag('mousedown', sliderBg.getBoundingClientRect().left);
+          for (let i = 0; i <= 20; i++) {
+            const x = sliderBg.getBoundingClientRect().left + currentLeft + (distance * i) / 20;
+            dispatchDrag('mousemove', x);
+          }
+          dispatchDrag('mouseup', sliderBg.getBoundingClientRect().left + tX);
+
+          const verifyRes = await fetch(verifyUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ captchaId: cId, x: tX }),
+          }).then((r) => r.json());
+
+          return { ok: verifyRes.success, targetX: tX, verifyResult: verifyRes };
+        },
+        { cId: captchaId, tX: targetX, verifyUrl: `${baseUrl}/examples/33/verify-slider` }
+      );
+
+      return result;
+    }
+  }
+  return { ok: false, error: 'Session not found' };
+}
+
+async function handlePageHttp(
+  name: string,
+  method: string,
+  url: string,
+  body?: any,
+  headers?: Record<string, string>
+) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      const result = await session.page.evaluate(
+        async ({ m, u, b, h }) => {
+          const res = await fetch(u, {
+            method: m,
+            headers: { 'Content-Type': 'application/json', ...h },
+            body: b ? JSON.stringify(b) : undefined,
+          });
+          const contentType = res.headers.get('content-type') || '';
+          let data;
+          if (contentType.includes('json')) {
+            data = await res.json();
+          } else {
+            data = await res.text();
+          }
+          return { status: res.status, ok: res.ok, contentType, data };
+        },
+        { m: method, u: url, b: body, h: headers }
+      );
+      return result;
+    }
+  }
+  return { ok: false, error: 'Session not found' };
+}
+
+async function handlePageFetch(
+  name: string,
+  method: string,
+  url: string,
+  body?: any,
+  headers?: Record<string, string>
+) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      const requestHeaders: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (headers) {
+        Object.assign(requestHeaders, headers);
+      }
+
+      const fetchOptions: RequestInit = {
+        method: method || 'GET',
+        headers: requestHeaders,
+      };
+
+      if (body && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
+        fetchOptions.body = JSON.stringify(body);
+      }
+
+      const response = await session.page.evaluate(
+        async ({ u, opts }) => {
+          const res = await fetch(u, opts);
+          const contentType = res.headers.get('content-type') || '';
+          let data;
+          if (contentType.includes('json')) {
+            data = await res.json();
+          } else {
+            data = await res.text();
+          }
+          return {
+            status: res.status,
+            ok: res.ok,
+            contentType,
+            data,
+          };
+        },
+        { u: url, opts: fetchOptions }
+      );
+
+      return response;
+    }
+  }
+  return { ok: false, error: 'Session not found' };
+}
+
+async function handlePageAddCookie(name: string, cookie: any) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      await session.context.addCookies([cookie]);
+      return { ok: true, cookie };
+    }
+  }
+  return { ok: false, error: 'Session not found' };
 }
 
 async function handleHttpRequest(req: any, res: any) {

@@ -1,54 +1,138 @@
 #!/usr/bin/env node
 
-import { parseArgs } from 'util';
 import { readdirSync, existsSync } from 'fs';
 import { join } from 'path';
 import { globalLoader } from '../src/core/plugin-loader';
 
+interface ParsedArgs {
+  values: Record<string, unknown>;
+  positionals: string[];
+}
+
+function parseArgs(argv: string[]): ParsedArgs {
+  const values: Record<string, unknown> = {};
+  const positionals: string[] = [];
+
+  let i = 0;
+  while (i < argv.length) {
+    const arg = argv[i];
+
+    if (arg === '--') {
+      positionals.push(...argv.slice(i + 1));
+      break;
+    }
+
+    if (arg.startsWith('--')) {
+      const eqIndex = arg.indexOf('=');
+      if (eqIndex !== -1) {
+        const key = arg.slice(2, eqIndex);
+        const value = arg.slice(eqIndex + 1);
+        values[key] = parseValue(value);
+      } else {
+        const key = arg.slice(2);
+        const next = argv[i + 1];
+        if (next && !next.startsWith('-') && !next.startsWith('--')) {
+          values[key] = parseValue(next);
+          i++;
+        } else {
+          values[key] = true;
+        }
+      }
+      i++;
+      continue;
+    }
+
+    if (arg.startsWith('-') && arg.length > 1) {
+      const shorts = arg.slice(1).split('');
+      for (const short of shorts) {
+        const next = argv[i + 1];
+        if (next && !next.startsWith('-') && !next.startsWith('--')) {
+          values[short] = parseValue(next);
+          i++;
+        } else {
+          values[short] = true;
+        }
+      }
+      i++;
+      continue;
+    }
+
+    positionals.push(arg);
+    i++;
+  }
+
+  return { values, positionals };
+}
+
+function parseValue(value: string): unknown {
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  if (value === 'null') return null;
+  if (value === 'undefined') return undefined;
+  if (value === '[]') return [];
+  if (/^\d+$/.test(value)) return parseInt(value, 10);
+  if (/^\d+\.\d+$/.test(value)) return parseFloat(value);
+  if (value.startsWith('[') && value.endsWith(']')) {
+    return value
+      .slice(1, -1)
+      .split(',')
+      .map((s) => s.trim());
+  }
+  return value;
+}
+
+async function loadPlugins() {
+  const cwd = process.cwd();
+  const parentDir = join(cwd, '..');
+
+  const pluginDirs = [
+    join(cwd, '.xcli', 'plugins'),
+    join(parentDir, '.xcli', 'plugins'),
+    join(process.env.HOME || '', '.xcli', 'plugins'),
+  ];
+
+  for (const dir of pluginDirs) {
+    if (existsSync(dir)) {
+      try {
+        const entries = readdirSync(dir);
+        for (const entry of entries) {
+          const pluginPath = join(dir, entry, 'index.ts');
+          if (existsSync(pluginPath)) {
+            await globalLoader.loadPlugin(pluginPath);
+          }
+        }
+      } catch {
+        // Ignore errors reading plugin directory
+      }
+    }
+  }
+}
+
 async function main() {
-  const { values, positionals } = parseArgs({
-    options: {
-      session: { type: 'string', short: 's', default: 'default' },
-      json: { type: 'boolean', default: false },
-      help: { type: 'boolean', default: false },
-      interactive: { type: 'boolean', short: 'i' },
-      full: { type: 'boolean', short: 'F' },
-      name: { type: 'string' },
-      value: { type: 'string' },
-      key: { type: 'string' },
-      domain: { type: 'string' },
-      path: { type: 'string' },
-      url: { type: 'string' },
-      what: { type: 'string' },
-      action: { type: 'string' },
-      ref: { type: 'string' },
-      text: { type: 'string' },
-      timeout: { type: 'string' },
-      direction: { type: 'string' },
-      pixels: { type: 'string' },
-      filter: { type: 'string' },
-      body: { type: 'string' },
-      abort: { type: 'boolean' },
-    },
-    allowPositionals: true,
-  });
+  await loadPlugins();
+
+  const argv = process.argv.slice(2);
+  const { values, positionals } = parseArgs(argv);
+
+  if (values.help || positionals.length === 0) {
+    console.log('Usage: xcli <command> [options]');
+    return;
+  }
 
   const [cmd, ...cmdArgs] = positionals;
 
   const isBuiltinCommand = [
-    'daemon',
-    'create',
     'open',
     'close',
     'kill',
     'list',
     'ls',
     'html',
+    'screenshot',
+    'viewer',
     'cookies',
     'localStorage',
     'snapshot',
-    'viewer',
-    'screenshot',
     'get',
     'click',
     'fill',
@@ -58,71 +142,22 @@ async function main() {
     'scroll',
     'wait',
     'network',
+    'mouse',
+    'daemon',
+    'create',
+    'eval',
+    'http',
   ].includes(cmd);
 
-  if (!cmd || (values.help && isBuiltinCommand)) {
-    printHelp();
+  if (isBuiltinCommand) {
+    try {
+      const { executeBuiltin } = await import('../src/commands/execute-builtin');
+      await executeBuiltin(cmd, cmdArgs, values);
+    } catch {
+      console.error(`Builtin command '${cmd}' not found`);
+    }
     return;
   }
-
-  const session = values.session as string;
-  void session;
-
-  if (cmd === 'daemon') {
-    const { daemonCommand } = await import('../src/commands/daemon');
-    await daemonCommand(cmdArgs, values);
-    return;
-  }
-
-  if (cmd === 'create') {
-    const { createCommand } = await import('../src/commands/create');
-    await createCommand(cmdArgs, values);
-    return;
-  }
-
-  if (cmd === 'plugins' || cmd === 'plugin') {
-    const { pluginsCommand } = await import('../src/commands/plugins');
-    await pluginsCommand(cmdArgs, values);
-    return;
-  }
-
-  if (cmd === 'install' || cmd === 'i') {
-    const { installCommand } = await import('../src/commands/install');
-    await installCommand(cmdArgs, values);
-    return;
-  }
-
-  if (cmd === 'remove' || cmd === 'uninstall') {
-    const { removeCommand } = await import('../src/commands/remove');
-    await removeCommand(cmdArgs, values);
-    return;
-  }
-
-  if (cmd === 'open') {
-    const { openCommand } = await import('../src/commands/open');
-    await openCommand(cmdArgs, values);
-    return;
-  }
-
-  if (cmd === 'html') {
-    const { htmlCommand } = await import('../src/commands/html');
-    await htmlCommand(cmdArgs, values);
-    return;
-  }
-
-  if (cmd === 'screenshot') {
-    const { screenshotCommand } = await import('../src/commands/screenshot');
-    await screenshotCommand(cmdArgs, values);
-    return;
-  }
-
-  if (cmd === 'snapshot') {
-    const { snapshotCommand } = await import('../src/commands/snapshot');
-    await snapshotCommand(cmdArgs, values);
-    return;
-  }
-
-  await loadPlugins();
 
   const site = globalLoader.getSite(cmd);
   if (site) {
@@ -135,8 +170,6 @@ async function main() {
       for (const c of cmds) {
         console.log(`  ${c.name.padEnd(15)} ${c.description}`);
       }
-      console.log('');
-      console.log('Use --json for JSON output');
       return;
     }
     const siteCmdObj = site.getCommand(siteCmd);
@@ -145,74 +178,14 @@ async function main() {
       await executeSiteCommand(site, siteCmd, siteCmdObj, cmdArgs.slice(1), values);
       return;
     }
+    console.error(`Unknown site command: ${siteCmd}`);
+    return;
   }
 
   console.error(`Unknown command: ${cmd}`);
-  console.error(`Run 'xcli --help' for available commands`);
+}
+
+main().catch((e) => {
+  console.error(e);
   process.exit(1);
-}
-
-async function loadPlugins() {
-  const pluginsDir = '.xcli/plugins';
-  if (!existsSync(pluginsDir)) return;
-
-  const entries = readdirSync(pluginsDir, { withFileTypes: true });
-  for (const entry of entries) {
-    if (!entry.isDirectory()) continue;
-    const indexPath = join(pluginsDir, entry.name, 'index.ts');
-    if (existsSync(indexPath)) {
-      try {
-        await globalLoader.loadPlugin(indexPath);
-      } catch {
-        // skip
-      }
-    }
-  }
-}
-
-function printHelp() {
-  console.log(`
-xcli - Browser Automation CLI
-
-Usage:
-  xcli <command> [options]
-
-Global Options:
-  --session <name>, -s <name>           Session name
-  --json                               Output as JSON
-  --help                               Show help
-
-Commands:
-  open <url>                            Open URL
-  close                                 Close browser
-  kill                                  Force kill browser
-  list, ls                              List sessions
-  html                                  Get page HTML
-  cookies <get|set|clear>              Cookie operations
-  localStorage <get|set|clear>          LocalStorage operations
-  snapshot [-i]                         Get page snapshot
-  viewer                                Open live viewer
-  screenshot [--full]                   Take screenshot
-  get <url|title|text>                 Get page info
-  click <@eref>                         Click element
-  fill <@eref> <text>                  Fill input
-  type <@eref> <text>                  Type text
-  select <@eref> <value>               Select option
-  press <key>                           Press key
-  scroll <up|down> <px>               Scroll page
-  wait <ms|@eref|--load>               Wait
-  network <requests|route|unroute>      Network monitoring
-  daemon <start|stop|status>           Daemon management
-  create --name <case_id>              Create plugin
-
-Examples:
-  xcli open https://example.com
-  xcli --session demo open https://qq.com
-  xcli --session demo cookies get
-  xcli --session demo localStorage set --key theme --value dark
-  xcli --session demo viewer
-  xcli create --name 01-static
-  `);
-}
-
-main();
+});

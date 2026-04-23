@@ -36,6 +36,7 @@ export interface CommandContext {
   page: any;
   storage: StorageContext;
   output: OutputContext;
+  error: (msg: string) => void;
   config: Record<string, unknown>;
   site: SiteInstance;
   browser: {
