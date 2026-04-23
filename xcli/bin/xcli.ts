@@ -137,6 +137,7 @@ async function main() {
     'click',
     'fill',
     'type',
+    'check',
     'select',
     'press',
     'scroll',

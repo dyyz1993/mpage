@@ -128,6 +128,14 @@ async function handleRPCCommandAsync(method: string, params?: any): Promise<any>
       return await handlePageMouse(params.name, params.action, params.x, params.y, params.steps);
     case 'page.click':
       return await handlePageClick(params.name, params.selector);
+    case 'page.select':
+      return await handlePageSelect(params.name, params.selector, params.value);
+    case 'page.check':
+      return await handlePageCheck(params.name, params.selector);
+    case 'page.press':
+      return await handlePagePress(params.name, params.key, params.selector);
+    case 'page.get':
+      return await handlePageGet(params.name, params.property, params.selector);
     case 'page.type':
       return await handlePageType(params.name, params.selector, params.text);
     case 'page.fill':
@@ -308,6 +316,61 @@ async function handlePageClick(name: string, selector: string) {
     if (session.name === name) {
       await session.page.click(selector);
       return { ok: true, selector };
+    }
+  }
+  return { ok: false, error: 'Session not found' };
+}
+
+async function handlePageSelect(name: string, selector: string, value: string) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      await session.page.selectOption(selector, value);
+      return { ok: true, selector, value };
+    }
+  }
+  return { ok: false, error: 'Session not found' };
+}
+
+async function handlePageCheck(name: string, selector: string) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      await session.page.check(selector);
+      return { ok: true, selector };
+    }
+  }
+  return { ok: false, error: 'Session not found' };
+}
+
+async function handlePagePress(name: string, key: string, selector?: string) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      if (selector) {
+        await session.page.press(selector, key);
+      } else {
+        await session.page.keyboard.press(key);
+      }
+      return { ok: true, key, selector };
+    }
+  }
+  return { ok: false, error: 'Session not found' };
+}
+
+async function handlePageGet(name: string, property: string, selector?: string) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      let value = '';
+      if (property === 'url') {
+        value = session.page.url();
+      } else if (property === 'title') {
+        value = await session.page.title();
+      } else if (property === 'text' && selector) {
+        value = await session.page.locator(selector).textContent() || '';
+      } else if (property === 'value' && selector) {
+        value = await session.page.locator(selector).inputValue() || '';
+      } else if (selector) {
+        value = await session.page.locator(selector).textContent() || '';
+      }
+      return { ok: true, property, selector, value };
     }
   }
   return { ok: false, error: 'Session not found' };

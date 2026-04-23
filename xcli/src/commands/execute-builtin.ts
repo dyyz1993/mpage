@@ -1,5 +1,10 @@
 import { openCommand } from './open';
 import { clickCommand } from './click';
+import { selectCommand } from './select';
+import { checkCommand } from './check';
+import { pressCommand } from './press';
+import { getCommand } from './get';
+import { closeCommand } from './close';
 import { snapshotCommand } from './snapshot';
 import { fillCommand } from './fill';
 import { typeCommand } from './type';
@@ -12,36 +17,37 @@ import { daemonCommand } from './daemon';
 import { htmlCommand } from './html';
 import { createCommand } from './create';
 import { pluginsCommand } from './plugins';
-import { listCommand } from './remove';
+import { removeCommand } from './remove';
 import { navigateCommand } from './navigate';
 
 const commands: Record<string, any> = {
-  open: openCommand,
-  click: clickCommand,
-  snapshot: snapshotCommand,
-  fill: fillCommand,
-  type: typeCommand,
-  wait: waitCommand,
-  http: httpCommand,
-  mouse: mouseCommand,
-  scroll: scrollCommand,
-  screenshot: screenshotCommand,
-  daemon: daemonCommand,
-  html: htmlCommand,
-  create: createCommand,
-  plugins: pluginsCommand,
-  list: listCommand,
-  ls: listCommand,
-  html: htmlCommand,
-  get: navigateCommand,
-  goto: navigateCommand,
-  close: async () => {
-    console.log('Close not implemented');
-  },
-  kill: async () => {
-    console.log('Kill not implemented');
-  },
-};
+    open: openCommand,
+    click: clickCommand,
+    select: selectCommand,
+    check: checkCommand,
+    press: pressCommand,
+    snapshot: snapshotCommand,
+    fill: fillCommand,
+    type: typeCommand,
+    wait: waitCommand,
+    http: httpCommand,
+    mouse: mouseCommand,
+    scroll: scrollCommand,
+    screenshot: screenshotCommand,
+    daemon: daemonCommand,
+    html: htmlCommand,
+    create: createCommand,
+    plugins: pluginsCommand,
+    remove: removeCommand,
+    list: removeCommand,
+    ls: removeCommand,
+    get: getCommand,
+    goto: navigateCommand,
+    close: closeCommand,
+    kill: async () => {
+      console.log('Kill not implemented');
+    },
+  };
 
 export async function executeBuiltin(cmd: string, _args: string[], _values: Record<string, any>) {
   const command = commands[cmd];
