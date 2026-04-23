@@ -1,4 +1,4 @@
-import { spawn, ChildProcess } from 'child_process';
+import { chromium, BrowserContext, Page, Browser } from 'playwright';
 import { createServer as createHttpServer } from 'http';
 import WebSocket, { WebSocketServer } from 'ws';
 import { parse } from 'url';
@@ -22,147 +22,184 @@ function ensureSessionDir() {
   mkdirSync(SESSION_DIR, { recursive: true });
 }
 
-function saveDaemonConfig(port: number, pid: number) {
+function saveDaemonConfig(pid: number) {
   ensureSessionDir();
-  writeFileSync(
-    DAEMON_CONFIG_PATH,
-    JSON.stringify({ port, pid, startedAt: new Date().toISOString() })
-  );
+  writeFileSync(DAEMON_CONFIG_PATH, JSON.stringify({ pid, startedAt: new Date().toISOString() }));
 }
 
 function generateSessionId(): string {
   return randomBytes(4).toString('hex');
 }
 
-interface BrowserProcess {
+interface Session {
   id: string;
   name: string;
-  process: ChildProcess;
+  context: BrowserContext;
+  page: Page;
+  browser: Browser;
 }
 
-const browsers = new Map<string, BrowserProcess>();
+const sessions = new Map<string, Session>();
 const wsConnections = new Map<string, Set<WebSocket>>();
+let mainBrowser: Browser | null = null;
 
-function createBrowserProcess(id: string, sessionName: string, url: string): Promise<void> {
-  return new Promise((resolve) => {
-    const script = `
-const { chromium } = require('playwright');
-(async () => {
-  const executablePath = process.env.XCLI_CHROMIUM_PATH || '/Applications/Chromium.app/Contents/MacOS/Chromium';
-  const browser = await chromium.launch({ executablePath });
-  const page = await browser.newPage();
-  await page.goto('${url}');
-  process.send({ type: 'ready' });
+function getBrowser(): Browser {
+  if (!mainBrowser) {
+    const executablePath =
+      process.env.XCLI_CHROMIUM_PATH || '/Applications/Chromium.app/Contents/MacOS/Chromium';
+    mainBrowser = chromium.launch({ executablePath });
+  }
+  return mainBrowser;
+}
 
-  let cdpsession = null;
-  let screencastActive = false;
+async function createSession(sessionName: string, url: string): Promise<Session> {
+  const browser = getBrowser();
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  await page.goto(url);
 
-  process.on('message', async (msg) => {
-    if (msg.type === 'start' && !screencastActive) {
-      cdpsession = await page.context().newCDPSession(page);
-      await cdpsession.send('Page.startScreencast', { everyFrame: true });
-      screencastActive = true;
+  const id = generateSessionId();
+  const session: Session = { id, name: sessionName, context, page, browser };
+  sessions.set(id, session);
+  wsConnections.set(id, new Set());
 
-      const viewport = page.viewportSize();
-      const viewportData = viewport ? { width: viewport.width, height: viewport.height } : null;
-
-      cdpsession.on('Page.screencastFrame', (frame) => {
-        const data = frame.data;
-        const sessionId = frame.sessionId;
-        const metadata = frame.metadata || {};
-        process.send({
-          type: 'screenshot',
-          data: data,
-          sessionId: sessionId,
-          viewport: viewportData,
-          metadata: metadata
-        });
-        cdpsession.send('Page.screencastFrameAck', { sessionId: sessionId }).catch(() => {});
-      });
-
-    } else if (msg.type === 'stop' && screencastActive) {
-      await cdpsession.send('Page.stopScreencast').catch(() => {});
-      screencastActive = false;
-      cdpsession = null;
-
-    } else if (msg.type === 'navigate') {
-      await page.goto(msg.url);
-
-    } else if (msg.type === 'click') {
-      await page.mouse.click(msg.x, msg.y);
-
-    } else if (msg.type === 'mousemove') {
-      await page.mouse.move(msg.x, msg.y);
-
-    } else if (msg.type === 'key') {
-      await page.keyboard.press(msg.key);
-    }
-  });
-})();
-`;
-
-    const child = spawn('node', ['-e', script], {
-      cwd: process.cwd(),
-      stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
-    });
-
-    child.on('message', (msg: any) => {
-      if (msg.type === 'ready') {
-        browsers.set(id, { id, name: sessionName, process: child });
-        resolve();
-      } else if (msg.type === 'screenshot') {
-        const conns = wsConnections.get(id);
-        if (conns) {
-          for (const ws of conns) {
-            if (ws.readyState === WebSocket.OPEN) {
-              ws.send(JSON.stringify({ type: 'screenshot', data: msg.data }));
-            }
-          }
-        }
-      }
-    });
-
-    child.on('error', (err) => {
-      console.error('Browser process error:', err.message);
-    });
-    child.on('exit', () => {
-      browsers.delete(id);
-      const conns = wsConnections.get(id);
-      if (conns) {
-        for (const ws of conns) {
-          ws.send(JSON.stringify({ type: 'error', message: 'Browser disconnected' }));
-          ws.close();
-        }
-        wsConnections.delete(id);
-      }
-    });
-  });
+  return session;
 }
 
 async function closeSession(name: string) {
-  for (const [id, bp] of browsers) {
-    if (bp.name === name) {
-      bp.process.kill();
-      browsers.delete(id);
-      const conns = wsConnections.get(id);
-      if (conns) {
-        for (const ws of conns) ws.close();
-        wsConnections.delete(id);
-      }
+  for (const [id, session] of sessions) {
+    if (session.name === name) {
+      await session.context.close();
+      sessions.delete(id);
+      wsConnections.delete(id);
       return;
     }
   }
 }
 
 async function closeAll() {
-  for (const [, bp] of browsers) {
-    bp.process.kill();
+  for (const [, session] of sessions) {
+    await session.context.close();
   }
-  browsers.clear();
+  sessions.clear();
   wsConnections.clear();
-  if (existsSync(DAEMON_CONFIG_PATH)) {
-    unlinkSync(DAEMON_CONFIG_PATH);
+}
+
+function listSessions(): Array<{ id: string; name: string }> {
+  return Array.from(sessions.values()).map((s) => ({ id: s.id, name: s.name }));
+}
+
+function handleRPCCommand(method: string, params?: any): any {
+  switch (method) {
+    case 'session.open':
+      return createSessionSync(params.name, params.url);
+    case 'session.close':
+      closeSession(params.name);
+      return { ok: true };
+    case 'session.closeAll':
+      closeAll();
+      return { ok: true };
+    case 'session.list':
+      return { sessions: listSessions() };
+    case 'session.kill':
+      killSession(params.name);
+      return { ok: true };
+    case 'storage.get':
+      return getStorage(params.name, params.type);
+    case 'storage.set':
+      setStorage(params.name, params.type, params.key, params.value, params.data);
+      return { ok: true };
+    case 'storage.clear':
+      clearStorage(params.name, params.type);
+      return { ok: true };
+    case 'page.html':
+      return getPageHtml(params.name);
+    case 'page.screenshot':
+      return getPageScreenshot(params.name);
+    default:
+      throw new Error(`Unknown method: ${method}`);
   }
+}
+
+function createSessionSync(name: string, url: string) {
+  createSession(name, url);
+  return { id: name, name, url };
+}
+
+function killSession(name: string) {
+  for (const [id, session] of sessions) {
+    if (session.name === name) {
+      session.context.close();
+      sessions.delete(id);
+      wsConnections.delete(id);
+      return;
+    }
+  }
+}
+
+async function getStorage(name: string, type: string) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      if (type === 'cookies') {
+        const cookies = await session.context.cookies();
+        return { cookies };
+      } else if (type === 'localStorage') {
+        const localStorage = await session.page.evaluate(() => {
+          const result: Record<string, string> = {};
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key) result[key] = localStorage.getItem(key) || '';
+          }
+          return result;
+        });
+        return { localStorage };
+      }
+    }
+  }
+  return type === 'cookies' ? { cookies: [] } : { localStorage: {} };
+}
+
+function setStorage(name: string, type: string, key?: string, value?: string, data?: any) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      if (type === 'cookies' && data) {
+        session.context.addCookies([data]);
+      } else if (type === 'localStorage' && key !== undefined) {
+        session.page.evaluate(([k, v]) => localStorage.setItem(k, v), [key, value || '']);
+      }
+    }
+  }
+}
+
+function clearStorage(name: string, type: string) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      if (type === 'cookies') {
+        session.context.clearCookies();
+      } else if (type === 'localStorage') {
+        session.page.evaluate(() => localStorage.clear());
+      }
+    }
+  }
+}
+
+async function getPageHtml(name: string) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      return { html: await session.page.content() };
+    }
+  }
+  return { html: '' };
+}
+
+async function getPageScreenshot(name: string) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      const screenshot = await session.page.screenshot();
+      return { screenshot: screenshot.toString('base64') };
+    }
+  }
+  return { screenshot: '' };
 }
 
 async function handleHttpRequest(req: any, res: any) {
@@ -187,12 +224,27 @@ async function handleHttpRequest(req: any, res: any) {
   }
 
   if (pathname === '/api/sessions') {
-    const sessionList = Array.from(browsers.entries()).map(([id, bp]) => ({
-      id,
-      name: bp.name,
-    }));
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(sessionList));
+    res.end(JSON.stringify(listSessions()));
+    return;
+  }
+
+  if (pathname === '/rpc') {
+    let body = '';
+    req.on('data', (chunk: any) => {
+      body += chunk;
+    });
+    req.on('end', async () => {
+      try {
+        const { method, params } = JSON.parse(body);
+        const result = handleRPCCommand(method, params);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(result));
+      } catch (err: any) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: err.message }));
+      }
+    });
     return;
   }
 
@@ -223,279 +275,114 @@ function getSwaggerUI(): string {
 </html>`;
 }
 
-function handleRPCCommand(method: string, params?: any): any {
-  const [namespace, action] = method.split('.');
-
-  switch (namespace) {
-    case 'session':
-      return handleSessionCommand(action, params);
-    case 'storage':
-      return handleStorageCommand(action, params);
-    case 'page':
-      return handlePageCommand(action, params);
-    default:
-      throw new Error(`Unknown namespace: ${namespace}`);
-  }
-}
-
-function handleSessionCommand(action: string, params?: any): any {
-  switch (action) {
-    case 'open':
-      return openSessionSync(params.name, params.url);
-    case 'close':
-      closeSession(params.name);
-      return { ok: true };
-    case 'closeAll':
-      closeAll();
-      return { ok: true };
-    case 'kill':
-      killSession(params.name);
-      return { ok: true };
-    case 'list':
-      return { sessions: listSessions() };
-    default:
-      throw new Error(`Unknown session action: ${action}`);
-  }
-}
-
-function handleStorageCommand(action: string, params?: any): any {
-  const { name, type } = params || {};
-  switch (action) {
-    case 'get':
-      if (type === 'cookies') return { cookies: [] };
-      if (type === 'localStorage') return { localStorage: {} };
-      throw new Error('Invalid storage type');
-    case 'set':
-      if (type === 'cookies') {
-        setSessionCookie(name, params.data);
-      } else if (type === 'localStorage') {
-        setSessionLocalStorage(name, params.key, params.value);
-      } else {
-        throw new Error('Invalid storage type');
-      }
-      return { ok: true };
-    case 'clear':
-      if (type === 'cookies') {
-        clearSessionCookies(name);
-      } else if (type === 'localStorage') {
-        clearSessionLocalStorage(name);
-      } else {
-        throw new Error('Invalid storage type');
-      }
-      return { ok: true };
-    default:
-      throw new Error(`Unknown storage action: ${action}`);
-  }
-}
-
-function handlePageCommand(action: string, params?: any): any {
-  switch (action) {
-    case 'html':
-      return { html: getSessionHtml(params.name) };
-    case 'screenshot':
-      return { screenshot: getSessionScreenshot(params.name) };
-    default:
-      throw new Error(`Unknown page action: ${action}`);
-  }
-}
-
-function killSession(name: string) {
-  for (const [id, bp] of browsers) {
-    if (bp.name === name) {
-      bp.process.kill('SIGKILL');
-      browsers.delete(id);
-      wsConnections.delete(id);
-      return;
-    }
-  }
-}
-
-function getSessionHtml(name: string): string {
-  for (const [, bp] of browsers) {
-    if (bp.name === name) {
-      bp.process.send({ type: 'html' });
-    }
-  }
-  return '';
-}
-
-function getSessionScreenshot(name: string): string {
-  for (const [, bp] of browsers) {
-    if (bp.name === name) {
-      bp.process.send({ type: 'screenshot' });
-    }
-  }
-  return '';
-}
-
-function setSessionCookie(name: string, cookie: any) {
-  for (const [, bp] of browsers) {
-    if (bp.name === name) {
-      bp.process.send({ type: 'setCookie', cookie });
-    }
-  }
-}
-
-function clearSessionCookies(name: string) {
-  for (const [, bp] of browsers) {
-    if (bp.name === name) {
-      bp.process.send({ type: 'clearCookies' });
-    }
-  }
-}
-
-function setSessionLocalStorage(name: string, key: string, value: string) {
-  for (const [, bp] of browsers) {
-    if (bp.name === name) {
-      bp.process.send({ type: 'setLocalStorage', key, value });
-    }
-  }
-}
-
-function clearSessionLocalStorage(name: string) {
-  for (const [, bp] of browsers) {
-    if (bp.name === name) {
-      bp.process.send({ type: 'clearLocalStorage' });
-    }
-  }
-}
-
-function openSessionSync(name: string, url: string): { id: string; name: string; url: string } {
-  const id = generateSessionId();
-  createBrowserProcess(id, name, url);
-  return { id, name, url };
-}
-
-function listSessions(): Array<{ id: string; name: string }> {
-  return Array.from(browsers.entries()).map(([id, bp]) => ({ id, name: bp.name }));
-}
-
-function handleRPCRequest(req: any, res: any) {
-  if (req.method !== 'POST') {
-    res.writeHead(405);
-    res.end(JSON.stringify({ error: 'Method not allowed' }));
+async function handleWebSocket(ws: WebSocket, sessionId: string) {
+  const session = sessions.get(sessionId);
+  if (!session) {
+    ws.close();
     return;
   }
 
-  let body = '';
-  req.on('data', (chunk: any) => {
-    body += chunk;
-  });
-  req.on('end', async () => {
-    try {
-      const { method, params } = JSON.parse(body);
-      const result = handleRPCCommand(method, params);
-
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(result));
-    } catch (err: any) {
-      res.writeHead(500, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: err.message }));
-    }
-  });
-}
-
-const server = createHttpServer(async (req, res) => {
-  const { pathname } = parse(req.url || '', true);
-
-  if (pathname === '/ws') {
-    return;
-  }
-
-  if (pathname === '/rpc') {
-    handleRPCRequest(req, res);
-    return;
-  }
-
-  await handleHttpRequest(req, res);
-});
-
-const wss = new WebSocketServer({ server });
-
-wss.on('connection', (ws: WebSocket, _req: any) => {
-  ws.on('message', (data) => {
-    try {
-      const msg = JSON.parse(data.toString());
-      const { type, sessionId } = msg;
-
-      if (type === 'attach') {
-        const bp = browsers.get(sessionId);
-        if (!bp) {
-          ws.send(JSON.stringify({ type: 'error', message: 'Session not found' }));
-          return;
-        }
-        wsConnections.get(sessionId)?.add(ws);
-        bp.process.send({ type: 'start' });
-        ws.send(JSON.stringify({ type: 'attached' }));
-        (ws as any)._sessionId = sessionId;
-      } else if (type === 'navigate') {
-        const bp = browsers.get(sessionId);
-        if (bp) bp.process.send({ type: 'navigate', url: msg.url });
-      } else if (type === 'click') {
-        const bp = browsers.get(sessionId);
-        if (bp) bp.process.send({ type: 'click', x: msg.x, y: msg.y });
-      } else if (type === 'mousemove') {
-        const bp = browsers.get(sessionId);
-        if (bp) bp.process.send({ type: 'mousemove', x: msg.x, y: msg.y });
-      } else if (type === 'key') {
-        const bp = browsers.get(sessionId);
-        if (bp) bp.process.send({ type: 'key', key: msg.key });
-      }
-    } catch (err: any) {
-      ws.send(JSON.stringify({ type: 'error', message: err.message }));
-    }
-  });
+  const conns = wsConnections.get(sessionId);
+  if (conns) conns.add(ws);
 
   ws.on('close', () => {
-    const sessionId = (ws as any)._sessionId;
-    if (sessionId) {
-      const bp = browsers.get(sessionId);
-      if (bp) bp.process.send({ type: 'stop' });
-      wsConnections.get(sessionId)?.delete(ws);
-    }
+    conns?.delete(ws);
   });
-});
 
-const pid = process.pid;
-ensureSessionDir();
-if (existsSync(DAEMON_SOCKET_PATH)) {
-  unlinkSync(DAEMON_SOCKET_PATH);
-}
-saveDaemonConfig(VIEWER_PORT, pid);
+  const cdpSession = await session.context.newCDPSession(session.page);
+  await cdpSession.send('Page.startScreencast', { everyFrame: true });
 
-const socketServer = createNetServer((socket) => {
-  let buffer = '';
-  socket.on('data', (data) => {
-    buffer += data.toString();
-    let newlineIndex;
-    while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
-      const line = buffer.slice(0, newlineIndex);
-      buffer = buffer.slice(newlineIndex + 1);
-      if (line.trim()) {
-        try {
-          const req = JSON.parse(line);
-          const result = handleRPCCommand(req.method, req.params);
-          socket.write(JSON.stringify(result) + '\n');
-        } catch (err: any) {
-          socket.write(JSON.stringify({ error: err.message }) + '\n');
-        }
+  cdpSession.on('Page.screencastFrame', (frame: any) => {
+    const data = frame.data;
+    const sessionId2 = frame.sessionId;
+    const metadata = frame.metadata || {};
+    const viewport = session.page.viewportSize();
+    const viewportData = viewport ? { width: viewport.width, height: viewport.height } : null;
+
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(
+        JSON.stringify({
+          type: 'screenshot',
+          data,
+          sessionId: sessionId2,
+          viewport: viewportData,
+          metadata,
+        })
+      );
+    }
+    cdpSession.send('Page.screencastFrameAck', { sessionId: sessionId2 }).catch(() => {});
+  });
+
+  ws.on('message', async (msg: any) => {
+    try {
+      const cmd = JSON.parse(msg.toString());
+      if (cmd.type === 'navigate') {
+        await session!.page.goto(cmd.url);
+      } else if (cmd.type === 'click') {
+        await session!.page.mouse.click(cmd.x, cmd.y);
+      } else if (cmd.type === 'mousemove') {
+        await session!.page.mouse.move(cmd.x, cmd.y);
+      } else if (cmd.type === 'key') {
+        await session!.page.keyboard.press(cmd.key);
       }
+    } catch {}
+  });
+}
+
+async function main() {
+  ensureSessionDir();
+
+  if (existsSync(DAEMON_SOCKET_PATH)) {
+    unlinkSync(DAEMON_SOCKET_PATH);
+  }
+
+  const httpServer = createHttpServer(handleHttpRequest);
+  httpServer.listen(VIEWER_PORT, () => {
+    console.log(`HTTP server listening on port ${VIEWER_PORT}`);
+  });
+
+  const wss = new WebSocketServer({ noServer: true });
+  httpServer.on('upgrade', (req, socket, head) => {
+    const { pathname, query } = parse(req.url || '', true);
+    if (pathname === '/ws') {
+      const sessionId = query.s as string;
+      wss.handleUpgrade(req, socket, head, (ws) => {
+        handleWebSocket(ws, sessionId);
+      });
+    } else {
+      socket.destroy();
     }
   });
-  socket.on('error', () => {});
-});
 
-socketServer.listen(DAEMON_SOCKET_PATH, () => {
-  console.log(`XCLI daemon socket: ${DAEMON_SOCKET_PATH}`);
-});
+  const socketServer = createNetServer(async (socket) => {
+    let data = '';
+    socket.on('data', (chunk) => {
+      data += chunk.toString();
+    });
+    socket.on('end', () => {
+      try {
+        const { method, params } = JSON.parse(data.trim());
+        const result = handleRPCCommand(method, params);
+        socket.write(JSON.stringify(result) + '\n');
+      } catch (err: any) {
+        socket.write(JSON.stringify({ error: err.message }) + '\n');
+      }
+    });
+  });
 
-server.listen(VIEWER_PORT, () => {
-  console.log(`XCLI daemon HTTP/WS: http://localhost:${VIEWER_PORT}`);
-  console.log(`Viewer: http://localhost:${VIEWER_PORT}/viewer.html`);
-});
+  socketServer.listen(DAEMON_SOCKET_PATH, () => {
+    console.log(`Daemon listening on ${DAEMON_SOCKET_PATH}`);
+  });
 
-process.on('SIGTERM', async () => {
-  await closeAll();
-  server.close();
-  process.exit(0);
-});
+  saveDaemonConfig(process.pid);
+
+  process.on('SIGINT', async () => {
+    await closeAll();
+    if (mainBrowser) await mainBrowser.close();
+    httpServer.close();
+    socketServer.close();
+    process.exit(0);
+  });
+}
+
+main().catch(console.error);
