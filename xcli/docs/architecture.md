@@ -177,6 +177,19 @@ xcli <command> [options]
 | `viewer` | 实时 viewer | `xcli viewer` |
 | `daemon <start\|stop\|status>` | Daemon 管理 | `xcli daemon status` |
 | `create --name <id>` | 创建插件 | `xcli create --name 01-static` |
+| `plugins <list\|info>` | 查看插件 | `xcli plugins list` |
+| `install <source>` / `i` | 安装插件 | `xcli i npm:xcli-plugin` |
+
+### 安装源格式
+
+| 格式 | 说明 | 示例 |
+|------|------|------|
+| `git:<url>` | Git 仓库 | `xcli i git:https://github.com/user/repo` |
+| `npm:<package>` | NPM 包 | `xcli i npm:xcli-scraper` |
+| `github:<user/repo>` | GitHub 仓库 | `xcli i github:user/repo` |
+| `<name>` | 官方模板 | `xcli i static` |
+
+官方模板: `static`, `dynamic`, `login`, `api`
 
 ## 插件系统
 

@@ -80,6 +80,18 @@ async function main() {
     return;
   }
 
+  if (cmd === 'plugins' || cmd === 'plugin') {
+    const { pluginsCommand } = await import('../src/commands/plugins');
+    await pluginsCommand(cmdArgs, values);
+    return;
+  }
+
+  if (cmd === 'install' || cmd === 'i') {
+    const { installCommand } = await import('../src/commands/install');
+    await installCommand(cmdArgs, values);
+    return;
+  }
+
   await loadPlugins();
 
   const site = globalLoader.getSite(cmd);
