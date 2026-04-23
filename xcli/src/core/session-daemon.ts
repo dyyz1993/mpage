@@ -1,14 +1,20 @@
 import { spawn, ChildProcess } from 'child_process';
-import { createServer } from 'http';
+import { createServer as createHttpServer } from 'http';
 import WebSocket, { WebSocketServer } from 'ws';
 import { parse } from 'url';
 import { existsSync, mkdirSync, writeFileSync, unlinkSync, readFileSync } from 'fs';
+import { createServer as createNetServer } from 'net';
 import { join } from 'path';
 import { homedir } from 'os';
 import { randomBytes } from 'crypto';
 
+const SWAGGER_JSON = JSON.parse(
+  readFileSync(join(process.cwd(), 'xcli', 'src', 'core', 'swagger.json'), 'utf-8')
+);
+
 const SESSION_DIR = join(homedir(), '.xcli', 'sessions');
 const DAEMON_CONFIG_PATH = join(SESSION_DIR, 'daemon.json');
+const DAEMON_SOCKET_PATH = join(SESSION_DIR, 'daemon.sock');
 const VIEWER_PORT = 8054;
 const VIEWER_HTML = readFileSync(join(process.cwd(), 'xcli', 'src', 'viewer.html'), 'utf-8');
 
@@ -132,23 +138,6 @@ const { chromium } = require('playwright');
   });
 }
 
-async function openSession(
-  name: string,
-  url: string
-): Promise<{ id: string; name: string; url: string }> {
-  if (browsers.has(name)) {
-    const bp = browsers.get(name)!;
-    bp.process.kill();
-    browsers.delete(name);
-  }
-
-  const id = generateSessionId();
-  await createBrowserProcess(id, name, url);
-  wsConnections.set(id, new Set());
-
-  return { id, name, url };
-}
-
 async function closeSession(name: string) {
   for (const [id, bp] of browsers) {
     if (bp.name === name) {
@@ -178,7 +167,19 @@ async function closeAll() {
 async function handleHttpRequest(req: any, res: any) {
   const { pathname } = parse(req.url || '', true);
 
-  if (pathname === '/' || pathname === '/viewer.html') {
+  if (pathname === '/' || pathname === '/docs') {
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    res.end(getSwaggerUI());
+    return;
+  }
+
+  if (pathname === '/swagger.json') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(SWAGGER_JSON, null, 2));
+    return;
+  }
+
+  if (pathname === '/viewer.html') {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(VIEWER_HTML);
     return;
@@ -198,6 +199,176 @@ async function handleHttpRequest(req: any, res: any) {
   res.end('Not Found');
 }
 
+function getSwaggerUI(): string {
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <title>XCLI Daemon API</title>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui.css" />
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-bundle.js"></script>
+  <script>
+    window.onload = () => {
+      SwaggerUIBundle({
+        url: "/swagger.json",
+        dom_id: '#swagger-ui',
+        presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset]
+      });
+    };
+  </script>
+</body>
+</html>`;
+}
+
+function handleRPCCommand(method: string, params?: any): any {
+  const [namespace, action] = method.split('.');
+
+  switch (namespace) {
+    case 'session':
+      return handleSessionCommand(action, params);
+    case 'storage':
+      return handleStorageCommand(action, params);
+    case 'page':
+      return handlePageCommand(action, params);
+    default:
+      throw new Error(`Unknown namespace: ${namespace}`);
+  }
+}
+
+function handleSessionCommand(action: string, params?: any): any {
+  switch (action) {
+    case 'open':
+      return openSessionSync(params.name, params.url);
+    case 'close':
+      closeSession(params.name);
+      return { ok: true };
+    case 'closeAll':
+      closeAll();
+      return { ok: true };
+    case 'kill':
+      killSession(params.name);
+      return { ok: true };
+    case 'list':
+      return { sessions: listSessions() };
+    default:
+      throw new Error(`Unknown session action: ${action}`);
+  }
+}
+
+function handleStorageCommand(action: string, params?: any): any {
+  const { name, type } = params || {};
+  switch (action) {
+    case 'get':
+      if (type === 'cookies') return { cookies: [] };
+      if (type === 'localStorage') return { localStorage: {} };
+      throw new Error('Invalid storage type');
+    case 'set':
+      if (type === 'cookies') {
+        setSessionCookie(name, params.data);
+      } else if (type === 'localStorage') {
+        setSessionLocalStorage(name, params.key, params.value);
+      } else {
+        throw new Error('Invalid storage type');
+      }
+      return { ok: true };
+    case 'clear':
+      if (type === 'cookies') {
+        clearSessionCookies(name);
+      } else if (type === 'localStorage') {
+        clearSessionLocalStorage(name);
+      } else {
+        throw new Error('Invalid storage type');
+      }
+      return { ok: true };
+    default:
+      throw new Error(`Unknown storage action: ${action}`);
+  }
+}
+
+function handlePageCommand(action: string, params?: any): any {
+  switch (action) {
+    case 'html':
+      return { html: getSessionHtml(params.name) };
+    case 'screenshot':
+      return { screenshot: getSessionScreenshot(params.name) };
+    default:
+      throw new Error(`Unknown page action: ${action}`);
+  }
+}
+
+function killSession(name: string) {
+  for (const [id, bp] of browsers) {
+    if (bp.name === name) {
+      bp.process.kill('SIGKILL');
+      browsers.delete(id);
+      wsConnections.delete(id);
+      return;
+    }
+  }
+}
+
+function getSessionHtml(name: string): string {
+  for (const [, bp] of browsers) {
+    if (bp.name === name) {
+      bp.process.send({ type: 'html' });
+    }
+  }
+  return '';
+}
+
+function getSessionScreenshot(name: string): string {
+  for (const [, bp] of browsers) {
+    if (bp.name === name) {
+      bp.process.send({ type: 'screenshot' });
+    }
+  }
+  return '';
+}
+
+function setSessionCookie(name: string, cookie: any) {
+  for (const [, bp] of browsers) {
+    if (bp.name === name) {
+      bp.process.send({ type: 'setCookie', cookie });
+    }
+  }
+}
+
+function clearSessionCookies(name: string) {
+  for (const [, bp] of browsers) {
+    if (bp.name === name) {
+      bp.process.send({ type: 'clearCookies' });
+    }
+  }
+}
+
+function setSessionLocalStorage(name: string, key: string, value: string) {
+  for (const [, bp] of browsers) {
+    if (bp.name === name) {
+      bp.process.send({ type: 'setLocalStorage', key, value });
+    }
+  }
+}
+
+function clearSessionLocalStorage(name: string) {
+  for (const [, bp] of browsers) {
+    if (bp.name === name) {
+      bp.process.send({ type: 'clearLocalStorage' });
+    }
+  }
+}
+
+function openSessionSync(name: string, url: string): { id: string; name: string; url: string } {
+  const id = generateSessionId();
+  createBrowserProcess(id, name, url);
+  return { id, name, url };
+}
+
+function listSessions(): Array<{ id: string; name: string }> {
+  return Array.from(browsers.entries()).map(([id, bp]) => ({ id, name: bp.name }));
+}
+
 function handleRPCRequest(req: any, res: any) {
   if (req.method !== 'POST') {
     res.writeHead(405);
@@ -212,23 +383,7 @@ function handleRPCRequest(req: any, res: any) {
   req.on('end', async () => {
     try {
       const { method, params } = JSON.parse(body);
-      let result: any;
-
-      switch (method) {
-        case 'open':
-          result = await openSession(params.name, params.url);
-          break;
-        case 'close':
-          await closeSession(params.name);
-          result = { ok: true };
-          break;
-        case 'closeAll':
-          await closeAll();
-          result = { ok: true };
-          break;
-        default:
-          throw new Error(`Unknown method: ${method}`);
-      }
+      const result = handleRPCCommand(method, params);
 
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(result));
@@ -239,7 +394,7 @@ function handleRPCRequest(req: any, res: any) {
   });
 }
 
-const server = createServer(async (req, res) => {
+const server = createHttpServer(async (req, res) => {
   const { pathname } = parse(req.url || '', true);
 
   if (pathname === '/ws') {
@@ -301,10 +456,40 @@ wss.on('connection', (ws: WebSocket, _req: any) => {
 });
 
 const pid = process.pid;
+ensureSessionDir();
+if (existsSync(DAEMON_SOCKET_PATH)) {
+  unlinkSync(DAEMON_SOCKET_PATH);
+}
 saveDaemonConfig(VIEWER_PORT, pid);
 
+const socketServer = createNetServer((socket) => {
+  let buffer = '';
+  socket.on('data', (data) => {
+    buffer += data.toString();
+    let newlineIndex;
+    while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
+      const line = buffer.slice(0, newlineIndex);
+      buffer = buffer.slice(newlineIndex + 1);
+      if (line.trim()) {
+        try {
+          const req = JSON.parse(line);
+          const result = handleRPCCommand(req.method, req.params);
+          socket.write(JSON.stringify(result) + '\n');
+        } catch (err: any) {
+          socket.write(JSON.stringify({ error: err.message }) + '\n');
+        }
+      }
+    }
+  });
+  socket.on('error', () => {});
+});
+
+socketServer.listen(DAEMON_SOCKET_PATH, () => {
+  console.log(`XCLI daemon socket: ${DAEMON_SOCKET_PATH}`);
+});
+
 server.listen(VIEWER_PORT, () => {
-  console.log(`XCLI daemon running on port ${VIEWER_PORT}`);
+  console.log(`XCLI daemon HTTP/WS: http://localhost:${VIEWER_PORT}`);
   console.log(`Viewer: http://localhost:${VIEWER_PORT}/viewer.html`);
 });
 

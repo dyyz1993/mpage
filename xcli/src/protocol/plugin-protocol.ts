@@ -27,6 +27,8 @@ export const CommandSchema = z.object({
 });
 export type Command = z.infer<typeof CommandSchema>;
 
+export type CommandHandler = (params: any, ctx: CommandContext) => Promise<any>;
+
 export interface CommandContext {
   args: string[];
   options: Record<string, unknown>;
@@ -304,7 +306,7 @@ export function validateArgs<T>(command: any, argv: Record<string, unknown>): T 
   const result = schema.safeParse(argv);
 
   if (!result.success) {
-    const msg = result.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ');
+    const msg = result.error.errors.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', ');
     throw new CommandError('INVALID_ARGS', msg);
   }
 

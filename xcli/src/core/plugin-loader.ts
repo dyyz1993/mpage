@@ -7,6 +7,7 @@ import type {
   StorageContext,
 } from '../protocol/plugin-protocol';
 import { SiteInstanceImpl } from '../protocol/plugin-protocol';
+import { resolve, isAbsolute } from 'path';
 
 export class PluginLoader {
   private commands: Map<string, Command & { handler: CommandHandler }> = new Map();
@@ -96,7 +97,13 @@ export class PluginLoader {
   }
 
   async loadPlugin(path: string): Promise<void> {
-    const plugin = await import(path);
+    let importPath = path;
+    if (!isAbsolute(path)) {
+      const cwd = process.cwd();
+      importPath = resolve(cwd, path);
+    }
+    importPath = `file://${importPath}`;
+    const plugin = await import(importPath);
     const setup = plugin.default;
 
     if (typeof setup === 'function') {
@@ -160,6 +167,10 @@ export class PluginLoader {
     for (const handler of handlers) {
       await handler(context);
     }
+  }
+
+  getStorage(): StorageContext {
+    return this.storage;
   }
 
   async unload(): Promise<void> {
