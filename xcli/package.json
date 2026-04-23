@@ -14,15 +14,13 @@
     "xcli": "./bin/xcli.ts"
   },
   "dependencies": {
+    "zod": "^3.24.0",
     "jiti": "^2.4.0",
-    "playwright": "^1.40.0",
-    "zod": "^3.24.0"
+    "playwright": "^1.40.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "@vitest/ui": "^4.1.5",
     "tsx": "^4.0.0",
-    "typescript": "^5.0.0",
-    "vitest": "^4.1.5"
+    "typescript": "^5.0.0"
   }
 }
