@@ -48,3 +48,7 @@ scripts/test-extractor-code.cjs
 
 # Trae 相关
 .trae/
+
+# xcli 工作目录
+xcli/.xcli/
+xcli/config/
