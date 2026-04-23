@@ -9,14 +9,14 @@ import { homedir } from 'os';
 import { randomBytes } from 'crypto';
 
 const SWAGGER_JSON = JSON.parse(
-  readFileSync(join(process.cwd(), 'xcli', 'src', 'core', 'swagger.json'), 'utf-8')
+  readFileSync(join(process.cwd(), 'src', 'core', 'swagger.json'), 'utf-8')
 );
 
 const SESSION_DIR = join(homedir(), '.xcli', 'sessions');
 const DAEMON_CONFIG_PATH = join(SESSION_DIR, 'daemon.json');
 const DAEMON_SOCKET_PATH = join(SESSION_DIR, 'daemon.sock');
 const VIEWER_PORT = 8054;
-const VIEWER_HTML = readFileSync(join(process.cwd(), 'xcli', 'src', 'viewer.html'), 'utf-8');
+const VIEWER_HTML = readFileSync(join(process.cwd(), 'src', 'viewer.html'), 'utf-8');
 
 function ensureSessionDir() {
   mkdirSync(SESSION_DIR, { recursive: true });
@@ -24,7 +24,8 @@ function ensureSessionDir() {
 
 function saveDaemonConfig(pid: number) {
   ensureSessionDir();
-  writeFileSync(DAEMON_CONFIG_PATH, JSON.stringify({ pid, startedAt: new Date().toISOString() }));
+  const config = { pid, port: VIEWER_PORT, startedAt: new Date().toISOString() };
+  writeFileSync(DAEMON_CONFIG_PATH, JSON.stringify(config));
 }
 
 function generateSessionId(): string {
@@ -42,18 +43,23 @@ interface Session {
 const sessions = new Map<string, Session>();
 const wsConnections = new Map<string, Set<WebSocket>>();
 let mainBrowser: Browser | null = null;
+let browserPromise: Promise<Browser> | null = null;
 
-function getBrowser(): Browser {
-  if (!mainBrowser) {
-    const executablePath =
-      process.env.XCLI_CHROMIUM_PATH || '/Applications/Chromium.app/Contents/MacOS/Chromium';
-    mainBrowser = chromium.launch({ executablePath });
-  }
-  return mainBrowser;
+async function getBrowser(): Promise<Browser> {
+  if (mainBrowser) return mainBrowser;
+  if (browserPromise) return browserPromise;
+
+  const executablePath =
+    process.env.XCLI_CHROMIUM_PATH || '/Applications/Chromium.app/Contents/MacOS/Chromium';
+  browserPromise = chromium.launch({ executablePath }).then((browser) => {
+    mainBrowser = browser;
+    return browser;
+  });
+  return browserPromise;
 }
 
 async function createSession(sessionName: string, url: string): Promise<Session> {
-  const browser = getBrowser();
+  const browser = await getBrowser();
   const context = await browser.newContext();
   const page = await context.newPage();
   await page.goto(url);
@@ -89,15 +95,15 @@ function listSessions(): Array<{ id: string; name: string }> {
   return Array.from(sessions.values()).map((s) => ({ id: s.id, name: s.name }));
 }
 
-function handleRPCCommand(method: string, params?: any): any {
+async function handleRPCCommandAsync(method: string, params?: any): Promise<any> {
   switch (method) {
     case 'session.open':
-      return createSessionSync(params.name, params.url);
+      return await createSession(params.name, params.url);
     case 'session.close':
-      closeSession(params.name);
+      await closeSession(params.name);
       return { ok: true };
     case 'session.closeAll':
-      closeAll();
+      await closeAll();
       return { ok: true };
     case 'session.list':
       return { sessions: listSessions() };
@@ -113,17 +119,14 @@ function handleRPCCommand(method: string, params?: any): any {
       clearStorage(params.name, params.type);
       return { ok: true };
     case 'page.html':
-      return getPageHtml(params.name);
+      return await getPageHtml(params.name);
     case 'page.screenshot':
-      return getPageScreenshot(params.name);
+      return await getPageScreenshot(params.name);
+    case 'page.snapshot':
+      return await getPageSnapshot(params.name, params.interactiveOnly || false);
     default:
       throw new Error(`Unknown method: ${method}`);
   }
-}
-
-function createSessionSync(name: string, url: string) {
-  createSession(name, url);
-  return { id: name, name, url };
 }
 
 function killSession(name: string) {
@@ -202,6 +205,44 @@ async function getPageScreenshot(name: string) {
   return { screenshot: '' };
 }
 
+async function getPageSnapshot(name: string, interactiveOnly: boolean) {
+  for (const [, session] of sessions) {
+    if (session.name === name) {
+      const elements = await session.page.evaluate((interactive: boolean) => {
+        const allElements = document.querySelectorAll(
+          interactive ? 'a, button, input, select, textarea, [onclick], [role="button"]' : '*'
+        );
+        const results: Array<{ tag: string; text: string; attrs: Record<string, string> }> = [];
+        const seen = new Set<string>();
+
+        allElements.forEach((el) => {
+          const tag = el.tagName.toLowerCase();
+          const text = el.textContent?.trim().slice(0, 100) || '';
+          const attrs: Record<string, string> = {};
+
+          for (const attr of el.attributes) {
+            attrs[attr.name] = attr.value;
+          }
+
+          const key = `${tag}-${text}-${Object.keys(attrs).join(',')}`;
+          if (!seen.has(key) && (text || tag === 'img' || tag === 'input')) {
+            seen.add(key);
+            results.push({ tag, text, attrs });
+          }
+        });
+
+        return results.slice(0, 100).map((item, idx) => ({
+          ref: `@e${idx + 1}`,
+          ...item,
+        }));
+      }, interactiveOnly);
+
+      return { elements };
+    }
+  }
+  return { elements: [] };
+}
+
 async function handleHttpRequest(req: any, res: any) {
   const { pathname } = parse(req.url || '', true);
 
@@ -237,7 +278,7 @@ async function handleHttpRequest(req: any, res: any) {
     req.on('end', async () => {
       try {
         const { method, params } = JSON.parse(body);
-        const result = handleRPCCommand(method, params);
+        const result = await handleRPCCommandAsync(method, params);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(result));
       } catch (err: any) {
@@ -333,7 +374,9 @@ async function main() {
   ensureSessionDir();
 
   if (existsSync(DAEMON_SOCKET_PATH)) {
-    unlinkSync(DAEMON_SOCKET_PATH);
+    try {
+      unlinkSync(DAEMON_SOCKET_PATH);
+    } catch {}
   }
 
   const httpServer = createHttpServer(handleHttpRequest);
@@ -354,20 +397,31 @@ async function main() {
     }
   });
 
-  const socketServer = createNetServer(async (socket) => {
+  const socketServer = createNetServer((socket) => {
     let data = '';
     socket.on('data', (chunk) => {
       data += chunk.toString();
     });
-    socket.on('end', () => {
+    socket.on('close', async () => {});
+    socket.on('end', async () => {
       try {
+        if (!data.trim()) {
+          return;
+        }
         const { method, params } = JSON.parse(data.trim());
-        const result = handleRPCCommand(method, params);
+        const result = await handleRPCCommandAsync(method, params);
         socket.write(JSON.stringify(result) + '\n');
+        socket.end();
       } catch (err: any) {
-        socket.write(JSON.stringify({ error: err.message }) + '\n');
+        try {
+          socket.write(JSON.stringify({ error: err.message }) + '\n');
+          socket.end();
+        } catch {
+          socket.end();
+        }
       }
     });
+    socket.on('error', () => {});
   });
 
   socketServer.listen(DAEMON_SOCKET_PATH, () => {

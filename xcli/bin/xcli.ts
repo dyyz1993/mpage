@@ -98,6 +98,30 @@ async function main() {
     return;
   }
 
+  if (cmd === 'open') {
+    const { openCommand } = await import('../src/commands/open');
+    await openCommand(cmdArgs, values);
+    return;
+  }
+
+  if (cmd === 'html') {
+    const { htmlCommand } = await import('../src/commands/html');
+    await htmlCommand(cmdArgs, values);
+    return;
+  }
+
+  if (cmd === 'screenshot') {
+    const { screenshotCommand } = await import('../src/commands/screenshot');
+    await screenshotCommand(cmdArgs, values);
+    return;
+  }
+
+  if (cmd === 'snapshot') {
+    const { snapshotCommand } = await import('../src/commands/snapshot');
+    await snapshotCommand(cmdArgs, values);
+    return;
+  }
+
   await loadPlugins();
 
   const site = globalLoader.getSite(cmd);
