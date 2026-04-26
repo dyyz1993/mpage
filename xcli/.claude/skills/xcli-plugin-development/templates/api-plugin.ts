@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import type { XCLIAPI } from 'xcli';
+import { ok, fail } from 'xcli';
 
 // ── 请求/响应类型定义 ──────────────────────────────────
 // 纯 API 插件不依赖 ctx.page，直接用 fetch 调用接口
@@ -59,19 +61,13 @@ export default function (xcli: XCLIAPI): void {
       });
 
       if (!response.ok) {
-        return {
-          data: [],
-          tips: [`API 请求失败: ${response.status} ${response.statusText}`],
-        };
+        return fail(`API 请求失败: ${response.status} ${response.statusText}`);
       }
 
       const result = (await response.json()) as SearchResponse;
 
       if (result.code !== 0) {
-        return {
-          data: [],
-          tips: [`接口返回错误: ${result.message}`],
-        };
+        return fail(`接口返回错误: ${result.message}`);
       }
 
       const items = result.data.list.map((item) => ({
@@ -80,13 +76,10 @@ export default function (xcli: XCLIAPI): void {
         createdAt: item.createdAt,
       }));
 
-      return {
-        data: items,
-        tips: [
-          `共 ${result.data.total} 条，当前返回 ${items.length} 条`,
-          ...(items.length === 0 ? ['未找到结果，请检查关键词'] : []),
-        ],
-      };
+      return ok(items, [
+        `共 ${result.data.total} 条，当前返回 ${items.length} 条`,
+        ...(items.length === 0 ? ['未找到结果，请检查关键词'] : []),
+      ]);
     },
   });
 
@@ -108,22 +101,19 @@ export default function (xcli: XCLIAPI): void {
       });
 
       if (!response.ok) {
-        return { data: null, tips: [`登录失败: ${response.status}`] };
+        return fail(`登录失败: ${response.status}`);
       }
 
       const result = (await response.json()) as { code: number; data: { token: string } };
 
       if (result.code !== 0) {
-        return { data: null, tips: ['登录失败，请检查账号密码'] };
+        return fail('登录失败，请检查账号密码');
       }
 
       // 持久化 token 到 storage
       await ctx.storage.set('api_token', result.data.token);
 
-      return {
-        data: { tokenSaved: true },
-        tips: ['登录成功，token 已保存'],
-      };
+      return ok({ tokenSaved: true }, ['登录成功，token 已保存']);
     },
   });
 }

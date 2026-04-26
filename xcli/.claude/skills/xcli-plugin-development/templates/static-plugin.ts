@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import type { XCLIAPI } from 'xcli';
+import { ok, fail } from 'xcli';
 
 export default function (xcli: XCLIAPI): void {
   const site = xcli.createSite({
@@ -17,7 +19,7 @@ export default function (xcli: XCLIAPI): void {
 
     async handler(params, ctx) {
       if (!ctx.page) {
-        return { data: [], tips: ['静态采集需要浏览器页面'] };
+        return fail('静态采集需要浏览器页面');
       }
 
       // TODO: 替换为实际搜索 URL
@@ -36,10 +38,11 @@ export default function (xcli: XCLIAPI): void {
         }));
       }, params.limit);
 
-      return {
-        data: items,
-        tips: items.length === 0 ? ['未找到结果，请检查选择器或关键词'] : [],
-      };
+      if (items.length === 0) {
+        return fail('未找到结果', ['请检查选择器或关键词']);
+      }
+
+      return ok(items);
     },
   });
 }

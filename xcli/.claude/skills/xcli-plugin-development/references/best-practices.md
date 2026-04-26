@@ -14,17 +14,20 @@
 
 ---
 
-## 错误处理模式
+## 错误处理模式（ok/fail）
 
 ### 基本原则
 
+- 使用 `ok()` 返回成功，`fail()` 返回失败
 - 使用 `ctx.error(msg)` 报告错误，不要 `console.error`
 - handler 中 `try/catch` 包裹网络请求
-- 返回结构化的错误信息，不要直接 `throw`
+- 返回 `CommandResult` 结构化错误，不要直接 `throw`
 
 ### 推荐模式
 
 ```typescript
+import { ok, fail } from 'xcli';
+
 site.command('fetch', {
   description: '获取数据',
   handler: async (_params, ctx) => {
@@ -32,32 +35,36 @@ site.command('fetch', {
       const res = await fetch('https://example.com/api');
       if (!res.ok) {
         ctx.error(`HTTP ${res.status}: ${await res.text()}`);
-        return { success: false };
+        return fail(`HTTP ${res.status}`);
       }
-      return await res.json();
+      const data = await res.json();
+      return ok(data);
     } catch (err) {
       ctx.error(err instanceof Error ? err.message : '未知错误');
-      return { success: false };
+      return fail(err instanceof Error ? err.message : '未知错误');
     }
   },
 });
 ```
 
-### ctx.error() vs return { success: false } 的区别
+### ok() / fail() / ctx.error() 的区别
 
 | 场景 | 方式 | 说明 |
 |------|------|------|
-| 业务错误 | `return { success: false, message }` | token 过期、数据为空、参数无效 |
-| 系统错误 | `ctx.error(msg)` + return | 网络异常、page 为 null、文件读写失败 |
-| 两者都做 | `ctx.error(msg); return { success: false, message: msg }` | 需要同时报告和返回时 |
+| 成功返回数据 | `return ok(data, tips?)` | 正常结果 |
+| 业务错误 | `return fail(message, tips?)` | token 过期、数据为空、参数无效 |
+| 系统错误 | `ctx.error(msg)` + `return fail(msg)` | 网络异常、page 为 null、文件读写失败 |
 
 **禁止在 handler 中 throw Error**（除非是框架未捕获的真正异常）。
+Tips 引擎会在未捕获异常时自动生成上下文建议。
 
 ### 提取公共 fetchJSON
 
 在文件顶部定义 helper，避免每个 handler 重复错误处理：
 
 ```typescript
+import { ok, fail } from 'xcli';
+
 async function fetchJSON(url: string, options: RequestInit = {}) {
   const res = await fetch(url, options);
   if (!res.ok) throw new Error(`HTTP ${res.status}: ${await res.text()}`);
@@ -70,10 +77,11 @@ handler 中直接使用：
 ```typescript
 handler: async (params, ctx) => {
   try {
-    return await fetchJSON(`https://example.com/api/data?id=${params.id}`);
+    const data = await fetchJSON(`https://example.com/api/data?id=${params.id}`);
+    return ok(data);
   } catch (err) {
     ctx.error(err instanceof Error ? err.message : '未知错误');
-    return { success: false };
+    return fail(err instanceof Error ? err.message : '未知错误');
   }
 },
 ```
@@ -93,6 +101,8 @@ logout 命令 → ctx.storage.delete('auth_token')
 ### 完整示例
 
 ```typescript
+import { ok, fail } from 'xcli';
+
 const site = xcli.createSite({
   name: 'my-site',
   requiresLogin: true,
@@ -113,7 +123,7 @@ site.command('login', {
   handler: async (params, ctx) => {
     const { token } = await doLogin(params);
     await ctx.storage.set('auth_token', token);
-    return { success: true };
+    return ok({ loggedIn: true }, ['登录成功']);
   },
 });
 
@@ -123,8 +133,9 @@ site.command('data', {
   requiresLogin: true,
   handler: async (_params, ctx) => {
     const token = await ctx.storage.get<string>('auth_token');
-    if (!token) return { success: false, message: '请先登录' };
+    if (!token) return fail('请先登录', ['使用 xcli my-site login']);
     // 使用 token 请求...
+    return ok(data);
   },
 });
 
@@ -134,7 +145,7 @@ site.command('logout', {
   requiresLogin: false,
   handler: async (_params, ctx) => {
     await ctx.storage.delete('auth_token');
-    return { success: true, message: '已退出登录' };
+    return ok(null, ['已退出登录']);
   },
 });
 ```
@@ -168,10 +179,10 @@ handler: async (_params, ctx) => {
     allItems.push(...res.items);
   }
 
-  return {
+  return ok({
     summary: { total: firstPage.totalItems, collected: allItems.length },
     data: allItems,
-  };
+  });
 },
 ```
 
@@ -195,10 +206,10 @@ handler: async (_params, ctx) => {
     page++;
   }
 
-  return {
+  return ok({
     summary: { totalCollected: allItems.length },
     data: allItems,
-  };
+  });
 },
 ```
 
@@ -208,7 +219,9 @@ handler: async (_params, ctx) => {
 
 ```typescript
 handler: async (params, ctx) => {
-  const allData: any[] = [];
+  if (!ctx.page) return fail('需要浏览器页面');
+
+  const allData: Array<Record<string, string>> = [];
 
   for (let page = 1; page <= maxPage; page++) {
     const url = page === 1 ? params.url : `${params.url}?page=${page}`;
@@ -218,15 +231,14 @@ handler: async (params, ctx) => {
     const items = await ctx.page.evaluate(() => {
       return Array.from(document.querySelectorAll('.item')).map((el) => ({
         title: el.querySelector('.title')?.textContent?.trim() || '',
-        // ...
       }));
     });
 
     allData.push(...items);
-    await new Promise((resolve) => setTimeout(resolve, 500)); // 避免请求过快
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
 
-  return { data: allData };
+  return ok(allData, [`共采集 ${allData.length} 条`]);
 },
 ```
 
@@ -264,11 +276,12 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 ### 使用示例
 
 ```typescript
-plugin.command('orders', {
+site.command('orders', {
   handler: async (params, ctx) => {
     const token = await ctx.storage.get<string>('auth_token');
-    if (!token) return { success: false, message: '请先登录' };
-    return await authFetch(`${TARGET}/orders?page=${params.page}`, token);
+    if (!token) return fail('请先登录', ['使用 xcli <site> login']);
+    const data = await authFetch(`${TARGET}/orders?page=${params.page}`, token);
+    return ok(data);
   },
 });
 ```
@@ -278,7 +291,6 @@ plugin.command('orders', {
 当多个命令有相同的 DOM 提取或数据处理逻辑时，提取到文件顶部的 helper 函数：
 
 ```typescript
-// 文件顶部定义共享逻辑
 function extractItems(page: Page) {
   return page.evaluate(() => {
     const items = document.querySelectorAll('.item');
@@ -289,20 +301,21 @@ function extractItems(page: Page) {
   });
 }
 
-// 多个 handler 复用
 site.command('scrape', {
   handler: async (_params, ctx) => {
-    if (!ctx.page) return { success: false, message: '需要浏览器' };
+    if (!ctx.page) return fail('需要浏览器');
     await ctx.page.goto(BASE_URL);
-    return { success: true, data: await extractItems(ctx.page) };
+    const items = await extractItems(ctx.page);
+    return ok(items);
   },
 });
 
 site.command('search', {
   handler: async (params, ctx) => {
-    if (!ctx.page) return { success: false, message: '需要浏览器' };
+    if (!ctx.page) return fail('需要浏览器');
     await ctx.page.goto(`${BASE_URL}/search?q=${params.keyword}`);
-    return { success: true, data: await extractItems(ctx.page) };
+    const items = await extractItems(ctx.page);
+    return ok(items);
   },
 });
 ```
@@ -311,24 +324,22 @@ site.command('search', {
 
 ## Zod 参数类型注意事项
 
-命令行参数都是字符串。Zod schema 需要正确处理类型转换。
+CLI 字符串参数会由框架自动转换（Param Coercion），直接用 `z.number()` / `z.boolean()` 即可。
 
 ### z.coerce.number() vs z.number()
 
 ```typescript
 parameters: z.object({
-  page: z.coerce.number().default(1),   // ✅ 自动将 "3" 转为 3
-  page: z.number().default(1),           // ❌ 命令行传入 string 会校验失败
+  page: z.number().default(1),          // ✅ 框架自动将 "3" 转为 3
+  page: z.coerce.number().default(1),   // ✅ 也可以，但不再必须
 })
 ```
-
-**规则**：所有从命令行接收的 number 类型参数，必须使用 `z.coerce.number()`。
 
 ### 常用 Zod 模式
 
 ```typescript
 // 可选带默认值
-page: z.coerce.number().optional().default(1)
+page: z.number().optional().default(1)
 
 // 枚举
 mode: z.enum(['fast', 'slow']).default('fast')
@@ -345,6 +356,92 @@ keyword: z.string().describe('搜索关键词')
 
 ---
 
+## 快速开发工作流
+
+### xcli create — 一键创建
+
+```bash
+# 创建插件（默认 static 模板）
+xcli create my-scraper
+
+# 指定模板
+xcli create my-api --template api
+
+# 创建到项目目录（而非全局）
+xcli create my-plugin --template dynamic --project
+```
+
+可用模板：`static`、`dynamic`、`login`、`api`
+
+### xcli plugins doctor — 诊断问题
+
+```bash
+# 检查所有插件的健康状态
+xcli plugins doctor
+```
+
+自动检测：
+- 缺失 `index.ts` 或 `package.json`
+- 缺少 `export default function` 签名
+- 使用了 Zod 但未导入
+- 访问 `ctx.page` 但未做 null 检查
+- 插件加载错误
+
+### 开发循环
+
+```bash
+# 1. 创建插件
+xcli create my-plugin --template static
+
+# 2. 编辑
+vim .xcli/plugins/my-plugin/index.ts
+
+# 3. 测试
+xcli my-plugin scrape --keyword test
+
+# 4. 修改后热重载
+xcli plugins reload my-plugin
+
+# 5. 诊断
+xcli plugins doctor
+```
+
+---
+
+## IDE 类型提示
+
+插件开发时获得 TypeScript 类型提示，在插件目录创建 `tsconfig.json`：
+
+```json
+{
+  "extends": "../tsconfig.plugins.json"
+}
+```
+
+`tsconfig.plugins.json` 内容（xcli 项目自带）：
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "paths": {
+      "xcli": ["./src/index.ts"]
+    }
+  },
+  "include": [".xcli/plugins/**/*.ts"]
+}
+```
+
+配合 `xcli.d.ts` 声明文件，IDE 可提供：
+- `XCLIAPI`、`SiteInstance`、`CommandContext` 等类型
+- `ok()`、`fail()`、`withMeta()` 函数签名
+- `CommandResult<T>` 接口定义
+
+---
+
 ## 常见问题
 
 ### 插件不加载？
@@ -354,18 +451,19 @@ keyword: z.string().describe('搜索关键词')
 1. 检查文件路径是否正确：`.xcli/plugins/<name>/index.ts`
 2. 检查 `export default function (xcli: XCLIAPI) { ... }` 签名是否正确
 3. 运行 `xcli plugins list` 查看状态是否为 `error`
-4. 运行 `xcli plugins info <name>` 查看具体错误信息
-5. 检查 TypeScript 语法错误（jiti 会实时编译，语法错误会阻止加载）
+4. 运行 `xcli plugins doctor` 自动诊断问题
+5. 运行 `xcli plugins info <name>` 查看具体错误信息
+6. 检查 TypeScript 语法错误（jiti 会实时编译，语法错误会阻止加载）
 
 ### ctx.page 为 null？
 
 - daemon 未启动浏览器时 `page` 为 null
 - 纯 API 调用场景不需要 page，直接用 `fetch`
-- 如果必须使用 page，加上 null 检查并给出明确提示：
+- 如果必须使用 page，加上 null 检查：
 
 ```typescript
 if (!ctx.page) {
-  return { error: '此命令需要浏览器页面，请确认 daemon 已启动' };
+  return fail('此命令需要浏览器页面，请确认 daemon 已启动');
 }
 ```
 

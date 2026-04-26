@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import type { XCLIAPI } from 'xcli';
+import { ok, fail } from 'xcli';
 
 export default function (xcli: XCLIAPI): void {
   const site = xcli.createSite({
@@ -18,7 +20,7 @@ export default function (xcli: XCLIAPI): void {
 
     async handler(params, ctx) {
       if (!ctx.page) {
-        return { data: [], tips: ['动态采集需要浏览器页面'] };
+        return fail('动态采集需要浏览器页面');
       }
 
       const allItems: Array<Record<string, string>> = [];
@@ -51,13 +53,13 @@ export default function (xcli: XCLIAPI): void {
         currentPage++;
       }
 
-      return {
-        data: allItems.slice(0, params.limit),
-        tips: [
-          `共采集 ${allItems.length} 条，翻页 ${currentPage - params.page} 页`,
-          ...(allItems.length === 0 ? ['未找到结果，请检查选择器或关键词'] : []),
-        ],
-      };
+      if (allItems.length === 0) {
+        return fail('未找到结果', ['请检查选择器或关键词']);
+      }
+
+      return ok(allItems.slice(0, params.limit), [
+        `共采集 ${allItems.length} 条，翻页 ${currentPage - params.page} 页`,
+      ]);
     },
   });
 }

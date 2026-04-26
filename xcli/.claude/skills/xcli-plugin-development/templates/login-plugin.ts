@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import type { XCLIAPI } from 'xcli';
+import { ok, fail } from 'xcli';
 
 export default function (xcli: XCLIAPI): void {
   const site = xcli.createSite({
@@ -30,7 +32,7 @@ export default function (xcli: XCLIAPI): void {
 
     async handler(params, ctx) {
       if (!ctx.page) {
-        return { data: null, tips: ['登录需要浏览器页面'] };
+        return fail('登录需要浏览器页面');
       }
 
       // TODO: 替换为实际登录页 URL
@@ -54,10 +56,7 @@ export default function (xcli: XCLIAPI): void {
         await ctx.storage.set('auth_token', tokenCookie.value);
       }
 
-      return {
-        data: { loggedIn: true },
-        tips: ['登录成功'],
-      };
+      return ok({ loggedIn: true }, ['登录成功']);
     },
   });
 
@@ -67,17 +66,14 @@ export default function (xcli: XCLIAPI): void {
 
     async handler(_params, ctx) {
       // 清除本地存储的认证信息
-      await ctx.storage.remove('auth_token');
+      await ctx.storage.delete('auth_token');
 
       if (ctx.page) {
         // TODO: 替换为实际登出 URL 或操作
         await ctx.page.goto('https://example.com/logout');
       }
 
-      return {
-        data: { loggedOut: true },
-        tips: ['已登出'],
-      };
+      return ok({ loggedOut: true }, ['已登出']);
     },
   });
 
@@ -91,7 +87,7 @@ export default function (xcli: XCLIAPI): void {
 
     async handler(params, ctx) {
       if (!ctx.page) {
-        return { data: [], tips: ['采集需要浏览器页面'] };
+        return fail('采集需要浏览器页面');
       }
 
       // 恢复已保存的 token（可选：框架 may 自动处理 cookie 恢复）
@@ -99,7 +95,7 @@ export default function (xcli: XCLIAPI): void {
       if (token) {
         await ctx.page.setCookie({
           name: 'session_token', // TODO: 替换 cookie 名
-          value: token,
+          value: token as string,
           domain: 'example.com', // TODO: 替换域名
           path: '/',
         });
@@ -117,10 +113,11 @@ export default function (xcli: XCLIAPI): void {
         }));
       }, params.limit);
 
-      return {
-        data: items,
-        tips: items.length === 0 ? ['未获取到数据，可能需要重新登录'] : [],
-      };
+      if (items.length === 0) {
+        return fail('未获取到数据', ['可能需要重新登录']);
+      }
+
+      return ok(items);
     },
   });
 }

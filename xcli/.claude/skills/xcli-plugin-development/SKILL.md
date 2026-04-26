@@ -9,6 +9,15 @@ description: >
 
 ## Quick Start
 
+### 用 xcli create 创建插件
+
+```bash
+xcli create my-plugin --template static    # 静态页面采集
+xcli create my-api --template api          # 纯 API 插件
+xcli create my-login --template login      # 需要登录的插件
+xcli create my-spa --template dynamic      # 动态页面采集
+```
+
 ### 目录结构
 
 ```
@@ -23,6 +32,30 @@ description: >
 ```typescript
 import { z } from 'zod';
 import type { XCLIAPI } from 'xcli';
+import { ok, fail } from 'xcli';
+
+export default function (xcli: XCLIAPI) {
+  const site = xcli.createSite({
+    name: 'my-plugin',
+    url: 'https://example.com',
+  });
+
+  site.command('hello', {
+    description: '打个招呼',
+    parameters: z.object({ name: z.string().describe('你的名字') }),
+    handler: async (params) => {
+      return ok({ message: `你好, ${params.name}!` });
+    },
+  });
+}
+```
+
+### 完整示例（带错误处理）
+
+```typescript
+import { z } from 'zod';
+import type { XCLIAPI } from 'xcli';
+import { ok, fail } from 'xcli';
 
 export default function (xcli: XCLIAPI) {
   const site = xcli.createSite({
@@ -36,11 +69,9 @@ export default function (xcli: XCLIAPI) {
       query: z.string().describe('搜索关键词'),
       limit: z.number().optional().default(10),
     }),
-    result: z.object({
-      data: z.array(z.object({ title: z.string(), url: z.string() })),
-      tips: z.array(z.string()).optional().default([]),
-    }),
     handler: async (params, ctx) => {
+      if (!ctx.page) return fail('浏览器页面不可用');
+
       await ctx.page.goto(ctx.site.url);
       await ctx.page.waitForSelector('h2');
       const items = await ctx.page.evaluate(() => {
@@ -49,7 +80,9 @@ export default function (xcli: XCLIAPI) {
           url: el.querySelector('a')?.getAttribute('href') || '',
         }));
       });
-      return { data: items.slice(0, params.limit), tips: [`共 ${items.length} 条`] };
+
+      if (items.length === 0) return fail('未找到结果', ['请检查选择器或关键词']);
+      return ok(items.slice(0, params.limit), [`共 ${items.length} 条`]);
     },
   });
 }
@@ -103,7 +136,7 @@ site.command<P, R>(name: string, {
   requiresLogin?: boolean,       // 默认 false
   examples?: Array<{ cmd: string; description: string }>,
   tips?: string[],
-  handler: (params: z.infer<P>, ctx: CommandContext) => Promise<z.infer<R>>,
+  handler: (params: z.infer<P>, ctx: CommandContext) => Promise<CommandResult>,
 }): SiteInstance
 ```
 
@@ -122,6 +155,9 @@ site.command<P, R>(name: string, {
 | `ctx.site` | `SiteInstance` | 当前站点实例 |
 | `ctx.browser` | `{ executablePath: string }` | 浏览器可执行文件路径 |
 
+> **Param Coercion**: CLI 传入的字符串参数会自动转为 number/boolean（根据 Zod schema 类型），
+> 无需手动使用 `z.coerce.number()`，直接写 `z.number()` 即可。
+
 ### StorageContext
 
 | 方法 | 签名 | 说明 |
@@ -136,10 +172,44 @@ site.command<P, R>(name: string, {
 
 | 命令 | 说明 |
 |------|------|
+| `xcli create <name> --template <type>` | 快速创建插件（static/dynamic/login/api） |
 | `xcli plugins list` | 列出所有已加载插件及状态 |
+| `xcli plugins doctor` | 诊断所有插件问题（缺失文件、缺少 null 检查等） |
 | `xcli plugins install <path>` | 从路径安装插件 |
+| `xcli plugins reload <id>` | 热重载指定插件 |
 | `xcli plugins remove <id>` | 卸载指定插件 |
 | `xcli <site> <command> [options]` | 执行站点命令 |
+
+## 返回值约定（ok/fail 模式）
+
+所有 handler 返回 `CommandResult<T>`，使用 `ok()` / `fail()` 构造：
+
+```typescript
+import { ok, fail, withMeta } from 'xcli';
+
+// CommandResult<T> = { success, data, message?, tips, meta? }
+
+// 成功
+return ok({ items: [...] }, ['共 10 条']);
+
+// 失败（业务错误）
+return fail('未找到结果', ['请检查关键词']);
+
+// 附加元数据
+return withMeta(ok(data), { duration: 1200 });
+```
+
+### ok() vs fail() vs ctx.error()
+
+| 场景 | 方式 | 说明 |
+|------|------|------|
+| 成功返回数据 | `return ok(data, tips?)` | 正常结果 |
+| 业务错误 | `return fail(message, tips?)` | token 过期、数据为空、参数无效 |
+| 系统错误 | `ctx.error(msg)` + `return fail(msg)` | 网络异常、page 为 null |
+
+**Tips 引擎**: 当 handler 抛出异常时，框架自动匹配错误消息生成上下文建议（如 ctx.page 相关、网络超时等）。
+
+**规则**: 不要在 handler 中直接 throw，用 `fail()` 返回结构化错误。
 
 ## 生命周期
 
@@ -163,28 +233,6 @@ reloadPlugin(id)
   └─ loadPlugin(path)  ← 重新编译
 ```
 
-## 返回值约定
-
-handler 返回值推荐统一结构：
-
-```typescript
-// 成功
-{ success: true, data: T, tips?: string[] }
-
-// 失败（业务错误，不抛异常）
-{ success: false, message: '错误描述', data?: T }
-
-// 需要 ctx.error() 报告的场景
-ctx.error('网络请求失败');
-return { success: false, message: '网络请求失败' };
-```
-
-**规则**：
-- 业务错误（token 过期、数据为空）→ `return { success: false, message }` 
-- 系统错误（网络异常、page 为 null）→ `ctx.error(msg)` + return
-- `tips` 给 CLI 格式化用的辅助信息，不影响 success 判断
-- 不要在 handler 中 throw，用 return 结构化错误
-
 ## 插件加载搜索路径
 
 1. `./.xcli/plugins/` — 当前目录
@@ -202,47 +250,17 @@ return { success: false, message: '网络请求失败' };
 | 命令名 | `kebab-case` | `scrape`, `reveal-phone` |
 | 参数名 | `camelCase` | `maxItems`, `sortBy` |
 
-## 错误处理
+## IDE 类型提示
 
-```typescript
-import { CommandError } from 'xcli';
+在插件目录创建 `tsconfig.json` 继承 xcli 提供的类型配置：
 
-// 在 handler 中抛出 CommandError
-throw new CommandError('INVALID_ARGS', '参数错误: limit 必须 > 0');
-
-// 或使用 ctx.error
-ctx.error('页面加载超时');
+```json
+{
+  "extends": "../tsconfig.plugins.json"
+}
 ```
 
-## 常见模式
-
-### 需要登录的插件
-
-```typescript
-const site = xcli.createSite({
-  name: 'github',
-  url: 'https://github.com',
-  requiresLogin: true,
-});
-
-site.login(async (ctx) => {
-  await ctx.page.goto('https://github.com/login');
-  await ctx.page.fill('#login_field', ctx.options.username as string);
-  await ctx.page.fill('#password', ctx.options.password as string);
-  await ctx.page.click('[type="submit"]');
-  await ctx.storage.set('auth_token', { loggedIn: true, at: Date.now() });
-});
-
-site.command('stars', {
-  description: '列出 starred 仓库',
-  requiresLogin: true,
-  parameters: z.object({ limit: z.number().optional().default(30) }),
-  handler: async (params, ctx) => {
-    await ctx.site.requireLogin();
-    // ...
-  },
-});
-```
+或将 `tsconfig.plugins.json` 路径配置到 IDE 的 TypeScript 项目中，获得 `xcli` 模块的完整类型提示。
 
 ## 详细文档
 
