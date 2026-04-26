@@ -39,6 +39,7 @@ function createMockPage(overrides: Partial<Page> = {}): Page {
   const cdpSession = createMockCDPSession();
   const consoleListeners: ConsoleHandler[] = [];
   const navigationListeners: NavigationHandler[] = [];
+  const pageRef: { current: Page | null } = { current: null };
 
   const mockContext: BrowserContext = {
     newCDPSession: mock.fn(async () => cdpSession),
@@ -47,6 +48,8 @@ function createMockPage(overrides: Partial<Page> = {}): Page {
     route: mock.fn(async () => {}),
     on: mock.fn(() => {}),
     off: mock.fn(() => {}),
+    pages: mock.fn(() => (pageRef.current ? [pageRef.current] : [])),
+    browser: mock.fn(() => null),
   } as unknown as BrowserContext;
 
   const mockPage = {
@@ -113,6 +116,7 @@ function createMockPage(overrides: Partial<Page> = {}): Page {
     ...overrides,
   } as unknown as Page & { emitConsole: (text: string) => void; emitNavigation: () => void };
 
+  pageRef.current = mockPage;
   return mockPage;
 }
 
@@ -442,10 +446,15 @@ describe('PlaybackEngine', () => {
       const result = await player.play({ noDelay: true });
 
       assert.ok(result.success);
-      assert.strictEqual(
-        (mockPage.keyboard.press as ReturnType<typeof mock.fn>).mock.calls.length,
-        1
+      const contextMock = mockPage.context as ReturnType<typeof mock.fn>;
+      const ctx = contextMock.mock.calls[0].result;
+      const newCDPSessionMock = ctx.newCDPSession as ReturnType<typeof mock.fn>;
+      const cdp = await newCDPSessionMock.mock.calls[0].result;
+      const cdpSendCalls = (cdp.send as ReturnType<typeof mock.fn>).mock.calls;
+      const keyDispatchCalls = cdpSendCalls.filter(
+        (call: { arguments: unknown[] }) => call.arguments[0] === 'Input.dispatchKeyEvent'
       );
+      assert.strictEqual(keyDispatchCalls.length, 1);
     });
 
     it('should execute focus event', async () => {

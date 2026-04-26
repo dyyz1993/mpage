@@ -17,6 +17,20 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+interface RecordingEvent {
+  type: string;
+  selector?: string;
+  tagName?: string;
+  data?: { value?: string; key?: string; x?: number; y?: number };
+  timestamp?: number;
+  pageState?: { url?: string; title?: string };
+}
+
+interface Recording {
+  startUrl: string;
+  events?: RecordingEvent[];
+}
+
 async function main() {
   ensureStorage();
 
@@ -293,7 +307,7 @@ async function main() {
     const recording = yaml.parse(content);
 
     // Extract key events
-    const keyEvents: any[] = [];
+    const keyEvents: RecordingEvent[] = [];
     const eventTypes: Record<string, number> = {};
 
     for (const event of recording.events || []) {
@@ -415,7 +429,7 @@ async function main() {
     const recording = yaml.parse(content);
 
     const originalCount = (recording.events || []).length;
-    const filteredEvents = (recording.events || []).filter((event: any) => {
+    const filteredEvents = (recording.events || []).filter((event: RecordingEvent) => {
       return !excludeTypes.includes(event.type);
     });
     const filteredCount = filteredEvents.length;
@@ -564,13 +578,13 @@ function escapeString(str: string): string {
     .replace(/\t/g, '\\t');
 }
 
-function generateJSScript(recording: any): string {
+function generateJSScript(recording: Recording): string {
   const events = recording.events || [];
 
   // Aggregate consecutive input events - ONLY keep the LAST input value
   // Skip all intermediate input events and keydowns
-  const aggregatedEvents: any[] = [];
-  let lastInputEvent: any = null;
+  const aggregatedEvents: RecordingEvent[] = [];
+  let lastInputEvent: RecordingEvent | null = null;
 
   for (let i = 0; i < events.length; i++) {
     const event = events[i];
@@ -695,7 +709,7 @@ main().catch(console.error);
   return script;
 }
 
-function generateJSEvent(event: any): string {
+function generateJSEvent(event: RecordingEvent): string {
   switch (event.type) {
     case 'click':
       return `
@@ -809,7 +823,7 @@ function generateJSEvent(event: any): string {
   }
 }
 
-function generatePythonScript(recording: any): string {
+function generatePythonScript(recording: Recording): string {
   const events = recording.events || [];
   let script = `#!/usr/bin/env python3
 # Auto-generated replay script from mpage
@@ -864,7 +878,7 @@ if __name__ == "__main__":
   return script;
 }
 
-function generatePythonEvent(event: any): string {
+function generatePythonEvent(event: RecordingEvent): string {
   switch (event.type) {
     case 'click':
       return `                # Click: ${event.selector}
@@ -917,7 +931,7 @@ function generatePythonEvent(event: any): string {
   }
 }
 
-function generateBashScript(recording: any): string {
+function generateBashScript(recording: Recording): string {
   const events = recording.events || [];
   let script = `#!/bin/bash
 # Auto-generated replay script from mpage
@@ -944,7 +958,7 @@ echo "Replay completed!"
   return script;
 }
 
-function generateBashEvent(event: any): string {
+function generateBashEvent(event: RecordingEvent): string {
   switch (event.type) {
     case 'click':
       return `# Click: ${event.selector}

@@ -16,7 +16,9 @@
   "scripts": {
     "build": "tsc --noEmit",
     "lint": "eslint src --ext .ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@dyyz1993/xpage": "file:..",
