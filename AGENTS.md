@@ -140,3 +140,47 @@ export default function (xcli: XCLIAPI): void {
 3. `~/.xcli/plugins/`（全局用户目录）
 
 同名插件: 本地优先于全局，后加载覆盖先加载。
+
+## 5. Rules 编写规范
+
+当需要创建或修改 OpenCode rules（`.md`/`.mdc` 文件）时，先加载 `crafting-rules` skill 获取完整的编写指南:
+
+```
+/load-skill crafting-rules
+```
+
+### 何时需要编写 Rule
+
+- 用户反复纠正同一个行为（"我之前说过"、"又来了"）
+- 用户给出明确指令（"永远这样做"、"禁止那样做"、"记住..."）
+- 发现已有的 lint/prettier 配置无法覆盖的约定
+- 需要跨会话持久化的偏好
+
+### Rule 存放位置
+
+- `~/.config/opencode/rules/` — 个人偏好（跨项目生效）
+- `.opencode/rules/` — 项目/团队约定（仓库内）
+
+### Rule 基本格式
+
+```md
+---
+globs:
+  - '**/*.ts'
+keywords:
+  - 'vitest'
+match: any
+---
+
+# Rule Title
+
+- 具体的、可执行的指令
+- 避免"一般性最佳实践"，只写项目特有的约定
+```
+
+### 注意事项
+
+- 优先用 `globs` 限定文件范围，避免用泛化关键词（如 `test`、`code`）
+- 一个 rule 只表达一个概念，不要堆叠 6+ 个维度
+- 写 rule 前先检查是否已有 eslint/prettier 配置覆盖了同样的事情
+- 用祈使语气："Do X"、"Avoid Y"、"Prefer Z"
