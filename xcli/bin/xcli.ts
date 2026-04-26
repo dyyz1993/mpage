@@ -148,6 +148,11 @@ async function main() {
     'create',
     'eval',
     'http',
+    'navigate',
+    'plugins',
+    'remove',
+    'install',
+    'goto',
   ].includes(cmd);
 
   if (isBuiltinCommand) {

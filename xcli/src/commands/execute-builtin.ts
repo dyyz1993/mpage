@@ -18,36 +18,42 @@ import { htmlCommand } from './html';
 import { createCommand } from './create';
 import { pluginsCommand } from './plugins';
 import { removeCommand } from './remove';
-import { navigateCommand } from './navigate';
+
+import { listCommand } from './list';
+import { gotoCommand } from './goto';
+import { installCommand } from './install';
+import { killAllDaemon } from '../core/daemon-manager';
 
 const commands: Record<string, any> = {
-    open: openCommand,
-    click: clickCommand,
-    select: selectCommand,
-    check: checkCommand,
-    press: pressCommand,
-    snapshot: snapshotCommand,
-    fill: fillCommand,
-    type: typeCommand,
-    wait: waitCommand,
-    http: httpCommand,
-    mouse: mouseCommand,
-    scroll: scrollCommand,
-    screenshot: screenshotCommand,
-    daemon: daemonCommand,
-    html: htmlCommand,
-    create: createCommand,
-    plugins: pluginsCommand,
-    remove: removeCommand,
-    list: removeCommand,
-    ls: removeCommand,
-    get: getCommand,
-    goto: navigateCommand,
-    close: closeCommand,
-    kill: async () => {
-      console.log('Kill not implemented');
-    },
-  };
+  open: openCommand,
+  click: clickCommand,
+  select: selectCommand,
+  check: checkCommand,
+  press: pressCommand,
+  snapshot: snapshotCommand,
+  fill: fillCommand,
+  type: typeCommand,
+  wait: waitCommand,
+  http: httpCommand,
+  mouse: mouseCommand,
+  scroll: scrollCommand,
+  screenshot: screenshotCommand,
+  daemon: daemonCommand,
+  html: htmlCommand,
+  create: createCommand,
+  plugins: pluginsCommand,
+  remove: removeCommand,
+  list: listCommand,
+  ls: listCommand,
+  get: getCommand,
+  goto: gotoCommand,
+  install: installCommand,
+  close: closeCommand,
+  kill: async () => {
+    await killAllDaemon();
+    console.log('All daemon processes killed.');
+  },
+};
 
 export async function executeBuiltin(cmd: string, _args: string[], _values: Record<string, any>) {
   const command = commands[cmd];
