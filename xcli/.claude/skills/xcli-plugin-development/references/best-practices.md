@@ -2,6 +2,137 @@
 
 ---
 
+## 如何选择 Scope
+
+| 场景 | 推荐 Scope | 说明 |
+|------|-----------|------|
+| 纯 API 调用（fetch） | `project` | 不需要浏览器资源 |
+| 管理 session/浏览器 | `browser` | 需要浏览器实例但不需要页面 |
+| 页面导航、截图、HTML 提取 | `page` | 默认值，需要活跃页面 |
+| 点击、输入、选择元素 | `element` | 需要页面 + 选择器 |
+
+### 选择原则
+
+1. **不需要 `ctx.page`** → `project`（如纯 fetch 调用）
+2. **需要页面但不操作具体元素** → `page`（如 goto, screenshot, html）
+3. **操作具体 DOM 元素** → `element`（如 click, fill, select）
+
+```typescript
+// 纯 API — 不需要浏览器
+site.command('query', {
+  scope: 'project',
+  handler: async (params) => {
+    const res = await fetch(`https://api.example.com/search?q=${params.keyword}`);
+    return ok(await res.json());
+  },
+});
+
+// 页面级操作
+site.command('scrape', {
+  scope: 'page',
+  handler: async (params, ctx) => {
+    await ctx.page.goto('https://example.com');
+    return ok(await ctx.page.content());
+  },
+});
+
+// 元素交互
+site.command('click', {
+  scope: 'element',
+  handler: async (params, ctx) => {
+    await ctx.page.click(params.selector);
+    return ok(null);
+  },
+});
+```
+
+---
+
+## 命令覆盖最佳实践
+
+### 覆盖规则
+
+1. 插件命令 > 内建命令（同 scope + 同名）
+2. 后加载的插件 > 先加载的插件
+3. `override: false` 禁止被覆盖
+
+### 何时覆盖内建命令
+
+- 需要对特定站点定制行为时（如自定义 screenshot 逻辑）
+- 需要增加前/后处理逻辑时
+
+```typescript
+// 覆盖内建 screenshot，添加自动裁剪
+site.command('screenshot', {
+  scope: 'page',
+  override: true,
+  description: '截图并自动裁剪',
+  handler: async (params, ctx) => {
+    const buffer = await ctx.page.screenshot({ fullPage: true });
+    // 自定义裁剪逻辑...
+    return ok({ path: '/tmp/screenshot.png' });
+  },
+});
+```
+
+### 何时使用 override: false
+
+- 核心安全命令，不允许插件替换
+
+```typescript
+site.command('auth-critical', {
+  scope: 'page',
+  override: false,
+  description: '不可被覆盖的安全命令',
+  handler: async (params, ctx) => { /* ... */ },
+});
+```
+
+---
+
+## Session 隔离下的注意事项
+
+### 架构模型
+
+```
+用户/LLM → HTTP/WS → Daemon（路由） → IPC → Worker 进程 → 响应
+```
+
+- 每个 session = 独立 worker 进程
+- Worker 崩溃不影响 daemon 和其他 worker
+- 不同 session 的命令并行执行
+- 同一 session 的命令串行保证顺序
+
+### 开发注意
+
+1. **不要依赖全局状态**：每个 session 在独立进程中执行，全局变量在 worker 间不共享
+2. **持久化用 ctx.storage**：需要跨 session 保持的数据必须写入 `ctx.storage`
+3. **Worker 可能崩溃重启**：设计 handler 时考虑幂等性，不要假设上一次 handler 的内存状态
+4. **同 session 串行**：同一 session 内命令按顺序执行，无需担心并发问题
+5. **跨 session 不通信**：不同 session 之间完全隔离，需要通信通过外部存储或事件系统
+
+### 故障处理
+
+Worker 崩溃时，框架自动：
+- 返回 `WORKER_CRASHED` 错误，附带 tips 引导重启
+- 标记 session 为 crashed 状态
+- 不影响其他 session
+
+```typescript
+// 幂等性示例：每次都从 storage 读取状态
+site.command('scrape', {
+  scope: 'page',
+  handler: async (_params, ctx) => {
+    const lastPage = (await ctx.storage.get<number>('lastPage')) ?? 1;
+    // 从上次的位置继续...
+    await ctx.storage.set('lastPage', currentPage);
+    return ok(data);
+  },
+});
+```
+
+---
+
 ## 命名规范
 
 | 对象 | 规范 | 示例 |

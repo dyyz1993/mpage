@@ -88,6 +88,52 @@ export default function (xcli: XCLIAPI) {
 }
 ```
 
+## 运行时架构
+
+```
+用户/LLM → HTTP/WS → Daemon（薄路由层） → IPC → Worker 进程（执行） → 响应
+```
+
+- 每个 session = 独立 worker 进程（child_process.fork）
+- Daemon 不直接操作浏览器，通过 IPC 路由到 worker
+- Worker 崩溃不影响 daemon 和其他 worker
+- 不同 session 的命令并行执行
+- 同一 session 的命令串行保证顺序
+
+## 命令 Scope
+
+| Scope | 需要的资源 | 示例命令 |
+|-------|-----------|---------|
+| `project` | 无 | config, plugins, create, install |
+| `browser` | 浏览器实例 | open, close |
+| `page` | 活跃页面 | goto, screenshot, html |
+| `element` | 页面 + 选择器 | click, fill, get, press |
+
+默认 scope 为 `page`。声明方式：
+
+```typescript
+site.command('click', {
+  scope: 'element',
+  // ...
+});
+```
+
+框架在执行前自动检查 scope 可用性，不可用时返回清晰的错误信息。
+
+## 命令覆盖
+
+插件命令优先于内建命令（同 scope + 同名）：
+
+```typescript
+site.command('screenshot', {
+  scope: 'page',
+  override: true,  // 默认 true，可覆盖内建命令
+  // ...
+});
+```
+
+禁止被覆盖：`override: false`。后加载的插件覆盖先加载的。
+
 ## 核心 API
 
 ### XCLIAPI
@@ -131,6 +177,8 @@ interface SiteConfig {
 ```typescript
 site.command<P, R>(name: string, {
   description: string,           // 命令描述（必须）
+  scope?: CommandScope,          // 'project'|'browser'|'page'|'element'，默认 'page'
+  override?: boolean,            // 是否可被覆盖，默认 true
   parameters?: P,                // Zod schema，定义入参
   result?: R,                    // Zod schema，定义返回值
   requiresLogin?: boolean,       // 默认 false
@@ -147,13 +195,15 @@ site.command<P, R>(name: string, {
 | `ctx.args` | `string[]` | 命令行位置参数 |
 | `ctx.options` | `Record<string, unknown>` | 解析后的命名参数 |
 | `ctx.cwd` | `string` | 当前工作目录 |
-| `ctx.page` | `Page \| null` | Playwright Page 实例 |
+| `ctx.page` | `Page \| null` | Playwright Page 实例（由 worker 提供） |
 | `ctx.storage` | `StorageContext` | 插件持久化存储 |
 | `ctx.output` | `OutputContext` | 输出配置（mode/color/emoji） |
 | `ctx.error` | `(msg: string) => void` | 报错并终止命令 |
 | `ctx.config` | `Record<string, unknown>` | 站点配置 |
 | `ctx.site` | `SiteInstance` | 当前站点实例 |
 | `ctx.browser` | `{ executablePath: string }` | 浏览器可执行文件路径 |
+
+> **Daemon 不直接操作浏览器**。所有 page 操作通过 IPC 路由到 session 对应的 worker 进程执行。
 
 > **Param Coercion**: CLI 传入的字符串参数会自动转为 number/boolean（根据 Zod schema 类型），
 > 无需手动使用 `z.coerce.number()`，直接写 `z.number()` 即可。

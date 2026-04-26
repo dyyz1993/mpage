@@ -63,6 +63,8 @@ site.command('scrape', {
 |------|------|------|------|
 | `name` | `string` | 是 | 命令名，kebab-case，如 `scrape`、`reveal-phone` |
 | `description` | `string` | 是 | 命令描述 |
+| `scope` | `CommandScope` | 否 | 命令作用域，默认 `'page'` |
+| `override` | `boolean` | 否 | 是否可被同名命令覆盖，默认 `true` |
 | `parameters` | `ZodSchema` | 否 | Zod schema，定义输入参数 |
 | `result` | `ZodSchema` | 否 | Zod schema，定义输出结构 |
 | `requiresLogin` | `boolean` | 否 | 此命令是否需要登录，默认 `false` |
@@ -78,6 +80,59 @@ handler: async (params, ctx) => {
   // ctx: CommandContext
   return ok(data);       // 或 fail(message)
 }
+```
+
+---
+
+## CommandScope — 命令作用域
+
+命令按资源依赖分为 4 个 scope 层级：
+
+```typescript
+type CommandScope = 'project' | 'browser' | 'page' | 'element';
+```
+
+| Scope | 需要的资源 | 典型命令 | ctx.page |
+|-------|-----------|---------|----------|
+| `project` | 无 | config, plugins, create, install | `null` |
+| `browser` | 浏览器实例 | open, close | `null` |
+| `page` | 活跃页面 | goto, screenshot, html | 可用 |
+| `element` | 页面 + 选择器 | click, fill, get, press | 可用 |
+
+默认 scope 为 `'page'`。框架在执行前自动检查 scope 可用性。
+
+### scope 声明
+
+```typescript
+// 纯 API 命令，不需要浏览器
+site.command('query', {
+  scope: 'project',
+  handler: async (params) => { /* fetch... */ },
+});
+
+// 需要页面 + 选择器的交互命令
+site.command('click', {
+  scope: 'element',
+  handler: async (params, ctx) => { /* ctx.page 可用 */ },
+});
+```
+
+### scope 与 override 配合
+
+```typescript
+// 插件覆盖内建的 screenshot 命令
+site.command('screenshot', {
+  scope: 'page',
+  override: true,  // 默认 true
+  handler: async (params, ctx) => { /* ... */ },
+});
+
+// 禁止被其他插件覆盖
+site.command('core-action', {
+  scope: 'page',
+  override: false,
+  handler: async (params, ctx) => { /* ... */ },
+});
 ```
 
 ---
@@ -206,13 +261,15 @@ parameters: z.object({
 | `args` | `string[]` | 原始命令行参数 |
 | `options` | `Record<string, unknown>` | 解析后的选项 |
 | `cwd` | `string` | 当前工作目录 |
-| `page` | `Page \| null` | Playwright Page 实例，daemon 未启动浏览器时为 null |
+| `page` | `Page \| null` | Playwright Page 实例（由 worker 进程提供） |
 | `storage` | `StorageContext` | 插件持久化存储 |
 | `output` | `OutputContext` | 输出配置（mode/color/emoji） |
 | `error` | `(msg: string) => void` | 报告错误 |
 | `config` | `Record<string, unknown>` | 插件配置 |
 | `site` | `SiteInstance` | 当前站点实例 |
 | `browser` | `{ executablePath: string }` | 浏览器可执行路径 |
+
+> **Daemon 不直接操作浏览器**。所有浏览器操作通过 IPC 路由到 session 对应的 worker 进程执行。CommandContext 中的 `page` 由 worker 进程注入。
 
 ---
 
