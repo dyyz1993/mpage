@@ -1,16 +1,16 @@
+export type { SessionMeta } from './session-store';
 export {
-  Session,
   sessions,
   wsConnections,
   findSession,
-  createSession,
-  closeSession,
-  closeAll,
+  createSessionMeta,
+  removeSession,
+  clearAll,
   listSessions,
-  killSession,
-  getMainBrowser,
-  closeBrowser,
+  generateId,
 } from './session-store';
-export { handleRPCCommandAsync } from './rpc-handlers';
+export { handleRPCCommandAsync, workerManager } from './rpc-handlers';
 export { startHttpServer } from './http-server';
 export { setupWebSocket } from './ws-handler';
+export type { IPCMessage, IPCResponse } from './ipc-types';
+export { WorkerManager } from './worker-manager';

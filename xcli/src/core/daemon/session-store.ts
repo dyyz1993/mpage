@@ -1,102 +1,54 @@
-import { chromium, type BrowserContext, type Page, type Browser } from 'playwright';
 import { randomBytes } from 'crypto';
 import type WebSocket from 'ws';
-import type { RecorderController } from '@dyyz1993/xpage';
 
-export interface Session {
+export interface SessionMeta {
   id: string;
   name: string;
-  context: BrowserContext;
-  page: Page;
-  browser: Browser;
-  recorder?: RecorderController;
+  url: string;
 }
 
-export const sessions = new Map<string, Session>();
+export const sessions = new Map<string, SessionMeta>();
 export const wsConnections = new Map<string, Set<WebSocket>>();
-let mainBrowser: Browser | null = null;
-let browserPromise: Promise<Browser> | null = null;
 
-export function getMainBrowser(): Browser | null {
-  return mainBrowser;
+function generateSessionId(): string {
+  return randomBytes(4).toString('hex');
 }
 
-export function findSession(name: string): Session | undefined {
+export function generateId(): string {
+  return generateSessionId();
+}
+
+export function findSession(name: string): SessionMeta | undefined {
   for (const [, session] of sessions) {
     if (session.name === name) return session;
   }
   return undefined;
 }
 
-async function getBrowser(): Promise<Browser> {
-  if (mainBrowser) return mainBrowser;
-  if (browserPromise) return browserPromise;
-
-  const executablePath =
-    process.env.XCLI_CHROMIUM_PATH || '/Applications/Chromium.app/Contents/MacOS/Chromium';
-  browserPromise = chromium.launch({ executablePath }).then((browser) => {
-    mainBrowser = browser;
-    return browser;
-  });
-  return browserPromise;
+export function createSessionMeta(sessionName: string, url: string, id?: string): SessionMeta {
+  const sessionId = id || generateSessionId();
+  const meta: SessionMeta = { id: sessionId, name: sessionName, url };
+  sessions.set(sessionId, meta);
+  wsConnections.set(sessionId, new Set());
+  return meta;
 }
 
-function generateSessionId(): string {
-  return randomBytes(4).toString('hex');
-}
-
-export async function createSession(sessionName: string, url: string): Promise<Session> {
-  const browser = await getBrowser();
-  const context = await browser.newContext();
-  const page = await context.newPage();
-  await page.goto(url);
-
-  const id = generateSessionId();
-  const session: Session = { id, name: sessionName, context, page, browser };
-  sessions.set(id, session);
-  wsConnections.set(id, new Set());
-
-  return session;
-}
-
-export async function closeSession(name: string) {
+export function removeSession(name: string): SessionMeta | undefined {
   for (const [id, session] of sessions) {
     if (session.name === name) {
-      await session.context.close();
       sessions.delete(id);
       wsConnections.delete(id);
-      return;
+      return session;
     }
   }
+  return undefined;
 }
 
-export async function closeAll() {
-  for (const [, session] of sessions) {
-    await session.context.close();
-  }
+export function clearAll(): void {
   sessions.clear();
   wsConnections.clear();
 }
 
 export function listSessions(): Array<{ id: string; name: string }> {
   return Array.from(sessions.values()).map((s) => ({ id: s.id, name: s.name }));
-}
-
-export function killSession(name: string) {
-  for (const [id, session] of sessions) {
-    if (session.name === name) {
-      session.context.close();
-      sessions.delete(id);
-      wsConnections.delete(id);
-      return;
-    }
-  }
-}
-
-export async function closeBrowser() {
-  if (mainBrowser) {
-    await mainBrowser.close();
-    mainBrowser = null;
-    browserPromise = null;
-  }
 }

@@ -3,6 +3,7 @@ import type {
   CommandContext,
   SiteInstance,
   CommandHandler,
+  CommandScope,
   ZodSchema,
 } from '../protocol/plugin-protocol';
 import { CommandError } from '../protocol/plugin-protocol';
@@ -16,11 +17,25 @@ interface SiteCommandEntry {
   name: string;
   description: string;
   requiresLogin?: boolean;
+  scope: CommandScope;
   parameters?: ZodSchema;
   result?: ZodSchema;
   examples?: Array<{ cmd: string; description: string }>;
   tips?: string[];
   handler: CommandHandler;
+}
+
+export function checkScope(scope: CommandScope, ctx: CommandContext): string | null {
+  switch (scope) {
+    case 'project':
+      return null;
+    case 'browser':
+      return ctx.page ? null : '需要浏览器实例，请先执行 xcli open <url>';
+    case 'page':
+      return ctx.page ? null : '需要活跃的页面，请先执行 xcli open <url>';
+    case 'element':
+      return ctx.page ? null : '需要活跃的页面，请先执行 xcli open <url>';
+  }
 }
 
 export async function executeSiteCommand(
@@ -61,6 +76,20 @@ export async function executeSiteCommand(
   try {
     const coercedValues = coerceCliArgs(cmd.parameters, values);
     const params = parseParams(cmd.parameters, args, coercedValues);
+
+    const scopeError = checkScope(cmd.scope ?? 'page', ctx);
+    if (scopeError) {
+      const result = fail(scopeError, ['检查命令所需的 scope 是否满足']);
+      result.meta = { duration: 0, command: cmdName, site: site.name };
+      if (outputMode === 'json') {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        console.log(formatResult(result, 'text'));
+      }
+      await browser.close();
+      return;
+    }
+
     const start = Date.now();
 
     let result: CommandResult;

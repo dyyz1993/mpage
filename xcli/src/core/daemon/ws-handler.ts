@@ -1,9 +1,11 @@
-import WebSocket, { WebSocketServer } from 'ws';
+import type WebSocket from 'ws';
+import { WebSocketServer } from 'ws';
 import { parse } from 'url';
 import type { IncomingMessage } from 'http';
 import type { Server } from 'http';
 import type { Duplex } from 'stream';
 import { sessions, wsConnections } from './session-store';
+import { workerManager } from './rpc-handlers';
 
 async function handleWebSocket(ws: WebSocket, sessionId: string) {
   const session = sessions.get(sessionId);
@@ -19,47 +21,43 @@ async function handleWebSocket(ws: WebSocket, sessionId: string) {
     conns?.delete(ws);
   });
 
-  const cdpSession = await session.context.newCDPSession(session.page);
-  await cdpSession.send('Page.startScreencast', { everyNthFrame: 1 });
-
-  cdpSession.on('Page.screencastFrame', (frame: Record<string, unknown>) => {
-    const data = frame.data as string;
-    const sessionId2 = frame.sessionId as number;
-    const metadata = (frame.metadata as Record<string, unknown>) || {};
-    const viewport = session.page.viewportSize();
-    const viewportData = viewport ? { width: viewport.width, height: viewport.height } : null;
-
-    if (ws.readyState === WebSocket.OPEN) {
-      ws.send(
-        JSON.stringify({
-          type: 'screenshot',
-          data,
-          sessionId: sessionId2,
-          viewport: viewportData,
-          metadata,
-        })
-      );
-    }
-    cdpSession.send('Page.screencastFrameAck', { sessionId: sessionId2 }).catch(() => {});
-  });
-
   ws.on('message', async (msg: WebSocket.RawData) => {
     try {
       const cmd = JSON.parse(msg.toString());
-      if (!session) return;
-      if (cmd.type === 'navigate') {
-        await session.page.goto(cmd.url);
-      } else if (cmd.type === 'click') {
-        await session.page.mouse.click(cmd.x, cmd.y);
-      } else if (cmd.type === 'mousemove') {
-        await session.page.mouse.move(cmd.x, cmd.y);
-      } else if (cmd.type === 'key') {
-        await session.page.keyboard.press(cmd.key);
+      const response = await workerManager.sendCommand(sessionId, {
+        type: 'request',
+        method: `ws.${cmd.type}`,
+        params: { ...cmd, sessionId },
+        sessionId,
+      });
+
+      if (response.type === 'response' && response.result) {
+        const result = response.result as Record<string, unknown>;
+        if (result.screenshot) {
+          ws.send(
+            JSON.stringify({
+              type: 'screenshot',
+              data: result.screenshot,
+              viewport: result.viewport,
+            })
+          );
+        }
       }
     } catch {
       // ignore message error
     }
   });
+
+  const initResponse = await workerManager.sendCommand(sessionId, {
+    type: 'request',
+    method: 'ws.initScreencast',
+    params: { sessionId },
+    sessionId,
+  });
+
+  if (initResponse.type === 'error') {
+    ws.close();
+  }
 }
 
 export function setupWebSocket(httpServer: Server): WebSocketServer {

@@ -2,8 +2,8 @@ import { createServer as createNetServer } from 'net';
 import { existsSync, mkdirSync, writeFileSync, unlinkSync } from 'fs';
 import { startHttpServer } from './daemon/http-server';
 import { setupWebSocket } from './daemon/ws-handler';
-import { handleRPCCommandAsync } from './daemon/rpc-handlers';
-import { closeAll, closeBrowser } from './daemon/session-store';
+import { handleRPCCommandAsync, workerManager } from './daemon/rpc-handlers';
+import { clearAll } from './daemon/session-store';
 import { SESSION_DIR, DAEMON_CONFIG_PATH, DAEMON_SOCKET_PATH } from './constants';
 
 const VIEWER_PORT = 8054;
@@ -67,8 +67,8 @@ async function main() {
   saveDaemonConfig(process.pid);
 
   process.on('SIGINT', async () => {
-    await closeAll();
-    await closeBrowser();
+    await workerManager.shutdown();
+    clearAll();
     httpServer.close();
     socketServer.close();
     process.exit(0);

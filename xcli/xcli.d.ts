@@ -8,13 +8,20 @@ declare module 'xcli' {
     OutputContext,
     CommandError,
     CommandHandler,
+    CommandEntry,
+    CommandScope,
     ZodSchema,
     FlagConfig,
     ToolConfig,
     EventHandler,
     EventContext,
   } from './src/protocol/plugin-protocol';
-  export { CommandError as CommandErrorClass, SiteInstanceImpl } from './src/protocol/plugin-protocol';
+  export {
+    CommandError as CommandErrorClass,
+    SiteInstanceImpl,
+    DEFAULT_SCOPE,
+    COMMAND_SCOPE_ORDER,
+  } from './src/protocol/plugin-protocol';
   export type { CommandResult } from './src/core/command-result';
   export { ok, fail, withMeta, wrapResult, isCommandResult } from './src/core/command-result';
   export { PluginStorage } from './src/core/plugin-storage';

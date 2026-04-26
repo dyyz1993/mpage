@@ -2,6 +2,7 @@ import type {
   XCLIAPI,
   Command,
   CommandHandler,
+  CommandScope,
   SiteConfig,
   SiteInstance,
   StorageContext,
@@ -9,8 +10,9 @@ import type {
   ToolConfig,
   EventContext,
   EventHandler,
+  CommandEntry,
 } from '../protocol/plugin-protocol';
-import { SiteInstanceImpl } from '../protocol/plugin-protocol';
+import { SiteInstanceImpl, DEFAULT_SCOPE } from '../protocol/plugin-protocol';
 import { resolve, isAbsolute, extname, basename } from 'path';
 import { createJiti } from 'jiti';
 
@@ -146,8 +148,15 @@ export class PluginInstance {
   }
 }
 
+export interface BuiltinCommandEntry {
+  name: string;
+  scope: CommandScope;
+  handler: (args: string[], values: Record<string, unknown>) => Promise<void>;
+}
+
 export class PluginLoader {
   private commands: Map<string, Command & { handler: CommandHandler }> = new Map();
+  private builtinScopeMap: Map<string, CommandScope> = new Map();
   private sites: Map<string, SiteInstance> = new Map();
   private flags: Map<string, FlagConfig> = new Map();
   private tools: Map<string, ToolConfig> = new Map();
@@ -416,6 +425,43 @@ export class PluginLoader {
 
   getCommand(name: string): (Command & { handler: CommandHandler }) | undefined {
     return this.commands.get(name);
+  }
+
+  registerBuiltinScope(name: string, scope: CommandScope): void {
+    this.builtinScopeMap.set(name, scope);
+  }
+
+  getBuiltinScope(name: string): CommandScope {
+    return this.builtinScopeMap.get(name) ?? DEFAULT_SCOPE;
+  }
+
+  findCommand(
+    name: string,
+    scope?: CommandScope
+  ): { entry: CommandEntry; site: SiteInstance } | null {
+    for (const site of this.sites.values()) {
+      const cmd = site.getCommand(name);
+      if (cmd && (!scope || cmd.scope === scope)) {
+        return { entry: cmd, site };
+      }
+    }
+    return null;
+  }
+
+  resolveCommand(name: string, siteName?: string): CommandEntry | null {
+    if (siteName) {
+      const site = this.sites.get(siteName);
+      if (site) {
+        return site.getCommand(name);
+      }
+    }
+
+    for (const site of Array.from(this.sites.values()).reverse()) {
+      const cmd = site.getCommand(name);
+      if (cmd) return cmd;
+    }
+
+    return null;
   }
 
   getSiteCommand(

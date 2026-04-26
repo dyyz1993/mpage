@@ -1,3 +1,5 @@
+import type { CommandScope } from '../protocol/plugin-protocol';
+
 import { openCommand } from './open';
 import { clickCommand } from './click';
 import { selectCommand } from './select';
@@ -31,44 +33,56 @@ import type { CommandArgs, CommandValues } from '../core/types';
 
 type BuiltinCommandFn = (args: CommandArgs, values: CommandValues) => Promise<void>;
 
-const commands: Record<string, BuiltinCommandFn> = {
-  open: openCommand,
-  click: clickCommand,
-  select: selectCommand,
-  check: checkCommand,
-  press: pressCommand,
-  snapshot: snapshotCommand,
-  fill: fillCommand,
-  type: typeCommand,
-  wait: waitCommand,
-  http: httpCommand,
-  mouse: mouseCommand,
-  scroll: scrollCommand,
-  screenshot: screenshotCommand,
-  daemon: daemonCommand,
-  html: htmlCommand,
-  create: createCommand,
-  plugins: pluginsCommand,
-  remove: removeCommand,
-  list: listCommand,
-  ls: listCommand,
-  get: getCommand,
-  goto: gotoCommand,
-  install: installCommand,
-  record: recordCommand,
-  replay: replayCommand,
-  structure: structureCommand,
-  close: closeCommand,
-  kill: async () => {
-    await killAllDaemon();
-    console.log('All daemon processes killed.');
+interface BuiltinEntry {
+  handler: BuiltinCommandFn;
+  scope: CommandScope;
+}
+
+const commands: Record<string, BuiltinEntry> = {
+  open: { handler: openCommand, scope: 'browser' },
+  close: { handler: closeCommand, scope: 'browser' },
+  click: { handler: clickCommand, scope: 'element' },
+  select: { handler: selectCommand, scope: 'element' },
+  check: { handler: checkCommand, scope: 'element' },
+  press: { handler: pressCommand, scope: 'element' },
+  snapshot: { handler: snapshotCommand, scope: 'page' },
+  fill: { handler: fillCommand, scope: 'element' },
+  type: { handler: typeCommand, scope: 'element' },
+  wait: { handler: waitCommand, scope: 'element' },
+  http: { handler: httpCommand, scope: 'page' },
+  mouse: { handler: mouseCommand, scope: 'element' },
+  scroll: { handler: scrollCommand, scope: 'element' },
+  screenshot: { handler: screenshotCommand, scope: 'page' },
+  daemon: { handler: daemonCommand, scope: 'project' },
+  html: { handler: htmlCommand, scope: 'page' },
+  create: { handler: createCommand, scope: 'project' },
+  plugins: { handler: pluginsCommand, scope: 'project' },
+  remove: { handler: removeCommand, scope: 'project' },
+  list: { handler: listCommand, scope: 'project' },
+  ls: { handler: listCommand, scope: 'project' },
+  get: { handler: getCommand, scope: 'element' },
+  goto: { handler: gotoCommand, scope: 'page' },
+  install: { handler: installCommand, scope: 'project' },
+  record: { handler: recordCommand, scope: 'page' },
+  replay: { handler: replayCommand, scope: 'page' },
+  structure: { handler: structureCommand, scope: 'page' },
+  kill: {
+    handler: async () => {
+      await killAllDaemon();
+      console.log('All daemon processes killed.');
+    },
+    scope: 'project',
   },
 };
 
+export function getBuiltinScope(name: string): CommandScope | undefined {
+  return commands[name]?.scope;
+}
+
 export async function executeBuiltin(cmd: string, _args: CommandArgs, _values: CommandValues) {
-  const command = commands[cmd];
-  if (command) {
-    await command(_args, _values);
+  const entry = commands[cmd];
+  if (entry) {
+    await entry.handler(_args, _values);
   } else {
     console.error(`Unknown builtin command: ${cmd}`);
     process.exit(1);

@@ -2,6 +2,17 @@ import { z } from 'zod';
 import type { Page } from 'playwright';
 import type { CommandResult } from '../core/command-result';
 
+export type CommandScope = 'project' | 'browser' | 'page' | 'element';
+
+export const COMMAND_SCOPE_ORDER: Record<CommandScope, number> = {
+  project: 0,
+  browser: 1,
+  page: 2,
+  element: 3,
+};
+
+export const DEFAULT_SCOPE: CommandScope = 'page';
+
 export const OptionSchema = z.object({
   name: z.string(),
   short: z.string().optional(),
@@ -87,6 +98,19 @@ export interface XCLIAPI {
   onEvent(event: string, handler: EventHandler): this;
 }
 
+export interface CommandEntry {
+  name: string;
+  description: string;
+  requiresLogin?: boolean;
+  scope: CommandScope;
+  override: boolean;
+  parameters?: ZodSchema;
+  result?: ZodSchema;
+  examples?: Array<{ cmd: string; description: string }>;
+  tips?: string[];
+  handler: CommandHandler;
+}
+
 export interface SiteInstance {
   name: string;
   url: string;
@@ -96,6 +120,8 @@ export interface SiteInstance {
     name: string,
     config: {
       description: string;
+      scope?: CommandScope;
+      override?: boolean;
       parameters?: P;
       result?: R;
       requiresLogin?: boolean;
@@ -111,10 +137,13 @@ export interface SiteInstance {
   isLoggedIn(): Promise<boolean>;
   requireLogin(): Promise<void>;
   getStorage(): StorageContext;
-  getAllCommands(): Array<{ name: string; description: string; requiresLogin?: boolean }>;
-  getCommand(
-    name: string
-  ): { name: string; description: string; requiresLogin?: boolean; handler: CommandHandler } | null;
+  getAllCommands(): Array<{
+    name: string;
+    description: string;
+    requiresLogin?: boolean;
+    scope: CommandScope;
+  }>;
+  getCommand(name: string): CommandEntry | null;
   executeLogin(ctx: CommandContext): Promise<void>;
   executeLogout(ctx: CommandContext): Promise<void>;
 }
@@ -158,19 +187,7 @@ export class SiteInstanceImpl implements SiteInstance {
   name: string;
   url: string;
   config: SiteConfig;
-  private commands: Map<
-    string,
-    {
-      name: string;
-      description: string;
-      requiresLogin?: boolean;
-      parameters?: ZodSchema;
-      result?: ZodSchema;
-      examples?: Array<{ cmd: string; description: string }>;
-      tips?: string[];
-      handler: CommandHandler;
-    }
-  > = new Map();
+  private commands: Map<string, CommandEntry> = new Map();
   private loginHandler?: (ctx: CommandContext) => Promise<void>;
   private logoutHandler?: (ctx: CommandContext) => Promise<void>;
   private storage: StorageContext;
@@ -187,6 +204,8 @@ export class SiteInstanceImpl implements SiteInstance {
     name: string,
     cmd: {
       description: string;
+      scope?: CommandScope;
+      override?: boolean;
       parameters: P;
       result?: R;
       requiresLogin?: boolean;
@@ -195,10 +214,17 @@ export class SiteInstanceImpl implements SiteInstance {
       handler: (params: z.infer<P>, ctx: CommandContext) => Promise<z.infer<R>>;
     }
   ): SiteInstance {
+    const existing = this.commands.get(name);
+    if (existing && !existing.override) {
+      return this;
+    }
+
     this.commands.set(name, {
       name,
       description: cmd.description,
       requiresLogin: cmd.requiresLogin ?? false,
+      scope: cmd.scope ?? DEFAULT_SCOPE,
+      override: cmd.override ?? true,
       parameters: cmd.parameters,
       result: cmd.result,
       examples: cmd.examples,
@@ -218,21 +244,24 @@ export class SiteInstanceImpl implements SiteInstance {
     return this;
   }
 
-  getCommand(name: string): {
-    name: string;
-    description: string;
-    requiresLogin?: boolean;
-    handler: CommandHandler;
-  } | null {
+  getCommand(name: string): CommandEntry | null {
     return this.commands.get(name) ?? null;
   }
 
-  getAllCommands(): Array<{ name: string; description: string; requiresLogin?: boolean }> {
-    return Array.from(this.commands.values()).map(({ name, description, requiresLogin }) => ({
-      name,
-      description,
-      requiresLogin,
-    }));
+  getAllCommands(): Array<{
+    name: string;
+    description: string;
+    requiresLogin?: boolean;
+    scope: CommandScope;
+  }> {
+    return Array.from(this.commands.values()).map(
+      ({ name, description, requiresLogin, scope }) => ({
+        name,
+        description,
+        requiresLogin,
+        scope,
+      })
+    );
   }
 
   hasLoginCommand(): boolean {
