@@ -2,12 +2,31 @@ import { rmSync, existsSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
 import type { CommandValues } from '../core/types';
+import { globalLoader } from '../core/plugin-loader';
 
 const GLOBAL_PLUGINS_DIR = join(homedir(), '.xcli', 'plugins');
 const LOCAL_PLUGINS_DIR = '.xcli/plugins';
 
+function resolvePluginDir(
+  name: string,
+  isGlobal: boolean
+): { dir: string; location: string } | null {
+  if (isGlobal) {
+    const globalDir = join(GLOBAL_PLUGINS_DIR, name);
+    if (existsSync(globalDir)) return { dir: globalDir, location: '[global]' };
+    const localDir = join(LOCAL_PLUGINS_DIR, name);
+    if (existsSync(localDir)) return { dir: localDir, location: '[local]' };
+  } else {
+    const localDir = join(LOCAL_PLUGINS_DIR, name);
+    if (existsSync(localDir)) return { dir: localDir, location: '[local]' };
+    const globalDir = join(GLOBAL_PLUGINS_DIR, name);
+    if (existsSync(globalDir)) return { dir: globalDir, location: '[global]' };
+  }
+  return null;
+}
+
 export async function removeCommand(args: string[], values: CommandValues) {
-  const isGlobal = values.global || values.g || (!values.project && !values.p);
+  const isGlobal = Boolean(values.global || values.g || (!values.project && !values.p));
   const name = args[0];
 
   if (!name) {
@@ -19,23 +38,23 @@ export async function removeCommand(args: string[], values: CommandValues) {
     process.exit(1);
   }
 
-  const pluginsDir = isGlobal ? GLOBAL_PLUGINS_DIR : LOCAL_PLUGINS_DIR;
-  const targetDir = join(pluginsDir, name);
-  const location = isGlobal ? '[global]' : '[local]';
-
-  if (!existsSync(targetDir)) {
-    if (isGlobal) {
-      const localTarget = join(LOCAL_PLUGINS_DIR, name);
-      if (existsSync(localTarget)) {
-        rmSync(localTarget, { recursive: true, force: true });
-        console.log(`Removed: ${name} [local]`);
-        return;
-      }
-    }
+  const resolved = resolvePluginDir(name, isGlobal);
+  if (!resolved) {
     console.error(`Plugin "${name}" not found`);
     process.exit(1);
   }
 
-  rmSync(targetDir, { recursive: true, force: true });
-  console.log(`Removed: ${name} ${location}`);
+  const instance = globalLoader.getPlugin(name);
+  if (instance && instance.loaded) {
+    try {
+      await globalLoader.unloadPlugin(name);
+    } catch (err) {
+      console.error(
+        `Warning: failed to unload plugin "${name}": ${err instanceof Error ? err.message : err}`
+      );
+    }
+  }
+
+  rmSync(resolved.dir, { recursive: true, force: true });
+  console.log(`Removed: ${name} ${resolved.location}`);
 }

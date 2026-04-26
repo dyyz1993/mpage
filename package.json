@@ -35,6 +35,10 @@
     "*.ts": [
       "prettier --write",
       "eslint --fix"
+    ],
+    "xcli/src/**/*.ts": [
+      "prettier --write",
+      "eslint --fix --config xcli/.eslintrc.cjs --no-ignore"
     ]
   },
   "dependencies": {

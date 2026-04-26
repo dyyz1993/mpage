@@ -1,6 +1,8 @@
 import WebSocket, { WebSocketServer } from 'ws';
 import { parse } from 'url';
 import type { IncomingMessage } from 'http';
+import type { Server } from 'http';
+import type { Duplex } from 'stream';
 import { sessions, wsConnections } from './session-store';
 
 async function handleWebSocket(ws: WebSocket, sessionId: string) {
@@ -59,23 +61,20 @@ async function handleWebSocket(ws: WebSocket, sessionId: string) {
   });
 }
 
-export function setupWebSocket(httpServer: import('http').Server): WebSocketServer {
+export function setupWebSocket(httpServer: Server): WebSocketServer {
   const wss = new WebSocketServer({ noServer: true });
 
-  httpServer.on(
-    'upgrade',
-    (req: IncomingMessage, socket: import('stream').Duplex, head: Buffer) => {
-      const { pathname, query } = parse(req.url || '', true);
-      if (pathname === '/ws') {
-        const sessionId = query.s as string;
-        wss.handleUpgrade(req, socket, head, (ws: WebSocket) => {
-          handleWebSocket(ws, sessionId);
-        });
-      } else {
-        socket.destroy();
-      }
+  httpServer.on('upgrade', (req: IncomingMessage, socket: Duplex, head: Buffer) => {
+    const { pathname, query } = parse(req.url || '', true);
+    if (pathname === '/ws') {
+      const sessionId = query.s as string;
+      wss.handleUpgrade(req, socket, head, (ws: WebSocket) => {
+        handleWebSocket(ws, sessionId);
+      });
+    } else {
+      socket.destroy();
     }
-  );
+  });
 
   return wss;
 }

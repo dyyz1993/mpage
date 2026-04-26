@@ -1,8 +1,8 @@
 import {
   createServer as createHttpServer,
-  Server as HttpServer,
-  IncomingMessage,
-  ServerResponse,
+  type Server as HttpServer,
+  type IncomingMessage,
+  type ServerResponse,
 } from 'http';
 import { parse } from 'url';
 import { readFileSync } from 'fs';

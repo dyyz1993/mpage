@@ -1,4 +1,4 @@
-import { Command } from '../protocol/plugin-protocol.js';
+import { type Command } from '../protocol/plugin-protocol.js';
 
 export interface ParsedArgs {
   positional: string[];

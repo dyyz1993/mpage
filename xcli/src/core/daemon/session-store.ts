@@ -1,6 +1,7 @@
-import { chromium, BrowserContext, Page, Browser } from 'playwright';
+import { chromium, type BrowserContext, type Page, type Browser } from 'playwright';
 import { randomBytes } from 'crypto';
-import WebSocket from 'ws';
+import type WebSocket from 'ws';
+import type { RecorderController } from '@dyyz1993/xpage';
 
 export interface Session {
   id: string;
@@ -8,7 +9,7 @@ export interface Session {
   context: BrowserContext;
   page: Page;
   browser: Browser;
-  recorder?: import('@dyyz1993/xpage').RecorderController;
+  recorder?: RecorderController;
 }
 
 export const sessions = new Map<string, Session>();

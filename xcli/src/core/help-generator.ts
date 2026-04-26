@@ -158,9 +158,10 @@ export class HelpGenerator {
         let inner = sDef?.type;
         if (!inner) inner = sDef?.innerType;
         if (!inner) inner = sDef?.wrapped;
-        if (!inner && typeof s.unwrap === 'function')
+        if (!inner && typeof s.unwrap === 'function') {
           inner = ((s.unwrap as () => Record<string, unknown>)()._def as Record<string, unknown>)
             ?.type;
+        }
         const innerStr = inner ? this.getZodType(inner, depth + 1) : '[unknown]';
         return `[${innerStr}]`;
       }

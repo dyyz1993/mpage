@@ -1,7 +1,5 @@
 import type { BuiltinCommand, BuiltinContext } from './info.js';
 import { infoBuiltin } from './info.js';
-import { pluginsBuiltin, installBuiltin, removeBuiltin } from './plugins/install.js';
-import { listBuiltin } from './plugins/list.js';
 import {
   daemonBuiltin,
   openBuiltin,
@@ -29,10 +27,6 @@ export const allBuiltins: BuiltinCommand[] = [
   localStorageBuiltin,
   viewerBuiltin,
   infoBuiltin,
-  pluginsBuiltin,
-  installBuiltin,
-  removeBuiltin,
-  listBuiltin,
 ];
 
 export function getBuiltin(name: string): BuiltinCommand | undefined {
