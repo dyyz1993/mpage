@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports -- TODO: execute-site 直接创建浏览器，后续应迁移到 daemon 模式
 import { chromium } from 'playwright';
 import type {
   CommandContext,

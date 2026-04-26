@@ -51,7 +51,9 @@ async function ensureDaemon(): Promise<void> {
         // ignore fetch error
       }
     }
-    await new Promise((r) => setTimeout(r, 500));
+    await new Promise<void>((r) => {
+      setTimeout(r, 500);
+    });
   }
   throw new Error('Failed to start daemon');
 }
@@ -92,6 +94,7 @@ export function requireSession(name?: string): string {
   return sessionName;
 }
 
+// eslint-disable-next-line require-await -- 文件读取是同步操作，签名保持 async 与接口一致
 export async function getSession(name: string): Promise<SessionInfo | null> {
   const path = join(SESSION_DIR, `${name}.json`);
   if (!existsSync(path)) {
@@ -104,6 +107,7 @@ export async function getSession(name: string): Promise<SessionInfo | null> {
   }
 }
 
+// eslint-disable-next-line require-await -- 文件写入是同步操作，签名保持 async 与接口一致
 export async function saveSession(session: SessionInfo): Promise<void> {
   const path = join(SESSION_DIR, `${session.name}.json`);
   writeFileSync(path, JSON.stringify(session, null, 2));

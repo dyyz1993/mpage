@@ -18,6 +18,7 @@ function saveDaemonConfig(pid: number) {
   writeFileSync(DAEMON_CONFIG_PATH, JSON.stringify(config));
 }
 
+// eslint-disable-next-line require-await -- daemon main 启动多个服务，await 在各启动函数内部
 async function main() {
   ensureSessionDir();
 

@@ -1,6 +1,8 @@
+// eslint-disable-next-line no-restricted-imports -- worker 进程：允许直接操作 playwright
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright';
 import type { IPCMessage, IPCResponse } from './ipc-types';
 import { RecorderController, PlaybackEngine, STRUCTURE_EXTRACTOR_CODE } from '@dyyz1993/xpage';
+// eslint-disable-next-line no-restricted-imports -- worker 进程：允许使用 playwright 类型
 import type { Cookie } from 'playwright';
 
 interface WorkerSession {

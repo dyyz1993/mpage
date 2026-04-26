@@ -168,6 +168,7 @@ const TEMPLATES: Record<string, TemplateFn> = {
   api: apiTemplate,
 };
 
+// eslint-disable-next-line require-await -- CLI 命令签名保持 async
 export async function createCommand(args: string[], values: CommandValues) {
   const name = args[0];
   if (!name) {

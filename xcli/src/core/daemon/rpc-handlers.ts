@@ -126,7 +126,7 @@ export async function handleRPCCommandAsync(
       if (!sessionId) {
         throw new Error(`Session '${p.name}' not found`);
       }
-      return await routeToWorker(sessionId, method, p);
+      return routeToWorker(sessionId, method, p);
     }
 
     default:

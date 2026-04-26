@@ -119,6 +119,7 @@ export class WorkerManager extends EventEmitter {
     this.cleanupWorker(sessionId);
   }
 
+  // eslint-disable-next-line require-await -- 命令队列链式调用，内部 await 在 then 回调中
   async sendCommand(sessionId: string, message: Omit<IPCMessage, 'id'>): Promise<IPCResponse> {
     const entry = this.workers.get(sessionId);
     if (!entry || entry.status === 'crashed') {
@@ -157,6 +158,7 @@ export class WorkerManager extends EventEmitter {
     return resultPromise;
   }
 
+  // eslint-disable-next-line require-await -- Promise 构造中发送 IPC，实际异步由 Promise 管理
   private async sendCommandInternal(
     sessionId: string,
     message: Omit<IPCMessage, 'id'>

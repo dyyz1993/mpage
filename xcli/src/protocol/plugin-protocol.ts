@@ -1,4 +1,5 @@
 import { z } from 'zod';
+// eslint-disable-next-line no-restricted-imports -- 协议类型定义需要引用 Page 类型
 import type { Page } from 'playwright';
 import type { CommandResult } from '../core/command-result';
 

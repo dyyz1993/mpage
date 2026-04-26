@@ -173,20 +173,25 @@ export class PluginLoader {
   private createStorage(): StorageContext {
     const store: Record<string, unknown> = {};
     return {
+      // eslint-disable-next-line require-await -- StorageContext 接口要求 async
       async get<T>(key: string): Promise<T | null> {
         return (store[key] as T) ?? null;
       },
+      // eslint-disable-next-line require-await -- StorageContext 接口要求 async
       async set<T>(key: string, value: T): Promise<void> {
         store[key] = value;
       },
+      // eslint-disable-next-line require-await -- StorageContext 接口要求 async
       async delete(key: string): Promise<void> {
         delete store[key];
       },
+      // eslint-disable-next-line require-await -- StorageContext 接口要求 async
       async clear(): Promise<void> {
         for (const key of Object.keys(store)) {
           delete store[key];
         }
       },
+      // eslint-disable-next-line require-await -- StorageContext 接口要求 async
       async keys(): Promise<string[]> {
         return Object.keys(store);
       },
@@ -356,6 +361,7 @@ export class PluginLoader {
     this.plugins.delete(pluginId);
   }
 
+  // eslint-disable-next-line require-await -- 接口签名保持 async
   async reloadPlugin(pluginId: string): Promise<PluginInstance> {
     const instance = this.plugins.get(pluginId);
     if (!instance) {
@@ -417,6 +423,7 @@ export class PluginLoader {
     }
   }
 
+  // eslint-disable-next-line require-await -- 接口签名保持 async
   async loadFromFunction(setup: (xcli: XCLIAPI) => void): Promise<void> {
     setup(this.api);
 

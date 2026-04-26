@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/naming-convention -- IPC 前缀是项目约定，保持一致
 export interface IPCMessage {
   id: string;
   type: 'request' | 'response' | 'event' | 'error';
@@ -6,6 +7,7 @@ export interface IPCMessage {
   sessionId: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention -- IPC 前缀是项目约定，保持一致
 export interface IPCResponse {
   id: string;
   type: 'response' | 'error';

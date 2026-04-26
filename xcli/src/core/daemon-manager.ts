@@ -50,6 +50,7 @@ export function isDaemonRunning(): boolean {
   }
 }
 
+// eslint-disable-next-line require-await -- 启动 daemon 是 spawn + 轮询，顶层 async 方便调用方 await
 export async function startDaemon(): Promise<{ port: number; pid: number }> {
   if (isDaemonRunning()) {
     const port = getDaemonPort();
@@ -104,6 +105,7 @@ export async function startDaemon(): Promise<{ port: number; pid: number }> {
   });
 }
 
+// eslint-disable-next-line require-await -- 进程信号发送是同步操作，签名保持 async
 export async function stopDaemon(): Promise<void> {
   if (!isDaemonRunning()) {
     removeDaemonPort();
@@ -131,6 +133,7 @@ export function getDaemonStatus(): { running: boolean; port: number; pid: number
   };
 }
 
+// eslint-disable-next-line require-await -- 进程清理是同步操作，签名保持 async
 export async function killAllDaemon(): Promise<void> {
   if (!isDaemonRunning()) {
     removeDaemonPort();

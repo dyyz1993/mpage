@@ -38,6 +38,7 @@ function getSwaggerUI(): string {
 </html>`;
 }
 
+// eslint-disable-next-line require-await -- await 在 RPC 路由分支中
 async function handleHttpRequest(req: IncomingMessage, res: ServerResponse) {
   const { pathname } = parse(req.url || '', true);
 

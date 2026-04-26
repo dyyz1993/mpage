@@ -144,6 +144,7 @@ export async function pluginsCommand(args: string[], values: CommandValues) {
   console.log('Usage: xcli plugins <list|info|reload|unload|doctor> [--global|--project]');
 }
 
+// eslint-disable-next-line require-await -- CLI 命令签名保持 async
 async function doctorCommand() {
   const plugins = getAllPlugins();
   if (plugins.length === 0) {

@@ -1,11 +1,12 @@
 import { daemonRequest, requireSession } from '../core/session-client';
 import type { CommandValues } from '../core/types';
 
+// eslint-disable-next-line require-await -- 代理函数，返回 Promise
 async function recorderRequest(
   method: string,
   params: Record<string, unknown>
 ): Promise<Record<string, unknown>> {
-  return await daemonRequest(method, params);
+  return daemonRequest(method, params);
 }
 
 export async function recordCommand(args: string[], values: CommandValues) {

@@ -61,6 +61,7 @@ function extractNameFromUrl(url: string): string {
   return match ? match[1] : 'plugin';
 }
 
+// eslint-disable-next-line require-await -- CLI 命令签名保持 async
 async function gitClone(
   url: string,
   name: string,
@@ -87,6 +88,7 @@ async function gitClone(
   }
 }
 
+// eslint-disable-next-line require-await -- CLI 命令签名保持 async
 async function npmInstall(
   packageName: string,
   pluginsDir: string,
@@ -375,6 +377,7 @@ export default function (xcli: XCLIAPI) {
   }),
 };
 
+// eslint-disable-next-line require-await -- CLI 命令签名保持 async
 async function installOfficialTemplate(
   name: string,
   pluginsDir: string,

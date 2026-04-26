@@ -1,3 +1,4 @@
+/* eslint-disable require-await -- StorageContext 接口要求 async，但存储操作是同步的 */
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
