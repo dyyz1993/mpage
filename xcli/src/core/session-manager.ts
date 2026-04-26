@@ -1,3 +1,4 @@
+/** @deprecated Use session-daemon instead */
 import { chromium, Browser, BrowserContext, Page } from 'playwright';
 import { mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, unlinkSync } from 'fs';
 import { join } from 'path';
