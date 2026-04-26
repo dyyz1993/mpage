@@ -1,8 +1,8 @@
 ---
 globs:
-  - 'src/**/*'
-  - 'bin/**/*'
-  - 'tests/**/*'
+  - src/**/*
+  - bin/**/*
+  - tests/**/*
 ---
 
 # mpage 代码约束

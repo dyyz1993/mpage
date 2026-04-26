@@ -1,7 +1,7 @@
 ---
 globs:
-  - '.xcli/plugins/**/index.ts'
-  - '.xcli/plugins/**/*.ts'
+  - .xcli/plugins/**/index.ts
+  - .xcli/plugins/**/*.ts
 ---
 
 # 插件开发约束

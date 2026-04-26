@@ -1,8 +1,8 @@
 ---
 globs:
-  - 'xcli/src/**/*'
-  - 'xcli/bin/**/*'
-  - 'xcli/tests/**/*'
+  - xcli/src/**/*
+  - xcli/bin/**/*
+  - xcli/tests/**/*
 ---
 
 # xcli 代码约束
