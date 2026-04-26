@@ -213,14 +213,14 @@ export class PlaybackEngine {
         if (trajectoryPoints.length > 1) {
           result.push({
             id: `trajectory_${startTime}`,
-            type: 'mousemove' as any,
+            type: 'mousemove',
             timestamp: startTime,
             data: {
               points: trajectoryPoints,
               isTrajectory: true,
             },
             pageState: event.pageState,
-          } as any);
+          });
           console.log(`[Playback] Created trajectory event with ${trajectoryPoints.length} points`);
         } else if (trajectoryPoints.length === 1) {
           // Single mousemove, keep as is

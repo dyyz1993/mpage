@@ -9,6 +9,7 @@ module.exports = {
   rules: {
     '@typescript-eslint/no-explicit-any': 'warn',
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    'no-empty': ['error', { allowEmptyCatch: true }],
     'no-console': 'off',
   },
   ignorePatterns: ['dist/', 'node_modules/', '.xcli/'],

@@ -22,7 +22,8 @@ export class RecorderController {
   private pageHandler: ((page: Page) => Promise<void>) | null = null;
   private trackedPages: Set<Page> = new Set();
   private browserCDPSession: CDPSession | null = null;
-  private cdpClient: CDPSession | null = null; // CDP client for navigation monitoring
+  private cdpClient: CDPSession | null = null;
+  private pollIntervalId: ReturnType<typeof setInterval> | null = null;
 
   constructor(page: Page) {
     this.page = page;
@@ -127,35 +128,38 @@ export class RecorderController {
       await client.send('Page.enable');
 
       // Listen for frame navigated events from CDP (user-initiated)
-      client.on('Page.frameNavigated', async (params: any) => {
-        if (!this.isRecordingFlag) return;
+      client.on(
+        'Page.frameNavigated',
+        async (params: { frame: { id: string; url: string; parentId?: string } }) => {
+          if (!this.isRecordingFlag) return;
 
-        const frame = params.frame;
-        // Only handle main frame navigations
-        if (!frame?.parentId) {
-          const currentUrl = frame?.url || this.page.url();
-          console.log('[Recorder] CDP Navigation detected:', currentUrl);
+          const frame = params.frame;
+          // Only handle main frame navigations
+          if (!frame?.parentId) {
+            const currentUrl = frame?.url || this.page.url();
+            console.log('[Recorder] CDP Navigation detected:', currentUrl);
 
-          // Record navigation event with CDP source (user-initiated)
-          const navEvent: RecordedEvent = {
-            id: `evt_${String(this.events.length + 1).padStart(3, '0')}`,
-            type: 'navigation',
-            timestamp: Date.now() - this.startTime,
-            data: {
-              url: currentUrl,
-              navigationType: 'cdp',
-              source: 'cdp', // CDP = user input in address bar or link click
-            },
-            pageState: {
-              url: currentUrl,
-              title: await this.page.title().catch(() => ''),
-              readyState: 'loading',
-            },
-          };
-          this.events.push(navEvent);
-          console.log('[Recorder] CDP Navigation event recorded:', currentUrl);
+            // Record navigation event with CDP source (user-initiated)
+            const navEvent: RecordedEvent = {
+              id: `evt_${String(this.events.length + 1).padStart(3, '0')}`,
+              type: 'navigation',
+              timestamp: Date.now() - this.startTime,
+              data: {
+                url: currentUrl,
+                navigationType: 'cdp',
+                source: 'cdp', // CDP = user input in address bar or link click
+              },
+              pageState: {
+                url: currentUrl,
+                title: await this.page.title().catch(() => ''),
+                readyState: 'loading',
+              },
+            };
+            this.events.push(navEvent);
+            console.log('[Recorder] CDP Navigation event recorded:', currentUrl);
+          }
         }
-      });
+      );
 
       // Store client for cleanup
       this.cdpClient = client;
@@ -298,62 +302,73 @@ export class RecorderController {
         console.log('[Recorder] Target discovery enabled');
 
         // Listen for new targets
-        this.browserCDPSession.on('Target.targetCreated', async (params: any) => {
-          if (!this.isRecordingFlag) return;
+        this.browserCDPSession.on(
+          'Target.targetCreated',
+          async (params: {
+            targetInfo: {
+              type: string;
+              url: string;
+              title?: string;
+              openerId?: string;
+              targetId: string;
+            };
+          }) => {
+            if (!this.isRecordingFlag) return;
 
-          const { targetInfo } = params;
-          console.log('[Recorder] CDP: Target created:', targetInfo?.type, targetInfo?.url);
+            const { targetInfo } = params;
+            console.log('[Recorder] CDP: Target created:', targetInfo?.type, targetInfo?.url);
 
-          // Check if it's a new page with an opener (opened from another page)
-          if (targetInfo?.type === 'page' && targetInfo?.openerId) {
-            console.log('[Recorder] CDP: New tab detected:', targetInfo.url);
+            // Check if it's a new page with an opener (opened from another page)
+            if (targetInfo?.type === 'page' && targetInfo?.openerId) {
+              console.log('[Recorder] CDP: New tab detected:', targetInfo.url);
 
-            // Find the page object for this target
-            const allPages = browser.contexts().flatMap((ctx) => ctx.pages());
-            const newPage = allPages.find((p) => {
-              try {
-                return p.url() === targetInfo.url || p.url().includes(targetInfo.url);
-              } catch {
-                return false;
+              // Find the page object for this target
+              const allPages = browser.contexts().flatMap((ctx) => ctx.pages());
+              const newPage = allPages.find((p) => {
+                try {
+                  return p.url() === targetInfo.url || p.url().includes(targetInfo.url);
+                } catch {
+                  return false;
+                }
+              });
+
+              if (newPage && !this.trackedPages.has(newPage)) {
+                console.log('[Recorder] CDP: Found new page, injecting script...');
+                this.trackedPages.add(newPage);
+
+                // Inject recorder script
+                try {
+                  await newPage.waitForLoadState('domcontentloaded', { timeout: 5000 });
+                  await newPage.addScriptTag({ content: getRecorderScript() });
+                  await newPage.addScriptTag({
+                    content: `if (window.__pageRecorder) { window.__pageRecorder.start('${this.recordingId}'); }`,
+                  });
+                  console.log('[Recorder] CDP: Script injected successfully');
+                } catch (e) {
+                  console.log('[Recorder] CDP: Failed to inject script:', e);
+                }
+
+                // Record tab_open event
+                const tabOpenEvent: RecordedEvent = {
+                  id: `evt_${String(this.events.length + 1).padStart(3, '0')}`,
+                  type: 'tab_open',
+                  timestamp: Date.now() - this.startTime,
+                  data: {
+                    url: targetInfo.url,
+                    openerUrl: this.page.url(),
+                  },
+                  pageState: {
+                    url: targetInfo.url,
+                    title: targetInfo.title || '',
+                    readyState: 'complete',
+                  },
+                };
+                this.events.push(tabOpenEvent);
+                console.log('[Recorder] CDP: Tab opened:', targetInfo.url);
               }
-            });
-
-            if (newPage && !this.trackedPages.has(newPage)) {
-              console.log('[Recorder] CDP: Found new page, injecting script...');
-              this.trackedPages.add(newPage);
-
-              // Inject recorder script
-              try {
-                await newPage.waitForLoadState('domcontentloaded', { timeout: 5000 });
-                await newPage.addScriptTag({ content: getRecorderScript() });
-                await newPage.addScriptTag({
-                  content: `if (window.__pageRecorder) { window.__pageRecorder.start('${this.recordingId}'); }`,
-                });
-                console.log('[Recorder] CDP: Script injected successfully');
-              } catch (e) {
-                console.log('[Recorder] CDP: Failed to inject script:', e);
-              }
-
-              // Record tab_open event
-              const tabOpenEvent: RecordedEvent = {
-                id: `evt_${String(this.events.length + 1).padStart(3, '0')}`,
-                type: 'tab_open',
-                timestamp: Date.now() - this.startTime,
-                data: {
-                  url: targetInfo.url,
-                  openerUrl: this.page.url(),
-                },
-                pageState: {
-                  url: targetInfo.url,
-                  title: targetInfo.title || '',
-                  readyState: 'complete',
-                },
-              };
-              this.events.push(tabOpenEvent);
-              console.log('[Recorder] CDP: Tab opened:', targetInfo.url);
             }
           }
-        });
+        );
 
         console.log('[Recorder] Browser-level CDP session created');
       }
@@ -415,8 +430,7 @@ export class RecorderController {
       }
     }, 500); // Check every 500ms for faster detection
 
-    // Store interval ID for cleanup
-    (this as any).pollIntervalId = pollInterval;
+    this.pollIntervalId = pollInterval;
   }
 
   private async injectScriptToPage(newPage: Page, pageUrl: string): Promise<void> {
@@ -508,10 +522,9 @@ export class RecorderController {
       this.pageHandler = null;
     }
 
-    // Clear poll interval
-    if ((this as any).pollIntervalId) {
-      clearInterval((this as any).pollIntervalId);
-      (this as any).pollIntervalId = null;
+    if (this.pollIntervalId) {
+      clearInterval(this.pollIntervalId);
+      this.pollIntervalId = null;
     }
 
     // Close browser CDP session

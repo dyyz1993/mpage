@@ -136,6 +136,7 @@ export interface EventData {
   selectedValue?: string;
   selectedIndex?: number;
   openerUrl?: string;
+  isTrajectory?: boolean;
 }
 
 export interface WaitCondition {

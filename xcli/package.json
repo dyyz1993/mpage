@@ -14,6 +14,7 @@
     "xcli": "./bin/xcli.ts"
   },
   "scripts": {
+    "build": "tsc --noEmit",
     "lint": "eslint src --ext .ts",
     "typecheck": "tsc --noEmit"
   },
