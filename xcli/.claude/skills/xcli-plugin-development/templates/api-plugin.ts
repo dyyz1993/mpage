@@ -32,7 +32,7 @@ export default function (xcli: XCLIAPI): void {
   site.command('fetch', {
     description: '通过 API 获取数据（纯接口，不需要浏览器）',
 
-    input: z.object({
+    parameters: z.object({
       keyword: z.string().describe('搜索关键词'),
       limit: z.number().default(20).describe('最大条数'),
       page: z.number().default(1).describe('页码'),
@@ -94,7 +94,7 @@ export default function (xcli: XCLIAPI): void {
   site.command('login', {
     description: '通过 API 登录获取 token',
 
-    input: z.object({
+    parameters: z.object({
       username: z.string().describe('用户名'),
       password: z.string().describe('密码'),
     }),

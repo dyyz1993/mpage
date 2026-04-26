@@ -23,7 +23,7 @@ export default function (xcli: XCLIAPI): void {
   site.command('login', {
     description: '登录站点（账号密码方式）',
 
-    input: z.object({
+    parameters: z.object({
       username: z.string().describe('用户名'),
       password: z.string().describe('密码'),
     }),
@@ -85,7 +85,7 @@ export default function (xcli: XCLIAPI): void {
   site.command('scrape', {
     description: '采集需要登录才能访问的数据',
 
-    input: z.object({
+    parameters: z.object({
       limit: z.number().default(20).describe('最大条数'),
     }),
 

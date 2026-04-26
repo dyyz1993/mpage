@@ -43,6 +43,16 @@ site.command('fetch', {
 });
 ```
 
+### ctx.error() vs return { success: false } 的区别
+
+| 场景 | 方式 | 说明 |
+|------|------|------|
+| 业务错误 | `return { success: false, message }` | token 过期、数据为空、参数无效 |
+| 系统错误 | `ctx.error(msg)` + return | 网络异常、page 为 null、文件读写失败 |
+| 两者都做 | `ctx.error(msg); return { success: false, message: msg }` | 需要同时报告和返回时 |
+
+**禁止在 handler 中 throw Error**（除非是框架未捕获的真正异常）。
+
 ### 提取公共 fetchJSON
 
 在文件顶部定义 helper，避免每个 handler 重复错误处理：
@@ -259,6 +269,40 @@ plugin.command('orders', {
     const token = await ctx.storage.get<string>('auth_token');
     if (!token) return { success: false, message: '请先登录' };
     return await authFetch(`${TARGET}/orders?page=${params.page}`, token);
+  },
+});
+```
+
+### 多命令插件共享逻辑
+
+当多个命令有相同的 DOM 提取或数据处理逻辑时，提取到文件顶部的 helper 函数：
+
+```typescript
+// 文件顶部定义共享逻辑
+function extractItems(page: Page) {
+  return page.evaluate(() => {
+    const items = document.querySelectorAll('.item');
+    return Array.from(items).map(el => ({
+      title: el.querySelector('.title')?.textContent?.trim() || '',
+      url: el.querySelector('a')?.href || '',
+    }));
+  });
+}
+
+// 多个 handler 复用
+site.command('scrape', {
+  handler: async (_params, ctx) => {
+    if (!ctx.page) return { success: false, message: '需要浏览器' };
+    await ctx.page.goto(BASE_URL);
+    return { success: true, data: await extractItems(ctx.page) };
+  },
+});
+
+site.command('search', {
+  handler: async (params, ctx) => {
+    if (!ctx.page) return { success: false, message: '需要浏览器' };
+    await ctx.page.goto(`${BASE_URL}/search?q=${params.keyword}`);
+    return { success: true, data: await extractItems(ctx.page) };
   },
 });
 ```

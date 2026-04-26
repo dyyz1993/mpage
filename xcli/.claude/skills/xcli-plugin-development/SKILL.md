@@ -163,6 +163,28 @@ reloadPlugin(id)
   └─ loadPlugin(path)  ← 重新编译
 ```
 
+## 返回值约定
+
+handler 返回值推荐统一结构：
+
+```typescript
+// 成功
+{ success: true, data: T, tips?: string[] }
+
+// 失败（业务错误，不抛异常）
+{ success: false, message: '错误描述', data?: T }
+
+// 需要 ctx.error() 报告的场景
+ctx.error('网络请求失败');
+return { success: false, message: '网络请求失败' };
+```
+
+**规则**：
+- 业务错误（token 过期、数据为空）→ `return { success: false, message }` 
+- 系统错误（网络异常、page 为 null）→ `ctx.error(msg)` + return
+- `tips` 给 CLI 格式化用的辅助信息，不影响 success 判断
+- 不要在 handler 中 throw，用 return 结构化错误
+
 ## 插件加载搜索路径
 
 1. `./.xcli/plugins/` — 当前目录

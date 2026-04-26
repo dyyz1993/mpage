@@ -9,7 +9,7 @@ export default function (xcli: XCLIAPI): void {
   site.command('scrape', {
     description: '采集动态页面数据（分页、懒加载）',
 
-    input: z.object({
+    parameters: z.object({
       keyword: z.string().describe('搜索关键词'),
       limit: z.number().default(30).describe('最大条数'),
       page: z.number().default(1).describe('起始页码'),
