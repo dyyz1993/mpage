@@ -136,7 +136,96 @@ export async function pluginsCommand(args: string[], values: CommandValues) {
     return;
   }
 
-  console.log('Usage: xcli plugins <list|info|reload|unload> [--global|--project]');
+  if (action === 'doctor') {
+    await doctorCommand();
+    return;
+  }
+
+  console.log('Usage: xcli plugins <list|info|reload|unload|doctor> [--global|--project]');
+}
+
+async function doctorCommand() {
+  const plugins = getAllPlugins();
+  if (plugins.length === 0) {
+    console.log('No plugins found');
+    return;
+  }
+
+  let errors = 0;
+  for (const plugin of plugins) {
+    const issues: string[] = [];
+
+    const indexPath = join(plugin.path, 'index.ts');
+    if (!existsSync(indexPath)) {
+      issues.push('missing index.ts');
+    } else {
+      try {
+        const content = readFileSync(indexPath, 'utf-8');
+
+        if (!content.includes('export default function')) {
+          issues.push('missing export default function signature');
+        }
+
+        const hasZodImport = content.includes("from 'zod'") || content.includes('"zod"');
+        const hasZodUsage =
+          content.includes('z.object') ||
+          content.includes('z.string') ||
+          content.includes('z.number') ||
+          content.includes('z.boolean') ||
+          content.includes('z.array') ||
+          content.includes('z.enum');
+        if (hasZodUsage && !hasZodImport) {
+          issues.push('uses Zod but missing zod import');
+        }
+
+        const hasPageAccess = content.includes('ctx.page') || content.includes('_ctx.page');
+        if (
+          hasPageAccess &&
+          !content.includes('!ctx.page') &&
+          !content.includes('!_ctx.page') &&
+          !content.includes('ctx.page?') &&
+          !content.includes('_ctx.page?')
+        ) {
+          issues.push('accesses ctx.page without null check');
+        }
+      } catch (err) {
+        issues.push(`failed to read index.ts: ${err instanceof Error ? err.message : String(err)}`);
+      }
+    }
+
+    const pkgPath = join(plugin.path, 'package.json');
+    if (!existsSync(pkgPath)) {
+      issues.push('missing package.json');
+    } else {
+      try {
+        const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
+        if (!pkg.name) {
+          issues.push('package.json missing "name" field');
+        }
+      } catch {
+        issues.push('package.json is invalid JSON');
+      }
+    }
+
+    const instance = globalLoader.getPlugin(plugin.name);
+    if (instance && instance.status === 'error' && instance.error) {
+      issues.push(`load error: ${instance.error.message}`);
+    }
+
+    if (issues.length === 0) {
+      console.log(`  \u2713 ${plugin.name} \u2014 OK`);
+    } else {
+      errors++;
+      console.log(`  \u2717 ${plugin.name} \u2014 ${issues.join('; ')}`);
+    }
+  }
+
+  console.log('');
+  if (errors > 0) {
+    console.log(`${errors} plugin(s) have issues. Run 'xcli plugins info <name>' for details.`);
+  } else {
+    console.log('All plugins OK');
+  }
 }
 
 function getAllPlugins(): PluginInfo[] {

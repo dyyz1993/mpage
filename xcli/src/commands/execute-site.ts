@@ -1,12 +1,15 @@
 import { chromium } from 'playwright';
-import { stringify } from 'yaml';
 import type {
   CommandContext,
   SiteInstance,
   CommandHandler,
   ZodSchema,
 } from '../protocol/plugin-protocol';
+import { CommandError } from '../protocol/plugin-protocol';
 import { analyzePage, formatTips } from '../core/page-hook';
+import { fail, wrapResult, withMeta, type CommandResult } from '../core/command-result';
+import { generateTips, formatResult } from '../core/tips-engine';
+import { coerceCliArgs } from '../core/param-coercion';
 import type { CommandArgs, CommandValues } from '../core/types';
 
 interface SiteCommandEntry {
@@ -35,6 +38,8 @@ export async function executeSiteCommand(
 
   const storage = site.getStorage();
 
+  const outputMode: 'json' | 'yaml' | 'text' = values.yaml ? 'yaml' : values.json ? 'json' : 'text';
+
   const ctx: CommandContext = {
     args,
     options: values,
@@ -42,7 +47,7 @@ export async function executeSiteCommand(
     page,
     storage,
     output: {
-      mode: values.json ? 'json' : 'yaml',
+      mode: outputMode,
       showTips: !values['no-tips'],
       color: !values['no-color'],
       emoji: !values['no-emoji'],
@@ -54,8 +59,22 @@ export async function executeSiteCommand(
   };
 
   try {
-    const params = parseParams(cmd.parameters, args, values);
-    const result = await cmd.handler(params, ctx);
+    const coercedValues = coerceCliArgs(cmd.parameters, values);
+    const params = parseParams(cmd.parameters, args, coercedValues);
+    const start = Date.now();
+
+    let result: CommandResult;
+    try {
+      const raw = await cmd.handler(params, ctx);
+      result = wrapResult(raw);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      const tips = generateTips(err instanceof Error ? err : message);
+      result = fail(message, tips);
+    }
+
+    const duration = Date.now() - start;
+    result = withMeta(result, { duration, command: cmdName, site: site.name });
 
     const url = page.url();
     const title = await page.title().catch(() => '');
@@ -63,18 +82,24 @@ export async function executeSiteCommand(
 
     const detection = analyzePage({ html, url, title });
 
-    if (detection.type !== null && Array.isArray(result.tips)) {
-      const tips = formatTips(detection);
-      for (const tip of tips) {
-        result.tips.push(tip);
-      }
+    if (detection.type !== null) {
+      const pageTips = formatTips(detection);
+      result.tips.push(...pageTips);
     }
 
-    if (values.json) {
+    if (outputMode === 'json') {
       console.log(JSON.stringify(result, null, 2));
     } else {
-      console.log(stringify(result));
+      console.log(formatResult(result, 'text'));
     }
+  } catch (err) {
+    if (err instanceof CommandError && err.code === 'INVALID_ARGS') {
+      const tips = generateTips(err.message);
+      const result = fail(err.message, [...tips, '检查命令参数: xcli <site> <command> --help']);
+      console.log(formatResult(result, outputMode));
+      return;
+    }
+    throw err;
   } finally {
     await browser.close();
   }

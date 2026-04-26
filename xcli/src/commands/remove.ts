@@ -1,4 +1,4 @@
-import { rmSync, existsSync } from 'fs';
+import { rmSync, existsSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
 import type { CommandValues } from '../core/types';
@@ -6,6 +6,7 @@ import { globalLoader } from '../core/plugin-loader';
 
 const GLOBAL_PLUGINS_DIR = join(homedir(), '.xcli', 'plugins');
 const LOCAL_PLUGINS_DIR = '.xcli/plugins';
+const STORAGE_DIR = join(homedir(), '.xcli', 'storage');
 
 function resolvePluginDir(
   name: string,
@@ -23,6 +24,17 @@ function resolvePluginDir(
     if (existsSync(globalDir)) return { dir: globalDir, location: '[global]' };
   }
   return null;
+}
+
+function cleanupStorage(pluginName: string): void {
+  const storageFile = join(STORAGE_DIR, `${pluginName}.json`);
+  if (existsSync(storageFile)) {
+    try {
+      unlinkSync(storageFile);
+    } catch {
+      // ignore cleanup errors
+    }
+  }
 }
 
 export async function removeCommand(args: string[], values: CommandValues) {
@@ -48,6 +60,7 @@ export async function removeCommand(args: string[], values: CommandValues) {
   if (instance && instance.loaded) {
     try {
       await globalLoader.unloadPlugin(name);
+      console.log(`Unloaded: ${name}`);
     } catch (err) {
       console.error(
         `Warning: failed to unload plugin "${name}": ${err instanceof Error ? err.message : err}`
@@ -55,6 +68,14 @@ export async function removeCommand(args: string[], values: CommandValues) {
     }
   }
 
+  cleanupStorage(name);
+
   rmSync(resolved.dir, { recursive: true, force: true });
   console.log(`Removed: ${name} ${resolved.location}`);
+  console.log(`  Plugin directory: ${resolved.dir}`);
+
+  const storageFile = join(STORAGE_DIR, `${name}.json`);
+  if (!existsSync(storageFile)) {
+    console.log(`  Storage cleaned: ${storageFile}`);
+  }
 }

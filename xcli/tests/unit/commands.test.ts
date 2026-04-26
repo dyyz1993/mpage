@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { mkdirSync, rmSync, existsSync, writeFileSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
+import { homedir } from 'os';
 
 const TMP_SESSION_DIR = join(tmpdir(), 'xcli-test-commands');
 const TMP_DAEMON_CONFIG = join(TMP_SESSION_DIR, 'daemon.json');
@@ -47,23 +48,24 @@ describe('commands', () => {
   });
 
   describe('create command', () => {
-    it('creates plugin directory with index.ts and package.json', async () => {
+    it('creates plugin with default static template (global)', async () => {
       const { createCommand } = await import('../../src/commands/create');
-      const pluginDir = join(process.cwd(), '.xcli', 'plugins', 'test-create-cmd');
+      const pluginDir = join(homedir(), '.xcli', 'plugins', 'test-static-cmd');
 
       try {
-        await createCommand([], { name: 'test-create-cmd' });
+        await createCommand(['test-static-cmd'], {});
 
         expect(existsSync(pluginDir)).toBe(true);
         expect(existsSync(join(pluginDir, 'index.ts'))).toBe(true);
         expect(existsSync(join(pluginDir, 'package.json'))).toBe(true);
 
         const pkg = JSON.parse(readFileSync(join(pluginDir, 'package.json'), 'utf-8'));
-        expect(pkg.name).toBe('test-create-cmd');
+        expect(pkg.name).toBe('test-static-cmd');
         expect(pkg.version).toBe('1.0.0');
 
         const indexContent = readFileSync(join(pluginDir, 'index.ts'), 'utf-8');
-        expect(indexContent).toContain('test-create-cmd');
+        expect(indexContent).toContain('test-static-cmd');
+        expect(indexContent).toContain('export default function');
       } finally {
         if (existsSync(pluginDir)) {
           rmSync(pluginDir, { recursive: true, force: true });
@@ -71,9 +73,104 @@ describe('commands', () => {
       }
     });
 
+    it('creates plugin with dynamic template (--project)', async () => {
+      const { createCommand } = await import('../../src/commands/create');
+      const pluginDir = join(process.cwd(), '.xcli', 'plugins', 'test-dynamic-cmd');
+
+      try {
+        await createCommand(['test-dynamic-cmd'], { template: 'dynamic', project: true });
+
+        expect(existsSync(pluginDir)).toBe(true);
+        const indexContent = readFileSync(join(pluginDir, 'index.ts'), 'utf-8');
+        expect(indexContent).toContain('z.object');
+        expect(indexContent).toContain('z.number');
+      } finally {
+        if (existsSync(pluginDir)) {
+          rmSync(pluginDir, { recursive: true, force: true });
+        }
+      }
+    });
+
+    it('creates plugin with login template', async () => {
+      const { createCommand } = await import('../../src/commands/create');
+      const pluginDir = join(homedir(), '.xcli', 'plugins', 'test-login-cmd');
+
+      try {
+        await createCommand(['test-login-cmd'], { template: 'login' });
+
+        expect(existsSync(pluginDir)).toBe(true);
+        const indexContent = readFileSync(join(pluginDir, 'index.ts'), 'utf-8');
+        expect(indexContent).toContain('site.login');
+        expect(indexContent).toContain('requiresLogin: true');
+      } finally {
+        if (existsSync(pluginDir)) {
+          rmSync(pluginDir, { recursive: true, force: true });
+        }
+      }
+    });
+
+    it('creates plugin with api template using -t short flag', async () => {
+      const { createCommand } = await import('../../src/commands/create');
+      const pluginDir = join(homedir(), '.xcli', 'plugins', 'test-api-cmd');
+
+      try {
+        await createCommand(['test-api-cmd'], { t: 'api' });
+
+        expect(existsSync(pluginDir)).toBe(true);
+        const indexContent = readFileSync(join(pluginDir, 'index.ts'), 'utf-8');
+        expect(indexContent).toContain('z.enum');
+      } finally {
+        if (existsSync(pluginDir)) {
+          rmSync(pluginDir, { recursive: true, force: true });
+        }
+      }
+    });
+
+    it('exits when no name provided', async () => {
+      const { createCommand } = await import('../../src/commands/create');
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {
+        throw new Error('EXIT');
+      });
+
+      try {
+        await expect(createCommand([], {})).rejects.toThrow('EXIT');
+        expect(exitSpy).toHaveBeenCalledWith(1);
+      } finally {
+        exitSpy.mockRestore();
+      }
+    });
+
+    it('exits on invalid plugin name', async () => {
+      const { createCommand } = await import('../../src/commands/create');
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {
+        throw new Error('EXIT');
+      });
+
+      try {
+        await expect(createCommand(['Bad-Name'], {})).rejects.toThrow('EXIT');
+        expect(exitSpy).toHaveBeenCalledWith(1);
+      } finally {
+        exitSpy.mockRestore();
+      }
+    });
+
+    it('exits on unknown template', async () => {
+      const { createCommand } = await import('../../src/commands/create');
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {
+        throw new Error('EXIT');
+      });
+
+      try {
+        await expect(createCommand(['myplug'], { template: 'unknown' })).rejects.toThrow('EXIT');
+        expect(exitSpy).toHaveBeenCalledWith(1);
+      } finally {
+        exitSpy.mockRestore();
+      }
+    });
+
     it('exits when plugin already exists', async () => {
       const { createCommand } = await import('../../src/commands/create');
-      const pluginDir = join(process.cwd(), '.xcli', 'plugins', 'test-dup');
+      const pluginDir = join(homedir(), '.xcli', 'plugins', 'test-dup2');
 
       const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {
         throw new Error('EXIT');
@@ -81,7 +178,7 @@ describe('commands', () => {
 
       try {
         mkdirSync(pluginDir, { recursive: true });
-        await expect(createCommand([], { name: 'test-dup' })).rejects.toThrow('EXIT');
+        await expect(createCommand(['test-dup2'], {})).rejects.toThrow('EXIT');
         expect(exitSpy).toHaveBeenCalledWith(1);
       } finally {
         exitSpy.mockRestore();

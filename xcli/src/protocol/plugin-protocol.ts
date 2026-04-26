@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { Page } from 'playwright';
+import type { CommandResult } from '../core/command-result';
 
 export const OptionSchema = z.object({
   name: z.string(),
@@ -28,8 +29,10 @@ export const CommandSchema = z.object({
 });
 export type Command = z.infer<typeof CommandSchema>;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type CommandHandler = (params: any, ctx: CommandContext) => Promise<any>;
+export type CommandHandler<T = unknown> = (
+  params: Record<string, unknown>,
+  ctx: CommandContext
+) => Promise<CommandResult<T> | Record<string, unknown>>;
 
 export interface CommandContext {
   args: string[];
@@ -200,7 +203,7 @@ export class SiteInstanceImpl implements SiteInstance {
       result: cmd.result,
       examples: cmd.examples,
       tips: cmd.tips,
-      handler: cmd.handler,
+      handler: cmd.handler as CommandHandler,
     });
     return this;
   }
