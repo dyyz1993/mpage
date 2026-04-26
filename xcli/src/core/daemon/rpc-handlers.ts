@@ -31,6 +31,8 @@ import {
 } from './page-action-handlers';
 
 import type { Cookie } from 'playwright';
+import { RecorderController, PlaybackEngine, STRUCTURE_EXTRACTOR_CODE } from '@dyyz1993/xpage';
+import { findSession } from './session-store';
 
 export async function handleRPCCommandAsync(
   method: string,
@@ -131,6 +133,47 @@ export async function handleRPCCommandAsync(
       );
     case 'page.addCookie':
       return await handlePageAddCookie(p.name as string, p.cookie as Cookie);
+
+    case 'recorder.start': {
+      const session = findSession(p.name as string);
+      if (!session) throw new Error('Session not found');
+      const recorder = new RecorderController(session.page);
+      await recorder.start({
+        url: p.url as string | undefined,
+        name: p.recorderName as string | undefined,
+      });
+      session.recorder = recorder;
+      return { ok: true, recordingId: recorder.id };
+    }
+    case 'recorder.stop': {
+      const rSession = findSession(p.name as string);
+      if (!rSession || !rSession.recorder) throw new Error('No active recorder for session');
+      const result = await rSession.recorder.stop(p.outputPath as string | undefined);
+      rSession.recorder = undefined;
+      return { ok: true, path: result.path, eventCount: result.session.events.length };
+    }
+    case 'recorder.status': {
+      const sSession = findSession(p.name as string);
+      if (!sSession || !sSession.recorder) return { ok: true, status: null };
+      return { ok: true, status: sSession.recorder.getStatus() };
+    }
+    case 'replay.start': {
+      const replaySession = findSession(p.name as string);
+      if (!replaySession) throw new Error('Session not found');
+      const engine = await PlaybackEngine.fromFile(replaySession.page, p.filePath as string);
+      const replayResult = await engine.play({ slowMo: (p.slowMo as number) || 1 });
+      return { ok: true, result: replayResult };
+    }
+    case 'page.structure': {
+      const structSession = findSession(p.name as string);
+      if (!structSession) throw new Error('Session not found');
+      const selector = (p.selector as string) || 'body';
+      const structResult = await structSession.page.evaluate(
+        `(${STRUCTURE_EXTRACTOR_CODE})({ selector: "${selector}" })`
+      );
+      return { ok: true, structure: structResult };
+    }
+
     default:
       throw new Error(`Unknown method: ${method}`);
   }

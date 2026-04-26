@@ -46,4 +46,5 @@ export { interactionCommands } from './interaction.js';
 export { queryCommands } from './query.js';
 export { snapshotCommands } from './snapshot.js';
 export { evaluateCommands } from './evaluate.js';
+export { STRUCTURE_EXTRACTOR_CODE } from './structure-extractor.js';
 export type { CommandHandler, CommandModule } from './types.js';

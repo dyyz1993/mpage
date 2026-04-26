@@ -22,6 +22,9 @@ import { removeCommand } from './remove';
 import { listCommand } from './list';
 import { gotoCommand } from './goto';
 import { installCommand } from './install';
+import { recordCommand } from './record';
+import { replayCommand } from './replay';
+import { structureCommand } from './structure';
 import { killAllDaemon } from '../core/daemon-manager';
 
 import type { CommandArgs, CommandValues } from '../core/types';
@@ -52,6 +55,9 @@ const commands: Record<string, BuiltinCommandFn> = {
   get: getCommand,
   goto: gotoCommand,
   install: installCommand,
+  record: recordCommand,
+  replay: replayCommand,
+  structure: structureCommand,
   close: closeCommand,
   kill: async () => {
     await killAllDaemon();

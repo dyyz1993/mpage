@@ -153,6 +153,9 @@ async function main() {
     'remove',
     'install',
     'goto',
+    'record',
+    'replay',
+    'structure',
   ].includes(cmd);
 
   if (isBuiltinCommand) {

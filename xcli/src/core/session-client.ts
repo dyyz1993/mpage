@@ -56,7 +56,7 @@ async function ensureDaemon(): Promise<void> {
   throw new Error('Failed to start daemon');
 }
 
-async function daemonRequest(
+export async function daemonRequest(
   method: string,
   params?: Record<string, unknown>
 ): Promise<Record<string, unknown>> {
@@ -83,7 +83,7 @@ async function daemonRequest(
   return result;
 }
 
-function requireSession(name?: string): string {
+export function requireSession(name?: string): string {
   const sessionName = name || 'default';
   const sessionFile = join(SESSION_DIR, `${sessionName}.json`);
   if (!existsSync(sessionFile)) {

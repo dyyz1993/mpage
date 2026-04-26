@@ -587,6 +587,10 @@ export class RecorderController {
     };
   }
 
+  get id(): string {
+    return this.recordingId;
+  }
+
   private getDefaultOutputPath(): string {
     const homeDir = process.env.HOME || process.env.USERPROFILE || '.';
     const recordingsDir = path.join(homeDir, '.mpage', 'recordings');

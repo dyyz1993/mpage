@@ -8,6 +8,7 @@ export interface Session {
   context: BrowserContext;
   page: Page;
   browser: Browser;
+  recorder?: import('@dyyz1993/xpage').RecorderController;
 }
 
 export const sessions = new Map<string, Session>();
