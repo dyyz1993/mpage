@@ -1,3 +1,5 @@
+> **最新文档**: 本文档是完整参考。快速上手请查看 [SKILL.md](.claude/skills/xcli-plugin-development/SKILL.md)。
+
 # xcli 插件开发指南
 
 ## 1. 快速开始
@@ -15,6 +17,7 @@
 ```typescript
 import { z } from 'zod';
 import type { XCLIAPI } from 'xcli';
+import { ok } from 'xcli';
 
 export default function (xcli: XCLIAPI) {
   const site = xcli.createSite({
@@ -24,11 +27,12 @@ export default function (xcli: XCLIAPI) {
 
   site.command('hello', {
     description: '打个招呼',
+    scope: 'project',
     parameters: z.object({
       name: z.string().describe('你的名字'),
     }),
-    handler: async (params, ctx) => {
-      return { message: `你好, ${params.name}!` };
+    handler: async (params, _ctx) => {
+      return ok({ message: `你好, ${params.name}!` });
     },
   });
 }
@@ -48,7 +52,36 @@ export default function (xcli: XCLIAPI) {
 
 ---
 
-## 2. 插件 API 参考
+## 2. 运行模式
+
+### CLI 模式（默认）
+
+每次 `xcli` 命令是独立进程，适合单次操作。
+
+```bash
+xcli my-site scrape --keyword 手机
+```
+
+### Daemon 模式（持久化）
+
+后台常驻服务，支持 session 保持、多命令协作。
+
+```bash
+xcli daemon start          # 启动后台服务
+xcli open https://qq.com   # 打开浏览器（创建 session）
+xcli my-site scrape        # 在同一 session 中执行
+xcli daemon stop            # 停止服务
+```
+
+**区别**：
+
+- CLI 模式：`ctx.storage` 每次命令独立读写文件（跨命令可保持）
+- Daemon 模式：`ctx.page` 保持活跃，多个命令共享同一浏览器页面
+- 需要 `ctx.page` 的命令（scope: page/element）建议在 Daemon 模式下使用
+
+---
+
+## 3. 插件 API 参考
 
 ### `xcli.createSite(config)`
 
@@ -84,6 +117,7 @@ const site = xcli.createSite({
 ```typescript
 site.command('scrape', {
   description: '采集数据',
+  scope: 'page',
   parameters: z.object({
     keyword: z.string().describe('搜索关键词'),
     page: z.number().optional().default(1).describe('页码'),
@@ -98,7 +132,7 @@ site.command('scrape', {
   ],
   tips: ['支持分页，使用 --page 指定页码'],
   handler: async (params, ctx) => {
-    return { data: [], total: 0 };
+    return ok({ data: [], total: 0 });
   },
 });
 ```
@@ -107,12 +141,13 @@ site.command('scrape', {
 |------|------|------|------|
 | `name` | `string` | 是 | 命令名，kebab-case |
 | `description` | `string` | 是 | 命令描述 |
+| `scope` | `'project' \| 'browser' \| 'page' \| 'element'` | 否 | 命令所需资源范围，默认 `page` |
 | `parameters` | `ZodSchema` | 否 | Zod schema，定义输入参数 |
 | `result` | `ZodSchema` | 否 | Zod schema，定义输出结构 |
 | `requiresLogin` | `boolean` | 否 | 此命令是否需要登录 |
 | `examples` | `Array<{cmd, description}>` | 否 | 使用示例 |
 | `tips` | `string[]` | 否 | 提示信息 |
-| `handler` | `(params, ctx) => Promise<T>` | 是 | 命令处理函数 |
+| `handler` | `(params, ctx) => Promise<CommandResult>` | 是 | 命令处理函数 |
 
 **命名规范**：命令名使用 kebab-case，如 `scrape`、`reveal-phone`、`export`。
 
@@ -122,7 +157,7 @@ site.command('scrape', {
 handler: async (params, ctx) => {
   // params: 由 Zod schema 解析和验证后的参数
   // ctx: CommandContext
-  return result;
+  return ok(result);
 }
 ```
 
@@ -136,10 +171,17 @@ handler: async (params, ctx) => {
 | `page` | `Page \| null` | Playwright Page 实例 |
 | `storage` | `StorageContext` | 插件持久化存储 |
 | `output` | `OutputContext` | 输出配置（mode/color/emoji） |
-| `error` | `(msg: string) => void` | 报告错误 |
+| `error` | `(msg: string) => void` | 输出错误信息到 stderr |
 | `config` | `Record<string, unknown>` | 插件配置 |
 | `site` | `SiteInstance` | 当前站点实例 |
 | `browser` | `{ executablePath: string }` | 浏览器可执行路径 |
+
+> **`ctx.error(msg)` 行为说明**：`error(msg)` 输出错误信息到 stderr，**不会自动终止命令**。需要配合 `return fail()`：
+>
+> ```typescript
+> ctx.error('网络请求失败');
+> return fail('网络请求失败');
+> ```
 
 ### `ctx.page` — Playwright Page
 
@@ -150,7 +192,7 @@ handler: async (params, ctx) => {
 ```typescript
 handler: async (params, ctx) => {
   if (!ctx.page) {
-    return { error: '浏览器页面不可用' };
+    return fail('浏览器页面不可用');
   }
 
   await ctx.page.goto('https://example.com', {
@@ -163,7 +205,7 @@ handler: async (params, ctx) => {
   await ctx.page.waitForTimeout(2000);
 
   const results = await ctx.page.locator('.result-item').allTextContents();
-  return { results };
+  return ok({ results });
 }
 ```
 
@@ -273,7 +315,7 @@ xcli.onEvent('command:after', (event) => {
 
 ---
 
-## 3. 插件生命周期
+## 4. 插件生命周期
 
 ```
 加载阶段：
@@ -311,7 +353,7 @@ export default function (xcli: XCLIAPI) {
 
 ---
 
-## 4. 插件管理命令
+## 5. 插件管理命令
 
 | 命令 | 说明 |
 |------|------|
@@ -329,13 +371,17 @@ export default function (xcli: XCLIAPI) {
 
 ---
 
-## 5. 模板
+## 6. 模板
 
 ### static — 静态页面采集
 
 适用场景：目标网站无登录、无反爬，直接 HTTP 请求获取数据。
 
 ```typescript
+import { z } from 'zod';
+import type { XCLIAPI } from 'xcli';
+import { ok, fail } from 'xcli';
+
 export default function (xcli: XCLIAPI) {
   const site = xcli.createSite({
     name: 'static-site',
@@ -344,12 +390,14 @@ export default function (xcli: XCLIAPI) {
 
   site.command('list', {
     description: '获取列表数据',
+    scope: 'project',
     parameters: z.object({
       page: z.number().optional().default(1),
     }),
     handler: async (params, _ctx) => {
       const res = await fetch(`https://example.com/api/list?page=${params.page}`);
-      return res.json();
+      if (!res.ok) return fail(`HTTP ${res.status}`);
+      return ok(await res.json());
     },
   });
 }
@@ -360,6 +408,10 @@ export default function (xcli: XCLIAPI) {
 适用场景：页面需要 JavaScript 渲染，或需要模拟用户交互（点击、滚动等）。
 
 ```typescript
+import { z } from 'zod';
+import type { XCLIAPI } from 'xcli';
+import { ok, fail } from 'xcli';
+
 export default function (xcli: XCLIAPI) {
   const site = xcli.createSite({
     name: 'dynamic-site',
@@ -368,12 +420,13 @@ export default function (xcli: XCLIAPI) {
 
   site.command('scrape', {
     description: '采集动态内容',
+    scope: 'page',
     handler: async (_params, ctx) => {
-      if (!ctx.page) return { error: '需要浏览器页面' };
+      if (!ctx.page) return fail('需要浏览器页面');
       await ctx.page.goto('https://example.com/data', { waitUntil: 'networkidle' });
       await ctx.page.waitForSelector('.data-loaded');
       const items = await ctx.page.locator('.item').allTextContents();
-      return { items };
+      return ok({ items });
     },
   });
 }
@@ -384,6 +437,10 @@ export default function (xcli: XCLIAPI) {
 适用场景：需要登录后才能访问数据，需要管理 token/session。
 
 ```typescript
+import { z } from 'zod';
+import type { XCLIAPI } from 'xcli';
+import { ok, fail } from 'xcli';
+
 export default function (xcli: XCLIAPI) {
   const site = xcli.createSite({
     name: 'login-site',
@@ -393,6 +450,7 @@ export default function (xcli: XCLIAPI) {
 
   site.command('login', {
     description: '登录',
+    scope: 'project',
     requiresLogin: false,
     parameters: z.object({
       username: z.string(),
@@ -407,21 +465,24 @@ export default function (xcli: XCLIAPI) {
       const data = await res.json();
       if (data.token) {
         await ctx.storage.set('auth_token', data.token);
-        return { success: true };
+        return ok({ success: true });
       }
-      return { success: false, message: data.message };
+      return fail(data.message || '登录失败');
     },
   });
 
   site.command('data', {
     description: '获取需登录的数据',
+    scope: 'project',
     requiresLogin: true,
     handler: async (_params, ctx) => {
       const token = await ctx.storage.get<string>('auth_token');
+      if (!token) return fail('请先登录');
       const res = await fetch('https://example.com/api/data', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      return res.json();
+      if (!res.ok) return fail(`HTTP ${res.status}`);
+      return ok(await res.json());
     },
   });
 }
@@ -432,6 +493,10 @@ export default function (xcli: XCLIAPI) {
 适用场景：目标提供 API 接口，无需浏览器，直接 HTTP 请求。
 
 ```typescript
+import { z } from 'zod';
+import type { XCLIAPI } from 'xcli';
+import { ok, fail } from 'xcli';
+
 export default function (xcli: XCLIAPI) {
   const site = xcli.createSite({
     name: 'api-site',
@@ -439,12 +504,14 @@ export default function (xcli: XCLIAPI) {
 
   site.command('query', {
     description: '查询数据',
+    scope: 'project',
     parameters: z.object({
       keyword: z.string(),
     }),
     handler: async (params, _ctx) => {
       const res = await fetch(`https://api.example.com/search?q=${encodeURIComponent(params.keyword)}`);
-      return res.json();
+      if (!res.ok) return fail(`HTTP ${res.status}`);
+      return ok(await res.json());
     },
   });
 }
@@ -452,7 +519,7 @@ export default function (xcli: XCLIAPI) {
 
 ---
 
-## 6. 最佳实践
+## 7. 最佳实践
 
 ### 命名规范
 
@@ -470,20 +537,21 @@ site.command('fetch', {
       const res = await fetch('https://example.com/api');
       if (!res.ok) {
         ctx.error(`HTTP ${res.status}: ${await res.text()}`);
-        return { success: false };
+        return fail(`HTTP ${res.status}`);
       }
-      return await res.json();
+      return ok(await res.json());
     } catch (err) {
-      ctx.error(err instanceof Error ? err.message : '未知错误');
-      return { success: false };
+      const msg = err instanceof Error ? err.message : '未知错误';
+      ctx.error(msg);
+      return fail(msg);
     }
   },
 });
 ```
 
-- 使用 `ctx.error(msg)` 报告错误
+- 使用 `ctx.error(msg)` 报告错误（输出到 stderr），配合 `return fail()` 终止命令
 - handler 中 try/catch 包裹网络请求
-- 返回结构化的错误信息，不要直接抛异常
+- 返回 `ok()`/`fail()` 结构化结果，不要直接抛异常
 
 ### 登录状态管理
 
@@ -493,7 +561,7 @@ site.command('login', {
   handler: async (params, ctx) => {
     const { token } = await doLogin(params);
     await ctx.storage.set('auth_token', token);
-    return { success: true };
+    return ok({ success: true });
   },
 });
 
@@ -501,7 +569,7 @@ site.command('data', {
   requiresLogin: true,
   handler: async (_params, ctx) => {
     const token = await ctx.storage.get<string>('auth_token');
-    if (!token) return { success: false, message: '请先登录' };
+    if (!token) return fail('请先登录');
     // ...
   },
 });
@@ -512,8 +580,10 @@ site.command('data', {
 ```typescript
 site.command('scrape', {
   description: '采集全部分页数据',
+  scope: 'project',
   handler: async (_params, ctx) => {
     const token = await ctx.storage.get<string>('auth_token');
+    if (!token) return fail('请先登录');
     const headers = { Authorization: `Bearer ${token}` };
 
     const firstPage = await fetchJSON(`${API}/items?page=1`, { headers });
@@ -524,10 +594,13 @@ site.command('scrape', {
       allItems.push(...res.items);
     }
 
-    return {
-      summary: { total: firstPage.totalItems, collected: allItems.length },
-      data: allItems,
-    };
+    return ok(
+      {
+        summary: { total: firstPage.totalItems, collected: allItems.length },
+        data: allItems,
+      },
+      [`共采集 ${allItems.length} 条数据`],
+    );
   },
 });
 ```
@@ -546,7 +619,7 @@ async function fetchJSON(url: string, options: RequestInit = {}) {
 
 ---
 
-## 7. 常见问题
+## 8. 常见问题
 
 ### 插件不加载？
 
@@ -564,7 +637,7 @@ async function fetchJSON(url: string, options: RequestInit = {}) {
 
 ```typescript
 if (!ctx.page) {
-  return { error: '此命令需要浏览器页面，请确认 daemon 已启动' };
+  return fail('此命令需要浏览器页面，请确认 daemon 已启动');
 }
 ```
 
@@ -591,16 +664,13 @@ xcli plugins reload my-plugin
 2. 通过事件系统通信：`xcli.onEvent('event-name', handler)`
 3. 放到 `~/.xcli/plugins/_shared/` 等约定目录，jiti import
 
-### parameters 中 `z.coerce.number()` vs `z.number()`
+### parameters 中 number 类型参数
 
-命令行参数都是字符串。如果参数需要转为 number：
-
-- `z.number()` — 严格要求 number 类型，命令行传入的 string 会校验失败
-- `z.coerce.number()` — 自动将 string 转为 number，推荐用于命令行参数
+CLI 参数会自动转为对应类型，无需手动使用 `z.coerce`。
 
 ```typescript
 parameters: z.object({
-  page: z.coerce.number().default(1),   // ✅ 推荐
-  page: z.number().default(1),           // ❌ 可能失败
+  page: z.number().optional().default(1),   // ✅ 框架自动 coerce
+  limit: z.number().optional().default(20),  // ✅ 直接用 z.number()
 })
 ```

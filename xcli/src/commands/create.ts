@@ -5,7 +5,9 @@ import type { CommandValues } from '../core/types';
 
 type TemplateFn = (name: string) => string;
 
-const staticTemplate: TemplateFn = (name) => `import type { XCLIAPI } from 'xcli';
+const staticTemplate: TemplateFn = (name) => `import { z } from 'zod';
+import type { XCLIAPI } from 'xcli';
+import { ok, fail } from 'xcli';
 
 export default function (xcli: XCLIAPI) {
   const site = xcli.createSite({
@@ -14,23 +16,29 @@ export default function (xcli: XCLIAPI) {
   });
 
   site.command('scrape', {
-    description: '采集数据',
-    parameters: {},
-    handler: async (_params: Record<string, unknown>, ctx: Record<string, unknown>) => {
-      if (!ctx.page) {
-        return { success: false, data: null, message: 'No page available', tips: [] };
-      }
+    description: '采集页面数据',
+    scope: 'page',
+    parameters: z.object({
+      selector: z.string().default('body'),
+    }),
+    handler: async (params, ctx) => {
+      if (!ctx.page) return fail('需要浏览器页面，请先启动 daemon: xcli daemon start');
       await ctx.page.goto(site.url);
       await ctx.page.waitForLoadState('domcontentloaded');
-      return { success: true, data: [], tips: ['采集完成'] };
+      const data = await ctx.page.evaluate((sel) => {
+        const els = document.querySelectorAll(sel);
+        return Array.from(els).map(el => ({ text: el.textContent?.trim() || '' }));
+      }, params.selector);
+      return ok(data, ['采集到 ' + data.length + ' 条数据']);
     },
   });
 
   site.command('verify', {
     description: '校验数据',
-    parameters: {},
-    handler: async (_params: Record<string, unknown>, _ctx: Record<string, unknown>) => {
-      return { success: true, data: [], errors: [], tips: [] };
+    scope: 'page',
+    parameters: z.object({}),
+    handler: async (_params, _ctx) => {
+      return ok([], ['校验通过']);
     },
   });
 }
@@ -38,6 +46,7 @@ export default function (xcli: XCLIAPI) {
 
 const dynamicTemplate: TemplateFn = (name) => `import { z } from 'zod';
 import type { XCLIAPI } from 'xcli';
+import { ok, fail } from 'xcli';
 
 export default function (xcli: XCLIAPI) {
   const site = xcli.createSite({
@@ -47,30 +56,30 @@ export default function (xcli: XCLIAPI) {
 
   site.command('scrape', {
     description: '采集数据（支持分页）',
+    scope: 'page',
     parameters: z.object({
       page: z.number().default(1).describe('页码'),
       limit: z.number().default(20).describe('每页数量'),
     }),
-    handler: async (params: { page: number; limit: number }, ctx: Record<string, unknown>) => {
-      if (!ctx.page) {
-        return { success: false, data: null, message: 'No page available', tips: [] };
-      }
+    handler: async (params, ctx) => {
+      if (!ctx.page) return fail('需要浏览器页面，请先启动 daemon: xcli daemon start');
       const url = new URL(site.url);
       url.searchParams.set('page', String(params.page));
       url.searchParams.set('limit', String(params.limit));
       await ctx.page.goto(url.toString());
-      await ctx.page.waitForLoadState('domcontentloaded');
-      return { success: true, data: [], tips: ['采集完成'] };
+      await ctx.page.waitForLoadState('networkidle');
+      return ok([], ['采集完成, page=' + params.page]);
     },
   });
 
   site.command('verify', {
     description: '校验数据',
+    scope: 'page',
     parameters: z.object({
       strict: z.boolean().default(false).describe('严格模式'),
     }),
-    handler: async (params: { strict: boolean }, _ctx: Record<string, unknown>) => {
-      return { success: true, data: [], errors: [], tips: [\`校验完成 (strict=\${params.strict})\`] };
+    handler: async (params, _ctx) => {
+      return ok([], [\`校验完成 (strict=\${params.strict})\`]);
     },
   });
 }
@@ -78,6 +87,7 @@ export default function (xcli: XCLIAPI) {
 
 const loginTemplate: TemplateFn = (name) => `import { z } from 'zod';
 import type { XCLIAPI } from 'xcli';
+import { ok, fail } from 'xcli';
 
 export default function (xcli: XCLIAPI) {
   const site = xcli.createSite({
@@ -91,11 +101,12 @@ export default function (xcli: XCLIAPI) {
   });
 
   site.login(async (ctx) => {
-    if (!ctx.page) throw new Error('No page available');
+    if (!ctx.page) return fail('需要浏览器页面，请先启动 daemon: xcli daemon start');
     await ctx.page.goto(site.url + '/login');
     await ctx.page.waitForLoadState('domcontentloaded');
     const token = 'simulated-token-' + Date.now();
     await ctx.storage.set('auth_token', token);
+    return ok(null, ['登录成功']);
   });
 
   site.logout(async (ctx) => {
@@ -104,16 +115,15 @@ export default function (xcli: XCLIAPI) {
 
   site.command('scrape', {
     description: '采集数据（需要登录）',
+    scope: 'page',
     parameters: z.object({
       category: z.string().default('all').describe('分类'),
     }),
-    handler: async (params: { category: string }, ctx: Record<string, unknown>) => {
-      if (!ctx.page) {
-        return { success: false, data: null, message: 'No page available', tips: [] };
-      }
+    handler: async (params, ctx) => {
+      if (!ctx.page) return fail('需要浏览器页面，请先启动 daemon: xcli daemon start');
       await ctx.page.goto(site.url + '/data?category=' + params.category);
       await ctx.page.waitForLoadState('domcontentloaded');
-      return { success: true, data: [], tips: ['采集完成'] };
+      return ok([], ['采集完成, category=' + params.category]);
     },
   });
 }
@@ -121,6 +131,7 @@ export default function (xcli: XCLIAPI) {
 
 const apiTemplate: TemplateFn = (name) => `import { z } from 'zod';
 import type { XCLIAPI } from 'xcli';
+import { ok, fail } from 'xcli';
 
 export default function (xcli: XCLIAPI) {
   const site = xcli.createSite({
@@ -130,32 +141,32 @@ export default function (xcli: XCLIAPI) {
 
   site.command('fetch', {
     description: '调用 API 获取数据',
+    scope: 'project',
     parameters: z.object({
       endpoint: z.string().describe('API 端点'),
       method: z.enum(['GET', 'POST']).default('GET').describe('请求方法'),
     }),
-    handler: async (params: { endpoint: string; method: string }, _ctx: Record<string, unknown>) => {
+    handler: async (params, _ctx) => {
       const url = site.url + params.endpoint;
-      return {
-        success: true,
-        data: { url, method: params.method, status: 'ok' },
-        tips: ['API 调用完成'],
-      };
+      return ok(
+        { url, method: params.method, status: 'ok' },
+        ['API 调用完成'],
+      );
     },
   });
 
   site.command('batch', {
     description: '批量调用 API',
+    scope: 'project',
     parameters: z.object({
       endpoints: z.array(z.string()).describe('API 端点列表'),
       concurrency: z.number().default(3).describe('并发数'),
     }),
-    handler: async (params: { endpoints: string[]; concurrency: number }, _ctx: Record<string, unknown>) => {
-      return {
-        success: true,
-        data: params.endpoints.map((ep) => ({ endpoint: ep, status: 'ok' })),
-        tips: [\`批量完成, concurrency=\${params.concurrency}\`],
-      };
+    handler: async (params, _ctx) => {
+      return ok(
+        params.endpoints.map((ep) => ({ endpoint: ep, status: 'ok' })),
+        [\`批量完成, concurrency=\${params.concurrency}\`],
+      );
     },
   });
 }
@@ -210,7 +221,11 @@ export async function createCommand(args: string[], values: CommandValues) {
   writeFileSync(join(pluginDir, 'index.ts'), code);
   writeFileSync(
     join(pluginDir, 'package.json'),
-    JSON.stringify({ name, version: '1.0.0', type: 'module' }, null, 2)
+    JSON.stringify(
+      { name, version: '1.0.0', type: 'module', dependencies: { zod: '^3.24.0' } },
+      null,
+      2
+    )
   );
 
   console.log(`Plugin "${name}" created at ${pluginDir}`);

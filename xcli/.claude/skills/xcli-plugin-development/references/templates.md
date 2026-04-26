@@ -25,7 +25,7 @@ export default function (xcli: XCLIAPI) {
   site.command('list', {
     description: '获取列表数据',
     parameters: z.object({
-      page: z.coerce.number().optional().default(1),
+      page: z.number().optional().default(1),
     }),
     handler: async (params, _ctx) => {
       const res = await fetch(`https://example.com/api/list?page=${params.page}`);
@@ -320,7 +320,7 @@ export default function (xcli: XCLIAPI) {
   plugin.command('orders', {
     description: '采集订单列表',
     parameters: z.object({
-      page: z.coerce.number().optional().default(1),
+      page: z.number().optional().default(1),
     }),
     handler: async (params, ctx) => {
       const token = await ctx.storage.get<string>('auth_token');

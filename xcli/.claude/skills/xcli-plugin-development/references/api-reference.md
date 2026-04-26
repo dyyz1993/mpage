@@ -216,7 +216,7 @@ return withMeta(ok(data), { duration: Date.now() - start });
 |------------|-------------|
 | `ctx.page` | 提醒做 null 检查、纯 API 插件不需要 page |
 | `NOT_LOGGED_IN` | 提示登录命令或 `site.requireLogin()` |
-| `INVALID_ARGS` | 提示使用 `z.coerce.number()` 或 coercion 已自动处理 |
+| `INVALID_ARGS` | 提示检查参数类型，coercion 已自动处理，直接用 `z.number()` |
 | `ECONNREFUSED` | 检查目标网站可访问性 |
 | `Timeout` / `waiting for selector` | 建议用 `waitForSelector` 替代固定等待 |
 
@@ -264,10 +264,10 @@ parameters: z.object({
 | `page` | `Page \| null` | Playwright Page 实例（由 worker 进程提供） |
 | `storage` | `StorageContext` | 插件持久化存储 |
 | `output` | `OutputContext` | 输出配置（mode/color/emoji） |
-| `error` | `(msg: string) => void` | 报告错误 |
-| `config` | `Record<string, unknown>` | 插件配置 |
-| `site` | `SiteInstance` | 当前站点实例 |
-| `browser` | `{ executablePath: string }` | 浏览器可执行路径 |
+| `error` | `(msg: string) => void` | 报错并终止命令 |
+
+> **ctx.error(msg)** — 输出错误到 stderr，不自动终止命令。需配合 `return fail()` 使用：
+> `ctx.error('网络失败'); return fail('网络失败');`
 
 > **Daemon 不直接操作浏览器**。所有浏览器操作通过 IPC 路由到 session 对应的 worker 进程执行。CommandContext 中的 `page` 由 worker 进程注入。
 

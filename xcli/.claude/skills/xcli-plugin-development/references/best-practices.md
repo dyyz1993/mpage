@@ -640,3 +640,16 @@ const result = await ctx.page.evaluate(async (b) => {
 // ❌ 错误 — 不能传函数
 await ctx.page.evaluate((fn) => fn(), () => doSomething());
 ```
+
+---
+
+## 常见报错速查表
+
+| 错误 | 原因 | 解决 |
+|------|------|------|
+| `Cannot find module 'zod'` | 插件依赖未安装 | 在项目根目录运行 `npm install zod` |
+| `ctx.page is null` | daemon 未启动或未 open | `xcli daemon start && xcli open <url>` |
+| `NOT_LOGGED_IN` | 未登录 | `xcli <site> login` |
+| `INVALID_ARGS` | 参数类型不匹配 | 用 `z.number()` 代替 `z.coerce.number()`，检查参数名 |
+| `Plugin not loading` | 文件路径或签名错误 | `xcli plugins doctor` 检查 |
+| storage 数据丢失 | CLI 模式下每次独立进程 | 使用 daemon 模式保持 session |

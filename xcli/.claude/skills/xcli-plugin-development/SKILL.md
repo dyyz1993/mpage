@@ -7,6 +7,56 @@ description: >
 
 # xcli 插件开发
 
+## 5 分钟上手
+
+### 安装
+
+```bash
+npm install xcli zod
+```
+
+### 初始化项目
+
+```bash
+mkdir my-project && cd my-project
+npm init -y
+npm install xcli zod
+npx xcli create book-search --template api --project
+```
+
+### 编辑插件
+
+```bash
+vim .xcli/plugins/book-search/index.ts
+```
+
+修改 URL 为实际的 API 地址，调整 handler 逻辑。
+
+### 运行
+
+#### 方式一：CLI 直接执行（适合 project scope 命令）
+
+```bash
+npx xcli book-search search --keyword react
+```
+
+#### 方式二：Daemon 模式（适合 page/element scope 命令）
+
+```bash
+npx xcli daemon start
+npx xcli open https://example.com
+npx xcli my-plugin scrape
+npx xcli daemon stop
+```
+
+### 查看输出
+
+默认 YAML 格式，加 `--json` 输出 JSON：
+
+```bash
+npx xcli book-search search --keyword react --json
+```
+
 ## Quick Start
 
 ### 用 xcli create 创建插件
@@ -119,6 +169,17 @@ site.command('click', {
 ```
 
 框架在执行前自动检查 scope 可用性，不可用时返回清晰的错误信息。
+
+### scope 与运行模式的关系
+
+| scope | CLI 模式 | Daemon 模式 |
+|-------|---------|------------|
+| `project` | 直接执行 | 直接执行 |
+| `browser` | 需要手动 open | daemon 管理 |
+| `page` | 需要手动 open | 推荐 |
+| `element` | 需要手动 open | 推荐 |
+
+scope 为 page/element 的命令推荐在 Daemon 模式下使用，确保 `ctx.page` 可用。
 
 ## 命令覆盖
 
