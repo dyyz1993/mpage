@@ -56,6 +56,49 @@ describe('parseCommandChain', () => {
     assert.strictEqual(result.length, 1);
     assert.strictEqual(result[0].pipeline[0], "evaluate '(function() { return 1; })()'");
   });
+
+  it('should handle nested parentheses', () => {
+    const result = parseCommandChain("evaluate '(function() { return (1 + 2); })()'");
+    assert.strictEqual(result.length, 1);
+    assert.strictEqual(result[0].pipeline[0], "evaluate '(function() { return (1 + 2); })()'");
+  });
+
+  it('should handle && inside parentheses as literal', () => {
+    const result = parseCommandChain("evaluate 'a && b'");
+    assert.strictEqual(result.length, 1);
+    assert.strictEqual(result[0].pipeline[0], "evaluate 'a && b'");
+  });
+
+  it('should handle ; inside quotes as literal', () => {
+    const result = parseCommandChain("fill '#input' 'hello;world'");
+    assert.strictEqual(result.length, 1);
+    assert.strictEqual(result[0].pipeline[0], "fill '#input' 'hello;world'");
+  });
+
+  it('should handle trailing semicolon', () => {
+    const result = parseCommandChain('goto baidu.com;');
+    assert.strictEqual(result.length, 1);
+    assert.strictEqual(result[0].pipeline[0], 'goto baidu.com');
+    assert.strictEqual(result[0].type, 'sequence');
+  });
+
+  it('should handle leading semicolon', () => {
+    const result = parseCommandChain(';goto baidu.com');
+    assert.strictEqual(result.length, 1);
+    assert.strictEqual(result[0].pipeline[0], 'goto baidu.com');
+  });
+
+  it('should handle multiple && commands', () => {
+    const result = parseCommandChain('a && b && c && d');
+    assert.strictEqual(result.length, 1);
+    assert.strictEqual(result[0].pipeline.length, 4);
+    assert.strictEqual(result[0].type, 'and');
+  });
+
+  it('should handle whitespace-only input', () => {
+    const result = parseCommandChain('   ');
+    assert.strictEqual(result.length, 0);
+  });
 });
 
 describe('splitCommand', () => {

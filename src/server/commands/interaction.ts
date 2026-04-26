@@ -38,4 +38,21 @@ export const interactionCommands: CommandModule = {
     await page.evaluate(`window.scrollTo(${args.x ?? 0}, ${args.y ?? 0})`);
     return { x: args.x ?? 0, y: args.y ?? 0 };
   },
+
+  select: async (page: Page, args: Record<string, unknown>) => {
+    await page.selectOption(args.selector as string, args.value as string);
+    return { selector: args.selector, value: args.value };
+  },
+
+  check: async (page: Page, args: Record<string, unknown>) => {
+    await page.check(args.selector as string);
+    return { selector: args.selector };
+  },
+
+  waitForSelector: async (page: Page, args: Record<string, unknown>) => {
+    await page.waitForSelector(args.selector as string, {
+      timeout: (args.timeout as number) || 30000,
+    });
+    return { selector: args.selector };
+  },
 };

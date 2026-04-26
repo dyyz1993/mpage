@@ -32,6 +32,27 @@ describe('calculateSimilarity', () => {
     const result = calculateSimilarity('abc', 'xyz');
     assert.ok(result < 0.5);
   });
+
+  it('should return 0 for both empty strings', () => {
+    assert.strictEqual(calculateSimilarity('', ''), 1);
+  });
+
+  it('should handle single character strings', () => {
+    assert.strictEqual(calculateSimilarity('a', 'a'), 1);
+    assert.strictEqual(calculateSimilarity('a', 'b'), 0);
+  });
+
+  it('should handle long strings', () => {
+    const a = 'goto https://example.com and click the button';
+    const b = 'goto https://example.com and click the link';
+    const result = calculateSimilarity(a, b);
+    assert.ok(result > 0.8);
+    assert.ok(result < 1);
+  });
+
+  it('should return 0.8 when b is prefix of a', () => {
+    assert.strictEqual(calculateSimilarity('gotoo', 'goto'), 0.8);
+  });
 });
 
 describe('findSimilarCommands', () => {

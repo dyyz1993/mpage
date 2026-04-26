@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-restricted-imports -- worker 进程：允许直接操作 playwright
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright';
 import type { IPCMessage, IPCResponse } from './ipc-types';
-import { RecorderController, PlaybackEngine, STRUCTURE_EXTRACTOR_CODE } from '@dyyz1993/xpage';
+import { RecorderController, PlaybackEngine, executePageCommand } from '@dyyz1993/xpage';
 // eslint-disable-next-line no-restricted-imports -- worker 进程：允许使用 playwright 类型
 import type { Cookie } from 'playwright';
 
@@ -42,6 +42,106 @@ function findSession(name: string): WorkerSession | undefined {
     if (session.name === name) return session;
   }
   return undefined;
+}
+
+type MpageCommandMapping = {
+  command: string;
+  mapArgs: (p: Record<string, unknown>) => Record<string, unknown>;
+  mapResult: (result: unknown, p: Record<string, unknown>) => unknown;
+};
+
+const mpageCommandMap: Record<string, MpageCommandMapping> = {
+  'page.goto': {
+    command: 'goto',
+    mapArgs: (p) => ({ url: p.url, waitUntil: p.waitUntil }),
+    mapResult: (result, p) => ({ ok: true, ...(result as Record<string, unknown>), url: p.url }),
+  },
+  'page.click': {
+    command: 'click',
+    mapArgs: (p) => ({ selector: p.selector }),
+    mapResult: (_r, p) => ({ ok: true, selector: p.selector }),
+  },
+  'page.fill': {
+    command: 'fill',
+    mapArgs: (p) => ({ selector: p.selector, value: p.text }),
+    mapResult: (_r, p) => ({ ok: true, selector: p.selector, text: p.text }),
+  },
+  'page.type': {
+    command: 'type',
+    mapArgs: (p) => ({ selector: p.selector, text: p.text }),
+    mapResult: (_r, p) => ({ ok: true, selector: p.selector, text: p.text }),
+  },
+  'page.press': {
+    command: 'press',
+    mapArgs: (p) => ({ selector: p.selector, key: p.key }),
+    mapResult: (_r, p) => ({ ok: true, key: p.key, selector: p.selector }),
+  },
+  'page.select': {
+    command: 'select',
+    mapArgs: (p) => ({ selector: p.selector, value: p.value }),
+    mapResult: (_r, p) => ({ ok: true, selector: p.selector, value: p.value }),
+  },
+  'page.check': {
+    command: 'check',
+    mapArgs: (p) => ({ selector: p.selector }),
+    mapResult: (_r, p) => ({ ok: true, selector: p.selector }),
+  },
+  'page.html': {
+    command: 'html',
+    mapArgs: (p) => ({ selector: p.selector, clean: p.clean }),
+    mapResult: (result) => result,
+  },
+  'page.screenshot': {
+    command: 'screenshotBase64',
+    mapArgs: (p) => ({ fullPage: p.fullPage, type: p.type }),
+    mapResult: (result) => result,
+  },
+  'page.scroll': {
+    command: 'scroll',
+    mapArgs: (p) => {
+      const dir = p.direction as string;
+      const dist = p.distance as number;
+      if (dir === 'up') return { x: 0, y: -dist };
+      if (dir === 'down') return { x: 0, y: dist };
+      return { x: p.x, y: p.y };
+    },
+    mapResult: (_r, p) => ({ ok: true, direction: p.direction, distance: p.distance }),
+  },
+  'page.eval': {
+    command: 'evaluateRaw',
+    mapArgs: (p) => ({ script: p.script }),
+    mapResult: (result) => result,
+  },
+  'page.waitForSelector': {
+    command: 'waitForSelector',
+    mapArgs: (p) => ({ selector: p.selector, timeout: p.timeout }),
+    mapResult: (_r, p) => ({ ok: true, selector: p.selector }),
+  },
+  'page.waitForTimeout': {
+    command: 'wait',
+    mapArgs: (p) => ({ timeout: p.timeout }),
+    mapResult: (_r, p) => ({ ok: true, timeout: p.timeout }),
+  },
+  'page.refresh': {
+    command: 'reload',
+    mapArgs: () => ({}),
+    mapResult: () => ({ ok: true }),
+  },
+  'page.structure': {
+    command: 'structure',
+    mapArgs: (p) => ({ selector: p.selector || 'body' }),
+    mapResult: (result) => ({ ok: true, ...(result as Record<string, unknown>) }),
+  },
+};
+
+async function executeMpageCommand(
+  page: Page,
+  mapping: MpageCommandMapping,
+  p: Record<string, unknown>
+): Promise<unknown> {
+  const mpageArgs = mapping.mapArgs(p);
+  const result = await executePageCommand(page, mapping.command, mpageArgs);
+  return mapping.mapResult(result, p);
 }
 
 async function executeCommand(msg: IPCMessage): Promise<unknown> {
@@ -135,19 +235,6 @@ async function executeCommand(msg: IPCMessage): Promise<unknown> {
       return { ok: true };
     }
 
-    case 'page.html': {
-      const hs = findSession(p.name as string);
-      if (!hs) return { html: '' };
-      return { html: await hs.page.content() };
-    }
-
-    case 'page.screenshot': {
-      const ss2 = findSession(p.name as string);
-      if (!ss2) return { screenshot: '' };
-      const screenshot = await ss2.page.screenshot();
-      return { screenshot: screenshot.toString('base64') };
-    }
-
     case 'page.snapshot': {
       const snps = findSession(p.name as string);
       if (!snps) return { elements: [] };
@@ -202,129 +289,68 @@ async function executeCommand(msg: IPCMessage): Promise<unknown> {
       return { ok: true, action, x, y };
     }
 
-    case 'page.click': {
-      const cs2 = findSession(p.name as string);
-      if (!cs2) return { ok: false, error: 'Session not found' };
-      await cs2.page.click(p.selector as string);
-      return { ok: true, selector: p.selector };
-    }
-
-    case 'page.select': {
-      const sels = findSession(p.name as string);
-      if (!sels) return { ok: false, error: 'Session not found' };
-      await sels.page.selectOption(p.selector as string, p.value as string);
-      return { ok: true, selector: p.selector, value: p.value };
-    }
-
-    case 'page.check': {
-      const chs = findSession(p.name as string);
-      if (!chs) return { ok: false, error: 'Session not found' };
-      await chs.page.check(p.selector as string);
-      return { ok: true, selector: p.selector };
-    }
-
-    case 'page.press': {
-      const ps = findSession(p.name as string);
-      if (!ps) return { ok: false, error: 'Session not found' };
-      if (p.selector) {
-        await ps.page.press(p.selector as string, p.key as string);
-      } else {
-        await ps.page.keyboard.press(p.key as string);
-      }
-      return { ok: true, key: p.key, selector: p.selector };
-    }
-
     case 'page.get': {
       const gts = findSession(p.name as string);
       if (!gts) return { ok: false, error: 'Session not found' };
-      let value = '';
       const prop = p.property as string;
       if (prop === 'url') {
-        value = gts.page.url();
-      } else if (prop === 'title') {
-        value = await gts.page.title();
-      } else if (prop === 'text' && p.selector) {
-        value = (await gts.page.locator(p.selector as string).textContent()) || '';
-      } else if (prop === 'value' && p.selector) {
-        value = (await gts.page.locator(p.selector as string).inputValue()) || '';
-      } else if (p.selector) {
-        value = (await gts.page.locator(p.selector as string).textContent()) || '';
+        return { ok: true, property: prop, selector: p.selector, value: gts.page.url() };
       }
-      return { ok: true, property: prop, selector: p.selector, value };
+      if (prop === 'title') {
+        const titleResult = await executePageCommand(gts.page, 'title', {});
+        return {
+          ok: true,
+          property: prop,
+          selector: p.selector,
+          value: (titleResult as Record<string, unknown>).title as string,
+        };
+      }
+      if (p.selector) {
+        if (prop === 'value') {
+          const valueResult = await executePageCommand(gts.page, 'inputValue', {
+            selector: p.selector,
+          });
+          return {
+            ok: true,
+            property: prop,
+            selector: p.selector,
+            value: (valueResult as Record<string, unknown>).value as string,
+          };
+        }
+        const textResult = await executePageCommand(gts.page, 'textContent', {
+          selector: p.selector,
+        });
+        return {
+          ok: true,
+          property: prop,
+          selector: p.selector,
+          value: (textResult as Record<string, unknown>).text as string,
+        };
+      }
+      return { ok: true, property: prop, selector: p.selector, value: '' };
     }
 
-    case 'page.type': {
-      const ts = findSession(p.name as string);
-      if (!ts) return { ok: false, error: 'Session not found' };
-      await ts.page.type(p.selector as string, p.text as string);
-      return { ok: true, selector: p.selector, text: p.text };
-    }
-
-    case 'page.fill': {
-      const fs = findSession(p.name as string);
-      if (!fs) return { ok: false, error: 'Session not found' };
-      await fs.page.fill(p.selector as string, p.text as string);
-      return { ok: true, selector: p.selector, text: p.text };
-    }
-
-    case 'page.scroll': {
-      const scs = findSession(p.name as string);
-      if (!scs) return { ok: false, error: 'Session not found' };
-      const dir = p.direction as string;
-      const dist = p.distance as number;
-      const scrollAmount = dir === 'up' ? -dist : dist;
-      await scs.page.evaluate((amount) => window.scrollBy(0, amount), scrollAmount);
-      return { ok: true, direction: dir, distance: dist };
+    case 'page.navigate': {
+      const ns = findSession(p.name as string);
+      if (!ns) return { ok: false, error: 'Session not found' };
+      const direction = p.direction as string;
+      if (direction === 'back') {
+        await executePageCommand(ns.page, 'goBack', {});
+      } else if (direction === 'forward') {
+        await executePageCommand(ns.page, 'goForward', {});
+      }
+      return { ok: true, direction };
     }
 
     case 'page.eval': {
       const es = findSession(p.name as string);
       if (!es) return { error: 'Session not found' };
       try {
-        const result = await es.page.evaluate(`(async () => { return ${p.script as string}; })()`);
-        return { result };
+        const result = await executePageCommand(es.page, 'evaluateRaw', { script: p.script });
+        return result;
       } catch (err) {
         return { error: err instanceof Error ? err.message : String(err) };
       }
-    }
-
-    case 'page.waitForSelector': {
-      const ws = findSession(p.name as string);
-      if (!ws) return { ok: false, error: 'Session not found' };
-      await ws.page.waitForSelector(p.selector as string, { timeout: p.timeout as number });
-      return { ok: true, selector: p.selector };
-    }
-
-    case 'page.waitForTimeout': {
-      const wts = findSession(p.name as string);
-      if (!wts) return { ok: false, error: 'Session not found' };
-      await wts.page.waitForTimeout(p.timeout as number);
-      return { ok: true, timeout: p.timeout };
-    }
-
-    case 'page.goto': {
-      const gts2 = findSession(p.name as string);
-      if (!gts2) return { ok: false, error: 'Session not found' };
-      await gts2.page.goto(p.url as string);
-      return { ok: true, url: p.url };
-    }
-
-    case 'page.navigate': {
-      const ns = findSession(p.name as string);
-      if (!ns) return { ok: false, error: 'Session not found' };
-      if (p.direction === 'back') {
-        await ns.page.goBack();
-      } else if (p.direction === 'forward') {
-        await ns.page.goForward();
-      }
-      return { ok: true, direction: p.direction };
-    }
-
-    case 'page.refresh': {
-      const rs = findSession(p.name as string);
-      if (!rs) return { ok: false, error: 'Session not found' };
-      await rs.page.reload();
-      return { ok: true };
     }
 
     case 'page.verifySlider': {
@@ -441,16 +467,6 @@ async function executeCommand(msg: IPCMessage): Promise<unknown> {
       return { ok: true, result: replayResult };
     }
 
-    case 'page.structure': {
-      const structSession = findSession(p.name as string);
-      if (!structSession) throw new Error('Session not found');
-      const selector = (p.selector as string) || 'body';
-      const structResult = await structSession.page.evaluate(
-        `(${STRUCTURE_EXTRACTOR_CODE})({ selector: "${selector}" })`
-      );
-      return { ok: true, structure: structResult };
-    }
-
     case 'ws.initScreencast': {
       const wsSession = sessions.get(p.sessionId as string);
       if (!wsSession) return { ok: false, error: 'Session not found' };
@@ -506,8 +522,14 @@ async function executeCommand(msg: IPCMessage): Promise<unknown> {
       return { ok: true };
     }
 
-    default:
+    default: {
+      if (method in mpageCommandMap) {
+        const session = findSession(p.name as string);
+        if (!session) return { ok: false, error: 'Session not found' };
+        return executeMpageCommand(session.page, mpageCommandMap[method], p);
+      }
       throw new Error(`Unknown method: ${method}`);
+    }
   }
 }
 

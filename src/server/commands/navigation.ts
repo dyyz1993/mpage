@@ -10,6 +10,21 @@ export const navigationCommands: CommandModule = {
     return { url: page.url() };
   },
 
+  goBack: async (page: Page) => {
+    await page.goBack();
+    return { url: page.url() };
+  },
+
+  goForward: async (page: Page) => {
+    await page.goForward();
+    return { url: page.url() };
+  },
+
+  reload: async (page: Page) => {
+    await page.reload();
+    return { url: page.url() };
+  },
+
   title: async (page: Page) => {
     const title = await page.title();
     return { title };

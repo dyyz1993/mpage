@@ -11,6 +11,14 @@ export const snapshotCommands: CommandModule = {
     return { path: filePath };
   },
 
+  screenshotBase64: async (page: Page, args: Record<string, unknown>) => {
+    const buffer = await page.screenshot({
+      fullPage: (args.fullPage as boolean) || false,
+      ...(args.type ? { type: args.type as 'png' | 'jpeg' } : {}),
+    });
+    return { screenshot: buffer.toString('base64') };
+  },
+
   a11y: async (page: Page, args: Record<string, unknown>) => {
     const selector = (args.selector as string) || 'body';
     const format = (args.format as string) || 'yaml';

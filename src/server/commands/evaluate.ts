@@ -7,6 +7,12 @@ export const evaluateCommands: CommandModule = {
     return { result };
   },
 
+  evaluateRaw: async (page: Page, args: Record<string, unknown>) => {
+    const wrapped = `(async () => { return ${args.script as string}; })()`;
+    const result = await page.evaluate(wrapped);
+    return { result };
+  },
+
   wait: async (page: Page, args: Record<string, unknown>) => {
     await page.waitForTimeout(args.timeout as number);
     return { waited: args.timeout };

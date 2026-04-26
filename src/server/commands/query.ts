@@ -109,6 +109,21 @@ export const queryCommands: CommandModule = {
     return { text };
   },
 
+  inputValue: async (page: Page, args: Record<string, unknown>) => {
+    const value = await page.locator(args.selector as string).inputValue();
+    return { value };
+  },
+
+  textContent: async (page: Page, args: Record<string, unknown>) => {
+    const text = await page.locator(args.selector as string).textContent();
+    return { text };
+  },
+
+  getAttribute: async (page: Page, args: Record<string, unknown>) => {
+    const value = await page.getAttribute(args.selector as string, args.name as string);
+    return { value };
+  },
+
   structure: async (page: Page, args: Record<string, unknown>) => {
     const selector = (args.selector as string) || 'body';
 
