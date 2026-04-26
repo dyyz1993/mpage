@@ -1,17 +1,8 @@
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { homedir } from 'os';
 import { spawn } from 'child_process';
-
-const SESSION_DIR = join(homedir(), '.xcli', 'sessions');
-const DAEMON_CONFIG_PATH = join(SESSION_DIR, 'daemon.json');
-
-export interface SessionInfo {
-  id: string;
-  name: string;
-  url: string;
-  createdAt: string;
-}
+import { SESSION_DIR, DAEMON_CONFIG_PATH } from './constants';
+import type { SessionInfo } from './types';
 
 function ensureSessionDir() {
   mkdirSync(SESSION_DIR, { recursive: true });

@@ -5,16 +5,12 @@ import { parse } from 'url';
 import { existsSync, mkdirSync, writeFileSync, unlinkSync, readFileSync } from 'fs';
 import { createServer as createNetServer } from 'net';
 import { join } from 'path';
-import { homedir } from 'os';
 import { randomBytes } from 'crypto';
+import { SESSION_DIR, DAEMON_CONFIG_PATH, DAEMON_SOCKET_PATH } from './constants';
 
 const SWAGGER_JSON = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'core', 'swagger.json'), 'utf-8')
 );
-
-const SESSION_DIR = join(homedir(), '.xcli', 'sessions');
-const DAEMON_CONFIG_PATH = join(SESSION_DIR, 'daemon.json');
-const DAEMON_SOCKET_PATH = join(SESSION_DIR, 'daemon.sock');
 const VIEWER_PORT = 8054;
 const VIEWER_HTML = readFileSync(join(process.cwd(), 'src', 'viewer.html'), 'utf-8');
 
@@ -197,7 +193,7 @@ async function getStorage(name: string, type: string) {
         const cookies = await session.context.cookies();
         return { cookies };
       } else if (type === 'localStorage') {
-        const localStorage = await session.page.evaluate(() => {
+        const lsData = await session.page.evaluate(() => {
           const result: Record<string, string> = {};
           for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
@@ -205,7 +201,7 @@ async function getStorage(name: string, type: string) {
           }
           return result;
         });
-        return { localStorage };
+        return { localStorage: lsData };
       }
     }
   }
@@ -494,7 +490,7 @@ async function handlePageVerifySlider(name: string, baseUrl: string) {
           const currentLeft = parseInt(sliderKnob.style.left || '0', 10);
           const distance = tX - currentLeft;
 
-          const dispatchDrag = (type, clientX) => {
+          const dispatchDrag = (type: string, clientX: number) => {
             const evt = new MouseEvent(type, {
               bubbles: true,
               cancelable: true,
@@ -710,7 +706,7 @@ async function handleWebSocket(ws: WebSocket, sessionId: string) {
   });
 
   const cdpSession = await session.context.newCDPSession(session.page);
-  await cdpSession.send('Page.startScreencast', { everyFrame: true });
+  await cdpSession.send('Page.startScreencast', { everyNthFrame: 1 });
 
   cdpSession.on('Page.screencastFrame', (frame: any) => {
     const data = frame.data;
@@ -772,7 +768,7 @@ async function main() {
     const { pathname, query } = parse(req.url || '', true);
     if (pathname === '/ws') {
       const sessionId = query.s as string;
-      wss.handleUpgrade(req, socket, head, (ws) => {
+      wss.handleUpgrade(req, socket, head, (ws: WebSocket) => {
         handleWebSocket(ws, sessionId);
       });
     } else {

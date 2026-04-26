@@ -1,4 +1,10 @@
-import type { Plugin } from '../protocol/plugin-protocol.js';
+export interface PluginMeta {
+  name: string;
+  version?: string;
+  description?: string;
+  scopes?: Array<{ name: string; commands: any[] }>;
+  commands?: Array<{ scope?: string; name: string; description: string }>;
+}
 
 export interface BuiltinCommand {
   name: string;
@@ -16,8 +22,8 @@ export interface BuiltinCommand {
 
 export interface BuiltinContext {
   cwd: string;
-  plugins: Map<string, Plugin>;
-  loadPlugin: (name: string) => Promise<Plugin | null>;
+  plugins: Map<string, PluginMeta>;
+  loadPlugin: (name: string) => Promise<PluginMeta | null>;
   getPluginSource: (name: string) => string | null;
 }
 
@@ -77,7 +83,7 @@ export function getAllBuiltins(): { name: string; description: string }[] {
   return builtins.map((b) => ({ name: b.name, description: b.description }));
 }
 
-function getPluginCommands(plugin: Plugin) {
+function getPluginCommands(plugin: PluginMeta) {
   const commands: { scope: string; command: any }[] = [];
 
   if (plugin.scopes) {

@@ -1,9 +1,7 @@
 import { navigateSession, refreshSession, gotoSession } from '../core/session-client';
 import { existsSync } from 'fs';
 import { join } from 'path';
-import { homedir } from 'os';
-
-const SESSION_DIR = join(homedir(), '.xcli', 'sessions');
+import { SESSION_DIR } from '../core/constants';
 
 export async function navigateCommand(args: string[], values: Record<string, any>) {
   const session = (values.session as string) || 'default';

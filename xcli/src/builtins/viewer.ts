@@ -25,7 +25,7 @@ export const viewerBuiltin: BuiltinCommand = {
       console.log('');
       console.log('可用 sessions:');
       for (const s of sessions) {
-        console.log(`  ${s.name} (${s.url})`);
+        console.log(`  ${s.name} (${s.id})`);
       }
       process.exit(1);
     }

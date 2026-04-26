@@ -9,6 +9,7 @@ export interface DetectionResult {
     captchaType?: string;
     elementCount?: number;
     selectors?: string[];
+    images?: number;
   };
 }
 
@@ -203,22 +204,22 @@ function countOccurrences(html: string, regex: RegExp): number {
 function createCaptchaResult(html: string, elements?: PageAnalysis['elements']): DetectionResult {
   const meta = extractCaptchaInfo(html, elements);
 
-  const details: string[] = ['页面包含验证码验证', `验证码类型: ${meta.captchaType || '未知'}`];
+  const details: string[] = ['页面包含验证码验证', `验证码类型: ${meta?.captchaType || '未知'}`];
 
-  if (meta.captchaId) {
+  if (meta?.captchaId) {
     details.push(`验证码ID: ${meta.captchaId}`);
   }
 
-  if (meta.elementCount) {
+  if (meta?.elementCount) {
     details.push(`检测到 ${meta.elementCount} 个输入框`);
   }
 
   const suggestions: string[] = [
     `📸 打开实时画面: xcli --session <name> viewer`,
-    `🖼️ 验证码类型: ${meta.captchaType || '图片'}`,
+    `🖼️ 验证码类型: ${meta?.captchaType || '图片'}`,
   ];
 
-  if (meta.captchaId) {
+  if (meta?.captchaId) {
     suggestions.push(`🔑 验证码ID: ${meta.captchaId}`);
   }
 

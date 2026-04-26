@@ -1,4 +1,4 @@
-import { BuiltinCommand } from '../../info.js';
+import type { BuiltinCommand } from '../info.js';
 
 const removeCommand: BuiltinCommand = {
   name: 'remove',
@@ -13,7 +13,7 @@ const removeCommand: BuiltinCommand = {
       { cmd: 'xcli remove doubao', description: '同上' },
     ],
   },
-  execute: async (args, options, ctx) => {
+  execute: async (args: string[], options: Record<string, unknown>, ctx: any) => {
     const [name] = args;
 
     if (!name) {
@@ -41,7 +41,7 @@ export const removeBuiltin: BuiltinCommand = {
     options: [],
     examples: [{ cmd: 'xcli rm doubao', description: '卸载 doubao' }],
   },
-  execute: async (args, options, ctx) => {
+  execute: async (args: string[], options: Record<string, unknown>, ctx: any) => {
     await removeCommand.execute(args, options, ctx);
   },
 };

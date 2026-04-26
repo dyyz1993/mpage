@@ -1,16 +1,9 @@
 import { chromium, Browser, BrowserContext, Page } from 'playwright';
 import { mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, unlinkSync } from 'fs';
 import { join } from 'path';
-import { homedir } from 'os';
-
-const SESSION_DIR = join(homedir(), '.xcli', 'sessions');
-
-export interface SessionInfo {
-  name: string;
-  url: string;
-  pid: number;
-  createdAt: string;
-}
+import { randomBytes } from 'crypto';
+import { SESSION_DIR } from './constants';
+import type { SessionInfo } from './types';
 
 interface SessionData {
   browser: Browser;
@@ -42,10 +35,10 @@ export async function openSession(name: string, url: string): Promise<SessionInf
 
   await page.goto(url);
 
-  const browserProcess = browser.process();
-  const browserPID = browserProcess ? (await browserProcess).pid : 0;
+  const browserPID = 0;
 
   const info: SessionInfo = {
+    id: randomBytes(4).toString('hex'),
     name,
     url,
     pid: browserPID || 0,

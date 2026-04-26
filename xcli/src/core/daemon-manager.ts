@@ -1,14 +1,11 @@
 import { spawn } from 'child_process';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { homedir } from 'os';
 import { existsSync, readFileSync, readdirSync, unlinkSync } from 'fs';
+import { SESSION_DIR, DAEMON_CONFIG_PATH } from './constants';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-const SESSION_DIR = join(homedir(), '.xcli', 'sessions');
-const DAEMON_CONFIG_PATH = join(SESSION_DIR, 'daemon.json');
 
 function getDaemonPort(): number {
   if (!existsSync(DAEMON_CONFIG_PATH)) {

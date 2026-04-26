@@ -6,19 +6,16 @@ import {
   killAllDaemon,
   isDaemonRunning,
 } from '../core/daemon-manager.js';
+import { openSession, htmlSession, closeSession, listSessions } from '../core/session-client.js';
 import {
-  openSession,
-  htmlSession,
-  closeSession,
   closeAllSessions,
-  listSessions,
   getCookies,
-  setCookie,
   clearCookies,
   getLocalStorage,
   setLocalStorage,
   clearLocalStorage,
-} from '../core/session-client.js';
+  setCookie,
+} from '../core/session-manager.js';
 
 export const daemonBuiltin: BuiltinCommand = {
   name: 'daemon',
@@ -135,7 +132,7 @@ export const sessionsBuiltin: BuiltinCommand = {
     }
     console.log('Active sessions:');
     for (const s of sessions) {
-      console.log(`  ${s.name} - ${s.url}`);
+      console.log(`  ${s.name} - ${s.id}`);
     }
   },
 };
@@ -162,7 +159,7 @@ export const statusBuiltin: BuiltinCommand = {
     console.log(`Sessions: ${sessions.length}`);
     if (sessions.length > 0) {
       for (const s of sessions) {
-        console.log(`  - ${s.name}: ${s.url}`);
+        console.log(`  - ${s.name}: ${s.id}`);
       }
     }
   },
@@ -218,7 +215,7 @@ export const closeBuiltin: BuiltinCommand = {
 
     const sessionName = options['session'] as string | undefined;
     try {
-      await closeSession(sessionName);
+      await closeSession(sessionName || 'default');
       console.log(`Session "${sessionName || 'default'}" closed`);
     } catch (e: any) {
       console.error('Error:', e.message);
@@ -290,7 +287,7 @@ export const cookieBuiltin: BuiltinCommand = {
           process.exit(1);
         }
 
-        await setCookie(sessionName, { name, value, domain, path: '/' });
+        await setCookie(name, value, domain, name);
         console.log(`Cookie set: ${name}=${value} for ${domain}`);
         return;
       }
@@ -355,7 +352,7 @@ export const localStorageBuiltin: BuiltinCommand = {
           process.exit(1);
         }
 
-        await setLocalStorage(sessionName, key, value);
+        await setLocalStorage(key, value, sessionName);
         console.log(`localStorage set: ${key}=${value}`);
         return;
       }
