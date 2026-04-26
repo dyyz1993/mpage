@@ -29,6 +29,7 @@ export function hasCommand(commandName: string): boolean {
   return resolvedName in allCommands;
 }
 
+// eslint-disable-next-line require-await
 export async function executePageCommand(
   page: Page,
   commandName: string,

@@ -34,8 +34,9 @@ export function parseCommandChain(input: string): ParsedPipeline[] {
       }
       if (char === ';') {
         if (current.trim()) currentPipeline.push(current.trim());
-        if (currentPipeline.length > 0)
+        if (currentPipeline.length > 0) {
           result.push({ pipeline: currentPipeline, type: 'sequence' });
+        }
         currentPipeline = [];
         current = '';
         continue;

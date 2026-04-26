@@ -18,7 +18,8 @@
     "lint": "eslint src --ext .ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "validate": "npm run typecheck && npm run lint && npm test"
   },
   "dependencies": {
     "@dyyz1993/xpage": "file:..",

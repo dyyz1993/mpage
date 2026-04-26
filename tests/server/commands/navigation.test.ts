@@ -5,7 +5,9 @@ import type { Page } from 'playwright-core';
 
 function createMockPage(overrides: Partial<Page> = {}): Page {
   return {
+    // eslint-disable-next-line require-await
     goto: mock.fn(async () => {}),
+    // eslint-disable-next-line require-await
     title: mock.fn(async () => 'Test Page'),
     url: mock.fn(() => 'https://example.com'),
     ...overrides,

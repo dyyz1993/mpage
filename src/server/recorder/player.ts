@@ -21,6 +21,7 @@ export class PlaybackEngine {
     this.recording = recording;
   }
 
+  // eslint-disable-next-line require-await
   static async fromFile(page: Page, filePath: string): Promise<PlaybackEngine> {
     const content = fs.readFileSync(filePath, 'utf-8');
     const recording = yaml.parse(content) as RecordingSession;

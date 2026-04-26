@@ -104,8 +104,9 @@ function extractLayout(rootEl: Element): LayoutNode | null {
     const className = (el.className || '').toString().toLowerCase();
     const id = (el.id || '').toLowerCase();
 
-    if (role === 'navigation' || tag === 'NAV' || className.includes('nav') || id.includes('nav'))
+    if (role === 'navigation' || tag === 'NAV' || className.includes('nav') || id.includes('nav')) {
       return 'nav';
+    }
     if (role === 'banner' || tag === 'HEADER') return 'header';
     if (role === 'contentinfo' || tag === 'FOOTER') return 'footer';
     if (role === 'main' || tag === 'MAIN') return 'main';
@@ -114,8 +115,9 @@ function extractLayout(rootEl: Element): LayoutNode | null {
       tag === 'ASIDE' ||
       className.includes('sidebar') ||
       id.includes('sidebar')
-    )
+    ) {
       return 'sidebar';
+    }
     if (tag === 'FORM' || className.includes('form') || id.includes('form')) return 'form';
     if (className.includes('search') || id.includes('search')) return 'search';
     if (tag === 'SECTION' || tag === 'ARTICLE') return 'section';

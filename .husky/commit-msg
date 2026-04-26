@@ -1,0 +1,19 @@
+MSG=$(cat "$1")
+PATTERN="^(feat|fix|refactor|chore|docs|test|style)(\([a-z-]+\))?:\s.{1,100}"
+
+if ! echo "$MSG" | head -1 | grep -qE "$PATTERN"; then
+  echo ""
+  echo "❌ Invalid commit message format!"
+  echo ""
+  echo "Expected: <type>(<scope>): <description>"
+  echo ""
+  echo "Types: feat | fix | refactor | chore | docs | test | style"
+  echo "Scopes: mpage | xcli | plugins | deps"
+  echo ""
+  echo "Examples:"
+  echo "  feat(xcli): add plugin lifecycle management"
+  echo "  fix(mpage): fix recorder missing events"
+  echo "  chore: clean up debug scripts"
+  echo ""
+  exit 1
+fi

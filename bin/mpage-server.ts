@@ -213,6 +213,7 @@ async function handleCommand(cmd: string, args: Record<string, unknown>): Promis
   return executePageCommand(page, cmd, args);
 }
 
+// eslint-disable-next-line require-await
 async function handleConnection(conn: net.Socket) {
   let buffer = '';
 

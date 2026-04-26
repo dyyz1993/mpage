@@ -1,3 +1,4 @@
+/* eslint-disable require-await, no-return-await */
 import { describe, it, mock } from 'node:test';
 import assert from 'node:assert';
 import { RecorderController } from '../../src/server/recorder/controller.js';

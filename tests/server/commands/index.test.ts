@@ -9,7 +9,9 @@ import type { Page } from 'playwright-core';
 
 function createMockPage(): Page {
   return {
+    // eslint-disable-next-line require-await
     goto: mock.fn(async () => {}),
+    // eslint-disable-next-line require-await
     title: mock.fn(async () => 'Test'),
     url: mock.fn(() => 'https://example.com'),
   } as unknown as Page;
@@ -66,6 +68,7 @@ describe('commands index', () => {
     it('should throw for invalid command', async () => {
       const mockPage = createMockPage();
 
+      // eslint-disable-next-line no-return-await, require-await
       await assert.rejects(async () => await executePageCommand(mockPage, 'nonexistent', {}), {
         message: 'Unknown command: nonexistent',
       });

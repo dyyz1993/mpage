@@ -15,6 +15,7 @@ export const navigationCommands: CommandModule = {
     return { title };
   },
 
+  // eslint-disable-next-line require-await
   url: async (page: Page) => {
     return { url: page.url() };
   },

@@ -55,8 +55,9 @@ function extractStructure(rootEl: Element): StructureNode | null {
     if (role === 'banner' || tag === 'HEADER') return 'header';
     if (role === 'contentinfo' || tag === 'FOOTER') return 'footer';
     if (role === 'main' || tag === 'MAIN') return 'main';
-    if (role === 'complementary' || tag === 'ASIDE' || className.includes('sidebar'))
+    if (role === 'complementary' || tag === 'ASIDE' || className.includes('sidebar')) {
       return 'sidebar';
+    }
     if (tag === 'FORM' || className.includes('form') || className.includes('search')) return 'form';
     if (tag === 'SECTION' || tag === 'ARTICLE') return 'section';
     if (listTagNames.includes(tag) || role === 'list') return 'list';

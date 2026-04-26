@@ -1,5 +1,6 @@
 import * as net from 'net';
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface IPCResponse {
   success: boolean;
   content?: unknown;

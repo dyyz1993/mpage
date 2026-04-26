@@ -21,4 +21,5 @@ export interface CommandDefinition {
   description: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 export type ZodSchema = import('zod').ZodType<unknown>;
