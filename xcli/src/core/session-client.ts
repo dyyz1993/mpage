@@ -35,7 +35,9 @@ async function ensureDaemon(): Promise<void> {
     try {
       const res = await fetch(`http://localhost:${port}/api/sessions`);
       if (res.ok) return;
-    } catch (e) {}
+    } catch {
+      // ignore fetch error
+    }
   }
 
   const xcliDir = process.cwd();
@@ -54,7 +56,9 @@ async function ensureDaemon(): Promise<void> {
       try {
         const res = await fetch(`http://localhost:${p}/api/sessions`);
         if (res.ok) return;
-      } catch {}
+      } catch {
+        // ignore fetch error
+      }
     }
     await new Promise((r) => setTimeout(r, 500));
   }
@@ -164,7 +168,9 @@ export async function listSessions(): Promise<Array<{ id: string; name: string }
     if (res.ok) {
       return await res.json();
     }
-  } catch {}
+  } catch {
+    // ignore fetch error
+  }
   return [];
 }
 

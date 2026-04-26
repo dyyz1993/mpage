@@ -364,11 +364,11 @@ async function handlePageGet(name: string, property: string, selector?: string) 
       } else if (property === 'title') {
         value = await session.page.title();
       } else if (property === 'text' && selector) {
-        value = await session.page.locator(selector).textContent() || '';
+        value = (await session.page.locator(selector).textContent()) || '';
       } else if (property === 'value' && selector) {
-        value = await session.page.locator(selector).inputValue() || '';
+        value = (await session.page.locator(selector).inputValue()) || '';
       } else if (selector) {
-        value = await session.page.locator(selector).textContent() || '';
+        value = (await session.page.locator(selector).textContent()) || '';
       }
       return { ok: true, property, selector, value };
     }
@@ -745,7 +745,9 @@ async function handleWebSocket(ws: WebSocket, sessionId: string) {
       } else if (cmd.type === 'key') {
         await session!.page.keyboard.press(cmd.key);
       }
-    } catch {}
+    } catch {
+      // ignore message error
+    }
   });
 }
 
@@ -755,7 +757,9 @@ async function main() {
   if (existsSync(DAEMON_SOCKET_PATH)) {
     try {
       unlinkSync(DAEMON_SOCKET_PATH);
-    } catch {}
+    } catch {
+      // ignore unlink error
+    }
   }
 
   const httpServer = createHttpServer(handleHttpRequest);

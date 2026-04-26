@@ -56,7 +56,7 @@ export async function installCommand(args: string[], values: Record<string, any>
 }
 
 function extractNameFromUrl(url: string): string {
-  const match = url.match(/\/([^\/]+?)(?:\.git)?$/);
+  const match = url.match(/([^/]+?)(?:\.git)?$/);
   return match ? match[1] : 'plugin';
 }
 
@@ -101,13 +101,33 @@ async function npmInstall(
     }
     rmSync(targetDir, { recursive: true, force: true });
   }
+
   console.log(`Installing ${packageName}...`);
   try {
     mkdirSync(targetDir, { recursive: true });
-    execSync(`npm install ${packageName}`, { stdio: 'inherit', cwd: targetDir });
+
+    execSync(`npm pack ${packageName} --pack-destination /tmp`, { stdio: 'pipe' });
+
+    const files = execSync('ls -t /tmp/*.tgz', { encoding: 'utf-8' })
+      .split('\n')
+      .map((f: string) => f.trim())
+      .filter(Boolean);
+    const tarball = files[0];
+
+    if (!tarball || !existsSync(tarball)) {
+      console.error(`Failed to download ${packageName}`);
+      process.exit(1);
+    }
+
+    execSync(`tar -xzf "${tarball}" -C "${targetDir}" --strip-components=1`, { stdio: 'pipe' });
+    rmSync(tarball, { force: true });
+
     console.log(`Installed: ${packageName} ${location}`);
-  } catch {
-    console.error(`Failed to install ${packageName}`);
+  } catch (err) {
+    console.error(`Failed to install ${packageName}: ${err instanceof Error ? err.message : err}`);
+    if (existsSync(targetDir)) {
+      rmSync(targetDir, { recursive: true, force: true });
+    }
     process.exit(1);
   }
 }

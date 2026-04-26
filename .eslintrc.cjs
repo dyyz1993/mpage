@@ -25,5 +25,5 @@ module.exports = {
     'prettier/prettier': 'error',
     'no-useless-escape': 'off',
   },
-  ignorePatterns: ['dist', 'node_modules', '*.js'],
+  ignorePatterns: ['dist', 'node_modules', '*.js', 'xcli/'],
 };

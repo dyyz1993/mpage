@@ -9,29 +9,26 @@ coverage/
 *.tsbuildinfo
 tmp/
 
-# 测试和调试文件
-*.test.ts
-*.spec.ts
-test-*.ts
-test-*.js
+# 临时调试脚本
 debug-*.ts
 debug-*.js
-check-*.cjs
-verify-*.ts
-*debug*.ts
-*debug*.js
-test-*
-
-# YAML 录制文件
-*.yaml
-!README.md
-
-# 根目录调试文件
 cdp-*.ts
+test-*.ts
+test-*.js
+test-*.cjs
+verify-*.ts
+demo-*.ts
 replay.js
 replay.py
-demo-*.ts
+batch-*.cjs
+
+# 录制产物
+recordings/
+*.yaml
+!xcli/**/*.yaml
 doubao-*.json
+recording-*.json
+*-summary.json
 
 # scripts 目录下的调试和工具文件
 scripts/buildDomTree.js

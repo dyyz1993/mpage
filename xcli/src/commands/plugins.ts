@@ -65,7 +65,9 @@ export async function pluginsCommand(args: string[], values: Record<string, any>
             const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
             console.log(`Version: ${pkg.version}`);
             console.log(`Description: ${pkg.description || 'N/A'}`);
-          } catch {}
+          } catch {
+            // ignore parse error
+          }
         }
         found = true;
         break;

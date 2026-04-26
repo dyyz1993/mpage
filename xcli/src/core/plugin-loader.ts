@@ -7,7 +7,8 @@ import type {
   StorageContext,
 } from '../protocol/plugin-protocol';
 import { SiteInstanceImpl } from '../protocol/plugin-protocol';
-import { resolve, isAbsolute } from 'path';
+import { resolve, isAbsolute, extname } from 'path';
+import { createJiti } from 'jiti';
 
 export class PluginLoader {
   private commands: Map<string, Command & { handler: CommandHandler }> = new Map();
@@ -41,7 +42,7 @@ export class PluginLoader {
   }
 
   private createAPI(): XCLIAPI {
-    const self = this;
+    const self = this; // eslint-disable-line @typescript-eslint/no-this-alias
 
     return {
       createSite(config: SiteConfig): SiteInstance {
@@ -102,9 +103,17 @@ export class PluginLoader {
       const cwd = process.cwd();
       importPath = resolve(cwd, path);
     }
-    importPath = `file://${importPath}`;
-    const plugin = await import(importPath);
-    const setup = plugin.default;
+
+    let plugin: any;
+
+    if (extname(importPath) === '.ts') {
+      const jiti = createJiti(import.meta.url, { interopDefault: true });
+      plugin = await jiti.import(importPath);
+    } else {
+      plugin = await import(`file://${importPath}`);
+    }
+
+    const setup = plugin?.default ?? plugin;
 
     if (typeof setup === 'function') {
       setup(this.api);
