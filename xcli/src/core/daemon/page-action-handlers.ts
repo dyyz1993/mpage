@@ -1,4 +1,5 @@
 import { findSession } from './session-store';
+import type { Cookie } from 'playwright';
 
 export async function handlePageVerifySlider(name: string, baseUrl: string) {
   const session = findSession(name);
@@ -55,7 +56,7 @@ export async function handlePageFetch(
   name: string,
   method: string,
   url: string,
-  body?: any,
+  body?: Record<string, unknown>,
   headers?: Record<string, string>
 ) {
   const session = findSession(name);
@@ -100,7 +101,7 @@ export async function handlePageFetch(
   return response;
 }
 
-export async function handlePageAddCookie(name: string, cookie: any) {
+export async function handlePageAddCookie(name: string, cookie: Cookie) {
   const session = findSession(name);
   if (!session) return { ok: false, error: 'Session not found' };
   await session.context.addCookies([cookie]);

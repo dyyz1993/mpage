@@ -5,3 +5,6 @@ export interface SessionInfo {
   pid?: number;
   createdAt: string;
 }
+
+export type CommandArgs = string[];
+export type CommandValues = Record<string, unknown>;

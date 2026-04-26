@@ -2,7 +2,7 @@ export interface PluginMeta {
   name: string;
   version?: string;
   description?: string;
-  scopes?: Array<{ name: string; commands: any[] }>;
+  scopes?: Array<{ name: string; commands: Array<{ name: string; description: string }> }>;
   commands?: Array<{ scope?: string; name: string; description: string }>;
 }
 
@@ -84,7 +84,7 @@ export function getAllBuiltins(): { name: string; description: string }[] {
 }
 
 function getPluginCommands(plugin: PluginMeta) {
-  const commands: { scope: string; command: any }[] = [];
+  const commands: { scope: string; command: { name: string; description: string } }[] = [];
 
   if (plugin.scopes) {
     for (const scope of plugin.scopes) {

@@ -1,4 +1,5 @@
 import { findSession } from './session-store';
+import type { Cookie } from 'playwright';
 
 export async function getStorage(name: string, type: string) {
   const session = findSession(name);
@@ -21,7 +22,13 @@ export async function getStorage(name: string, type: string) {
   return type === 'cookies' ? { cookies: [] } : { localStorage: {} };
 }
 
-export function setStorage(name: string, type: string, key?: string, value?: string, data?: any) {
+export function setStorage(
+  name: string,
+  type: string,
+  key?: string,
+  value?: string,
+  data?: Cookie
+) {
   const session = findSession(name);
   if (!session) return;
 

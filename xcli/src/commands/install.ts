@@ -2,15 +2,16 @@ import { mkdirSync, writeFileSync, existsSync, rmSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
 import { homedir } from 'os';
+import type { CommandValues } from '../core/types';
 
 const OFFICIAL_TEMPLATES = ['static', 'dynamic', 'login', 'api'];
 
 const GLOBAL_PLUGINS_DIR = join(homedir(), '.xcli', 'plugins');
 const LOCAL_PLUGINS_DIR = '.xcli/plugins';
 
-export async function installCommand(args: string[], values: Record<string, any>) {
-  const isGlobal = values.global || values.g || (!values.project && !values.p);
-  const isForce = values.force || values.f;
+export async function installCommand(args: string[], values: CommandValues) {
+  const isGlobal = Boolean(values.global || values.g || (!values.project && !values.p));
+  const isForce = Boolean(values.force || values.f);
   const source = args[0];
 
   if (!source) {
@@ -167,7 +168,7 @@ export default function (xcli: XCLIAPI) {
   plugin.command('scrape', {
     description: '采集数据',
     parameters: {},
-    handler: async (_params: any, ctx: any) => {
+    handler: async (_params: Record<string, unknown>, ctx: Record<string, unknown>) => {
       await ctx.page.goto(plugin.url);
       await ctx.page.waitForLoadState('domcontentloaded');
       return { data: [], tips: ['采集完成'] };
@@ -177,7 +178,7 @@ export default function (xcli: XCLIAPI) {
   plugin.command('verify', {
     description: '校验数据',
     parameters: {},
-    handler: async (_params: any, ctx: any) => {
+    handler: async (_params: Record<string, unknown>, ctx: Record<string, unknown>) => {
       return { data: [], errors: [], tips: [] };
     },
   });

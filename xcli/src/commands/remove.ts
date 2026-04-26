@@ -1,11 +1,12 @@
 import { rmSync, existsSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
+import type { CommandValues } from '../core/types';
 
 const GLOBAL_PLUGINS_DIR = join(homedir(), '.xcli', 'plugins');
 const LOCAL_PLUGINS_DIR = '.xcli/plugins';
 
-export async function removeCommand(args: string[], values: Record<string, any>) {
+export async function removeCommand(args: string[], values: CommandValues) {
   const isGlobal = values.global || values.g || (!values.project && !values.p);
   const name = args[0];
 

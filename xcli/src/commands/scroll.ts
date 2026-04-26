@@ -2,10 +2,11 @@ import { scrollSession } from '../core/session-client';
 import { existsSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
+import type { CommandValues } from '../core/types';
 
 const SESSION_DIR = join(homedir(), '.xcli', 'sessions');
 
-export async function scrollCommand(args: string[], values: Record<string, any>) {
+export async function scrollCommand(args: string[], values: CommandValues) {
   const session = (values.session as string) || 'default';
   const sessionFile = join(SESSION_DIR, `${session}.json`);
 

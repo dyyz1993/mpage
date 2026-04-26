@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync, existsSync } from 'fs';
+import type { CommandValues } from '../core/types';
 
-export async function createCommand(args: string[], values: Record<string, any>) {
+export async function createCommand(args: string[], values: CommandValues) {
   const name = values.name || args[0];
   if (!name) {
     console.error('Usage: xcli create --name <case_id>');
@@ -33,7 +34,7 @@ export default function (xcli: XCLIAPI) {
   plugin.command('scrape', {
     description: '采集数据',
     parameters: {},
-    handler: async (_params: any, ctx: any) => {
+    handler: async (_params: Record<string, unknown>, ctx: Record<string, unknown>) => {
       await ctx.page.goto(plugin.url);
       await ctx.page.waitForLoadState('domcontentloaded');
       return { data: [], tips: ['采集完成'] };
@@ -43,7 +44,7 @@ export default function (xcli: XCLIAPI) {
   plugin.command('verify', {
     description: '校验数据',
     parameters: {},
-    handler: async (_params: any, ctx: any) => {
+    handler: async (_params: Record<string, unknown>, ctx: Record<string, unknown>) => {
       return { data: [], errors: [], tips: [] };
     },
   });

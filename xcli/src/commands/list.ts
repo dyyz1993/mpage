@@ -1,6 +1,7 @@
 import { listSessions } from '../core/session-client';
+import type { CommandValues } from '../core/types';
 
-export async function listCommand(_args: string[], _values: Record<string, any>) {
+export async function listCommand(_args: string[], _values: CommandValues) {
   try {
     const sessions = await listSessions();
 

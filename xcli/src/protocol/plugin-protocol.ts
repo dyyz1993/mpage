@@ -5,7 +5,7 @@ export const OptionSchema = z.object({
   short: z.string().optional(),
   type: z.enum(['string', 'number', 'boolean', 'array']).default('string'),
   description: z.string(),
-  default: z.any().optional(),
+  default: z.unknown().optional(),
   required: z.boolean().optional(),
 });
 export type Option = z.infer<typeof OptionSchema>;
@@ -27,13 +27,14 @@ export const CommandSchema = z.object({
 });
 export type Command = z.infer<typeof CommandSchema>;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type CommandHandler = (params: any, ctx: CommandContext) => Promise<any>;
 
 export interface CommandContext {
   args: string[];
   options: Record<string, unknown>;
   cwd: string;
-  page: any;
+  page: unknown;
   storage: StorageContext;
   output: OutputContext;
   error: (msg: string) => void;
@@ -67,7 +68,7 @@ export interface SiteConfig {
   isLogin?: (ctx: CommandContext) => Promise<boolean>;
 }
 
-export type ZodSchema = z.ZodType<any>;
+export type ZodSchema = z.ZodType<unknown>;
 
 export interface XCLIAPI {
   createSite(config: SiteConfig): SiteInstance;
@@ -107,7 +108,7 @@ export interface SiteInstance {
   getAllCommands(): Array<{ name: string; description: string; requiresLogin?: boolean }>;
   getCommand(
     name: string
-  ): { name: string; description: string; requiresLogin?: boolean; handler: any } | null;
+  ): { name: string; description: string; requiresLogin?: boolean; handler: CommandHandler } | null;
   executeLogin(ctx: CommandContext): Promise<void>;
   executeLogout(ctx: CommandContext): Promise<void>;
 }
@@ -151,7 +152,19 @@ export class SiteInstanceImpl implements SiteInstance {
   name: string;
   url: string;
   config: SiteConfig;
-  private commands: Map<string, any> = new Map();
+  private commands: Map<
+    string,
+    {
+      name: string;
+      description: string;
+      requiresLogin?: boolean;
+      parameters?: ZodSchema;
+      result?: ZodSchema;
+      examples?: Array<{ cmd: string; description: string }>;
+      tips?: string[];
+      handler: CommandHandler;
+    }
+  > = new Map();
   private loginHandler?: (ctx: CommandContext) => Promise<void>;
   private logoutHandler?: (ctx: CommandContext) => Promise<void>;
   private storage: StorageContext;
@@ -199,12 +212,21 @@ export class SiteInstanceImpl implements SiteInstance {
     return this;
   }
 
-  getCommand(name: string): any {
-    return this.commands.get(name);
+  getCommand(name: string): {
+    name: string;
+    description: string;
+    requiresLogin?: boolean;
+    handler: CommandHandler;
+  } | null {
+    return this.commands.get(name) ?? null;
   }
 
-  getAllCommands(): any[] {
-    return Array.from(this.commands.values());
+  getAllCommands(): Array<{ name: string; description: string; requiresLogin?: boolean }> {
+    return Array.from(this.commands.values()).map(({ name, description, requiresLogin }) => ({
+      name,
+      description,
+      requiresLogin,
+    }));
   }
 
   hasLoginCommand(): boolean {
@@ -220,7 +242,10 @@ export class SiteInstanceImpl implements SiteInstance {
       return true;
     }
     if (this.config.isLogin) {
-      return this.config.isLogin({ page: null as any, storage: this.storage } as CommandContext);
+      return this.config.isLogin({
+        page: null as unknown,
+        storage: this.storage,
+      } as CommandContext);
     }
     const token = await this.storage.get('auth_token');
     return !!token;
@@ -262,7 +287,7 @@ export class SiteInstanceImpl implements SiteInstance {
   }
 }
 
-export function buildInputSchema(command: any) {
+export function buildInputSchema(command: { parameters?: ZodSchema; options?: Option[] }) {
   if (command.parameters) {
     return command.parameters;
   }
@@ -290,7 +315,7 @@ export function buildInputSchema(command: any) {
     }
 
     if (opt.default !== undefined) {
-      schema = schema.default(opt.default as any);
+      schema = schema.default(opt.default as unknown as z.ZodTypeAny);
     }
     if (!opt.required) {
       schema = schema.optional();
@@ -302,12 +327,19 @@ export function buildInputSchema(command: any) {
   return z.object(shape);
 }
 
-export function validateArgs<T>(command: any, argv: Record<string, unknown>): T {
+export function validateArgs<T>(
+  command: { parameters?: ZodSchema; options?: Option[] },
+  argv: Record<string, unknown>
+): T {
   const schema = buildInputSchema(command);
   const result = schema.safeParse(argv);
 
   if (!result.success) {
-    const msg = result.error.errors.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', ');
+    const msg = result.error.errors
+      .map(
+        (e: { path: (string | number)[]; message: string }) => `${e.path.join('.')}: ${e.message}`
+      )
+      .join(', ');
     throw new CommandError('INVALID_ARGS', msg);
   }
 

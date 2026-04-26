@@ -1,4 +1,9 @@
-import { createServer as createHttpServer, Server as HttpServer } from 'http';
+import {
+  createServer as createHttpServer,
+  Server as HttpServer,
+  IncomingMessage,
+  ServerResponse,
+} from 'http';
 import { parse } from 'url';
 import { readFileSync } from 'fs';
 import { join } from 'path';
@@ -33,7 +38,7 @@ function getSwaggerUI(): string {
 </html>`;
 }
 
-async function handleHttpRequest(req: any, res: any) {
+async function handleHttpRequest(req: IncomingMessage, res: ServerResponse) {
   const { pathname } = parse(req.url || '', true);
 
   if (pathname === '/' || pathname === '/docs') {
@@ -62,7 +67,7 @@ async function handleHttpRequest(req: any, res: any) {
 
   if (pathname === '/rpc') {
     let body = '';
-    req.on('data', (chunk: any) => {
+    req.on('data', (chunk: Buffer) => {
       body += chunk;
     });
     req.on('end', async () => {
@@ -71,9 +76,10 @@ async function handleHttpRequest(req: any, res: any) {
         const result = await handleRPCCommandAsync(method, params);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(result));
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
         res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: err.message }));
+        res.end(JSON.stringify({ error: message }));
       }
     });
     return;

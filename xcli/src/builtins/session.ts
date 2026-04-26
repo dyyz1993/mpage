@@ -59,8 +59,8 @@ export const daemonBuiltin: BuiltinCommand = {
       try {
         const { port, pid } = await startDaemon();
         console.log(`Daemon started (PID: ${pid}, Port: ${port})`);
-      } catch (e: any) {
-        console.error('Failed to start daemon:', e.message);
+      } catch (e: unknown) {
+        console.error('Failed to start daemon:', e instanceof Error ? e.message : String(e));
         process.exit(1);
       }
       return;
@@ -96,8 +96,8 @@ export const openBuiltin: BuiltinCommand = {
     if (!isDaemonRunning()) {
       try {
         await startDaemon();
-      } catch (e: any) {
-        console.error('Failed to start daemon:', e.message);
+      } catch (e: unknown) {
+        console.error('Failed to start daemon:', e instanceof Error ? e.message : String(e));
         process.exit(1);
       }
     }
@@ -182,8 +182,8 @@ export const htmlBuiltin: BuiltinCommand = {
     try {
       const html = await htmlSession(sessionName);
       console.log(html);
-    } catch (e: any) {
-      console.error('Error:', e.message);
+    } catch (e: unknown) {
+      console.error('Error:', e instanceof Error ? e.message : String(e));
       console.error('Hint: Use "xcli open <url>" first');
       process.exit(1);
     }
@@ -217,8 +217,8 @@ export const closeBuiltin: BuiltinCommand = {
     try {
       await closeSession(sessionName || 'default');
       console.log(`Session "${sessionName || 'default'}" closed`);
-    } catch (e: any) {
-      console.error('Error:', e.message);
+    } catch (e: unknown) {
+      console.error('Error:', e instanceof Error ? e.message : String(e));
       process.exit(1);
     }
   },
@@ -300,8 +300,8 @@ export const cookieBuiltin: BuiltinCommand = {
 
       console.log(`Unknown action: ${action}`);
       console.log('Usage: xcli cookie [get|set|clear]');
-    } catch (e: any) {
-      console.error('Error:', e.message);
+    } catch (e: unknown) {
+      console.error('Error:', e instanceof Error ? e.message : String(e));
       process.exit(1);
     }
   },
@@ -365,8 +365,8 @@ export const localStorageBuiltin: BuiltinCommand = {
 
       console.log(`Unknown action: ${action}`);
       console.log('Usage: xcli localStorage [get|set|clear]');
-    } catch (e: any) {
-      console.error('Error:', e.message);
+    } catch (e: unknown) {
+      console.error('Error:', e instanceof Error ? e.message : String(e));
       process.exit(1);
     }
   },

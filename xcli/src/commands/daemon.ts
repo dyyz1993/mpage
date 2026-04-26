@@ -1,6 +1,7 @@
 import { startDaemon, isDaemonRunning, stopDaemon } from '../core/daemon-manager';
+import type { CommandValues } from '../core/types';
 
-export async function daemonCommand(args: string[], _values: Record<string, any>) {
+export async function daemonCommand(args: string[], _values: CommandValues) {
   const action = args[0];
 
   if (action === 'start') {

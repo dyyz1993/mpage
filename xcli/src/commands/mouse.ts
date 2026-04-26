@@ -1,6 +1,7 @@
 import { mouseSession } from '../core/session-client';
+import type { CommandValues } from '../core/types';
 
-export async function mouseCommand(args: string[], values: Record<string, any>) {
+export async function mouseCommand(args: string[], values: CommandValues) {
   const session = (values.session as string) || 'default';
 
   const [action, xStr, yStr, stepsStr] = args;
@@ -20,7 +21,13 @@ export async function mouseCommand(args: string[], values: Record<string, any>) 
   }
 
   try {
-    const result = await mouseSession(session, action as any, x, y, steps);
+    const result = await mouseSession(
+      session,
+      action as 'move' | 'down' | 'up' | 'click',
+      x,
+      y,
+      steps
+    );
     console.log(JSON.stringify(result));
   } catch (error) {
     console.error(`Error: ${error instanceof Error ? error.message : error}`);

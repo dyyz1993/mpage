@@ -1,6 +1,7 @@
 import { typeSession } from '../core/session-client';
+import type { CommandValues } from '../core/types';
 
-export async function typeCommand(args: string[], values: Record<string, any>) {
+export async function typeCommand(args: string[], values: CommandValues) {
   const session = (values.session as string) || 'default';
   const [selector, text] = args;
 

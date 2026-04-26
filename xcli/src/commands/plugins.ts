@@ -1,6 +1,7 @@
 import { readdirSync, existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
+import type { CommandValues } from '../core/types';
 
 const GLOBAL_PLUGINS_DIR = join(homedir(), '.xcli', 'plugins');
 const LOCAL_PLUGINS_DIR = '.xcli/plugins';
@@ -12,7 +13,7 @@ interface PluginInfo {
   path: string;
 }
 
-export async function pluginsCommand(args: string[], values: Record<string, any>) {
+export async function pluginsCommand(args: string[], values: CommandValues) {
   const action = args[0] || 'list';
   const filterGlobal = values.global || values.g;
   const filterLocal = values.project || values.p;

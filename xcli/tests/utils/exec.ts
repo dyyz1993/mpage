@@ -19,11 +19,12 @@ export async function execAsync(
       cwd: options.cwd || process.cwd(),
     });
     return { stdout: stdout || '', stderr: stderr || '', exitCode: exitCode || 0 };
-  } catch (error: any) {
-    const exitCode = typeof error.code === 'number' ? error.code : 1;
+  } catch (error: unknown) {
+    const err = error as { code?: number; stdout?: string; stderr?: string; message?: string };
+    const exitCode = typeof err.code === 'number' ? err.code : 1;
     return {
-      stdout: error.stdout || '',
-      stderr: error.stderr || '',
+      stdout: err.stdout || '',
+      stderr: err.stderr || '',
       exitCode,
     };
   }

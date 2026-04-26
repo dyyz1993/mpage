@@ -1,10 +1,11 @@
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
+import type { CommandValues } from '../core/types';
 
 const SESSION_DIR = join(homedir(), '.xcli', 'sessions');
 
-export async function httpCommand(args: string[], values: Record<string, any>) {
+export async function httpCommand(args: string[], values: CommandValues) {
   const [method, url] = args;
   const session = (values.session as string) || 'default';
   const sessionFile = join(SESSION_DIR, `${session}.json`);
@@ -38,7 +39,7 @@ export async function httpCommand(args: string[], values: Record<string, any>) {
     });
 
     const contentType = result.headers.get('content-type') || '';
-    let data: any;
+    let data: unknown;
 
     if (contentType.includes('json')) {
       data = await result.json();

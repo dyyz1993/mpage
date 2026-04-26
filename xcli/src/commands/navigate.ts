@@ -2,8 +2,9 @@ import { navigateSession, refreshSession, gotoSession } from '../core/session-cl
 import { existsSync } from 'fs';
 import { join } from 'path';
 import { SESSION_DIR } from '../core/constants';
+import type { CommandValues } from '../core/types';
 
-export async function navigateCommand(args: string[], values: Record<string, any>) {
+export async function navigateCommand(args: string[], values: CommandValues) {
   const session = (values.session as string) || 'default';
   const sessionFile = join(SESSION_DIR, `${session}.json`);
 
@@ -16,7 +17,7 @@ export async function navigateCommand(args: string[], values: Record<string, any
   const action = args[0];
 
   try {
-    let result: any;
+    let result: Record<string, unknown>;
 
     switch (action) {
       case 'back':

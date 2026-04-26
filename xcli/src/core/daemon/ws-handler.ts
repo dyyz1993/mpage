@@ -1,5 +1,6 @@
 import WebSocket, { WebSocketServer } from 'ws';
 import { parse } from 'url';
+import type { IncomingMessage } from 'http';
 import { sessions, wsConnections } from './session-store';
 
 async function handleWebSocket(ws: WebSocket, sessionId: string) {
@@ -19,10 +20,10 @@ async function handleWebSocket(ws: WebSocket, sessionId: string) {
   const cdpSession = await session.context.newCDPSession(session.page);
   await cdpSession.send('Page.startScreencast', { everyNthFrame: 1 });
 
-  cdpSession.on('Page.screencastFrame', (frame: any) => {
-    const data = frame.data;
-    const sessionId2 = frame.sessionId;
-    const metadata = frame.metadata || {};
+  cdpSession.on('Page.screencastFrame', (frame: Record<string, unknown>) => {
+    const data = frame.data as string;
+    const sessionId2 = frame.sessionId as number;
+    const metadata = (frame.metadata as Record<string, unknown>) || {};
     const viewport = session.page.viewportSize();
     const viewportData = viewport ? { width: viewport.width, height: viewport.height } : null;
 
@@ -40,7 +41,7 @@ async function handleWebSocket(ws: WebSocket, sessionId: string) {
     cdpSession.send('Page.screencastFrameAck', { sessionId: sessionId2 }).catch(() => {});
   });
 
-  ws.on('message', async (msg: any) => {
+  ws.on('message', async (msg: WebSocket.RawData) => {
     try {
       const cmd = JSON.parse(msg.toString());
       if (cmd.type === 'navigate') {
@@ -61,17 +62,20 @@ async function handleWebSocket(ws: WebSocket, sessionId: string) {
 export function setupWebSocket(httpServer: import('http').Server): WebSocketServer {
   const wss = new WebSocketServer({ noServer: true });
 
-  httpServer.on('upgrade', (req: any, socket: any, head: any) => {
-    const { pathname, query } = parse(req.url || '', true);
-    if (pathname === '/ws') {
-      const sessionId = query.s as string;
-      wss.handleUpgrade(req, socket, head, (ws: WebSocket) => {
-        handleWebSocket(ws, sessionId);
-      });
-    } else {
-      socket.destroy();
+  httpServer.on(
+    'upgrade',
+    (req: IncomingMessage, socket: import('stream').Duplex, head: Buffer) => {
+      const { pathname, query } = parse(req.url || '', true);
+      if (pathname === '/ws') {
+        const sessionId = query.s as string;
+        wss.handleUpgrade(req, socket, head, (ws: WebSocket) => {
+          handleWebSocket(ws, sessionId);
+        });
+      } else {
+        socket.destroy();
+      }
     }
-  });
+  );
 
   return wss;
 }

@@ -1,5 +1,5 @@
 /** @deprecated Use session-daemon instead */
-import { chromium, Browser, BrowserContext, Page } from 'playwright';
+import { chromium, Browser, BrowserContext, Page, Cookie } from 'playwright';
 import { mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import { randomBytes } from 'crypto';
@@ -124,7 +124,7 @@ function removeSessionInfo(name: string): void {
   }
 }
 
-export async function getCookies(_name?: string): Promise<any[]> {
+export async function getCookies(_name?: string): Promise<Cookie[]> {
   if (!currentSession) {
     throw new Error('No active session');
   }

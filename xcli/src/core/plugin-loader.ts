@@ -5,6 +5,9 @@ import type {
   SiteConfig,
   SiteInstance,
   StorageContext,
+  FlagConfig,
+  ToolConfig,
+  EventContext,
 } from '../protocol/plugin-protocol';
 import { SiteInstanceImpl } from '../protocol/plugin-protocol';
 import { resolve, isAbsolute, extname } from 'path';
@@ -13,11 +16,11 @@ import { createJiti } from 'jiti';
 export class PluginLoader {
   private commands: Map<string, Command & { handler: CommandHandler }> = new Map();
   private sites: Map<string, SiteInstance> = new Map();
-  private flags: Map<string, any> = new Map();
-  private tools: Map<string, any> = new Map();
+  private flags: Map<string, FlagConfig> = new Map();
+  private tools: Map<string, ToolConfig> = new Map();
   private loadHandlers: Array<() => void | Promise<void>> = [];
   private unloadHandlers: Array<() => void | Promise<void>> = [];
-  private eventHandlers: Map<string, Array<(event: any) => unknown>> = new Map();
+  private eventHandlers: Map<string, Array<(event: EventContext) => void>> = new Map();
   private storage: StorageContext;
 
   private api: XCLIAPI = this.createAPI();
@@ -58,17 +61,17 @@ export class PluginLoader {
         return this;
       },
 
-      registerFlag(flag: any) {
+      registerFlag(flag: FlagConfig) {
         self.flags.set(flag.name, flag);
         return this;
       },
 
-      registerTool(tool: any) {
+      registerTool(tool: ToolConfig) {
         self.tools.set(tool.name, tool);
         return this;
       },
 
-      overrideTool(name: string, tool: any) {
+      overrideTool(name: string, tool: ToolConfig) {
         self.tools.set(name, tool);
         return this;
       },
@@ -83,7 +86,7 @@ export class PluginLoader {
         return this;
       },
 
-      onEvent(event: string, handler: (event: any) => unknown) {
+      onEvent(event: string, handler: (event: EventContext) => void) {
         if (!self.eventHandlers.has(event)) {
           self.eventHandlers.set(event, []);
         }
@@ -104,7 +107,7 @@ export class PluginLoader {
       importPath = resolve(cwd, path);
     }
 
-    let plugin: any;
+    let plugin: Record<string, unknown> | undefined;
 
     if (extname(importPath) === '.ts') {
       const jiti = createJiti(import.meta.url, { interopDefault: true });
@@ -155,23 +158,23 @@ export class PluginLoader {
     return Array.from(this.sites.values());
   }
 
-  getFlag(name: string): any {
+  getFlag(name: string): FlagConfig | undefined {
     return this.flags.get(name);
   }
 
-  getAllFlags(): Array<any> {
+  getAllFlags(): FlagConfig[] {
     return Array.from(this.flags.values());
   }
 
-  getTool(name: string): any {
+  getTool(name: string): ToolConfig | undefined {
     return this.tools.get(name);
   }
 
-  getAllTools(): Array<any> {
+  getAllTools(): ToolConfig[] {
     return Array.from(this.tools.values());
   }
 
-  async emitEvent(event: string, context: any): Promise<void> {
+  async emitEvent(event: string, context: EventContext): Promise<void> {
     const handlers = this.eventHandlers.get(event) || [];
     for (const handler of handlers) {
       await handler(context);

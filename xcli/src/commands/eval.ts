@@ -2,10 +2,11 @@ import { evalScriptSession } from '../core/session-client';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
+import type { CommandValues } from '../core/types';
 
 const SESSION_DIR = join(homedir(), '.xcli', 'sessions');
 
-export async function evalCommand(args: string[], values: Record<string, any>) {
+export async function evalCommand(args: string[], values: CommandValues) {
   const session = (values.session as string) || 'default';
   const sessionFile = join(SESSION_DIR, `${session}.json`);
 

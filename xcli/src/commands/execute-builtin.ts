@@ -24,7 +24,11 @@ import { gotoCommand } from './goto';
 import { installCommand } from './install';
 import { killAllDaemon } from '../core/daemon-manager';
 
-const commands: Record<string, any> = {
+import type { CommandArgs, CommandValues } from '../core/types';
+
+type BuiltinCommandFn = (args: CommandArgs, values: CommandValues) => Promise<void>;
+
+const commands: Record<string, BuiltinCommandFn> = {
   open: openCommand,
   click: clickCommand,
   select: selectCommand,
@@ -55,7 +59,7 @@ const commands: Record<string, any> = {
   },
 };
 
-export async function executeBuiltin(cmd: string, _args: string[], _values: Record<string, any>) {
+export async function executeBuiltin(cmd: string, _args: CommandArgs, _values: CommandValues) {
   const command = commands[cmd];
   if (command) {
     await command(_args, _values);

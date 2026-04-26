@@ -47,9 +47,10 @@ async function main() {
         const result = await handleRPCCommandAsync(method, params);
         socket.write(JSON.stringify(result) + '\n');
         socket.end();
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
         try {
-          socket.write(JSON.stringify({ error: err.message }) + '\n');
+          socket.write(JSON.stringify({ error: message }) + '\n');
           socket.end();
         } catch {
           socket.end();

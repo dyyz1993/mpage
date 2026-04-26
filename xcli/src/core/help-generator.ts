@@ -1,4 +1,14 @@
-import type { Command, Option } from '../protocol/plugin-protocol';
+import type { Command, Option, ZodSchema } from '../protocol/plugin-protocol';
+
+interface HelpCommand {
+  name?: string;
+  description?: string;
+  parameters?: ZodSchema;
+  options?: Option[];
+  result?: ZodSchema;
+  examples?: Array<{ cmd: string; description?: string; output?: string }>;
+  tips?: string[];
+}
 
 export interface HelpOptions {
   color: boolean;
@@ -6,7 +16,7 @@ export interface HelpOptions {
 }
 
 export class HelpGenerator {
-  generate(command: any, options?: HelpOptions): string {
+  generate(command: HelpCommand, options?: HelpOptions): string {
     const { color, emoji } = { color: true, emoji: true, ...options };
 
     const lines: string[] = [];
@@ -41,30 +51,42 @@ export class HelpGenerator {
     return lines.join('\n');
   }
 
-  private header(cmd: Command, color: boolean, emoji: boolean): string {
+  private header(
+    cmd: { name?: string; description?: string },
+    color: boolean,
+    emoji: boolean
+  ): string {
     const prefix = emoji ? '📌 ' : '';
-    return `${prefix}${cmd.name} - ${cmd.description}`;
+    return `${prefix}${cmd.name || ''} - ${cmd.description || ''}`;
   }
 
-  private description(cmd: Command, _color: boolean, _emoji: boolean): string {
-    return cmd.description;
+  private description(cmd: { description?: string }, _color: boolean, _emoji: boolean): string {
+    return cmd.description || '';
   }
 
-  private zodParameters(schema: any, _color: boolean, emoji: boolean): string {
+  private zodParameters(schema: ZodSchema, _color: boolean, emoji: boolean): string {
     const prefix = emoji ? '⚙️  ' : '';
     const lines: string[] = [];
     lines.push(`${prefix}Parameters (Zod):`);
 
     try {
-      const shape = schema.shape || schema._def?.shape?.();
+      const schemaAny = schema as unknown as Record<string, unknown>;
+      const shape =
+        (schemaAny.shape as Record<string, unknown>) ||
+        ((schemaAny._def as Record<string, unknown>)?.shape as () => Record<string, unknown>)?.();
       if (shape) {
         for (const [key, value] of Object.entries(shape)) {
-          const fieldSchema = value as any;
-          const description = fieldSchema.description || fieldSchema._def?.description || '';
-          const type = this.getZodType(fieldSchema);
-          const required = fieldSchema.isOptional ? '(optional)' : '(required)';
+          const fieldSchema = value as unknown as Record<string, unknown>;
+          const fieldDef = fieldSchema._def as Record<string, unknown> | undefined;
+          const description =
+            (fieldSchema.description as string) || (fieldDef?.description as string) || '';
+          const type = this.getZodType(value);
+          const required =
+            typeof fieldSchema.isOptional === 'function' ? '(optional)' : '(required)';
           const defaultVal =
-            fieldSchema.defaultValue !== undefined ? `[default: ${fieldSchema.defaultValue}]` : '';
+            fieldSchema.defaultValue !== undefined
+              ? `[default: ${String(fieldSchema.defaultValue)}]`
+              : '';
 
           lines.push(`  --${key} ${type} ${required} ${defaultVal}`.replace(/\s+/g, ' ').trim());
           if (description) {
@@ -79,20 +101,25 @@ export class HelpGenerator {
     return lines.join('\n');
   }
 
-  private zodResult(schema: any, color: boolean, emoji: boolean): string {
+  private zodResult(schema: ZodSchema, color: boolean, emoji: boolean): string {
     const prefix = emoji ? '📤 ' : '';
     const lines: string[] = [];
     lines.push(`${prefix}Result (Zod):`);
 
     try {
-      const shape = schema.shape || schema._def?.shape?.();
+      const schemaAny = schema as unknown as Record<string, unknown>;
+      const shape =
+        (schemaAny.shape as Record<string, unknown>) ||
+        ((schemaAny._def as Record<string, unknown>)?.shape as () => Record<string, unknown>)?.();
       if (shape) {
         for (const [key, value] of Object.entries(shape)) {
           if (key === 'tips' || key === 'errors') continue;
 
-          const fieldSchema = value as any;
-          const description = fieldSchema.description || fieldSchema._def?.description || '';
-          const type = this.getZodType(fieldSchema);
+          const fieldSchema = value as unknown as Record<string, unknown>;
+          const fieldDef = fieldSchema._def as Record<string, unknown> | undefined;
+          const description =
+            (fieldSchema.description as string) || (fieldDef?.description as string) || '';
+          const type = this.getZodType(value);
 
           lines.push(`  ${key}: ${type}`);
           if (description) {
@@ -107,53 +134,60 @@ export class HelpGenerator {
     return lines.join('\n');
   }
 
-  private getZodType(schema: any, depth = 0): string {
+  private getZodType(schema: unknown, depth = 0): string {
     try {
       if (!schema) return '[null]';
       if (depth > 3) return '[max-depth]';
 
-      if (typeof schema.isOptional === 'function' && schema.isOptional()) {
-        return this.getZodType(schema.unwrap(), depth + 1);
+      const s = schema as Record<string, unknown>;
+      const sDef = s._def as Record<string, unknown> | undefined;
+
+      if (typeof s.isOptional === 'function' && (s.isOptional as () => boolean)()) {
+        return this.getZodType((s.unwrap as () => unknown)(), depth + 1);
       }
-      if (typeof schema.isNullable === 'function' && schema.isNullable()) {
-        return this.getZodType(schema.unwrap(), depth + 1);
+      if (typeof s.isNullable === 'function' && (s.isNullable as () => boolean)()) {
+        return this.getZodType((s.unwrap as () => unknown)(), depth + 1);
       }
 
-      const typeName = schema._def?.typeName || schema.constructor?.name;
+      const typeName = (sDef?.typeName as string) || (schema as object).constructor?.name;
 
       if (typeName === 'ZodString') return '[string]';
       if (typeName === 'ZodNumber') return '[number]';
       if (typeName === 'ZodBoolean') return '[boolean]';
       if (typeName === 'ZodArray') {
-        let inner = schema._def?.type;
-        if (!inner) inner = schema._def?.innerType;
-        if (!inner) inner = schema._def?.wrapped;
-        if (!inner && schema.unwrap) inner = schema.unwrap()._def?.type;
-        const innerStr = inner ? this.getZodType(inner, depth + 1) : '[any]';
+        let inner = sDef?.type;
+        if (!inner) inner = sDef?.innerType;
+        if (!inner) inner = sDef?.wrapped;
+        if (!inner && typeof s.unwrap === 'function')
+          inner = ((s.unwrap as () => Record<string, unknown>)()._def as Record<string, unknown>)
+            ?.type;
+        const innerStr = inner ? this.getZodType(inner, depth + 1) : '[unknown]';
         return `[${innerStr}]`;
       }
       if (typeName === 'ZodObject') {
-        const shape = schema.shape || schema._def?.shape?.();
+        const shape =
+          (s.shape as Record<string, unknown>) ||
+          (sDef?.shape as () => Record<string, unknown>)?.();
         if (shape && Object.keys(shape).length > 0) {
           return '[object] { ' + Object.keys(shape).join(', ') + ' }';
         }
         return '[object]';
       }
       if (typeName === 'ZodOptional' || typeName === 'ZodDefault') {
-        let inner = schema._def?.innerType;
-        if (!inner && schema.innerType) inner = schema.innerType;
-        if (!inner) inner = schema._def?.type;
-        if (!inner && schema.unwrap) inner = schema.unwrap();
+        let inner = sDef?.innerType;
+        if (!inner && s.innerType) inner = s.innerType;
+        if (!inner) inner = sDef?.type;
+        if (!inner && typeof s.unwrap === 'function') inner = (s.unwrap as () => unknown)();
         if (!inner) {
-          if (schema._def?.defaultValue !== undefined) return '[string]';
-          return '[any]';
+          if (sDef?.defaultValue !== undefined) return '[string]';
+          return '[unknown]';
         }
         return this.getZodType(inner, depth + 1);
       }
 
       return `[${typeName}]`;
     } catch (e) {
-      return '[any]';
+      return '[unknown]';
     }
   }
 
@@ -230,7 +264,12 @@ export class HelpGenerator {
     return lines.join('\n');
   }
 
-  generateSiteHelp(siteName: string, url: string, commands: any[], options?: HelpOptions): string {
+  generateSiteHelp(
+    siteName: string,
+    url: string,
+    commands: Array<{ name: string; description: string }>,
+    options?: HelpOptions
+  ): string {
     const { emoji } = { emoji: true, ...options };
     const lines: string[] = [];
 

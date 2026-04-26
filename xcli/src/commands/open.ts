@@ -1,6 +1,7 @@
 import { openSession } from '../core/session-client';
+import type { CommandValues } from '../core/types';
 
-export async function openCommand(args: string[], values: Record<string, any>) {
+export async function openCommand(args: string[], values: CommandValues) {
   const url = args[0];
   const session = (values.session as string) || 'default';
 

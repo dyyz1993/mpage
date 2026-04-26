@@ -56,7 +56,10 @@ async function ensureDaemon(): Promise<void> {
   throw new Error('Failed to start daemon');
 }
 
-async function daemonRequest(method: string, params?: any): Promise<any> {
+async function daemonRequest(
+  method: string,
+  params?: Record<string, unknown>
+): Promise<Record<string, unknown>> {
   await ensureDaemon();
   const port = getDaemonPort();
   if (!port) {
@@ -108,7 +111,7 @@ export async function saveSession(session: SessionInfo): Promise<void> {
 
 export async function openSession(name: string, url: string): Promise<SessionInfo> {
   ensureSessionDir();
-  const result = await daemonRequest('session.open', { name, url });
+  const result = (await daemonRequest('session.open', { name, url })) as { id: string };
   const session: SessionInfo = {
     id: result.id,
     name,
@@ -121,13 +124,15 @@ export async function openSession(name: string, url: string): Promise<SessionInf
 
 export async function htmlSession(name?: string): Promise<string> {
   const sessionName = requireSession(name);
-  const result = await daemonRequest('page.html', { name: sessionName });
+  const result = (await daemonRequest('page.html', { name: sessionName })) as { html: string };
   return result.html;
 }
 
 export async function screenshotSession(name?: string): Promise<string> {
   const sessionName = requireSession(name);
-  const result = await daemonRequest('page.screenshot', { name: sessionName });
+  const result = (await daemonRequest('page.screenshot', { name: sessionName })) as {
+    screenshot: string;
+  };
   return `data:image/png;base64,${result.screenshot}`;
 }
 
@@ -143,7 +148,10 @@ export async function snapshotSession(
   interactiveOnly = false
 ): Promise<SnapshotElement[]> {
   const sessionName = requireSession(name);
-  const result = await daemonRequest('page.snapshot', { name: sessionName, interactiveOnly });
+  const result = (await daemonRequest('page.snapshot', {
+    name: sessionName,
+    interactiveOnly,
+  })) as { elements: SnapshotElement[] };
   return result.elements || [];
 }
 
@@ -170,9 +178,11 @@ export async function killDaemon(): Promise<void> {
   await daemonRequest('session.kill', {});
 }
 
-export async function evalScriptSession(name: string, script: string): Promise<any> {
+export async function evalScriptSession(name: string, script: string): Promise<unknown> {
   const sessionName = requireSession(name);
-  const result = await daemonRequest('page.eval', { name: sessionName, script });
+  const result = (await daemonRequest('page.eval', { name: sessionName, script })) as {
+    result: unknown;
+  };
   return result.result;
 }
 
@@ -182,11 +192,11 @@ export async function waitForSelector(
   timeout = 30000
 ): Promise<boolean> {
   const sessionName = requireSession(name);
-  const result = await daemonRequest('page.waitForSelector', {
+  const result = (await daemonRequest('page.waitForSelector', {
     name: sessionName,
     selector,
     timeout,
-  });
+  })) as { found: boolean };
   return result.found;
 }
 
@@ -200,17 +210,19 @@ export async function navigateSession(
   direction: 'back' | 'forward'
 ): Promise<{ ok: boolean }> {
   const sessionName = requireSession(name);
-  return await daemonRequest('page.navigate', { name: sessionName, direction });
+  return (await daemonRequest('page.navigate', { name: sessionName, direction })) as {
+    ok: boolean;
+  };
 }
 
 export async function refreshSession(name: string): Promise<{ ok: boolean }> {
   const sessionName = requireSession(name);
-  return await daemonRequest('page.refresh', { name: sessionName });
+  return (await daemonRequest('page.refresh', { name: sessionName })) as { ok: boolean };
 }
 
 export async function gotoSession(name: string, url: string): Promise<{ ok: boolean }> {
   const sessionName = requireSession(name);
-  return await daemonRequest('page.goto', { name: sessionName, url });
+  return (await daemonRequest('page.goto', { name: sessionName, url })) as { ok: boolean };
 }
 
 export async function pressSession(
@@ -219,7 +231,10 @@ export async function pressSession(
   selector?: string
 ): Promise<{ ok: boolean; key: string }> {
   const sessionName = requireSession(name);
-  return await daemonRequest('page.press', { name: sessionName, key, selector });
+  return (await daemonRequest('page.press', { name: sessionName, key, selector })) as {
+    ok: boolean;
+    key: string;
+  };
 }
 
 export async function getElementSession(
@@ -228,7 +243,10 @@ export async function getElementSession(
   selector?: string
 ): Promise<{ ok: boolean; value: string }> {
   const sessionName = requireSession(name);
-  return await daemonRequest('page.get', { name: sessionName, property, selector });
+  return (await daemonRequest('page.get', { name: sessionName, property, selector })) as {
+    ok: boolean;
+    value: string;
+  };
 }
 
 export async function scrollSession(
@@ -237,12 +255,14 @@ export async function scrollSession(
   distance = 500
 ): Promise<{ ok: boolean }> {
   const sessionName = requireSession(name);
-  return await daemonRequest('page.scroll', { name: sessionName, direction, distance });
+  return (await daemonRequest('page.scroll', { name: sessionName, direction, distance })) as {
+    ok: boolean;
+  };
 }
 
 export async function clickSession(name: string, selector: string): Promise<{ ok: boolean }> {
   const sessionName = requireSession(name);
-  return await daemonRequest('page.click', { name: sessionName, selector });
+  return (await daemonRequest('page.click', { name: sessionName, selector })) as { ok: boolean };
 }
 
 export async function selectSession(
@@ -251,12 +271,15 @@ export async function selectSession(
   value: string
 ): Promise<{ ok: boolean; value: string }> {
   const sessionName = requireSession(name);
-  return await daemonRequest('page.select', { name: sessionName, selector, value });
+  return (await daemonRequest('page.select', { name: sessionName, selector, value })) as {
+    ok: boolean;
+    value: string;
+  };
 }
 
 export async function checkSession(name: string, selector: string): Promise<{ ok: boolean }> {
   const sessionName = requireSession(name);
-  return await daemonRequest('page.check', { name: sessionName, selector });
+  return (await daemonRequest('page.check', { name: sessionName, selector })) as { ok: boolean };
 }
 
 export async function typeSession(
@@ -265,7 +288,9 @@ export async function typeSession(
   text: string
 ): Promise<{ ok: boolean }> {
   const sessionName = requireSession(name);
-  return await daemonRequest('page.type', { name: sessionName, selector, text });
+  return (await daemonRequest('page.type', { name: sessionName, selector, text })) as {
+    ok: boolean;
+  };
 }
 
 export async function fillSession(
@@ -274,7 +299,9 @@ export async function fillSession(
   text: string
 ): Promise<{ ok: boolean }> {
   const sessionName = requireSession(name);
-  return await daemonRequest('page.fill', { name: sessionName, selector, text });
+  return (await daemonRequest('page.fill', { name: sessionName, selector, text })) as {
+    ok: boolean;
+  };
 }
 
 export async function mouseSession(
@@ -285,11 +312,11 @@ export async function mouseSession(
   steps?: number
 ): Promise<{ ok: boolean }> {
   const sessionName = requireSession(name);
-  return await daemonRequest('page.mouse', {
+  return (await daemonRequest('page.mouse', {
     name: sessionName,
     action,
     x: x || 0,
     y: y || 0,
     steps,
-  });
+  })) as { ok: boolean };
 }
