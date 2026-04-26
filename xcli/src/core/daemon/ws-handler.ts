@@ -46,14 +46,15 @@ async function handleWebSocket(ws: WebSocket, sessionId: string) {
   ws.on('message', async (msg: WebSocket.RawData) => {
     try {
       const cmd = JSON.parse(msg.toString());
+      if (!session) return;
       if (cmd.type === 'navigate') {
-        await session!.page.goto(cmd.url);
+        await session.page.goto(cmd.url);
       } else if (cmd.type === 'click') {
-        await session!.page.mouse.click(cmd.x, cmd.y);
+        await session.page.mouse.click(cmd.x, cmd.y);
       } else if (cmd.type === 'mousemove') {
-        await session!.page.mouse.move(cmd.x, cmd.y);
+        await session.page.mouse.move(cmd.x, cmd.y);
       } else if (cmd.type === 'key') {
-        await session!.page.keyboard.press(cmd.key);
+        await session.page.keyboard.press(cmd.key);
       }
     } catch {
       // ignore message error

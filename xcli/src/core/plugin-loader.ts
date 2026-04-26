@@ -76,7 +76,7 @@ export class PluginInstance {
     if (!this.eventHandlers.has(event)) {
       this.eventHandlers.set(event, new Set());
     }
-    this.eventHandlers.get(event)!.add(handler);
+    this.eventHandlers.get(event)?.add(handler);
   }
 
   getRegisteredCommands(): string[] {
@@ -267,7 +267,7 @@ export class PluginLoader {
         if (!self.globalEventHandlers.has(event)) {
           self.globalEventHandlers.set(event, []);
         }
-        self.globalEventHandlers.get(event)!.push(handler);
+        self.globalEventHandlers.get(event)?.push(handler);
 
         const active = self.getActiveInstance();
         if (active) {
@@ -299,8 +299,8 @@ export class PluginLoader {
 
     const id = explicitId ?? derivePluginId(importPath);
 
-    if (this.plugins.has(id)) {
-      const existing = this.plugins.get(id)!;
+    const existing = this.plugins.get(id);
+    if (existing) {
       if (existing.loaded) {
         await existing.unmount();
       }
