@@ -98,7 +98,13 @@ async function loadPlugins() {
         for (const entry of entries) {
           const pluginPath = join(dir, entry, 'index.ts');
           if (existsSync(pluginPath)) {
-            await globalLoader.loadPlugin(pluginPath);
+            try {
+              await globalLoader.loadPlugin(pluginPath, entry);
+            } catch (err) {
+              console.error(
+                `Failed to load plugin "${entry}": ${err instanceof Error ? err.message : err}`
+              );
+            }
           }
         }
       } catch {

@@ -6,7 +6,6 @@ import type {
   CommandHandler,
   ZodSchema,
 } from '../protocol/plugin-protocol';
-import { globalLoader } from '../core/plugin-loader';
 import { analyzePage, formatTips } from '../core/page-hook';
 import type { CommandArgs, CommandValues } from '../core/types';
 
@@ -34,18 +33,14 @@ export async function executeSiteCommand(
   const browser = await chromium.launch({ executablePath });
   const page = await browser.newPage();
 
-  const storage = globalLoader.getStorage();
+  const storage = site.getStorage();
 
   const ctx: CommandContext = {
     args,
     options: values,
     cwd: process.cwd(),
     page,
-    storage: {
-      get: async <T>(key: string) => await storage.get<T>(key),
-      set: async <T>(key: string, value: T) => await storage.set(key, value),
-      delete: async (key: string) => await storage.delete(key),
-    },
+    storage,
     output: {
       mode: values.json ? 'json' : 'yaml',
       showTips: !values['no-tips'],

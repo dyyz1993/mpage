@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { Page } from 'playwright';
 
 export const OptionSchema = z.object({
   name: z.string(),
@@ -34,7 +35,7 @@ export interface CommandContext {
   args: string[];
   options: Record<string, unknown>;
   cwd: string;
-  page: unknown;
+  page: Page | null;
   storage: StorageContext;
   output: OutputContext;
   error: (msg: string) => void;
@@ -49,6 +50,8 @@ export interface StorageContext {
   get<T>(key: string): Promise<T | null>;
   set<T>(key: string, value: T): Promise<void>;
   delete(key: string): Promise<void>;
+  clear(): Promise<void>;
+  keys(): Promise<string[]>;
 }
 
 export interface OutputContext {

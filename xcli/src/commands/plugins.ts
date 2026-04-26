@@ -2,6 +2,7 @@ import { readdirSync, existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
 import type { CommandValues } from '../core/types';
+import { globalLoader } from '../core/plugin-loader';
 
 const GLOBAL_PLUGINS_DIR = join(homedir(), '.xcli', 'plugins');
 const LOCAL_PLUGINS_DIR = '.xcli/plugins';
@@ -33,10 +34,17 @@ export async function pluginsCommand(args: string[], values: CommandValues) {
       return;
     }
 
+    const loadedPlugins = globalLoader.getLoadedPlugins();
+    const loadedMap = new Map(loadedPlugins.map((p) => [p.id, p]));
+
     console.log('Installed plugins:');
     for (const plugin of plugins) {
       const locLabel = plugin.location === 'global' ? '[global]' : '[local]';
-      console.log(`  ${plugin.name.padEnd(20)} v${plugin.version.padEnd(8)} ${locLabel}`);
+      const instance = loadedMap.get(plugin.name);
+      const statusLabel = instance ? `[${instance.status}]` : '[unloaded]';
+      console.log(
+        `  ${plugin.name.padEnd(20)} v${plugin.version.padEnd(8)} ${locLabel.padEnd(9)} ${statusLabel}`
+      );
     }
     return;
   }
@@ -52,15 +60,15 @@ export async function pluginsCommand(args: string[], values: CommandValues) {
     const localPath = join(LOCAL_PLUGINS_DIR, name);
 
     let found = false;
-    for (const [path, location] of [
+    for (const [pluginPath, location] of [
       [globalPath, 'global'],
       [localPath, 'local'],
     ] as const) {
-      if (existsSync(path)) {
-        const pkgPath = join(path, 'package.json');
+      if (existsSync(pluginPath)) {
+        const pkgPath = join(pluginPath, 'package.json');
         console.log(`Name: ${name}`);
         console.log(`Location: ${location}`);
-        console.log(`Path: ${path}`);
+        console.log(`Path: ${pluginPath}`);
         if (existsSync(pkgPath)) {
           try {
             const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
@@ -69,6 +77,19 @@ export async function pluginsCommand(args: string[], values: CommandValues) {
           } catch {
             // ignore parse error
           }
+        }
+        const instance = globalLoader.getPlugin(name);
+        if (instance) {
+          console.log(`Status: ${instance.status}`);
+          console.log(`Loaded: ${instance.loaded}`);
+          console.log(`Commands: ${instance.getRegisteredCommands().join(', ') || 'none'}`);
+          console.log(`Flags: ${instance.getRegisteredFlags().join(', ') || 'none'}`);
+          console.log(`Tools: ${instance.getRegisteredTools().join(', ') || 'none'}`);
+          if (instance.error) {
+            console.log(`Error: ${instance.error.message}`);
+          }
+        } else {
+          console.log('Status: not loaded');
         }
         found = true;
         break;
@@ -81,7 +102,41 @@ export async function pluginsCommand(args: string[], values: CommandValues) {
     return;
   }
 
-  console.log('Usage: xcli plugins <list|info> [--global|--project]');
+  if (action === 'reload') {
+    const name = args[1];
+    if (!name) {
+      console.error('Usage: xcli plugins reload <name>');
+      return;
+    }
+    try {
+      const instance = await globalLoader.reloadPlugin(name);
+      console.log(`Plugin "${name}" reloaded (status: ${instance.status})`);
+    } catch (err) {
+      console.error(
+        `Failed to reload plugin "${name}": ${err instanceof Error ? err.message : err}`
+      );
+    }
+    return;
+  }
+
+  if (action === 'unload') {
+    const name = args[1];
+    if (!name) {
+      console.error('Usage: xcli plugins unload <name>');
+      return;
+    }
+    try {
+      await globalLoader.unloadPlugin(name);
+      console.log(`Plugin "${name}" unloaded`);
+    } catch (err) {
+      console.error(
+        `Failed to unload plugin "${name}": ${err instanceof Error ? err.message : err}`
+      );
+    }
+    return;
+  }
+
+  console.log('Usage: xcli plugins <list|info|reload|unload> [--global|--project]');
 }
 
 function getAllPlugins(): PluginInfo[] {

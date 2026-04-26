@@ -8,19 +8,151 @@ import type {
   FlagConfig,
   ToolConfig,
   EventContext,
+  EventHandler,
 } from '../protocol/plugin-protocol';
 import { SiteInstanceImpl } from '../protocol/plugin-protocol';
-import { resolve, isAbsolute, extname } from 'path';
+import { resolve, isAbsolute, extname, basename } from 'path';
 import { createJiti } from 'jiti';
+
+export type PluginStatus = 'loaded' | 'unloaded' | 'error';
+
+export class PluginInstance {
+  readonly id: string;
+  readonly path: string;
+  readonly siteName: string;
+
+  private registeredCommands: string[] = [];
+  private registeredFlags: string[] = [];
+  private registeredTools: string[] = [];
+  private loadHandlers: Array<() => void | Promise<void>> = [];
+  private unloadHandlers: Array<() => void | Promise<void>> = [];
+  private eventHandlers: Map<string, Set<EventHandler>> = new Map();
+
+  private _loaded = false;
+  private _status: PluginStatus = 'unloaded';
+  private _error?: Error;
+  private readonly loader: PluginLoader;
+
+  constructor(id: string, pluginPath: string, loader: PluginLoader) {
+    this.id = id;
+    this.path = pluginPath;
+    this.siteName = id;
+    this.loader = loader;
+  }
+
+  get loaded(): boolean {
+    return this._loaded;
+  }
+
+  get status(): PluginStatus {
+    return this._status;
+  }
+
+  get error(): Error | undefined {
+    return this._error;
+  }
+
+  addCommand(name: string): void {
+    this.registeredCommands.push(name);
+  }
+
+  addFlag(name: string): void {
+    this.registeredFlags.push(name);
+  }
+
+  addTool(name: string): void {
+    this.registeredTools.push(name);
+  }
+
+  addLoadHandler(handler: () => void | Promise<void>): void {
+    this.loadHandlers.push(handler);
+  }
+
+  addUnloadHandler(handler: () => void | Promise<void>): void {
+    this.unloadHandlers.push(handler);
+  }
+
+  addEventHandler(event: string, handler: EventHandler): void {
+    if (!this.eventHandlers.has(event)) {
+      this.eventHandlers.set(event, new Set());
+    }
+    this.eventHandlers.get(event)!.add(handler);
+  }
+
+  getRegisteredCommands(): string[] {
+    return [...this.registeredCommands];
+  }
+
+  getRegisteredFlags(): string[] {
+    return [...this.registeredFlags];
+  }
+
+  getRegisteredTools(): string[] {
+    return [...this.registeredTools];
+  }
+
+  getEventHandlers(): Map<string, Set<EventHandler>> {
+    return this.eventHandlers;
+  }
+
+  setError(err: Error): void {
+    this._error = err;
+    this._status = 'error';
+  }
+
+  async mount(): Promise<void> {
+    if (this._loaded) return;
+
+    try {
+      for (const handler of this.loadHandlers) {
+        await handler();
+      }
+      this._loaded = true;
+      this._status = 'loaded';
+    } catch (err) {
+      this._status = 'error';
+      this._error = err instanceof Error ? err : new Error(String(err));
+      throw err;
+    }
+  }
+
+  async unmount(): Promise<void> {
+    if (!this._loaded) return;
+
+    for (const handler of this.unloadHandlers) {
+      try {
+        await handler();
+      } catch {
+        // swallow errors during unmount
+      }
+    }
+
+    this.loader.cleanupPluginRegistrations(this);
+
+    this.loadHandlers = [];
+    this.unloadHandlers = [];
+    this.eventHandlers.clear();
+    this.registeredCommands = [];
+    this.registeredFlags = [];
+    this.registeredTools = [];
+
+    this._loaded = false;
+    this._status = 'unloaded';
+  }
+
+  async reload(): Promise<PluginInstance> {
+    await this.unmount();
+    return this.loader.loadPlugin(this.path, this.id);
+  }
+}
 
 export class PluginLoader {
   private commands: Map<string, Command & { handler: CommandHandler }> = new Map();
   private sites: Map<string, SiteInstance> = new Map();
   private flags: Map<string, FlagConfig> = new Map();
   private tools: Map<string, ToolConfig> = new Map();
-  private loadHandlers: Array<() => void | Promise<void>> = [];
-  private unloadHandlers: Array<() => void | Promise<void>> = [];
-  private eventHandlers: Map<string, Array<(event: EventContext) => void>> = new Map();
+  private globalEventHandlers: Map<string, Array<(event: EventContext) => void>> = new Map();
+  private plugins: Map<string, PluginInstance> = new Map();
   private storage: StorageContext;
 
   private api: XCLIAPI = this.createAPI();
@@ -41,6 +173,14 @@ export class PluginLoader {
       async delete(key: string): Promise<void> {
         delete store[key];
       },
+      async clear(): Promise<void> {
+        for (const key of Object.keys(store)) {
+          delete store[key];
+        }
+      },
+      async keys(): Promise<string[]> {
+        return Object.keys(store);
+      },
     };
   }
 
@@ -52,87 +192,226 @@ export class PluginLoader {
         const site = new SiteInstanceImpl(config, self.storage);
         self.sites.set(config.name, site);
 
+        const active = self.getActiveInstance();
+        if (active) {
+          // Track site name for cleanup (site name = plugin id convention)
+        }
+
         return site;
       },
 
       registerCommand(cmd: Command & { handler: CommandHandler }) {
         const key = cmd.name;
         self.commands.set(key, cmd);
+
+        const active = self.getActiveInstance();
+        if (active) {
+          active.addCommand(key);
+        }
+
         return this;
       },
 
       registerFlag(flag: FlagConfig) {
         self.flags.set(flag.name, flag);
+
+        const active = self.getActiveInstance();
+        if (active) {
+          active.addFlag(flag.name);
+        }
+
         return this;
       },
 
       registerTool(tool: ToolConfig) {
         self.tools.set(tool.name, tool);
+
+        const active = self.getActiveInstance();
+        if (active) {
+          active.addTool(tool.name);
+        }
+
         return this;
       },
 
       overrideTool(name: string, tool: ToolConfig) {
         self.tools.set(name, tool);
+
+        const active = self.getActiveInstance();
+        if (active) {
+          active.addTool(name);
+        }
+
         return this;
       },
 
       onLoad(handler: () => void | Promise<void>) {
-        self.loadHandlers.push(handler);
+        const active = self.getActiveInstance();
+        if (active) {
+          active.addLoadHandler(handler);
+        }
+
         return this;
       },
 
       onUnload(handler: () => void | Promise<void>) {
-        self.unloadHandlers.push(handler);
+        const active = self.getActiveInstance();
+        if (active) {
+          active.addUnloadHandler(handler);
+        }
+
         return this;
       },
 
       onEvent(event: string, handler: (event: EventContext) => void) {
-        if (!self.eventHandlers.has(event)) {
-          self.eventHandlers.set(event, []);
+        if (!self.globalEventHandlers.has(event)) {
+          self.globalEventHandlers.set(event, []);
         }
-        self.eventHandlers.get(event)!.push(handler);
+        self.globalEventHandlers.get(event)!.push(handler);
+
+        const active = self.getActiveInstance();
+        if (active) {
+          active.addEventHandler(event, handler);
+        }
+
         return this;
       },
     };
+  }
+
+  private activeInstanceId: string | null = null;
+
+  private getActiveInstance(): PluginInstance | null {
+    if (!this.activeInstanceId) return null;
+    return this.plugins.get(this.activeInstanceId) ?? null;
   }
 
   getAPI(): XCLIAPI {
     return this.api;
   }
 
-  async loadPlugin(path: string): Promise<void> {
-    let importPath = path;
-    if (!isAbsolute(path)) {
+  async loadPlugin(pluginPath: string, explicitId?: string): Promise<PluginInstance> {
+    let importPath = pluginPath;
+    if (!isAbsolute(pluginPath)) {
       const cwd = process.cwd();
-      importPath = resolve(cwd, path);
+      importPath = resolve(cwd, pluginPath);
     }
 
-    let plugin: Record<string, unknown> | undefined;
+    const id = explicitId ?? derivePluginId(importPath);
 
-    if (extname(importPath) === '.ts') {
-      const jiti = createJiti(import.meta.url, { interopDefault: true });
-      plugin = await jiti.import(importPath);
-    } else {
-      plugin = await import(`file://${importPath}`);
+    if (this.plugins.has(id)) {
+      const existing = this.plugins.get(id)!;
+      if (existing.loaded) {
+        await existing.unmount();
+      }
+      this.plugins.delete(id);
     }
 
-    const setup = plugin?.default ?? plugin;
+    const instance = new PluginInstance(id, importPath, this);
+    this.plugins.set(id, instance);
+    this.activeInstanceId = id;
 
-    if (typeof setup === 'function') {
-      setup(this.api);
+    try {
+      let plugin: Record<string, unknown> | undefined;
+
+      if (extname(importPath) === '.ts') {
+        const jiti = createJiti(import.meta.url, { interopDefault: true });
+        plugin = await jiti.import(importPath);
+      } else {
+        plugin = await import(`file://${importPath}`);
+      }
+
+      const setup = plugin?.default ?? plugin;
+
+      if (typeof setup === 'function') {
+        setup(this.api);
+      }
+
+      await instance.mount();
+    } catch (err) {
+      instance.setError(err instanceof Error ? err : new Error(String(err)));
+      throw err;
+    } finally {
+      this.activeInstanceId = null;
     }
 
-    for (const handler of this.loadHandlers) {
-      await handler();
+    return instance;
+  }
+
+  async unloadPlugin(pluginId: string): Promise<void> {
+    const instance = this.plugins.get(pluginId);
+    if (!instance) {
+      throw new Error(`Plugin "${pluginId}" not found`);
+    }
+    await instance.unmount();
+    this.plugins.delete(pluginId);
+  }
+
+  async reloadPlugin(pluginId: string): Promise<PluginInstance> {
+    const instance = this.plugins.get(pluginId);
+    if (!instance) {
+      throw new Error(`Plugin "${pluginId}" not found`);
+    }
+    return instance.reload();
+  }
+
+  async unloadAll(): Promise<void> {
+    for (const instance of this.plugins.values()) {
+      await instance.unmount();
+    }
+    this.plugins.clear();
+  }
+
+  getLoadedPlugins(): PluginInstance[] {
+    return Array.from(this.plugins.values());
+  }
+
+  getPluginStatus(pluginId: string): PluginStatus {
+    const instance = this.plugins.get(pluginId);
+    if (!instance) return 'unloaded';
+    return instance.status;
+  }
+
+  getPlugin(pluginId: string): PluginInstance | undefined {
+    return this.plugins.get(pluginId);
+  }
+
+  cleanupPluginRegistrations(instance: PluginInstance): void {
+    for (const cmd of instance.getRegisteredCommands()) {
+      this.commands.delete(cmd);
+    }
+
+    const siteName = instance.siteName;
+    this.sites.delete(siteName);
+
+    for (const flag of instance.getRegisteredFlags()) {
+      this.flags.delete(flag);
+    }
+
+    for (const tool of instance.getRegisteredTools()) {
+      this.tools.delete(tool);
+    }
+
+    for (const [event, handlers] of instance.getEventHandlers()) {
+      const globalHandlers = this.globalEventHandlers.get(event);
+      if (globalHandlers) {
+        for (const handler of handlers) {
+          const idx = globalHandlers.indexOf(handler as (event: EventContext) => void);
+          if (idx !== -1) {
+            globalHandlers.splice(idx, 1);
+          }
+        }
+        if (globalHandlers.length === 0) {
+          this.globalEventHandlers.delete(event);
+        }
+      }
     }
   }
 
   async loadFromFunction(setup: (xcli: XCLIAPI) => void): Promise<void> {
     setup(this.api);
 
-    for (const handler of this.loadHandlers) {
-      await handler();
-    }
+    // legacy path: no instance tracking
   }
 
   getCommand(name: string): (Command & { handler: CommandHandler }) | undefined {
@@ -175,21 +454,24 @@ export class PluginLoader {
   }
 
   async emitEvent(event: string, context: EventContext): Promise<void> {
-    const handlers = this.eventHandlers.get(event) || [];
+    const handlers = this.globalEventHandlers.get(event) || [];
     for (const handler of handlers) {
       await handler(context);
     }
   }
 
-  getStorage(): StorageContext {
-    return this.storage;
-  }
-
   async unload(): Promise<void> {
-    for (const handler of this.unloadHandlers) {
-      await handler();
-    }
+    await this.unloadAll();
   }
+}
+
+function derivePluginId(pluginPath: string): string {
+  const base = basename(pluginPath, extname(pluginPath));
+  if (base === 'index') {
+    const parentDir = pluginPath.split('/').slice(-2, -1)[0] || base;
+    return parentDir;
+  }
+  return base;
 }
 
 export const globalLoader = new PluginLoader();
