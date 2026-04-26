@@ -6,8 +6,11 @@ import {
   killAllDaemon,
   isDaemonRunning,
 } from '../core/daemon-manager.js';
-import { openSession, htmlSession, closeSession, listSessions } from '../core/session-client.js';
 import {
+  openSession,
+  htmlSession,
+  closeSession,
+  listSessions,
   closeAllSessions,
   getCookies,
   clearCookies,
@@ -15,7 +18,7 @@ import {
   setLocalStorage,
   clearLocalStorage,
   setCookie,
-} from '../core/session-manager.js';
+} from '../core/session-client.js';
 
 export const daemonBuiltin: BuiltinCommand = {
   name: 'daemon',
