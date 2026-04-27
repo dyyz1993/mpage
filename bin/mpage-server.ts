@@ -13,6 +13,7 @@ import {
 } from '../src/index.js';
 import { executePageCommand, hasCommand } from '../src/server/commands/index.js';
 import type { SessionInfo } from '../src/types.js';
+import { DEFAULT_CHROMIUM_PATH } from '../src/constants.js';
 import { RecorderController, PlaybackEngine } from '../src/server/recorder/index.js';
 
 const sessionName = process.argv[2] || 'default';
@@ -103,7 +104,7 @@ async function initSession(): Promise<boolean> {
       }
     } else {
       const cdpPort = 9222 + Math.floor(Math.random() * 1000);
-      const chromiumPath = '/Applications/Chromium.app/Contents/MacOS/Chromium';
+      const chromiumPath = DEFAULT_CHROMIUM_PATH;
       const executable = fs.existsSync(chromiumPath) ? chromiumPath : 'chromium';
       const userDataDir = path.join(getSessionPath(session.name), 'user-data');
       if (!fs.existsSync(userDataDir)) {
@@ -169,7 +170,7 @@ async function closeSession(): Promise<boolean> {
     } catch {}
   }
 
-  deleteSessionInfo(session.name);
+  await deleteSessionInfo(session.name);
   return true;
 }
 
