@@ -18,6 +18,26 @@ const HotItemSchema = z.object({
   tag: z.string().optional(),
 });
 
+async function dismissBaiduDialogs(page: import('playwright').Page) {
+  const dismissSelectors = [
+    '.ec_wise_ad_popup_close',
+    '#closeBtn',
+    '.close-btn',
+    '[class*="consent"] button',
+    '.dialog-close',
+  ];
+  for (const sel of dismissSelectors) {
+    await page.click(sel, { timeout: 1000 }).catch(() => {});
+  }
+  await page.evaluate(() => {
+    document
+      .querySelectorAll('[class*="mask"], [class*="overlay"], [class*="popup"]')
+      .forEach((el) => {
+        if (el instanceof HTMLElement) el.style.display = 'none';
+      });
+  });
+}
+
 export default function (xcli: XCLIAPI) {
   const baidu = xcli.createSite({
     name: 'baidu',
@@ -44,8 +64,12 @@ export default function (xcli: XCLIAPI) {
       const { query, pages, limit } = params;
       const allResults: z.infer<typeof BaiduResultSchema>[] = [];
 
-      await ctx.page.goto(`https://www.baidu.com/s?wd=${encodeURIComponent(query)}`);
-      await ctx.page.waitForLoadState('domcontentloaded');
+      await ctx.page.goto(`https://www.baidu.com/s?wd=${encodeURIComponent(query)}`, {
+        waitUntil: 'domcontentloaded',
+        timeout: 15000,
+      });
+      await ctx.page.waitForTimeout(3000);
+      await dismissBaiduDialogs(ctx.page);
 
       for (let pageNum = 1; pageNum <= pages; pageNum++) {
         if (pageNum > 1) {
@@ -54,6 +78,7 @@ export default function (xcli: XCLIAPI) {
           if (!hasNext) break;
           await nextBtn.click();
           await ctx.page.waitForLoadState('domcontentloaded');
+          await dismissBaiduDialogs(ctx.page);
           await ctx.page.waitForTimeout(1500);
         }
 
@@ -188,8 +213,8 @@ export default function (xcli: XCLIAPI) {
     handler: async (params, ctx) => {
       if (!ctx.page) throw new Error('需要浏览器页面上下文');
 
-      await ctx.page.goto('https://www.baidu.com');
-      await ctx.page.waitForLoadState('domcontentloaded');
+      await ctx.page.goto('https://www.baidu.com', { waitUntil: 'domcontentloaded' });
+      await dismissBaiduDialogs(ctx.page);
 
       await ctx.page.fill('#kw', params.query);
       await ctx.page.waitForSelector('.bdsug', { timeout: 5000 });

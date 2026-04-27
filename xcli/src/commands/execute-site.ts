@@ -49,8 +49,12 @@ export async function executeSiteCommand(
 ) {
   const executablePath = process.env.XCLI_CHROMIUM_PATH || DEFAULT_CHROMIUM_PATH;
 
-  const browser = await chromium.launch({ executablePath });
-  const page = await browser.newPage();
+  const browser = await chromium.launch({ executablePath, headless: false });
+  const context = await browser.newContext({
+    userAgent:
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+  });
+  const page = await context.newPage();
 
   const storage = site.getStorage();
 
