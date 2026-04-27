@@ -213,23 +213,22 @@ export default function (xcli: XCLIAPI) {
     handler: async (params, ctx) => {
       if (!ctx.page) throw new Error('需要浏览器页面上下文');
 
-      await ctx.page.goto('https://www.baidu.com', { waitUntil: 'domcontentloaded' });
-      await dismissBaiduDialogs(ctx.page);
+      await ctx.page.goto(`https://suggestion.baidu.com/su?wd=${encodeURIComponent(params.query)}`);
+      const text = await ctx.page.evaluate(
+        () => document.body.innerText || document.body.textContent || ''
+      );
 
-      await ctx.page.fill('#kw', params.query);
-      await ctx.page.waitForSelector('.bdsug', { timeout: 5000 });
-      await ctx.page.waitForTimeout(500);
-
-      const suggestions = await ctx.page
-        .evaluate(() => {
-          const items = document.querySelectorAll('.bdsug-overflow');
-          return Array.from(items).map((item) => item.textContent?.trim() || '');
-        })
-        .catch(() => []);
+      const match = text.match(/s:\[([^\]]*)\]/);
+      const items = match
+        ? match[1]
+            .split(',')
+            .map((s) => s.trim().replace(/^"|"$/g, ''))
+            .filter((s) => s.length > 0)
+        : [];
 
       return {
-        data: suggestions.filter(Boolean),
-        tips: [`关键词 "${params.query}" 的搜索建议共 ${suggestions.length} 条`],
+        data: items,
+        tips: [`关键词 "${params.query}" 的搜索建议共 ${items.length} 条`],
       };
     },
   });
