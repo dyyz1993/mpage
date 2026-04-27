@@ -60,7 +60,7 @@ export async function getOrCreateSession(
   }
 
   if (info) {
-    deleteSessionInfo(sessionName);
+    await deleteSessionInfo(sessionName);
   }
 
   info = await startServer(serverPath, sessionName, cdpEndpoint);

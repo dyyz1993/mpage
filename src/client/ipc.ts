@@ -1,12 +1,9 @@
 import * as net from 'net';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export interface IPCResponse {
-  success: boolean;
-  content?: unknown;
-  error?: string;
-  tips?: string;
-}
+export type IPCResponse =
+  | { success: true; content?: unknown; tips?: string }
+  | { success: false; error: string; content?: unknown; tips?: string };
 
 export function sendRequest(
   socketPath: string,

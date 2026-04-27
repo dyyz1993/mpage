@@ -9,12 +9,9 @@ export interface SessionInfo {
   lastUsed: number;
 }
 
-export interface CommandResult {
-  success: boolean;
-  content?: unknown;
-  error?: string;
-  tips?: string;
-}
+export type CommandResult =
+  | { success: true; content?: unknown; tips?: string }
+  | { success: false; error: string; content?: unknown; tips?: string };
 
 export interface CommandDefinition {
   schema: ZodSchema;

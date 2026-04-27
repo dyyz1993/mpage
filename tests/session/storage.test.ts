@@ -1,6 +1,6 @@
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert';
-import * as fs from 'fs';
+import fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 import {
@@ -70,7 +70,7 @@ describe('session storage', () => {
   });
 
   describe('saveSessionInfo + loadSessionInfo', () => {
-    it('should save and load session info', () => {
+    it('should save and load session info', async () => {
       const info = makeSessionInfo({ name: 'round-trip-test' });
       saveSessionInfo(info);
 
@@ -81,10 +81,10 @@ describe('session storage', () => {
       assert.strictEqual(loaded!.pid, info.pid);
       assert.strictEqual(loaded!.isCDP, info.isCDP);
 
-      deleteSessionInfo('round-trip-test');
+      await deleteSessionInfo('round-trip-test');
     });
 
-    it('should persist all fields correctly', () => {
+    it('should persist all fields correctly', async () => {
       const info = makeSessionInfo({
         name: 'fields-test',
         isCDP: false,
@@ -101,10 +101,10 @@ describe('session storage', () => {
       assert.strictEqual(loaded!.createdAt, 1700000000000);
       assert.strictEqual(loaded!.lastUsed, 1700000001000);
 
-      deleteSessionInfo('fields-test');
+      await deleteSessionInfo('fields-test');
     });
 
-    it('should overwrite existing session on save', () => {
+    it('should overwrite existing session on save', async () => {
       const info1 = makeSessionInfo({ name: 'overwrite-test', pid: 11111 });
       saveSessionInfo(info1);
 
@@ -115,7 +115,7 @@ describe('session storage', () => {
       assert.ok(loaded !== null);
       assert.strictEqual(loaded!.pid, 22222);
 
-      deleteSessionInfo('overwrite-test');
+      await deleteSessionInfo('overwrite-test');
     });
   });
 
@@ -127,21 +127,54 @@ describe('session storage', () => {
   });
 
   describe('deleteSessionInfo', () => {
-    it('should delete session directory', () => {
+    it('should delete session directory', async () => {
       const info = makeSessionInfo({ name: 'delete-test' });
       saveSessionInfo(info);
 
       const sessionPath = getSessionPath('delete-test');
       assert.ok(fs.existsSync(sessionPath));
 
-      deleteSessionInfo('delete-test');
+      await deleteSessionInfo('delete-test');
       assert.ok(!fs.existsSync(sessionPath));
     });
 
-    it('should not throw for non-existent session', () => {
-      assert.doesNotThrow(() => {
-        deleteSessionInfo('non-existent-delete-test');
-      });
+    it('should not throw for non-existent session', async () => {
+      await deleteSessionInfo('non-existent-delete-test');
+    });
+
+    it('should retry with delay when deletion fails', async () => {
+      const info = makeSessionInfo({ name: 'retry-delay-test' });
+      saveSessionInfo(info);
+
+      const callTimestamps: number[] = [];
+      const originalRmSync = fs.rmSync;
+      let callCount = 0;
+
+      fs.rmSync = ((...args: [string, fs.RmSyncOptions?]) => {
+        callTimestamps.push(Date.now());
+        callCount++;
+        if (callCount < 3) {
+          throw new Error(`Simulated failure ${callCount}`);
+        }
+        return originalRmSync.apply(fs, args);
+      }) as typeof fs.rmSync;
+
+      try {
+        await deleteSessionInfo('retry-delay-test');
+
+        assert.strictEqual(callCount, 3, 'should make 3 attempts');
+
+        const delay1 = callTimestamps[1] - callTimestamps[0];
+        const delay2 = callTimestamps[2] - callTimestamps[1];
+        assert.ok(delay1 >= 50, `delay 1→2 should be >= 50ms, got ${delay1}ms`);
+        assert.ok(delay2 >= 50, `delay 2→3 should be >= 50ms, got ${delay2}ms`);
+      } finally {
+        fs.rmSync = originalRmSync;
+        const sessionPath = getSessionPath('retry-delay-test');
+        if (fs.existsSync(sessionPath)) {
+          originalRmSync(sessionPath, { recursive: true, force: true });
+        }
+      }
     });
   });
 
@@ -151,7 +184,7 @@ describe('session storage', () => {
       assert.ok(Array.isArray(sessions));
     });
 
-    it('should list saved sessions', () => {
+    it('should list saved sessions', async () => {
       const info1 = makeSessionInfo({ name: 'list-test-1' });
       const info2 = makeSessionInfo({ name: 'list-test-2' });
       saveSessionInfo(info1);
@@ -162,11 +195,11 @@ describe('session storage', () => {
       assert.ok(names.includes('list-test-1'));
       assert.ok(names.includes('list-test-2'));
 
-      deleteSessionInfo('list-test-1');
-      deleteSessionInfo('list-test-2');
+      await deleteSessionInfo('list-test-1');
+      await deleteSessionInfo('list-test-2');
     });
 
-    it('should throw on corrupted session files (no built-in error handling)', () => {
+    it('should throw on corrupted session files (no built-in error handling)', async () => {
       const corruptPath = getSessionPath('corrupt-session');
       fs.mkdirSync(corruptPath, { recursive: true });
       fs.writeFileSync(path.join(corruptPath, 'session.json'), 'not-valid-json{{{', 'utf-8');
@@ -175,12 +208,12 @@ describe('session storage', () => {
         loadSessionInfo('corrupt-session');
       }, SyntaxError);
 
-      deleteSessionInfo('corrupt-session');
+      await deleteSessionInfo('corrupt-session');
     });
   });
 
   describe('JSON file format', () => {
-    it('should write pretty-printed JSON', () => {
+    it('should write pretty-printed JSON', async () => {
       const info = makeSessionInfo({ name: 'format-test' });
       saveSessionInfo(info);
 
@@ -191,7 +224,7 @@ describe('session storage', () => {
       const parsed = JSON.parse(fileContent);
       assert.strictEqual(parsed.name, 'format-test');
 
-      deleteSessionInfo('format-test');
+      await deleteSessionInfo('format-test');
     });
   });
 });

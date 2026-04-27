@@ -67,19 +67,17 @@ describe('session-manager (storage layer)', () => {
   });
 
   describe('deleteSessionInfo', () => {
-    it('should delete session info', () => {
+    it('should delete session info', async () => {
       const name = `${testPrefix}delete`;
       saveSessionInfo(makeSessionInfo(name));
       assert.ok(loadSessionInfo(name));
 
-      deleteSessionInfo(name);
+      await deleteSessionInfo(name);
       assert.strictEqual(loadSessionInfo(name), null);
     });
 
-    it('should not throw when deleting non-existent session', () => {
-      assert.doesNotThrow(() => {
-        deleteSessionInfo(`${testPrefix}nonexistent`);
-      });
+    it('should not throw when deleting non-existent session', async () => {
+      await deleteSessionInfo(`${testPrefix}nonexistent`);
     });
   });
 

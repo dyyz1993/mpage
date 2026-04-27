@@ -1,9 +1,9 @@
-import * as fs from 'fs';
+import fs from 'fs';
 import * as path from 'path';
-import * as os from 'os';
 import type { SessionInfo } from '../types.js';
+import { DEFAULT_STORAGE } from '../constants.js';
 
-export const DEFAULT_STORAGE = path.join(os.tmpdir(), 'mpage');
+export { DEFAULT_STORAGE };
 
 export function ensureStorage(): void {
   if (!fs.existsSync(DEFAULT_STORAGE)) {
@@ -35,7 +35,7 @@ export function saveSessionInfo(info: SessionInfo): void {
   fs.writeFileSync(path.join(sessionPath, 'session.json'), JSON.stringify(info, null, 2), 'utf-8');
 }
 
-export function deleteSessionInfo(name: string): void {
+export async function deleteSessionInfo(name: string): Promise<void> {
   const sessionPath = getSessionPath(name);
   if (fs.existsSync(sessionPath)) {
     for (let i = 0; i < 3; i++) {
@@ -44,7 +44,7 @@ export function deleteSessionInfo(name: string): void {
         break;
       } catch (e) {
         if (i < 2) {
-          setTimeout(() => {}, 100);
+          await new Promise((resolve) => setTimeout(resolve, 100));
         } else {
           console.error(`Failed to delete session directory: ${e}`);
         }

@@ -217,6 +217,41 @@ describe('RecorderController', () => {
       const status = recorder.getStatus();
       assert.strictEqual(status, null);
     });
+
+    it('should await all trackedPages addScriptTag calls before clearing', async () => {
+      const completedPages: string[] = [];
+      const delays = [20, 30, 10];
+
+      const pages = delays.map((delay, idx) => {
+        const p = createMockPage({
+          addScriptTag: mock.fn(async (opts: { content: string }) => {
+            if (opts.content && opts.content.includes('__pageRecorder.stop')) {
+              await new Promise((r) => setTimeout(r, delay));
+              completedPages.push(`page-${idx}`);
+            }
+          }),
+        });
+        return p;
+      });
+
+      const mainPage = pages[0];
+      const recorder = new RecorderController(mainPage);
+
+      await recorder.start({ url: 'https://example.com' });
+
+      (recorder as unknown as { trackedPages: Set<unknown> }).trackedPages = new Set(pages);
+
+      await recorder.stop();
+
+      assert.ok(
+        completedPages.includes('page-1'),
+        'page-1 addScriptTag should have completed (only called from trackedPages loop)'
+      );
+      assert.ok(
+        completedPages.includes('page-2'),
+        'page-2 addScriptTag should have completed (only called from trackedPages loop)'
+      );
+    });
   });
 
   describe('getStatus', () => {

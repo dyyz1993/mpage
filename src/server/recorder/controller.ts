@@ -211,15 +211,17 @@ export class RecorderController {
       this.browserCDPSession = null;
     }
 
-    this.trackedPages.forEach(async (trackedPage) => {
-      try {
-        await trackedPage.addScriptTag({
-          content: `if (window.__pageRecorder) { window.__pageRecorder.stop(); }`,
-        });
-      } catch {
-        // Ignore errors if page is already closed
-      }
-    });
+    await Promise.all(
+      Array.from(this.trackedPages).map(async (trackedPage) => {
+        try {
+          await trackedPage.addScriptTag({
+            content: `if (window.__pageRecorder) { window.__pageRecorder.stop(); }`,
+          });
+        } catch {
+          // Ignore errors if page is already closed
+        }
+      })
+    );
     this.trackedPages.clear();
 
     unregisterActiveRecorder(this.recordingId);
