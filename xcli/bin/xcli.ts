@@ -159,6 +159,7 @@ async function main() {
     'remove',
     'install',
     'goto',
+    'init',
     'record',
     'replay',
     'structure',

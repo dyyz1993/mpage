@@ -24,6 +24,7 @@ import { removeCommand } from './remove';
 import { listCommand } from './list';
 import { gotoCommand } from './goto';
 import { installCommand } from './install';
+import { initCommand } from './init';
 import { recordCommand } from './record';
 import { replayCommand } from './replay';
 import { structureCommand } from './structure';
@@ -63,6 +64,7 @@ const commands: Record<string, BuiltinEntry> = {
   get: { handler: getCommand, scope: 'element' },
   goto: { handler: gotoCommand, scope: 'page' },
   install: { handler: installCommand, scope: 'project' },
+  init: { handler: initCommand, scope: 'project' },
   record: { handler: recordCommand, scope: 'page' },
   replay: { handler: replayCommand, scope: 'page' },
   structure: { handler: structureCommand, scope: 'page' },
