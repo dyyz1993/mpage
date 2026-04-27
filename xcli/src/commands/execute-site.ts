@@ -12,6 +12,7 @@ import { analyzePage, formatTips } from '../core/page-hook';
 import { fail, wrapResult, withMeta, type CommandResult } from '../core/command-result';
 import { generateTips, formatResult } from '../core/tips-engine';
 import { coerceCliArgs } from '../core/param-coercion';
+import { DEFAULT_CHROMIUM_PATH } from '../core/constants';
 import type { CommandArgs, CommandValues } from '../core/types';
 
 interface SiteCommandEntry {
@@ -46,8 +47,7 @@ export async function executeSiteCommand(
   args: CommandArgs,
   values: CommandValues
 ) {
-  const executablePath =
-    process.env.XCLI_CHROMIUM_PATH || '/Applications/Chromium.app/Contents/MacOS/Chromium';
+  const executablePath = process.env.XCLI_CHROMIUM_PATH || DEFAULT_CHROMIUM_PATH;
 
   const browser = await chromium.launch({ executablePath });
   const page = await browser.newPage();

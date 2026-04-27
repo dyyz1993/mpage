@@ -1,5 +1,6 @@
 import type { BuiltinCommand } from './info.js';
 import { listSessions } from '../core/session-client.js';
+import { DAEMON_PORT } from '../core/constants';
 
 export const viewerBuiltin: BuiltinCommand = {
   name: 'viewer',
@@ -30,7 +31,7 @@ export const viewerBuiltin: BuiltinCommand = {
       process.exit(1);
     }
 
-    console.log(`http://localhost:8054/viewer.html?s=${session.id}`);
+    console.log(`http://localhost:${DAEMON_PORT}/viewer.html?s=${session.id}`);
   },
 };
 

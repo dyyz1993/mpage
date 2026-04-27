@@ -2,6 +2,7 @@
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright';
 import type { IPCMessage, IPCResponse } from './ipc-types';
 import { RecorderController, PlaybackEngine, executePageCommand } from '@dyyz1993/xpage';
+import { DEFAULT_CHROMIUM_PATH } from '../constants';
 // eslint-disable-next-line no-restricted-imports -- worker 进程：允许使用 playwright 类型
 import type { Cookie } from 'playwright';
 
@@ -31,8 +32,7 @@ let browser: Browser | null = null;
 
 async function getBrowser(): Promise<Browser> {
   if (browser) return browser;
-  const executablePath =
-    process.env.XCLI_CHROMIUM_PATH || '/Applications/Chromium.app/Contents/MacOS/Chromium';
+  const executablePath = process.env.XCLI_CHROMIUM_PATH || DEFAULT_CHROMIUM_PATH;
   browser = await chromium.launch({ executablePath });
   return browser;
 }

@@ -2,7 +2,7 @@ import { spawn } from 'child_process';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { existsSync, readFileSync, readdirSync, unlinkSync } from 'fs';
-import { SESSION_DIR, DAEMON_CONFIG_PATH } from './constants';
+import { SESSION_DIR, DAEMON_CONFIG_PATH, DAEMON_PORT } from './constants';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -58,7 +58,6 @@ export async function startDaemon(): Promise<{ port: number; pid: number }> {
     return { port, pid };
   }
 
-  const DAEMON_PORT = 8054;
   const daemonScript = join(__dirname, 'session-daemon.ts');
 
   const child = spawn('node', ['--import', 'tsx', daemonScript], {

@@ -4,9 +4,7 @@ import { startHttpServer } from './daemon/http-server';
 import { setupWebSocket } from './daemon/ws-handler';
 import { handleRPCCommandAsync, workerManager } from './daemon/rpc-handlers';
 import { clearAll } from './daemon/session-store';
-import { SESSION_DIR, DAEMON_CONFIG_PATH, DAEMON_SOCKET_PATH } from './constants';
-
-const VIEWER_PORT = 8054;
+import { SESSION_DIR, DAEMON_CONFIG_PATH, DAEMON_SOCKET_PATH, DAEMON_PORT } from './constants';
 
 function ensureSessionDir() {
   mkdirSync(SESSION_DIR, { recursive: true });
@@ -14,7 +12,7 @@ function ensureSessionDir() {
 
 function saveDaemonConfig(pid: number) {
   ensureSessionDir();
-  const config = { pid, port: VIEWER_PORT, startedAt: new Date().toISOString() };
+  const config = { pid, port: DAEMON_PORT, startedAt: new Date().toISOString() };
   writeFileSync(DAEMON_CONFIG_PATH, JSON.stringify(config));
 }
 
@@ -30,7 +28,7 @@ async function main() {
     }
   }
 
-  const httpServer = startHttpServer(VIEWER_PORT);
+  const httpServer = startHttpServer(DAEMON_PORT);
   setupWebSocket(httpServer);
 
   const socketServer = createNetServer((socket) => {
