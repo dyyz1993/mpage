@@ -36,11 +36,11 @@ export const commands: Record<string, CommandDefinition> = {
   },
   press: {
     schema: z.object({
-      selector: z.string(),
       key: z.string(),
+      selector: z.string().optional(),
       delay: z.number().optional(),
     }),
-    description: 'Press key',
+    description: 'Press key on element (defaults to focused element)',
   },
   hover: {
     schema: z.object({
@@ -115,8 +115,11 @@ export const commands: Record<string, CommandDefinition> = {
     description: 'Find elements by text',
   },
   wait: {
-    schema: z.object({ timeout: z.number() }),
-    description: 'Wait for specified milliseconds',
+    schema: z.object({
+      state: z.enum(['load', 'domcontentloaded', 'networkidle']).optional(),
+      timeout: z.number().optional(),
+    }),
+    description: 'Wait for load state or specified milliseconds',
   },
   structure: {
     schema: z.object({

@@ -24,49 +24,36 @@ export const queryCommands: CommandModule = {
     const tag = (args.tag as string) || '*';
     const result = await page.evaluate(
       (opts) => {
-        const allElements = Array.from(document.querySelectorAll(opts.tag));
-        const matches: Element[] = [];
-
-        const excludeTags = new Set([
-          'SCRIPT',
-          'STYLE',
-          'NOSCRIPT',
-          'META',
-          'LINK',
-          'HEAD',
-          'HTML',
-          'TITLE',
-        ]);
-
-        const containing = allElements.filter((el) => {
-          if (excludeTags.has(el.tagName)) return false;
-          const content = el.textContent || '';
-          if (opts.exact) return content.trim() === opts.text;
-          return content.includes(opts.text);
-        });
-
-        for (const el of containing) {
-          const hasMoreSpecificChild = containing.some(
-            (other) => other !== el && el.contains(other)
-          );
-          if (!hasMoreSpecificChild) {
-            matches.push(el);
-          }
-        }
-
-        return matches.slice(0, 20).map((el, i) => ({
-          index: i,
-          tagName: el.tagName,
-          id: el.id || '',
-          className: (el.className || '').toString().slice(0, 100),
-          text: (el.textContent || '').trim().slice(0, 200),
-          href: (el as HTMLAnchorElement).href || '',
-          selector: el.id
-            ? `#${el.id}`
-            : el.className
-              ? `.${el.className.split(' ')[0]}`
-              : el.tagName.toLowerCase(),
-        }));
+        return Array.from(document.querySelectorAll(opts.tag))
+          .filter((el) => {
+            if (/SCRIPT|STYLE|NOSCRIPT|META|LINK|HEAD|HTML|TITLE/.test(el.tagName)) return false;
+            const sources = [
+              el.textContent || '',
+              el.getAttribute('aria-label') || '',
+              el.getAttribute('title') || '',
+              el.getAttribute('alt') || '',
+              el.getAttribute('placeholder') || '',
+            ];
+            if (opts.exact) {
+              return sources.some((s) => s.trim() === opts.text);
+            }
+            return sources.join(' ').includes(opts.text);
+          })
+          .filter((el, _i, arr) => !arr.some((other) => other !== el && el.contains(other)))
+          .slice(0, 20)
+          .map((el, i) => ({
+            index: i,
+            tagName: el.tagName,
+            id: el.id || '',
+            className: (el.className || '').toString().slice(0, 100),
+            text: (el.textContent || '').trim().slice(0, 200),
+            href: (el as HTMLAnchorElement).href || '',
+            selector: el.id
+              ? `#${el.id}`
+              : el.className
+                ? `.${el.className.split(' ')[0]}`
+                : el.tagName.toLowerCase(),
+          }));
       },
       { text, tag, exact: args.exact }
     );
@@ -132,30 +119,18 @@ export const queryCommands: CommandModule = {
       yaml: string;
     }
 
-    const fs = await import('fs');
-    const path = await import('path');
-    const os = await import('os');
+    await page.addScriptTag({
+      content: `window.__structureExtractor = ${STRUCTURE_EXTRACTOR_CODE};`,
+    });
 
-    const tmpDir = os.tmpdir();
-    const scriptPath = path.join(tmpDir, `mpage-structure-${Date.now()}.js`);
-    fs.writeFileSync(scriptPath, `window.__structureExtractor = ${STRUCTURE_EXTRACTOR_CODE};`);
+    const result = await page.evaluate((sel: string): ExtractorResult => {
+      const ext = (window as unknown as Record<string, unknown>).__structureExtractor;
+      if (typeof ext === 'function') {
+        return (ext as (opts: { selector: string }) => ExtractorResult)({ selector: sel });
+      }
+      return { layout: null, yaml: 'Extractor not loaded' };
+    }, selector);
 
-    try {
-      await page.addScriptTag({ path: scriptPath });
-
-      const result = await page.evaluate((sel: string): ExtractorResult => {
-        const ext = (window as unknown as Record<string, unknown>).__structureExtractor;
-        if (typeof ext === 'function') {
-          return (ext as (opts: { selector: string }) => ExtractorResult)({ selector: sel });
-        }
-        return { layout: null, yaml: 'Extractor not loaded' };
-      }, selector);
-
-      return { structure: result.layout, yaml: result.yaml };
-    } finally {
-      try {
-        fs.unlinkSync(scriptPath);
-      } catch {}
-    }
+    return { structure: result.layout, yaml: result.yaml };
   },
 };

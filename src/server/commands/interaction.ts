@@ -3,31 +3,55 @@ import type { CommandModule } from './types.js';
 
 export const interactionCommands: CommandModule = {
   click: async (page: Page, args: Record<string, unknown>) => {
-    await page.click(args.selector as string, args as Record<string, unknown>);
-    return { selector: args.selector };
+    const selector = args.selector as string;
+    const options: Record<string, unknown> = {};
+    if (args.timeout !== undefined) options.timeout = args.timeout;
+    if (args.force !== undefined) options.force = args.force;
+    await page.click(selector, options);
+    return { selector };
   },
 
   fill: async (page: Page, args: Record<string, unknown>) => {
-    await page.fill(args.selector as string, args.value as string, args as Record<string, unknown>);
-    return { selector: args.selector, value: args.value };
+    const selector = args.selector as string;
+    const value = args.value as string;
+    const options: Record<string, unknown> = {};
+    if (args.timeout !== undefined) options.timeout = args.timeout;
+    await page.fill(selector, value, options);
+    await page.evaluate((sel: string) => {
+      const el = document.querySelector(sel) as HTMLInputElement | HTMLTextAreaElement | null;
+      if (el) {
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }, selector);
+    return { selector, value };
   },
 
   type: async (page: Page, args: Record<string, unknown>) => {
-    await page.type(args.selector as string, args.text as string, {
-      timeout: (args.timeout as number) || 10000,
-      ...args,
-    });
-    return { selector: args.selector, text: args.text };
+    const selector = args.selector as string;
+    const text = args.text as string;
+    const options: Record<string, unknown> = {};
+    if (args.timeout !== undefined) options.timeout = args.timeout;
+    if (args.delay !== undefined) options.delay = args.delay;
+    await page.type(selector, text, options);
+    return { selector, text };
   },
 
   press: async (page: Page, args: Record<string, unknown>) => {
-    await page.press(args.selector as string, args.key as string, args as Record<string, unknown>);
-    return { key: args.key };
+    const key = args.key as string;
+    const selector = (args.selector as string) || 'body';
+    const options: Record<string, unknown> = {};
+    if (args.delay !== undefined) options.delay = args.delay;
+    await page.press(selector, key, options);
+    return { key, selector };
   },
 
   hover: async (page: Page, args: Record<string, unknown>) => {
-    await page.hover(args.selector as string, args as Record<string, unknown>);
-    return { selector: args.selector };
+    const selector = args.selector as string;
+    const options: Record<string, unknown> = {};
+    if (args.timeout !== undefined) options.timeout = args.timeout;
+    await page.hover(selector, options);
+    return { selector };
   },
 
   scroll: async (page: Page, args: Record<string, unknown>) => {
