@@ -13,8 +13,9 @@ import type {
   CommandEntry,
 } from '../protocol/plugin-protocol';
 import { SiteInstanceImpl, DEFAULT_SCOPE } from '../protocol/plugin-protocol';
-import { resolve, isAbsolute, extname, basename } from 'path';
+import { resolve, isAbsolute, extname, basename, dirname } from 'path';
 import { createJiti } from 'jiti';
+import { fileURLToPath } from 'url';
 
 export type PluginStatus = 'loaded' | 'unloaded' | 'error';
 
@@ -328,8 +329,12 @@ export class PluginLoader {
     try {
       let plugin: Record<string, unknown> | undefined;
 
+      const xcliEntryPath = resolve(dirname(fileURLToPath(import.meta.url)), '../index.ts');
+      const jiti = createJiti(import.meta.url, {
+        interopDefault: true,
+        alias: { xcli: xcliEntryPath },
+      });
       if (extname(importPath) === '.ts') {
-        const jiti = createJiti(import.meta.url, { interopDefault: true });
         plugin = await jiti.import(importPath);
       } else {
         plugin = await import(`file://${importPath}`);

@@ -516,6 +516,7 @@ xcli plugins doctor
 - 缺少 `export default function` 签名
 - 使用了 Zod 但未导入
 - 访问 `ctx.page` 但未做 null 检查
+- `import ... from 'xcli'` 模块可达性
 - 插件加载错误
 
 ### 开发循环
@@ -570,6 +571,12 @@ xcli plugins doctor
 - `XCLIAPI`、`SiteInstance`、`CommandContext` 等类型
 - `ok()`、`fail()`、`withMeta()` 函数签名
 - `CommandResult<T>` 接口定义
+
+> **注意**：`tsconfig.plugins.json` 只影响 IDE 类型提示和 tsc 检查。jiti 运行时的模块解析通过 plugin-loader 内置的 alias 配置实现，插件开发者只需确保 IDE 中的类型提示正确即可，运行时自动处理。
+
+### Import 可用性验证
+
+`xcli plugins doctor` 会检测插件中 `import ... from 'xcli'` 是否可达，如有问题会给出具体修复建议。
 
 ---
 
@@ -647,7 +654,7 @@ await ctx.page.evaluate((fn) => fn(), () => doSomething());
 
 | 错误 | 原因 | 解决 |
 |------|------|------|
-| `Cannot find module 'zod'` | 插件依赖未安装 | 在项目根目录运行 `npm install zod` |
+| `Cannot find module 'zod'` | 插件依赖未安装 | 在项目根目录运行 `npm install zod`。全局插件需要在 `~/.xcli/` 下有对应的 `node_modules`，或改用 `--project` 安装 |
 | `ctx.page is null` | daemon 未启动或未 open | `xcli daemon start && xcli open <url>` |
 | `NOT_LOGGED_IN` | 未登录 | `xcli <site> login` |
 | `INVALID_ARGS` | 参数类型不匹配 | 用 `z.number()` 代替 `z.coerce.number()`，检查参数名 |

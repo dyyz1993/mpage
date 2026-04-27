@@ -48,7 +48,7 @@ export default function (xcli: XCLIAPI) {
 
 同名插件：本地优先于全局，后加载覆盖先加载。
 
-`.ts` 文件由 jiti 运行时编译，无需预编译。
+`.ts` 文件由 jiti 运行时编译，无需预编译。`import { ok, fail } from 'xcli'` 可直接使用，jiti 运行时通过内置 alias 配置自动解析模块路径。
 
 ---
 

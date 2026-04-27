@@ -125,4 +125,19 @@ describe('PluginLoader', () => {
     await loader.loadPlugin(v2Path, 'override-site');
     expect(loader.getSite('override-site')?.url).toBe('https://v2.com');
   });
+
+  it('should resolve import from xcli in plugin code', async () => {
+    const XCLI_IMPORT_PLUGIN_CODE = [
+      "import { ok, fail } from 'xcli';",
+      'export default function(xcli) {',
+      "  xcli.createSite({ name: 'xcli-import-site', url: 'https://import.com' });",
+      '}',
+    ].join('\n');
+
+    const pluginPath = writePluginFile('xcli-import-plugin', XCLI_IMPORT_PLUGIN_CODE);
+
+    const instance = await loader.loadPlugin(pluginPath, 'xcli-import-plugin');
+    expect(instance.loaded).toBe(true);
+    expect(loader.getSite('xcli-import-site')).toBeDefined();
+  });
 });

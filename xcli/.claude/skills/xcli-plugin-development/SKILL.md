@@ -373,6 +373,20 @@ reloadPlugin(id)
 
 或将 `tsconfig.plugins.json` 路径配置到 IDE 的 TypeScript 项目中，获得 `xcli` 模块的完整类型提示。
 
+> **注意**：`tsconfig.plugins.json` 只影响 IDE 类型提示和 tsc 检查。jiti 运行时的模块解析通过 plugin-loader 内置的 alias 配置实现。插件开发者只需确保 IDE 类型提示正确，运行时自动处理。
+
+## Import 可用性
+
+插件中以下 import 均已验证可用：
+
+```typescript
+import type { XCLIAPI } from 'xcli';   // ✅ 类型导入
+import { ok, fail } from 'xcli';        // ✅ 运行时导入（jiti alias 解析）
+import { ok, fail, withMeta } from 'xcli'; // ✅ 完整 API
+```
+
+`xcli plugins doctor` 会检测 `xcli` import 是否可达，如有问题会给出具体提示。
+
 ## 详细文档
 
 - API 完整参考: [references/api-reference.md](references/api-reference.md)
