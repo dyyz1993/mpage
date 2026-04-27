@@ -1,67 +1,272 @@
 import { z } from 'zod';
 import type { XCLIAPI } from 'xcli';
 
+const BaiduResultSchema = z.object({
+  title: z.string(),
+  url: z.string(),
+  snippet: z.string(),
+  source: z.string().optional(),
+  page: z.number(),
+  position: z.number(),
+});
+
+const HotItemSchema = z.object({
+  rank: z.number(),
+  title: z.string(),
+  url: z.string().optional(),
+  heat: z.string().optional(),
+  tag: z.string().optional(),
+});
+
 export default function (xcli: XCLIAPI) {
   const baidu = xcli.createSite({
     name: 'baidu',
     url: 'https://www.baidu.com',
-    description: '百度搜索',
+    description: '百度搜索 - 真实浏览器操作',
     requiresLogin: false,
   });
 
   baidu.command('search', {
-    description: '百度搜索',
+    description: '百度搜索并提取多页结果',
+    scope: 'browser',
     parameters: z.object({
       query: z.string().describe('搜索关键词'),
-      limit: z.number().optional().default(10).describe('结果数量'),
+      pages: z.number().optional().default(1).describe('采集页数，默认1页'),
+      limit: z.number().optional().describe('结果数量上限，默认全部'),
     }),
-    requiresLogin: false,
     examples: [
       { cmd: 'xcli baidu search --query "AI"', description: '搜索 AI 相关内容' },
-      { cmd: 'xcli baidu search --query "AI" --limit 5', description: '只返回 5 条结果' },
+      { cmd: 'xcli baidu search --query "编程" --pages 3', description: '搜索编程并采集前3页' },
     ],
-    tips: ['💡 使用 --query 指定搜索词'],
-    handler: async (params, _ctx) => {
-      const { query, limit } = params;
-      return {
-        ok: true,
-        query,
-        limit,
-        results: [
-          {
-            title: `${query} - 百度搜索结果1`,
-            url: 'https://example.com/1',
-            snippet: '这是搜索结果摘要...',
-          },
-          {
-            title: `${query} - 百度搜索结果2`,
-            url: 'https://example.com/2',
-            snippet: '这是搜索结果摘要...',
-          },
-        ].slice(0, limit),
-      };
-    },
-  });
+    handler: async (params, ctx) => {
+      if (!ctx.page) throw new Error('需要浏览器页面上下文');
 
-  baidu.command('hotsearch', {
-    description: '获取百度热搜榜',
-    parameters: z.object({}),
-    requiresLogin: false,
-    examples: [{ cmd: 'xcli baidu hotsearch', description: '获取热搜榜单' }],
-    handler: async (_params, _ctx) => {
+      const { query, pages, limit } = params;
+      const allResults: z.infer<typeof BaiduResultSchema>[] = [];
+
+      await ctx.page.goto(`https://www.baidu.com/s?wd=${encodeURIComponent(query)}`);
+      await ctx.page.waitForLoadState('domcontentloaded');
+
+      for (let pageNum = 1; pageNum <= pages; pageNum++) {
+        if (pageNum > 1) {
+          const nextBtn = ctx.page.locator('a.n:has-text("下一页")').first();
+          const hasNext = await nextBtn.isVisible().catch(() => false);
+          if (!hasNext) break;
+          await nextBtn.click();
+          await ctx.page.waitForLoadState('domcontentloaded');
+          await ctx.page.waitForTimeout(1500);
+        }
+
+        const pageResults = await ctx.page.evaluate((pNum: number) => {
+          const results: Array<{
+            title: string;
+            url: string;
+            snippet: string;
+            source: string;
+            page: number;
+            position: number;
+          }> = [];
+
+          const containers = document.querySelectorAll('.result, .c-container');
+          containers.forEach((container, idx) => {
+            const titleEl = container.querySelector('h3 a, .t a');
+            const snippetEl = container.querySelector(
+              '.c-abstract, [class*="abstract"], .c-span-last'
+            );
+            const sourceEl = container.querySelector(
+              '.c-showurl, [class*="showurl"], .c-color-gray'
+            );
+
+            const title = titleEl?.textContent?.trim() || '';
+            const url = titleEl?.getAttribute('href') || '';
+            const snippet = snippetEl?.textContent?.trim().slice(0, 300) || '';
+            const source = sourceEl?.textContent?.trim() || '';
+
+            if (title) {
+              results.push({
+                title,
+                url,
+                snippet,
+                source,
+                page: pNum,
+                position: idx + 1,
+              });
+            }
+          });
+
+          return results;
+        }, pageNum);
+
+        allResults.push(...pageResults);
+      }
+
+      const finalResults = limit ? allResults.slice(0, limit) : allResults;
+
       return {
-        ok: true,
-        items: [
-          { rank: 1, title: '热搜话题1', url: 'https://example.com/1', heat: '500万' },
-          { rank: 2, title: '热搜话题2', url: 'https://example.com/2', heat: '300万' },
-          { rank: 3, title: '热搜话题3', url: 'https://example.com/3', heat: '200万' },
+        data: finalResults,
+        tips: [
+          `关键词: "${query}"`,
+          `采集 ${pages} 页，共 ${allResults.length} 条结果${limit ? `，截取前 ${limit} 条` : ''}`,
         ],
       };
     },
   });
 
+  baidu.command('hotsearch', {
+    description: '获取百度热搜榜（真实数据）',
+    scope: 'browser',
+    parameters: z.object({
+      category: z
+        .enum(['hot', 'entertainment', 'sports', 'car', 'finance', 'tech'])
+        .optional()
+        .default('hot')
+        .describe('热搜分类'),
+    }),
+    examples: [{ cmd: 'xcli baidu hotsearch', description: '获取热搜榜单' }],
+    handler: async (params, ctx) => {
+      if (!ctx.page) throw new Error('需要浏览器页面上下文');
+
+      const categoryMap: Record<string, string> = {
+        hot: 'https://top.baidu.com/board?tab=realtime',
+        entertainment: 'https://top.baidu.com/board?tab=movie',
+        sports: 'https://top.baidu.com/board?tab=sports',
+        car: 'https://top.baidu.com/board?tab=car',
+        finance: 'https://top.baidu.com/board?tab=finance',
+        tech: 'https://top.baidu.com/board?tab=technology',
+      };
+
+      const url = categoryMap[params.category] || categoryMap.hot;
+      await ctx.page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await ctx.page.waitForLoadState('networkidle');
+      await ctx.page.waitForTimeout(2000);
+
+      const items = await ctx.page.evaluate(() => {
+        const results: Array<{
+          rank: number;
+          title: string;
+          url: string;
+          heat: string;
+          tag: string;
+        }> = [];
+
+        const cards = document.querySelectorAll('.category-wrap_iQLoo');
+        cards.forEach((card, idx) => {
+          const titleEl = card.querySelector('.c-single-text-ellipsis');
+          const linkEl = card.querySelector('a[href]');
+          const heatEl = card.querySelector('.hot-index_1Bl1a');
+          const tagEl = card.querySelector('.hot-tag_1G0TR');
+
+          const title = titleEl?.textContent?.trim() || '';
+          if (title) {
+            results.push({
+              rank: idx + 1,
+              title,
+              url: linkEl?.getAttribute('href') || '',
+              heat: heatEl?.textContent?.trim() || '',
+              tag: tagEl?.textContent?.trim() || '',
+            });
+          }
+        });
+
+        return results;
+      });
+
+      return {
+        data: items,
+        tips: [`分类: ${params.category}`, `共获取 ${items.length} 条热搜`],
+      };
+    },
+  });
+
+  baidu.command('suggest', {
+    description: '获取百度搜索建议/联想词',
+    scope: 'browser',
+    parameters: z.object({
+      query: z.string().describe('输入关键词'),
+    }),
+    examples: [{ cmd: 'xcli baidu suggest --query "编程"', description: '获取编程的搜索建议' }],
+    handler: async (params, ctx) => {
+      if (!ctx.page) throw new Error('需要浏览器页面上下文');
+
+      await ctx.page.goto('https://www.baidu.com');
+      await ctx.page.waitForLoadState('domcontentloaded');
+
+      await ctx.page.fill('#kw', params.query);
+      await ctx.page.waitForSelector('.bdsug', { timeout: 5000 });
+      await ctx.page.waitForTimeout(500);
+
+      const suggestions = await ctx.page
+        .evaluate(() => {
+          const items = document.querySelectorAll('.bdsug-overflow');
+          return Array.from(items).map((item) => item.textContent?.trim() || '');
+        })
+        .catch(() => []);
+
+      return {
+        data: suggestions.filter(Boolean),
+        tips: [`关键词 "${params.query}" 的搜索建议共 ${suggestions.length} 条`],
+      };
+    },
+  });
+
+  baidu.command('news', {
+    description: '获取百度新闻资讯',
+    scope: 'browser',
+    parameters: z.object({
+      query: z.string().describe('新闻关键词'),
+      limit: z.number().optional().default(10).describe('结果数量'),
+    }),
+    examples: [{ cmd: 'xcli baidu news --query "AI"', description: '获取 AI 相关新闻' }],
+    handler: async (params, ctx) => {
+      if (!ctx.page) throw new Error('需要浏览器页面上下文');
+
+      const url = `https://www.baidu.com/s?wd=${encodeURIComponent(params.query)}&tn=news`;
+      await ctx.page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await ctx.page.waitForLoadState('networkidle');
+
+      const news = await ctx.page.evaluate((maxItems: number) => {
+        const items: Array<{
+          title: string;
+          url: string;
+          source: string;
+          time: string;
+          snippet: string;
+        }> = [];
+
+        const cards = document.querySelectorAll('.result-op');
+        cards.forEach((card) => {
+          const titleEl = card.querySelector('.news-title-font_1xS-F a, h3 a');
+          const sourceEl = card.querySelector('.c-color-gray, .source-name');
+          const timeEl = card.querySelector('.c-color-gray2, .c-font-normal');
+          const snippetEl = card.querySelector('.c-gap-top-small');
+
+          const title = titleEl?.textContent?.trim() || '';
+          if (title) {
+            items.push({
+              title,
+              url: titleEl?.getAttribute('href') || '',
+              source: sourceEl?.textContent?.trim() || '',
+              time: timeEl?.textContent?.trim() || '',
+              snippet: snippetEl?.textContent?.trim().slice(0, 200) || '',
+            });
+          }
+        });
+
+        return items.slice(0, maxItems);
+      }, params.limit);
+
+      return {
+        data: news,
+        tips: [`关键词 "${params.query}" 获取 ${news.length} 条新闻`],
+      };
+    },
+  });
+
   baidu.login(async (ctx) => {
-    console.log('百度登录中...');
+    if (!ctx.page) return;
+    await ctx.page.goto('https://www.baidu.com');
+    await ctx.page.click('#s-top-loginbtn').catch(() => {});
+    await ctx.page.waitForTimeout(3000);
     await ctx.storage.set('baidu_token', { loggedIn: true, at: Date.now() });
   });
 
