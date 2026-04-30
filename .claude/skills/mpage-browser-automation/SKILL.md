@@ -36,6 +36,8 @@ mpage --session mysession "goto https://example.com && wait networkidle"
 | `title` | `title` | Get page title |
 | `wait` | `wait networkidle` | Wait for load state (`load`, `domcontentloaded`, `networkidle`) |
 | `wait` | `wait 3000` | Wait for N milliseconds |
+| `waitForSelector` | `waitForSelector --selector '.loaded'` | Wait for element to appear in DOM (default 10s timeout) |
+| `waitForSelector` | `waitForSelector --selector '.item' --timeout 5000` | Wait with custom timeout |
 | `close` | (CLI: `mpage --session s close`) | Close session |
 
 ### Content Extraction
@@ -149,13 +151,16 @@ mpage --session $SESSION close
 
 ## Important Notes
 
-1. **Session persistence**: Each `--session <name>` creates a persistent browser session. Always `close` when done.
-2. **Cleanup**: `mpage kill` kills ALL sessions.
-3. **`fill` triggers reactivity**: Automatically dispatches `input` and `change` events for Vue/React compatibility.
-4. **`find` searches broadly**: Matches against textContent, aria-label, title, alt, placeholder attributes.
-5. **`press` key first**: `press Enter` works (key is first param). Optional: `press Enter --selector textarea`.
-6. **Use `snapshot` for exploration**: Returns ARIA tree — the best way to understand page structure before interacting.
-7. **Evaluate for complex operations**: When built-in commands aren't enough, use `evaluate` to run arbitrary JS in the page.
+1. **Headless mode**: mpage runs Chromium in `--headless` mode by default. No visible browser window.
+2. **Session persistence**: Each `--session <name>` creates a persistent browser session. Always `close` when done.
+3. **Cleanup**: `mpage kill` kills ALL sessions.
+4. **`fill` triggers reactivity**: Automatically dispatches `input` and `change` events for Vue/React compatibility.
+5. **`find` searches broadly**: Matches against textContent, aria-label, title, alt, placeholder attributes.
+6. **`press` key first**: `press Enter` works (key is first param). Optional: `press Enter --selector textarea`.
+7. **Use `snapshot` for exploration**: Returns ARIA tree — the best way to understand page structure before interacting.
+8. **Evaluate for complex operations**: When built-in commands aren't enough, use `evaluate` to run arbitrary JS in the page.
+9. **Auto-wait before interaction**: `click`, `fill`, `select`, `check` automatically wait for the target element to appear in DOM (default 10s timeout). No need to manually `waitForSelector` before these commands.
+10. **`select` and `check` work natively**: No need for `evaluate` workarounds. Use `select --selector '#sel' --value opt1` and `check --selector '#cb'` directly.
 
 ## Common Pitfalls
 
@@ -163,3 +168,5 @@ mpage --session $SESSION close
 - **Chinese text in selectors**: Some shells may need quoting. Use `find '中文'` instead of CSS selectors with Chinese.
 - **SPA loading**: Always `wait networkidle` after navigation in SPA apps before interacting.
 - **Session leaks**: Use `mpage kill` to clean up abandoned sessions.
+- **Tab switching**: After switching tabs (e.g., clicking a tab button), elements in the new tab may be in DOM but hidden. `click` auto-waits for elements, but Playwright's actionability check may still fail on `display:none` elements. Use `evaluate 'element.click()'` as fallback.
+- **`waitForSelector` vs `wait`**: `waitForSelector` waits for an element to appear in DOM. `wait` waits for page load state or a timeout. Use `waitForSelector` before interacting with dynamically loaded elements.
