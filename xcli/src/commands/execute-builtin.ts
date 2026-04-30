@@ -30,6 +30,7 @@ import { replayCommand } from './replay';
 import { structureCommand } from './structure';
 import { killAllDaemon } from '../core/daemon-manager';
 
+import { allBuiltins } from '../builtins/index';
 import type { CommandArgs, CommandValues } from '../core/types';
 
 type BuiltinCommandFn = (args: CommandArgs, values: CommandValues) => Promise<void>;
@@ -76,6 +77,21 @@ const commands: Record<string, BuiltinEntry> = {
     scope: 'project',
   },
 };
+
+for (const builtin of allBuiltins) {
+  if (!commands[builtin.name]) {
+    commands[builtin.name] = {
+      handler: (args, values) =>
+        builtin.execute(args, values, {
+          cwd: process.cwd(),
+          plugins: new Map(),
+          loadPlugin: () => Promise.resolve(null),
+          getPluginSource: () => null,
+        }),
+      scope: 'project',
+    };
+  }
+}
 
 export function getBuiltinScope(name: string): CommandScope | undefined {
   return commands[name]?.scope;

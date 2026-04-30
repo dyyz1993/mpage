@@ -81,6 +81,8 @@ function parseValue(value: string): unknown {
   return value;
 }
 
+const pluginLoadErrors: string[] = [];
+
 async function loadPlugins() {
   const cwd = process.cwd();
   const parentDir = join(cwd, '..');
@@ -100,10 +102,8 @@ async function loadPlugins() {
           if (existsSync(pluginPath)) {
             try {
               await globalLoader.loadPlugin(pluginPath, entry);
-            } catch (err) {
-              console.error(
-                `Failed to load plugin "${entry}": ${err instanceof Error ? err.message : err}`
-              );
+            } catch {
+              pluginLoadErrors.push(entry);
             }
           }
         }
@@ -125,7 +125,31 @@ async function main() {
     return;
   }
 
+  let cdpEndpoint: string | undefined;
+  if (typeof values.cdp === 'string') {
+    const port = values.cdp;
+    if (/^\d+$/.test(port)) {
+      try {
+        const res = await fetch(`http://localhost:${port}/json/version`);
+        const data = await res.json();
+        cdpEndpoint = data.webSocketDebuggerUrl;
+      } catch {
+        console.error(`无法连接到 CDP 端口 ${port}`);
+        process.exit(1);
+      }
+    } else {
+      cdpEndpoint = port;
+    }
+  }
+
   const [cmd, ...cmdArgs] = positionals;
+
+  const { checkGuard } = await import('../src/core/agent-guard');
+  const guardResult = checkGuard(cmd);
+  if (guardResult?.blocked) {
+    console.error(guardResult.message);
+    process.exit(1);
+  }
 
   const isBuiltinCommand = [
     'open',
@@ -136,6 +160,7 @@ async function main() {
     'html',
     'screenshot',
     'viewer',
+    'config',
     'cookies',
     'localStorage',
     'snapshot',
@@ -191,7 +216,7 @@ async function main() {
     const siteCmdObj = site.getCommand(siteCmd);
     if (siteCmdObj) {
       const { executeSiteCommand } = await import('../src/commands/execute-site');
-      await executeSiteCommand(site, siteCmd, siteCmdObj, cmdArgs.slice(1), values);
+      await executeSiteCommand(site, siteCmd, siteCmdObj, cmdArgs.slice(1), values, cdpEndpoint);
       return;
     }
     console.error(`Unknown site command: ${siteCmd}`);
@@ -201,7 +226,18 @@ async function main() {
   console.error(`Unknown command: ${cmd}`);
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+function printTips() {
+  if (pluginLoadErrors.length > 0) {
+    console.log('');
+    console.log(
+      `[Tip] ${pluginLoadErrors.length} 个插件加载失败: ${pluginLoadErrors.join(', ')}。请检查插件依赖是否安装。`
+    );
+  }
+}
+
+main()
+  .then(() => printTips())
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });

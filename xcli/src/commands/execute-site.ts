@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-restricted-imports -- TODO: execute-site 直接创建浏览器，后续应迁移到 daemon 模式
-import { chromium } from 'playwright';
+import { chromium, type Browser, type Page } from 'playwright';
 import type {
   CommandContext,
   SiteInstance,
@@ -12,7 +12,7 @@ import { analyzePage, formatTips } from '../core/page-hook';
 import { fail, wrapResult, withMeta, type CommandResult } from '../core/command-result';
 import { generateTips, formatResult } from '../core/tips-engine';
 import { coerceCliArgs } from '../core/param-coercion';
-import { DEFAULT_CHROMIUM_PATH } from '../core/constants';
+import { getChromiumPath } from '../core/rc-config.js';
 import type { CommandArgs, CommandValues } from '../core/types';
 
 interface SiteCommandEntry {
@@ -45,16 +45,29 @@ export async function executeSiteCommand(
   cmdName: string,
   cmd: SiteCommandEntry,
   args: CommandArgs,
-  values: CommandValues
+  values: CommandValues,
+  cdpEndpoint?: string
 ) {
-  const executablePath = process.env.XCLI_CHROMIUM_PATH || DEFAULT_CHROMIUM_PATH;
+  const executablePath = getChromiumPath();
 
-  const browser = await chromium.launch({ executablePath, headless: false });
-  const context = await browser.newContext({
-    userAgent:
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-  });
-  const page = await context.newPage();
+  let browser: Browser;
+  let page: Page;
+  let usingCdp = false;
+
+  if (cdpEndpoint) {
+    browser = await chromium.connectOverCDP(cdpEndpoint);
+    const contexts = browser.contexts();
+    const context = contexts.length > 0 ? contexts[0] : await browser.newContext();
+    page = await context.newPage();
+    usingCdp = true;
+  } else {
+    browser = await chromium.launch({ executablePath, headless: false });
+    const context = await browser.newContext({
+      userAgent:
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+    });
+    page = await context.newPage();
+  }
 
   const storage = site.getStorage();
 
@@ -91,7 +104,7 @@ export async function executeSiteCommand(
       } else {
         console.log(formatResult(result, 'text'));
       }
-      await browser.close();
+      if (!usingCdp) await browser.close();
       return;
     }
 
@@ -135,7 +148,11 @@ export async function executeSiteCommand(
     }
     throw err;
   } finally {
-    await browser.close();
+    if (usingCdp) {
+      await page.close();
+    } else {
+      await browser.close();
+    }
   }
 }
 
