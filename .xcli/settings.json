@@ -3,5 +3,20 @@
   "defaultOutput": "text",
   "plugins": ["doubao"],
   "pluginDirs": [".xcli/plugins"],
-  "globalDir": "~/.xcli/plugins"
+  "globalDir": "~/.xcli/plugins",
+  "agentGuard": {
+    "identityKey": "XCLI_AGENT_ROLE",
+    "rules": {
+      "main": {
+        "match": ["*"],
+        "block": ["screenshot", "open", "click", "fill", "eval", "snapshot", "structure"],
+        "message": "[Guard] 检测到主 Agent 直接执行浏览器操作命令。主 Agent 上下文有限，请使用子 Agent (Task) 执行此命令以避免上下文膨胀。示例：通过 Task 工具调用子 Agent，子 Agent 会自动继承环境变量并执行。"
+      },
+      "sub": {
+        "match": ["*"],
+        "block": [],
+        "message": ""
+      }
+    }
+  }
 }
