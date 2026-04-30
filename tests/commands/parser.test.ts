@@ -125,4 +125,28 @@ describe('parseArgsToRecord', () => {
     const result = parseArgsToRecord(['hello'], schema);
     assert.deepStrictEqual(result, { name: 'hello' });
   });
+
+  it('should work with real select command schema', () => {
+    const schema = commands.select.schema;
+    const result = parseArgsToRecord(["'#city'", "'shanghai'"], schema);
+    assert.deepStrictEqual(result, { selector: '#city', value: 'shanghai' });
+  });
+
+  it('should work with real check command schema', () => {
+    const schema = commands.check.schema;
+    const result = parseArgsToRecord(["'#agree'"], schema);
+    assert.deepStrictEqual(result, { selector: '#agree' });
+  });
+
+  it('should work with real waitForSelector command schema', () => {
+    const schema = commands.waitForSelector.schema;
+    const result = parseArgsToRecord(["'.loaded'", '--timeout', '5000'], schema);
+    assert.deepStrictEqual(result, { selector: '.loaded', timeout: 5000 });
+  });
+
+  it('should parse waitForSelector without optional timeout', () => {
+    const schema = commands.waitForSelector.schema;
+    const result = parseArgsToRecord(["'.item'"], schema);
+    assert.deepStrictEqual(result, { selector: '.item' });
+  });
 });

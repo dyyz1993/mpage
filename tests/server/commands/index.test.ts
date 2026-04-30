@@ -4,7 +4,7 @@ import {
   getCommandHandler,
   hasCommand,
   executePageCommand,
-} from '../../src/server/commands/index.js';
+} from '../../../src/server/commands/index.js';
 import type { Page } from 'playwright-core';
 
 function createMockPage(): Page {
@@ -38,6 +38,12 @@ describe('commands index', () => {
       const handler = getCommandHandler('waitForTimeout');
       assert.ok(typeof handler === 'function');
     });
+
+    it('should return handler for select, check, waitForSelector', () => {
+      assert.ok(typeof getCommandHandler('select') === 'function');
+      assert.ok(typeof getCommandHandler('check') === 'function');
+      assert.ok(typeof getCommandHandler('waitForSelector') === 'function');
+    });
   });
 
   describe('hasCommand', () => {
@@ -54,6 +60,12 @@ describe('commands index', () => {
     it('should work with aliases', () => {
       assert.strictEqual(hasCommand('findByText'), true);
       assert.strictEqual(hasCommand('waitForTimeout'), true);
+    });
+
+    it('should recognize select, check, waitForSelector commands', () => {
+      assert.strictEqual(hasCommand('select'), true);
+      assert.strictEqual(hasCommand('check'), true);
+      assert.strictEqual(hasCommand('waitForSelector'), true);
     });
   });
 
