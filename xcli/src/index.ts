@@ -30,3 +30,13 @@ export type { PluginStatus } from './core/plugin-loader';
 export type { CommandArgs, CommandValues } from './core/types';
 export { HelpGenerator, helpGenerator } from './core/help-generator';
 export { OutputFormatter, outputFormatter } from './core/output-formatter';
+export {
+  checkGuard,
+  loadGuardConfig,
+  clearGuardCache,
+  addGuardRule,
+  removeGuardRule,
+  listGuardRules,
+  setGuardIdentityKey,
+} from './core/agent-guard';
+export type { GuardConfig, GuardRule } from './core/agent-guard';

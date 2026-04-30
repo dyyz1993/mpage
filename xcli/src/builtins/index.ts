@@ -12,6 +12,7 @@ import {
   localStorageBuiltin,
 } from './session.js';
 import { viewerBuiltin } from './viewer.js';
+import { configBuiltin } from './config.js';
 
 export { type BuiltinCommand, type BuiltinContext };
 
@@ -26,6 +27,7 @@ export const allBuiltins: BuiltinCommand[] = [
   cookieBuiltin,
   localStorageBuiltin,
   viewerBuiltin,
+  configBuiltin,
   infoBuiltin,
 ];
 
