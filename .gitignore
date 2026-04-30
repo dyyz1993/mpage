@@ -43,6 +43,12 @@ scripts/structure-extractor*.js
 scripts/*-recording*.ts
 scripts/test-extractor-code.cjs
 
+# 工具内部数据
+.codenomad/
+
+# 临时测试文件
+test-ui.html
+
 # Trae 相关
 .trae/
 
