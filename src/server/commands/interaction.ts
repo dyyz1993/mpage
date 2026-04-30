@@ -7,6 +7,7 @@ export const interactionCommands: CommandModule = {
     const options: Record<string, unknown> = {};
     if (args.timeout !== undefined) options.timeout = args.timeout;
     if (args.force !== undefined) options.force = args.force;
+    await page.waitForSelector(selector, { timeout: (args.timeout as number) || 10000 });
     await page.click(selector, options);
     return { selector };
   },
@@ -16,6 +17,7 @@ export const interactionCommands: CommandModule = {
     const value = args.value as string;
     const options: Record<string, unknown> = {};
     if (args.timeout !== undefined) options.timeout = args.timeout;
+    await page.waitForSelector(selector, { timeout: (args.timeout as number) || 10000 });
     await page.fill(selector, value, options);
     await page.evaluate((sel: string) => {
       const el = document.querySelector(sel) as HTMLInputElement | HTMLTextAreaElement | null;
@@ -64,11 +66,13 @@ export const interactionCommands: CommandModule = {
   },
 
   select: async (page: Page, args: Record<string, unknown>) => {
+    await page.waitForSelector(args.selector as string, { timeout: 10000 });
     await page.selectOption(args.selector as string, args.value as string);
     return { selector: args.selector, value: args.value };
   },
 
   check: async (page: Page, args: Record<string, unknown>) => {
+    await page.waitForSelector(args.selector as string, { timeout: 10000 });
     await page.check(args.selector as string);
     return { selector: args.selector };
   },

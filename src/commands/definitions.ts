@@ -57,6 +57,26 @@ export const commands: Record<string, CommandDefinition> = {
     }),
     description: 'Scroll page',
   },
+  select: {
+    schema: z.object({
+      selector: z.string(),
+      value: z.string(),
+    }),
+    description: 'Select dropdown option',
+  },
+  check: {
+    schema: z.object({
+      selector: z.string(),
+    }),
+    description: 'Check checkbox',
+  },
+  waitForSelector: {
+    schema: z.object({
+      selector: z.string(),
+      timeout: z.number().optional(),
+    }),
+    description: 'Wait for element to appear in DOM',
+  },
   waitForTimeout: {
     schema: z.object({ timeout: z.number() }),
     description: 'Wait for timeout',

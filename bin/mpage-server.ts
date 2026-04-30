@@ -116,6 +116,7 @@ async function initSession(): Promise<boolean> {
         [
           `--remote-debugging-port=${cdpPort}`,
           `--user-data-dir=${userDataDir}`,
+          '--headless',
           '--no-first-run',
           '--no-default-browser-check',
           '--no-sandbox',
