@@ -1,0 +1,479 @@
+# 插件元数据配置文件
+
+{
+  "plugins": {
+    "01-static": {
+      "phase": 1,
+      "difficulty": "基础",
+      "dependencies": {
+        "mpage": ["goto", "waitForSelector", "evaluate"],
+        "xcli": []
+      },
+      "improvements": [],
+      "status": "done",
+      "coverage": 100
+    },
+    "02-extract-urls": {
+      "phase": 1,
+      "difficulty": "基础",
+      "dependencies": {
+        "mpage": ["goto", "waitForSelector", "getAttribute"],
+        "xcli": []
+      },
+      "improvements": [],
+      "status": "done",
+      "coverage": 100
+    },
+    "03-extract-content": {
+      "phase": 1,
+      "difficulty": "基础",
+      "dependencies": {
+        "mpage": ["goto", "waitForSelector", "evaluate"],
+        "xcli": []
+      },
+      "improvements": [],
+      "status": "done",
+      "coverage": 100
+    },
+    "04-pagination": {
+      "phase": 1,
+      "difficulty": "基础",
+      "dependencies": {
+        "mpage": ["goto", "waitForSelector", "click"],
+        "xcli": []
+      },
+      "improvements": [],
+      "status": "done",
+      "coverage": 100
+    },
+    "05-url-params": {
+      "phase": 1,
+      "difficulty": "基础",
+      "dependencies": {
+        "mpage": ["goto", "waitForSelector", "evaluate"],
+        "xcli": []
+      },
+      "improvements": [],
+      "status": "done",
+      "coverage": 100
+    },
+    "06-infinite-scroll": {
+      "phase": 2,
+      "difficulty": "中等",
+      "dependencies": {
+        "mpage": ["goto", "waitForSelector", "evaluate"],
+        "xcli": []
+      },
+      "improvements": [],
+      "status": "done",
+      "coverage": 100
+    },
+    "07-lazy-load": {
+      "phase": 2,
+      "difficulty": "中等",
+      "dependencies": {
+        "mpage": ["goto", "waitForSelector", "click"],
+        "xcli": []
+      },
+      "improvements": [],
+      "status": "done",
+      "coverage": 100
+    },
+    "08-search": {
+      "phase": 2,
+      "difficulty": "中等",
+      "dependencies": {
+        "mpage": ["goto", "waitForSelector", "fill", "click"],
+        "xcli": []
+      },
+      "improvements": [],
+      "status": "done",
+      "coverage": 100
+    },
+    "09-rate-limit": {
+      "phase": 2,
+      "difficulty": "中等",
+      "dependencies": {
+        "mpage": ["goto", "waitForSelector"],
+        "xcli": ["retry-strategy"]
+      },
+      "improvements": ["IMP-001"],
+      "status": "proposed",
+      "coverage": 0
+    },
+    "10-login": {
+      "phase": 2,
+      "difficulty": "中等",
+      "dependencies": {
+        "mpage": ["goto", "waitForSelector", "fill", "click"],
+        "xcli": ["session-storage"]
+      },
+      "improvements": ["IMP-002"],
+      "status": "proposed",
+      "coverage": 0
+    },
+    "11-session": {
+      "phase": 2,
+      "difficulty": "中等",
+      "dependencies": {
+        "mpage": ["goto", "waitForSelector", "cookies"],
+        "xcli": ["session-storage"]
+      },
+      "improvements": ["IMP-002"],
+      "status": "proposed",
+      "coverage": 0
+    },
+    "12-captcha-numeric": {
+      "phase": 2,
+      "difficulty": "中等",
+      "dependencies": {
+        "mpage": ["screenshot", "ocr"],
+        "xcli": ["retry-strategy"]
+      },
+      "improvements": ["IMP-003", "IMP-004"],
+      "status": "proposed",
+      "coverage": 0
+    },
+    "13-captcha-slider": {
+      "phase": 3,
+      "difficulty": "进阶",
+      "dependencies": {
+        "mpage": ["screenshot", "drag", "image-processing"],
+        "xcli": ["retry-strategy"]
+      },
+      "improvements": ["IMP-005", "IMP-006"],
+      "status": "proposed",
+      "coverage": 0
+    },
+    "14-captcha-click": {
+      "phase": 3,
+      "difficulty": "进阶",
+      "dependencies": {
+        "mpage": ["screenshot", "ocr", "click"],
+        "xcli": ["retry-strategy"]
+      },
+      "improvements": ["IMP-003", "IMP-007"],
+      "status": "proposed",
+      "coverage": 0
+    },
+    "15-captcha-rotate": {
+      "phase": 3,
+      "difficulty": "进阶",
+      "dependencies": {
+        "mpage": ["screenshot", "rotate", "image-processing"],
+        "xcli": ["retry-strategy"]
+      },
+      "improvements": ["IMP-008"],
+      "status": "proposed",
+      "coverage": 0
+    },
+    "16-captcha-arithmetic": {
+      "phase": 3,
+      "difficulty": "进阶",
+      "dependencies": {
+        "mpage": ["goto", "waitForSelector", "evaluate"],
+        "xcli": ["retry-strategy"]
+      },
+      "improvements": [],
+      "status": "proposed",
+      "coverage": 0
+    },
+    "17-file-upload": {
+      "phase": 4,
+      "difficulty": "高级",
+      "dependencies": {
+        "mpage": ["file-upload"],
+        "xcli": []
+      },
+      "improvements": ["IMP-009"],
+      "status": "proposed",
+      "coverage": 0
+    },
+    "18-iframe-login": {
+      "phase": 4,
+      "difficulty": "高级",
+      "dependencies": {
+        "mpage": ["iframe"],
+        "xcli": []
+      },
+      "improvements": ["IMP-010"],
+      "status": "proposed",
+      "coverage": 0
+    },
+    "19-dynamic-captcha": {
+      "phase": 4,
+      "difficulty": "高级",
+      "dependencies": {
+        "mpage": ["goto", "waitForSelector", "evaluate"],
+        "xcli": ["retry-strategy", "dynamic-detection"]
+      },
+      "improvements": ["IMP-011"],
+      "status": "proposed",
+      "coverage": 0
+    },
+    "20-comprehensive": {
+      "phase": 4,
+      "difficulty": "高级",
+      "dependencies": {
+        "mpage": ["goto", "waitForSelector", "fill", "click", "cookies", "screenshot", "ocr"],
+        "xcli": ["retry-strategy", "session-storage"]
+      },
+      "improvements": ["IMP-001", "IMP-002", "IMP-003", "IMP-011"],
+      "status": "proposed",
+      "coverage": 0
+    },
+    "21-shadow-dom": {
+      "phase": 5,
+      "difficulty": "现代前端技术",
+      "dependencies": {
+        "mpage": ["shadow-dom"],
+        "xcli": []
+      },
+      "improvements": ["IMP-012"],
+      "status": "proposed",
+      "coverage": 0
+    },
+    "22-portal-teleport": {
+      "phase": 5,
+      "difficulty": "现代前端技术",
+      "dependencies": {
+        "mpage": ["portal"],
+        "xcli": []
+      },
+      "improvements": ["IMP-013"],
+      "status": "proposed",
+      "coverage": 0
+    },
+    "23-css-in-js": {
+      "phase": 5,
+      "difficulty": "现代前端技术",
+      "dependencies": {
+        "mpage": ["data-testid", "aria-label"],
+        "xcli": []
+      },
+      "improvements": ["IMP-014"],
+      "status": "proposed",
+      "coverage": 0
+    },
+    "24-social-media": {
+      "phase": 6,
+      "difficulty": "真实业务场景",
+      "dependencies": {
+        "mpage": ["goto", "waitForSelector", "evaluate"],
+        "xcli": []
+      },
+      "improvements": [],
+      "status": "done",
+      "coverage": 100
+    },
+    "25-video-website": {
+      "phase": 6,
+      "difficulty": "真实业务场景",
+      "dependencies": {
+        "mpage": ["goto", "waitForSelector", "evaluate"],
+        "xcli": ["data-export"]
+      },
+      "improvements": ["IMP-015"],
+      "status": "proposed",
+      "coverage": 0
+    },
+    "26-job-site": {
+      "phase": 6,
+      "difficulty": "真实业务场景",
+      "dependencies": {
+        "mpage": ["virtual-scroll"],
+        "xcli": ["data-export"]
+      },
+      "improvements": ["IMP-016"],
+      "status": "proposed",
+      "coverage": 0
+    },
+    "27-real-estate": {
+      "phase": 6,
+      "difficulty": "真实业务场景",
+      "dependencies": {
+        "mpage": ["map-interaction"],
+        "xcli": ["data-export"]
+      },
+      "improvements": ["IMP-017"],
+      "status": "proposed",
+      "coverage": 0
+    },
+    "28-virtual-scroll": {
+      "phase": 7,
+      "difficulty": "高级数据加载",
+      "dependencies": {
+        "mpage": ["virtual-scroll"],
+        "xcli": []
+      },
+      "improvements": ["IMP-018"],
+      "status": "proposed",
+      "coverage": 0
+    },
+    "29-document-fragment": {
+      "phase": 7,
+      "difficulty": "高级数据加载",
+      "dependencies": {
+        "mpage": ["mutation-observer"],
+        "xcli": []
+      },
+      "improvements": ["IMP-019"],
+      "status": "proposed",
+      "coverage": 0
+    },
+    "30-xhr-intercept": {
+      "phase": 7,
+      "difficulty": "高级数据加载",
+      "dependencies": {
+        "mpage": ["xhr-intercept"],
+        "xcli": ["api-priority"]
+      },
+      "improvements": ["IMP-020", "IMP-021"],
+      "status": "proposed",
+      "coverage": 0
+    },
+    "31-comprehensive-challenge": {
+      "phase": 8,
+      "difficulty": "终极挑战",
+      "dependencies": {
+        "mpage": ["shadow-dom", "virtual-scroll", "xhr-intercept", "websocket", "canvas"],
+        "xcli": ["retry-strategy", "session-storage", "encryption"]
+      },
+      "improvements": ["IMP-022", "IMP-023", "IMP-024"],
+      "status": "proposed",
+      "coverage": 0
+    },
+    "32-ecommerce-seller": {
+      "phase": 8,
+      "difficulty": "终极挑战",
+      "dependencies": {
+        "mpage": ["goto", "waitForSelector", "fill", "click", "screenshot", "ocr", "cookies"],
+        "xcli": ["retry-strategy", "session-storage"]
+      },
+      "improvements": [],
+      "status": "done",
+      "coverage": 100
+    },
+    "33-government-tender": {
+      "phase": 8,
+      "difficulty": "终极挑战",
+      "dependencies": {
+        "mpage": ["goto", "waitForSelector", "fill", "click", "drag", "screenshot", "ocr", "cookies"],
+        "xcli": ["retry-strategy", "session-storage"]
+      },
+      "improvements": ["IMP-025"],
+      "status": "proposed",
+      "coverage": 0
+    },
+    "34-secondhand-market": {
+      "phase": 8,
+      "difficulty": "终极挑战",
+      "dependencies": {
+        "mpage": ["goto", "waitForSelector", "fill", "click", "file-upload", "screenshot", "ocr", "cookies"],
+        "xcli": ["retry-strategy", "session-storage"]
+      },
+      "improvements": [],
+      "status": "done",
+      "coverage": 100
+    },
+    "35-qa-community": {
+      "phase": 8,
+      "difficulty": "终极挑战",
+      "dependencies": {
+        "mpage": ["goto", "waitForSelector", "fill", "click", "drag", "shadow-dom", "virtual-scroll", "screenshot", "ocr", "cookies"],
+        "xcli": ["retry-strategy", "session-storage"]
+      },
+      "improvements": [],
+      "status": "done",
+      "coverage": 100
+    },
+    "36-stock-trading": {
+      "phase": 8,
+      "difficulty": "终极挑战",
+      "dependencies": {
+        "mpage": ["goto", "waitForSelector", "fill", "click", "screenshot", "ocr", "cookies", "canvas", "websocket"],
+        "xcli": ["retry-strategy", "session-storage", "encryption", "two-factor-auth"]
+      },
+      "improvements": ["IMP-026", "IMP-027", "IMP-028", "IMP-029"],
+      "status": "proposed",
+      "coverage": 0
+    }
+  },
+  "phases": {
+    "1": {
+      "name": "基础难度（1-5）",
+      "plugins": ["01-static", "02-extract-urls", "03-extract-content", "04-pagination", "05-url-params"],
+      "status": "done"
+    },
+    "2": {
+      "name": "中等难度（6-12）",
+      "plugins": ["06-infinite-scroll", "07-lazy-load", "08-search", "09-rate-limit", "10-login", "11-session", "12-captcha-numeric"],
+      "status": "in-progress"
+    },
+    "3": {
+      "name": "进阶难度（13-16）",
+      "plugins": ["13-captcha-slider", "14-captcha-click", "15-captcha-rotate", "16-captcha-arithmetic"],
+      "status": "proposed"
+    },
+    "4": {
+      "name": "高级难度（17-20）",
+      "plugins": ["17-file-upload", "18-iframe-login", "19-dynamic-captcha", "20-comprehensive"],
+      "status": "proposed"
+    },
+    "5": {
+      "name": "现代前端技术（21-23）",
+      "plugins": ["21-shadow-dom", "22-portal-teleport", "23-css-in-js"],
+      "status": "proposed"
+    },
+    "6": {
+      "name": "真实业务场景（24-27）",
+      "plugins": ["24-social-media", "25-video-website", "26-job-site", "27-real-estate"],
+      "status": "in-progress"
+    },
+    "7": {
+      "name": "高级数据加载（28-30）",
+      "plugins": ["28-virtual-scroll", "29-document-fragment", "30-xhr-intercept"],
+      "status": "proposed"
+    },
+    "8": {
+      "name": "终极挑战（31-36）",
+      "plugins": ["31-comprehensive-challenge", "32-ecommerce-seller", "33-government-tender", "34-secondhand-market", "35-qa-community", "36-stock-trading"],
+      "status": "in-progress"
+    }
+  },
+  "mpageCapabilities": {
+    "goto": { "implemented": true, "version": "1.0.0" },
+    "waitForSelector": { "implemented": true, "version": "1.0.0" },
+    "evaluate": { "implemented": true, "version": "1.0.0" },
+    "getAttribute": { "implemented": true, "version": "1.0.0" },
+    "click": { "implemented": true, "version": "1.0.0" },
+    "fill": { "implemented": true, "version": "1.0.0" },
+    "screenshot": { "implemented": false, "version": null },
+    "ocr": { "implemented": false, "version": null },
+    "cookies": { "implemented": false, "version": null },
+    "drag": { "implemented": false, "version": null },
+    "image-processing": { "implemented": false, "version": null },
+    "rotate": { "implemented": false, "version": null },
+    "file-upload": { "implemented": false, "version": null },
+    "iframe": { "implemented": false, "version": null },
+    "shadow-dom": { "implemented": false, "version": null },
+    "portal": { "implemented": false, "version": null },
+    "data-testid": { "implemented": false, "version": null },
+    "aria-label": { "implemented": false, "version": null },
+    "virtual-scroll": { "implemented": false, "version": null },
+    "mutation-observer": { "implemented": false, "version": null },
+    "xhr-intercept": { "implemented": false, "version": null },
+    "map-interaction": { "implemented": false, "version": null },
+    "websocket": { "implemented": false, "version": null },
+    "canvas": { "implemented": false, "version": null }
+  },
+  "xcliFeatures": {
+    "retry-strategy": { "implemented": false, "version": null },
+    "session-storage": { "implemented": false, "version": null },
+    "dynamic-detection": { "implemented": false, "version": null },
+    "data-export": { "implemented": false, "version": null },
+    "api-priority": { "implemented": false, "version": null },
+    "encryption": { "implemented": false, "version": null },
+    "two-factor-auth": { "implemented": false, "version": null }
+  }
+}
