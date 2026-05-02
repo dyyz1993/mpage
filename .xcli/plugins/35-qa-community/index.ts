@@ -2,6 +2,7 @@
 
 import { z } from 'zod';
 import type { XCLIAPI } from 'xcli';
+import { crawlerUrl } from '../_shared';
 
 async function fetchJSON(url: string, options: RequestInit = {}) {
   const res = await fetch(url, options);
@@ -12,7 +13,7 @@ async function fetchJSON(url: string, options: RequestInit = {}) {
 export default function (xcli: XCLIAPI) {
   const plugin = xcli.createSite({
     name: '35-qa-community',
-    url: 'https://tools.docker.19930810.xyz:8443/tools/crawler-practice/examples/35-qa-community.html',
+    url: crawlerUrl('35-qa-community'),
     requiresLogin: true,
   });
 
@@ -104,6 +105,7 @@ export default function (xcli: XCLIAPI) {
       return {
         summary: { total: allQuestions.length },
         questions: allQuestions,
+        tips: [`采集到 ${allQuestions.length} 个问题`],
       };
     },
   });

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { XCLIAPI } from 'xcli';
+import { crawlerUrl } from '../_shared';
 
 const newsSchema = z.object({
   title: z.string().describe('新闻标题'),
@@ -17,14 +18,14 @@ const resultSchema = z.object({
 export default function (xcli: XCLIAPI) {
   const plugin = xcli.createSite({
     name: '07-lazy-load',
-    url: '',
+    url: crawlerUrl('07-lazy-load'),
     requiresLogin: false,
   });
 
   plugin.command('scrape', {
     description: '通过fetch API采集懒加载新闻数据',
     parameters: z.object({
-      base_url: z.string().url().describe('目标URL'),
+      base_url: z.string().url().optional().default(crawlerUrl('07-lazy-load')),
       limit: z.number().int().positive().default(10).describe('每次加载数量'),
     }),
     result: z.object({
@@ -102,7 +103,7 @@ export default function (xcli: XCLIAPI) {
   plugin.command('scrape-by-click', {
     description: '通过点击加载更多按钮采集新闻数据',
     parameters: z.object({
-      base_url: z.string().url().describe('目标URL'),
+      base_url: z.string().url().optional().default(crawlerUrl('07-lazy-load')),
       max_clicks: z.number().int().positive().optional().default(10).describe('最大点击次数'),
     }),
     result: z.object({

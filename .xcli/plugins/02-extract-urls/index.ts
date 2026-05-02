@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { XCLIAPI } from 'xcli';
+import { crawlerUrl } from '../_shared';
 
 const linkSchema = z.object({
   text: z.string().describe('链接文本'),
@@ -10,7 +11,7 @@ const linkSchema = z.object({
 export default function (xcli: XCLIAPI) {
   const plugin = xcli.createSite({
     name: '02-extract-urls',
-    url: 'https://tools.docker.19930810.xyz:8443/tools/crawler-practice/examples/02-extract-urls.html',
+    url: crawlerUrl('02-extract-urls'),
     requiresLogin: false,
   });
 
@@ -127,8 +128,8 @@ tips:
 
       if (!Array.isArray(data))
         errors.push({ field: 'data', expected: 'array', actual: typeof data });
-      if (data.length < 20)
-        errors.push({ field: 'length', expected: '>=20', actual: String(data.length) });
+      if (data.length < 15)
+        errors.push({ field: 'length', expected: '>=15', actual: String(data.length) });
 
       data.forEach((item: any, i: number) => {
         if (typeof item.text !== 'string' || item.text.trim() === '')

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { XCLIAPI } from 'xcli';
+import { crawlerUrl } from '../_shared';
 
 const articleSchema = z.object({
   title: z.string().describe('文章标题'),
@@ -18,14 +19,14 @@ const articleSchema = z.object({
 export default function (xcli: XCLIAPI) {
   const plugin = xcli.createSite({
     name: '03-extract-content',
-    url: '',
+    url: crawlerUrl('03-extract-content'),
     requiresLogin: false,
   });
 
   plugin.command('scrape', {
     description: '提取文章内容',
     parameters: z.object({
-      url: z.string().url().describe('文章URL'),
+      url: z.string().url().optional().default(crawlerUrl('03-extract-content')),
     }),
     result: z.object({
       data: articleSchema,
@@ -126,7 +127,10 @@ tips:
 
       return {
         data,
-        tips: ['提取完成'],
+        tips: [
+          `文章: ${data.title}`,
+          `作者: ${data.author}, 标签: ${data.tags.length} 个, 正文: ${data.content.length} 段`,
+        ],
       };
     },
   });

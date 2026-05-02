@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { XCLIAPI } from 'xcli';
+import { crawlerUrl } from '../_shared';
 
 const productSchema = z.object({
   name: z.string().describe('商品名称'),
@@ -17,14 +18,14 @@ const resultSchema = z.object({
 export default function (xcli: XCLIAPI) {
   const plugin = xcli.createSite({
     name: '05-url-params',
-    url: '',
+    url: crawlerUrl('05-url-params'),
     requiresLogin: false,
   });
 
   plugin.command('scrape', {
     description: '通过URL参数采集商品数据',
     parameters: z.object({
-      base_url: z.string().url().describe('目标URL'),
+      base_url: z.string().url().optional().default(crawlerUrl('05-url-params')),
       category: z.string().optional().default('electronics').describe('分类'),
       price_min: z.number().optional().default(0).describe('最低价格'),
       price_max: z.number().optional().default(999999).describe('最高价格'),

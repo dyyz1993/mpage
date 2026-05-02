@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { XCLIAPI } from 'xcli';
+import { crawlerUrl } from '../_shared';
 
 const SearchSchema = z.object({
   id: z.number(),
@@ -20,7 +21,7 @@ const resultSchema = z.object({
 export default function (xcli: XCLIAPI) {
   const plugin = xcli.createSite({
     name: '08-search',
-    url: 'https://tools.docker.19930810.xyz:8443/tools/crawler-practice/examples/08-search.html',
+    url: crawlerUrl('08-search'),
     requiresLogin: false,
   });
 

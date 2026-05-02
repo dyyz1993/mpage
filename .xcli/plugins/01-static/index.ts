@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { XCLIAPI } from 'xcli';
+import { crawlerUrl } from '../_shared';
 
 const articleSchema = z.object({
   title: z.string().describe('文章标题'),
@@ -15,7 +16,7 @@ const articleSchema = z.object({
 export default function (xcli: XCLIAPI) {
   const plugin = xcli.createSite({
     name: '01-static',
-    url: 'https://tools.docker.19930810.xyz:8443/tools/crawler-practice/examples/01-static.html',
+    url: crawlerUrl('01-static'),
     requiresLogin: false,
   });
 

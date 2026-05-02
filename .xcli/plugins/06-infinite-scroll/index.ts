@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { XCLIAPI } from 'xcli';
+import { crawlerUrl } from '../_shared';
 
 const postSchema = z.object({
   username: z.string().describe('用户名'),
@@ -19,14 +20,14 @@ const resultSchema = z.object({
 export default function (xcli: XCLIAPI) {
   const plugin = xcli.createSite({
     name: '06-infinite-scroll',
-    url: '',
+    url: crawlerUrl('06-infinite-scroll'),
     requiresLogin: false,
   });
 
   plugin.command('scrape', {
     description: '采集无限滚动微博数据',
     parameters: z.object({
-      base_url: z.string().url().describe('目标URL'),
+      base_url: z.string().url().optional().default(crawlerUrl('06-infinite-scroll')),
       page_size: z.number().int().positive().default(20).describe('每页数量'),
     }),
     result: z.object({

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { XCLIAPI } from 'xcli';
+import { crawlerUrl } from '../_shared';
 
 const BASE_URL = 'https://tools.docker.19930810.xyz:8443/tools/crawler-practice';
 const TARGET = `${BASE_URL}/examples/32`;
@@ -13,7 +14,7 @@ async function fetchJSON(url: string, options: RequestInit = {}) {
 export default function (xcli: XCLIAPI) {
   const plugin = xcli.createSite({
     name: '32-ecommerce',
-    url: `${BASE_URL}/examples/32-ecommerce-admin.html`,
+    url: crawlerUrl('ecommerce-list'),
     requiresLogin: true,
   });
 
@@ -116,6 +117,10 @@ export default function (xcli: XCLIAPI) {
       return {
         summary: { totalOrders, totalPages, firstOrderId: allOrders[0]?.orderId },
         orders: allOrders,
+        tips: [
+          `采集到 ${allOrders.length} 个订单, 共 ${totalPages} 页`,
+          `首个订单: ${allOrders[0]?.orderId || '无'}`,
+        ],
       };
     },
   });

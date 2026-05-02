@@ -2,6 +2,7 @@
 
 import { z } from 'zod';
 import type { XCLIAPI } from 'xcli';
+import { crawlerUrl } from '../_shared';
 
 interface Item {
   id: string;
@@ -24,7 +25,7 @@ async function fetchJSON(url: string, options: RequestInit = {}) {
 export default function (xcli: XCLIAPI) {
   const plugin = xcli.createSite({
     name: '34-secondhand-market',
-    url: 'https://tools.docker.19930810.xyz:8443/tools/crawler-practice/examples/34-secondhand-market.html',
+    url: crawlerUrl('34-secondhand-market'),
     requiresLogin: true,
   });
 
@@ -100,6 +101,10 @@ export default function (xcli: XCLIAPI) {
       return {
         summary: { totalItems, totalCollected: allItems.length },
         items: allItems,
+        tips: [
+          `采集到 ${allItems.length} 个二手商品`,
+          `价格范围: ¥${Math.min(...allItems.map((i) => i.price))} ~ ¥${Math.max(...allItems.map((i) => i.price))}`,
+        ],
       };
     },
   });

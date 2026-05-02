@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { XCLIAPI } from 'xcli';
+import { crawlerUrl } from '../_shared';
 
 const threadSchema = z.object({
   id: z.union([z.string(), z.number()]).describe('主题ID'),
@@ -19,14 +20,14 @@ const resultSchema = z.object({
 export default function (xcli: XCLIAPI) {
   const plugin = xcli.createSite({
     name: '04-pagination',
-    url: '',
+    url: crawlerUrl('04-pagination'),
     requiresLogin: false,
   });
 
   plugin.command('scrape', {
     description: '采集分页数据',
     parameters: z.object({
-      url: z.string().url().describe('目标URL'),
+      url: z.string().url().optional().default(crawlerUrl('04-pagination')),
     }),
     result: z.object({
       data: resultSchema,

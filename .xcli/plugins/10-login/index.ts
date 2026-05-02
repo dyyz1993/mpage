@@ -1,10 +1,11 @@
 import { z } from 'zod';
 import type { XCLIAPI } from 'xcli';
+import { crawlerUrl } from '../_shared';
 
 export default function (xcli: XCLIAPI) {
   const plugin = xcli.createSite({
     name: '10-login',
-    url: 'https://tools.docker.19930810.xyz:8443/tools/crawler-practice/examples/10-login.html',
+    url: crawlerUrl('10-login'),
     requiresLogin: true,
     isLogin: async (ctx) => {
       const token = await ctx.storage.get('auth_token');
@@ -60,6 +61,41 @@ export default function (xcli: XCLIAPI) {
           },
         ],
         tips: response.success ? ['登录成功'] : ['登录失败'],
+      };
+    },
+  });
+
+  plugin.command('scrape', {
+    description: '采集登录页面信息',
+    requiresLogin: false,
+    parameters: z.object({}),
+    result: z.object({
+      data: z.array(
+        z.object({
+          title: z.string(),
+          url: z.string(),
+        })
+      ),
+      tips: z.array(z.string()).optional().default([]),
+    }),
+    handler: async (params, ctx) => {
+      await ctx.page.goto(
+        'https://tools.docker.19930810.xyz:8443/tools/crawler-practice/examples/10-login.html'
+      );
+      await ctx.page.waitForLoadState('domcontentloaded');
+
+      const data = await ctx.page.evaluate(() => {
+        const results: Array<{ title: string; url: string }> = [];
+        const title = document.querySelector('h1')?.textContent?.trim() || '';
+        const url = window.location.href;
+
+        results.push({ title, url });
+        return results;
+      });
+
+      return {
+        data,
+        tips: ['请先使用 login 命令登录', `页面: ${data.length > 0 ? data[0].title : '未获取到'}`],
       };
     },
   });

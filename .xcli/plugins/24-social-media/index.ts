@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { XCLIAPI } from 'xcli';
+import { crawlerUrl } from '../_shared';
 
 const BASE_URL = 'https://tools.docker.19930810.xyz:8443/tools/crawler-practice';
 const TARGET_URL = `${BASE_URL}/examples/24-social-media.html`;
@@ -7,7 +8,7 @@ const TARGET_URL = `${BASE_URL}/examples/24-social-media.html`;
 export default function (xcli: XCLIAPI) {
   const plugin = xcli.createSite({
     name: '24-social-media',
-    url: TARGET_URL,
+    url: crawlerUrl('24-social-media'),
   });
 
   plugin.command('scrape', {

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { XCLIAPI } from 'xcli';
+import { crawlerUrl } from '../_shared';
 
 const BASE_URL = 'https://tools.docker.19930810.xyz:8443/tools/crawler-practice';
 const LOGIN_URL = `${BASE_URL}/examples/10/login`;
@@ -8,7 +9,7 @@ const PROFILE_URL = `${BASE_URL}/examples/11/profile`;
 export default function (xcli: XCLIAPI) {
   const plugin = xcli.createSite({
     name: '11-login',
-    url: PROFILE_URL,
+    url: crawlerUrl('11-session'),
   });
 
   plugin.command('login', {
