@@ -1,0 +1,62 @@
+---
+globs:
+  - '.xcli/plugins/*/index.ts'
+keywords:
+  - plugin
+  - handler
+  - scrape
+  - verify
+match: any
+---
+
+# 插件 handler 标准开发模式
+
+## 强制工具链（3 步，不可跳过）
+
+### 1. 安全导航（必须）
+```typescript
+import { safeGoto, ok, fail } from '../_shared';
+await safeGoto(ctx.page, site.url);
+```
+- `safeGoto` 自动检测 404/超时（10s），快速失败
+- **禁止使用裸 `ctx.page.goto()`**，必须走 `safeGoto`
+
+### 2. 数据提取（必须）
+```typescript
+const data = await ctx.page.evaluate(() => {
+  // 纯 DOM API 提取
+  return [];
+});
+return ok(data, ['采集到 N 条数据']);
+```
+- 优先尝试页面内 API 调用（`fetch('/examples/xx/data')`）
+- 其次用 DOM 选择器提取
+- `evaluate` 内只能用标准 DOM API（querySelector, getElementById 等）
+- **禁止在 evaluate 内使用 Playwright 选择器语法**（如 `:has-text()`）
+
+### 3. 返回格式（必须）
+```typescript
+return ok(data, ['数量 + 关键值的提示']);
+// 或
+return fail('错误原因');
+```
+- **禁止返回裸对象** `{ data: [], tips: [] }`
+- 必须用 `ok()` 或 `fail()` 包装
+
+## 多命令共享逻辑
+
+scrape 和 verify 共享导航逻辑时，抽取内部函数：
+```typescript
+async function loadPage(ctx: CommandContext) {
+  await safeGoto(ctx.page, site.url);
+  return ctx.page;
+}
+```
+
+## 禁止
+- 裸 `ctx.page.goto()` — 必须用 `safeGoto`
+- goto 后不加任何等待直接 evaluate（除非页面是纯静态 HTML）
+- 返回裸对象 `{ data: [], tips: [] }` — 必须用 `ok()`/`fail()`
+- evaluate 内使用 Playwright 选择器（`:has-text()`, `:text()` 等）
+- 使用 `as any` 或 `@ts-ignore`
+- `fill()`/`click()` 操作隐藏元素（多步表单场景改用 evaluate）
