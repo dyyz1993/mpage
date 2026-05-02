@@ -1,6 +1,6 @@
 {
   "name": "@dyyz1993/xpage",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Playwright browser automation CLI with CDP support",
   "type": "module",
   "bin": {
