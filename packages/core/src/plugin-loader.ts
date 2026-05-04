@@ -14,7 +14,8 @@ import type {
 } from './protocol/plugin-protocol.js';
 import { SiteInstanceImpl, DEFAULT_SCOPE } from './protocol/plugin-protocol.js';
 import { resolve, isAbsolute, extname, basename, dirname } from 'path';
-import { createJiti } from 'jiti';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { createJiti } = require('jiti') as typeof import('jiti');
 import { fileURLToPath } from 'url';
 import type { Core } from './core.js';
 import { PluginStorage } from './plugin-storage.js';
