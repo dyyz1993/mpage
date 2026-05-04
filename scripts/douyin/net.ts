@@ -33,7 +33,9 @@ export class NetCapture {
   async captureJson(response: Response): Promise<void> {
     const last = this.records[this.records.length - 1];
     if (last && last.url === response.url()) {
-      try { last.body = await response.json(); } catch {}
+      try {
+        last.body = await response.json();
+      } catch {}
     }
   }
 

@@ -54,7 +54,8 @@ describe('36个爬虫案例 E2E 测试', () => {
   describe('Phase 2: 中等难度（6-12）', () => {
     it('06-infinite-scroll: 无限滚动加载', async () => {
       const result = await runPluginCommand('06-infinite-scroll', 'scrape', {
-        base_url: 'https://tools.docker.19930810.xyz:8443/tools/crawler-practice/examples/06-infinite-scroll.html',
+        base_url:
+          'https://tools.docker.19930810.xyz:8443/tools/crawler-practice/examples/06-infinite-scroll.html',
         page_size: 20,
       });
       expect(result.status).toBe('pass');
@@ -163,7 +164,10 @@ describe('36个爬虫案例 E2E 测试', () => {
 
   describe('批量测试', () => {
     it('Phase 1: 基础难度插件批量测试', async () => {
-      const results = await batchTestPlugins(['01-static', '02-extract-urls', '03-extract-content', '04-pagination', '05-url-params'], 'verify');
+      const results = await batchTestPlugins(
+        ['01-static', '02-extract-urls', '03-extract-content', '04-pagination', '05-url-params'],
+        'verify'
+      );
       expect(results.length).toBe(5);
       results.forEach((result) => {
         expect(result.status).toBe('pass');
@@ -177,7 +181,10 @@ describe('36个爬虫案例 E2E 测试', () => {
     });
 
     it('Phase 8: 终极挑战插件批量测试', async () => {
-      const results = await batchTestPlugins(['32-ecommerce-seller', '34-secondhand-market', '35-qa-community'], 'verify');
+      const results = await batchTestPlugins(
+        ['32-ecommerce-seller', '34-secondhand-market', '35-qa-community'],
+        'verify'
+      );
       expect(results.length).toBe(3);
       results.forEach((result) => {
         expect(result.status).toBe('pass');

@@ -3,7 +3,10 @@ import { z } from 'zod';
 export const articleSchema = z.object({
   title: z.string().describe('文章标题'),
   url: z.string().describe('文章链接'),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe('发布日期'),
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .describe('发布日期'),
   author: z.string().describe('作者'),
   views: z.number().int().nonnegative().describe('阅读数'),
 });

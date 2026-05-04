@@ -1,5 +1,4 @@
 import { spawn } from 'child_process';
-import { resolve } from 'path';
 
 export interface PluginTestResult {
   pluginId: string;
@@ -11,7 +10,7 @@ export interface PluginTestResult {
   duration?: number;
 }
 
-export async function runPluginCommand(
+export function runPluginCommand(
   pluginId: string,
   command: string,
   params?: Record<string, unknown>
@@ -26,7 +25,7 @@ export async function runPluginCommand(
   }
   cmd.push('--json');
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _reject) => {
     const process = spawn(cmd[0], cmd.slice(1), {
       cwd: process.cwd(),
       stdio: ['pipe', 'pipe', 'pipe'],

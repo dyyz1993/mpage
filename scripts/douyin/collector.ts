@@ -1,7 +1,13 @@
 import type { Page, Frame } from 'playwright-core';
 import { launchBrowser, connectCdp, closeSession, type BrowserSession } from './browser.js';
 import { NetCapture } from './net.js';
-import type { DouyinVideo, DouyinUserProfile, DouyinComment, DouyinAiSummary, DouyinAiSearchSummary } from './types.js';
+import type {
+  DouyinVideo,
+  DouyinUserProfile,
+  DouyinComment,
+  DouyinAiSummary,
+  DouyinAiSearchSummary,
+} from './types.js';
 
 const API = {
   posts: /\/aweme\/v1\/web\/aweme\/post\//,
@@ -143,7 +149,7 @@ export class DouyinCollector {
     }
 
     const rawList = this.net.getJson<Record<string, unknown>>(API.posts);
-    const allItems = rawList.flatMap((d) => Array.isArray(d.aweme_list) ? d.aweme_list : []);
+    const allItems = rawList.flatMap((d) => (Array.isArray(d.aweme_list) ? d.aweme_list : []));
     return allItems.map((item) => this.parseVideo(item));
   }
 
@@ -179,12 +185,16 @@ export class DouyinCollector {
     if (!p) throw new Error('未连接浏览器');
 
     this.net.clear();
-    await p.goto(`https://www.douyin.com/video/${awemeId}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await p.goto(`https://www.douyin.com/video/${awemeId}`, {
+      waitUntil: 'domcontentloaded',
+      timeout: 30000,
+    });
     await p.waitForTimeout(3000);
 
     const detailData = this.net.getJson<Record<string, unknown>>(API.detail);
-    const item = detailData.find((d) => s(d.aweme_detail?.aweme_id) === awemeId)
-      ?? detailData[0]?.aweme_detail as Record<string, unknown>;
+    const item =
+      detailData.find((d) => s(d.aweme_detail?.aweme_id) === awemeId) ??
+      (detailData[0]?.aweme_detail as Record<string, unknown>);
 
     if (!item) throw new Error(`未拦截到视频详情: ${awemeId}`);
     return this.parseVideo(item);
@@ -195,7 +205,10 @@ export class DouyinCollector {
     if (!p) throw new Error('未连接浏览器');
 
     this.net.clear();
-    await p.goto(`https://www.douyin.com/video/${awemeId}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await p.goto(`https://www.douyin.com/video/${awemeId}`, {
+      waitUntil: 'domcontentloaded',
+      timeout: 30000,
+    });
     await p.waitForTimeout(3000);
 
     for (let i = 0; i < maxPages; i++) {
@@ -206,21 +219,28 @@ export class DouyinCollector {
     }
 
     const commentData = this.net.getJson<Record<string, unknown>>(API.comments);
-    return commentData.flatMap((d) => Array.isArray(d.comments) ? d.comments : []).map((c) => {
-      const cu = (c.user ?? {}) as Record<string, unknown>;
-      const ct = n(c.create_time);
-      return {
-        cid: s(c.cid),
-        awemeId: s(c.aweme_id),
-        text: s(c.text),
-        createTime: ct,
-        createTimeStr: ts(ct),
-        diggCount: n(c.digg_count),
-        replyCount: n(c.reply_comment_total),
-        user: { uid: s(cu.uid), secUid: s(cu.sec_uid), nickname: s(cu.nickname), avatar: firstUrl(cu.avatar_thumb) },
-        replyPreview: [],
-      };
-    });
+    return commentData
+      .flatMap((d) => (Array.isArray(d.comments) ? d.comments : []))
+      .map((c) => {
+        const cu = (c.user ?? {}) as Record<string, unknown>;
+        const ct = n(c.create_time);
+        return {
+          cid: s(c.cid),
+          awemeId: s(c.aweme_id),
+          text: s(c.text),
+          createTime: ct,
+          createTimeStr: ts(ct),
+          diggCount: n(c.digg_count),
+          replyCount: n(c.reply_comment_total),
+          user: {
+            uid: s(cu.uid),
+            secUid: s(cu.sec_uid),
+            nickname: s(cu.nickname),
+            avatar: firstUrl(cu.avatar_thumb),
+          },
+          replyPreview: [],
+        };
+      });
   }
 
   async extractAiSummary(userUrl: string, awemeId: string): Promise<DouyinAiSummary | null> {
@@ -228,7 +248,10 @@ export class DouyinCollector {
     if (!p) throw new Error('未连接浏览器');
 
     const separator = userUrl.includes('?') ? '&' : '?';
-    await p.goto(`${userUrl}${separator}modal_id=${awemeId}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await p.goto(`${userUrl}${separator}modal_id=${awemeId}`, {
+      waitUntil: 'domcontentloaded',
+      timeout: 30000,
+    });
     await p.waitForTimeout(6000);
 
     const data = await p.evaluate(() => {
@@ -251,7 +274,10 @@ export class DouyinCollector {
         chapters.push({ time, title, content: contentEl?.textContent?.trim() || '' });
       });
 
-      const fullText = [summary, ...chapters.map((c) => `[${c.time}] ${c.title}: ${c.content}`)].join('\n');
+      const fullText = [
+        summary,
+        ...chapters.map((c) => `[${c.time}] ${c.title}: ${c.content}`),
+      ].join('\n');
       return { summary, chapters, fullText };
     });
 
@@ -276,17 +302,22 @@ export class DouyinCollector {
   async extractAiSearchSummary(
     userUrl: string,
     awemeId: string,
-    query = '提取字幕总结',
+    query = '提取字幕总结'
   ): Promise<DouyinAiSearchSummary | null> {
     const p = this.page;
     if (!p) throw new Error('未连接浏览器');
 
     const separator = userUrl.includes('?') ? '&' : '?';
-    await p.goto(`${userUrl}${separator}modal_id=${awemeId}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await p.goto(`${userUrl}${separator}modal_id=${awemeId}`, {
+      waitUntil: 'domcontentloaded',
+      timeout: 30000,
+    });
     await p.waitForTimeout(6000);
 
     const video = p.locator('video').first();
-    try { await video.click({ timeout: 3000 }); } catch {}
+    try {
+      await video.click({ timeout: 3000 });
+    } catch {}
 
     const aiBtn = p.locator('svg.wNbQukcA').first();
     await aiBtn.click({ timeout: 5000 });
@@ -330,7 +361,10 @@ export class DouyinCollector {
                 const liText = li.textContent?.trim() || '';
                 const tm = liText.match(/(\d{4}\s*年|\d{1,2}\s*月\s*\d{1,2}\s*日?)/);
                 const strong = li.querySelector('strong')?.textContent?.trim() || '';
-                const detail = liText.replace(strong, '').replace(/^\d{4}\s*年.?\d{1,2}\s*月.?\d{1,2}\s*日?/, '').trim();
+                const detail = liText
+                  .replace(strong, '')
+                  .replace(/^\d{4}\s*年.?\d{1,2}\s*月.?\d{1,2}\s*日?/, '')
+                  .trim();
                 timeline.push({
                   time: tm ? tm[1] : '',
                   title: strong,
@@ -342,7 +376,10 @@ export class DouyinCollector {
             el.querySelectorAll('li').forEach((li) => {
               const strong = li.querySelector('strong')?.textContent?.trim() || '';
               const liText = li.textContent?.trim() || '';
-              const content = liText.replace(strong, '').replace(/^[:：]\s*/, '').trim();
+              const content = liText
+                .replace(strong, '')
+                .replace(/^[:：]\s*/, '')
+                .trim();
               keyPoints.push({ title: strong, content });
             });
           } else if (text && tag !== 'button') {
@@ -370,7 +407,9 @@ export class DouyinCollector {
       section.summary,
       ...section.keyPoints.map((kp) => `${kp.title}: ${kp.content}`),
       ...section.timeline.map((tl) => `[${tl.time}] ${tl.title} ${tl.detail}`),
-    ].filter(Boolean).join('\n');
+    ]
+      .filter(Boolean)
+      .join('\n');
 
     return {
       awemeId,

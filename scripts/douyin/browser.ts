@@ -1,6 +1,7 @@
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright-core';
 
-const CHROMIUM_PATH = process.env.MPAGE_CHROMIUM_PATH || '/Applications/Chromium.app/Contents/MacOS/Chromium';
+const CHROMIUM_PATH =
+  process.env.MPAGE_CHROMIUM_PATH || '/Applications/Chromium.app/Contents/MacOS/Chromium';
 
 export interface BrowserSession {
   browser: Browser;
@@ -13,10 +14,7 @@ export async function launchBrowser(): Promise<BrowserSession> {
   const browser = await chromium.launch({
     headless: false,
     executablePath: CHROMIUM_PATH,
-    args: [
-      '--remote-debugging-port=0',
-      '--disable-blink-features=AutomationControlled',
-    ],
+    args: ['--remote-debugging-port=0', '--disable-blink-features=AutomationControlled'],
   });
 
   const context = await browser.newContext({
@@ -39,7 +37,13 @@ export async function connectCdp(cdpUrl: string): Promise<BrowserSession> {
 }
 
 export async function closeSession(s: BrowserSession): Promise<void> {
-  try { if (!s.page.isClosed()) await s.page.close().catch(() => {}); } catch {}
-  try { await s.context.close().catch(() => {}); } catch {}
-  try { if (s.browser.isConnected()) await s.browser.close().catch(() => {}); } catch {}
+  try {
+    if (!s.page.isClosed()) await s.page.close().catch(() => {});
+  } catch {}
+  try {
+    await s.context.close().catch(() => {});
+  } catch {}
+  try {
+    if (s.browser.isConnected()) await s.browser.close().catch(() => {});
+  } catch {}
 }

@@ -44,7 +44,9 @@ const outputFile = getFlag('output', getFlag('o'));
 const quiet = hasFlag('quiet') || hasFlag('q');
 
 function ensureDir(dir: string): void {
-  try { mkdirSync(dir, { recursive: true }); } catch {}
+  try {
+    mkdirSync(dir, { recursive: true });
+  } catch {}
 }
 
 function saveJson(data: unknown, filename: string): string {
@@ -65,11 +67,15 @@ function printVideo(v: DouyinVideo, i?: number): void {
   const p = i !== undefined ? `[${i + 1}] ` : '';
   console.log(`${p}${v.desc.slice(0, 60)}`);
   console.log(`    ID: ${v.awemeId} | 发布: ${v.createTimeStr}`);
-  console.log(`    点赞:${fmt(v.statistics.diggCount)} 评论:${fmt(v.statistics.commentCount)} 转发:${fmt(v.statistics.shareCount)} 收藏:${fmt(v.statistics.collectCount)}`);
+  console.log(
+    `    点赞:${fmt(v.statistics.diggCount)} 评论:${fmt(v.statistics.commentCount)} 转发:${fmt(v.statistics.shareCount)} 收藏:${fmt(v.statistics.collectCount)}`
+  );
   console.log(`    视频: ${v.video.playUrl.slice(0, 80)}`);
   console.log(`    音乐: ${v.music.title} - ${v.music.author}`);
   console.log(`    音频: ${v.music.playUrl.slice(0, 80)}`);
-  console.log(`    时长:${(v.video.duration / 1000).toFixed(1)}s | ${v.video.width}x${v.video.height} | 标签:[${v.tagNames.join(',') || '-'}]\n`);
+  console.log(
+    `    时长:${(v.video.duration / 1000).toFixed(1)}s | ${v.video.width}x${v.video.height} | 标签:[${v.tagNames.join(',') || '-'}]\n`
+  );
 }
 
 function printProfile(p: DouyinUserProfile): void {
@@ -77,7 +83,9 @@ function printProfile(p: DouyinUserProfile): void {
   console.log('=== 用户资料 ===');
   console.log(`${p.nickname} (@${p.uniqueId || p.uid})`);
   console.log(`签名: ${p.signature}`);
-  console.log(`粉丝:${fmt(p.followerCount)} 关注:${fmt(p.followingCount)} 作品:${p.awemeCount} 获赞:${fmt(p.totalCount)}\n`);
+  console.log(
+    `粉丝:${fmt(p.followerCount)} 关注:${fmt(p.followingCount)} 作品:${p.awemeCount} 获赞:${fmt(p.totalCount)}\n`
+  );
 }
 
 function printComment(c: DouyinComment): void {
@@ -129,7 +137,10 @@ function help(): void {
 }
 
 async function main(): Promise<void> {
-  if (!cmd || cmd === 'help' || cmd === '--help') { help(); return; }
+  if (!cmd || cmd === 'help' || cmd === '--help') {
+    help();
+    return;
+  }
 
   const collector = new DouyinCollector();
   const cdpEnv = process.env.CDP_URL;
@@ -168,13 +179,19 @@ async function main(): Promise<void> {
         const maxPages = parseInt(restArgs.find((r) => /^\d+$/.test(r)) ?? '5', 10);
         if (!quiet) console.log(`采集用户作品 (最多${maxPages}页)...`);
         const videos = await collector.getUserVideos(arg, maxPages);
-        const path = saveJson({
-          url: arg,
-          collectedAt: new Date().toISOString(),
-          total: videos.length,
-          videos,
-        }, `videos-${Date.now()}.json`);
-        if (!quiet) { console.log(`\n共 ${videos.length} 个作品:\n`); videos.forEach((v, i) => printVideo(v, i)); }
+        const path = saveJson(
+          {
+            url: arg,
+            collectedAt: new Date().toISOString(),
+            total: videos.length,
+            videos,
+          },
+          `videos-${Date.now()}.json`
+        );
+        if (!quiet) {
+          console.log(`\n共 ${videos.length} 个作品:\n`);
+          videos.forEach((v, i) => printVideo(v, i));
+        }
         console.log(`=> ${path}`);
         break;
       }
@@ -183,7 +200,10 @@ async function main(): Promise<void> {
         if (!arg) throw new Error('缺少用户主页 URL');
         if (!quiet) console.log('获取用户资料...');
         const profile = await collector.getUserProfile(arg);
-        const path = saveJson({ url: arg, collectedAt: new Date().toISOString(), ...profile }, `profile.json`);
+        const path = saveJson(
+          { url: arg, collectedAt: new Date().toISOString(), ...profile },
+          `profile.json`
+        );
         printProfile(profile);
         console.log(`=> ${path}`);
         break;
@@ -194,7 +214,10 @@ async function main(): Promise<void> {
         const id = arg.match(/\/video\/(\d+)/)?.[1] ?? arg;
         if (!quiet) console.log(`获取视频详情 (${id})...`);
         const video = await collector.getVideoDetail(id);
-        const path = saveJson({ awemeId: id, collectedAt: new Date().toISOString(), ...video }, `detail-${id}.json`);
+        const path = saveJson(
+          { awemeId: id, collectedAt: new Date().toISOString(), ...video },
+          `detail-${id}.json`
+        );
         printVideo(video);
         console.log(`=> ${path}`);
         break;
@@ -206,8 +229,14 @@ async function main(): Promise<void> {
         const maxPages = parseInt(restArgs.find((r) => /^\d+$/.test(r)) ?? '5', 10);
         if (!quiet) console.log(`采集评论 (${id})...`);
         const comments = await collector.getVideoComments(id, maxPages);
-        const path = saveJson({ awemeId: id, collectedAt: new Date().toISOString(), total: comments.length, comments }, `comments-${id}.json`);
-        if (!quiet) { console.log(`\n共 ${comments.length} 条评论:\n`); comments.forEach(printComment); }
+        const path = saveJson(
+          { awemeId: id, collectedAt: new Date().toISOString(), total: comments.length, comments },
+          `comments-${id}.json`
+        );
+        if (!quiet) {
+          console.log(`\n共 ${comments.length} 条评论:\n`);
+          comments.forEach(printComment);
+        }
         console.log(`=> ${path}`);
         break;
       }
@@ -216,7 +245,10 @@ async function main(): Promise<void> {
         if (!arg) throw new Error('缺少搜索关键词');
         const net = collector.getNetCapture();
         const results = net.searchUrl(arg);
-        const path = saveJson({ keyword: arg, count: results.length, results }, `net-${arg.replace(/\W+/g, '-')}.json`);
+        const path = saveJson(
+          { keyword: arg, count: results.length, results },
+          `net-${arg.replace(/\W+/g, '-')}.json`
+        );
         results.forEach((r) => console.log(`  [${r.status}] ${r.method} ${r.url.slice(0, 120)}`));
         console.log(`\n共 ${results.length} 条 => ${path}`);
         break;
@@ -230,13 +262,18 @@ async function main(): Promise<void> {
         if (!quiet) console.log(`AI 搜索提取 (${awemeId}): "${query}"...`);
         const result = await collector.extractAiSearchSummary(arg, awemeId, query);
         if (!result) throw new Error('AI 搜索未返回结果');
-        const path = saveJson({ collectedAt: new Date().toISOString(), ...result }, `ai-search-${awemeId}.json`);
+        const path = saveJson(
+          { collectedAt: new Date().toISOString(), ...result },
+          `ai-search-${awemeId}.json`
+        );
         if (!quiet) {
           console.log(`\n摘要: ${result.summary}\n`);
           result.keyPoints.forEach((kp) => console.log(`  • ${kp.title}: ${kp.content}`));
           if (result.timeline.length) {
             console.log('\n时间脉络:');
-            result.timeline.forEach((tl) => console.log(`  [${tl.time}] ${tl.title} - ${tl.detail}`));
+            result.timeline.forEach((tl) =>
+              console.log(`  [${tl.time}] ${tl.title} - ${tl.detail}`)
+            );
           }
           console.log();
         }
@@ -245,7 +282,9 @@ async function main(): Promise<void> {
       }
 
       default:
-        console.error(`未知命令: ${cmd}`); help(); process.exit(1);
+        console.error(`未知命令: ${cmd}`);
+        help();
+        process.exit(1);
     }
   } catch (err) {
     console.error('Error:', err instanceof Error ? err.message : err);

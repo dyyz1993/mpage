@@ -191,10 +191,11 @@ const tracker = new ImprovementTracker();
 const command = process.argv[2];
 
 switch (command) {
-  case 'list':
+  case 'list': {
     const filters = process.argv[3] ? JSON.parse(process.argv[3]) : {};
     console.log(JSON.stringify(tracker.list(filters), null, 2));
     break;
+  }
   case 'report':
     console.log(tracker.generateReport());
     break;

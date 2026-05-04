@@ -1,5 +1,4 @@
 import * as fs from 'fs';
-import * as path from 'path';
 
 interface PluginMetadata {
   phase: number;
@@ -15,11 +14,14 @@ interface PluginMetadata {
 
 interface Metadata {
   plugins: Record<string, PluginMetadata>;
-  phases: Record<string, {
-    name: string;
-    plugins: string[];
-    status: string;
-  }>;
+  phases: Record<
+    string,
+    {
+      name: string;
+      plugins: string[];
+      status: string;
+    }
+  >;
   mpageCapabilities: Record<string, { implemented: boolean; version: string | null }>;
   xcliFeatures: Record<string, { implemented: boolean; version: string | null }>;
 }
@@ -95,7 +97,9 @@ export class MetadataQuery {
     const phaseInfo = this.getPhase(phase);
     if (!phaseInfo) return { total: 0, done: 0, progress: 0 };
 
-    const done = phaseInfo.plugins.filter((id) => this.metadata?.plugins[id]?.status === 'done').length;
+    const done = phaseInfo.plugins.filter(
+      (id) => this.metadata?.plugins[id]?.status === 'done'
+    ).length;
     const total = phaseInfo.plugins.length;
 
     return {
