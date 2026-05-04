@@ -21,7 +21,10 @@ jobs:
           node-version: '20'
           cache: pnpm
 
-      - run: pnpm install --frozen-lockfile
+      - name: Configure pnpm
+        run: echo "shamefully-hoist=true" > .npmrc
+
+      - run: pnpm install
 
       - name: Lint
         run: pnpm run lint
