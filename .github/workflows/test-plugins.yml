@@ -28,15 +28,8 @@ jobs:
       - name: Typecheck
         run: pnpm run typecheck
 
-      - name: Build packages (ordered)
-        run: |
-          pnpm --filter @xcli/core run build 2>&1 || (echo "::group::Core build failed" && exit 1)
-          pnpm --filter @xcli/tips run build 2>&1 || (echo "::group::Tips build failed" && exit 1)
-          pnpm --filter @xcli/session run build 2>&1 || (echo "::group::Session build failed" && exit 1)
-          pnpm --filter @xcli/browser run build 2>&1 || (echo "::group::Browser build failed" && exit 1)
-          pnpm --filter xcli run build 2>&1 || (echo "::group::XCLI build failed" && exit 1)
-          pnpm --filter @xcli/daemon run build 2>&1 || (echo "::group::Daemon build failed" && exit 1)
-          pnpm --filter @xcli/ghcli run build 2>&1 || (echo "::group::GHCLI build failed" && exit 1)
+      - name: Build packages
+        run: pnpm run build:packages
 
       - name: Build mpage
         run: pnpm run build
