@@ -29,8 +29,15 @@ jobs:
       - name: Typecheck
         run: pnpm run typecheck
 
-      - name: Build packages
-        run: pnpm run build:packages
+      - name: Build packages (ordered)
+        run: |
+          pnpm --filter @xcli/core run build
+          pnpm --filter @xcli/tips run build
+          pnpm --filter @xcli/session run build
+          pnpm --filter @xcli/browser run build
+          pnpm --filter xcli run build
+          pnpm --filter @xcli/daemon run build
+          pnpm --filter @xcli/ghcli run build
 
       - name: Build mpage
         run: pnpm run build
