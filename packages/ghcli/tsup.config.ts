@@ -1,6 +1,6 @@
-import { defineConfig } from 'tsup';
+import { createConfig } from '../tsup.config.base';
 
-export default defineConfig([
+export default createConfig([
   {
     entry: ['bin/ghcli.ts'],
     format: ['esm'],

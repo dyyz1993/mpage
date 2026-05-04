@@ -1,6 +1,6 @@
-import { defineConfig } from 'tsup';
+import { createConfig } from './packages/tsup.config.base';
 
-export default defineConfig([
+export default createConfig([
   {
     entry: ['bin/mpage.ts', 'bin/mpage-server.ts'],
     outDir: 'dist/bin',
