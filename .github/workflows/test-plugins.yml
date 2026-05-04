@@ -29,10 +29,14 @@ jobs:
         run: pnpm run typecheck
 
       - name: Build packages
-        run: NO_DTS=1 pnpm -r --filter './packages/*' --sort --workspace-concurrency=1 build
+        run: pnpm run build:packages
+        env:
+          NO_DTS: "1"
 
       - name: Build mpage
-        run: NO_DTS=1 pnpm run build
+        run: pnpm run build
+        env:
+          NO_DTS: "1"
 
   feishu-notify:
     name: Feishu Notification
