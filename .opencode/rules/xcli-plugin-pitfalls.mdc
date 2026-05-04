@@ -1,0 +1,34 @@
+---
+globs:
+  - '.xcli/plugins/**/*.ts'
+keywords:
+  - xcli
+  - plugin
+  - handler
+  - parameters
+match: any
+---
+
+# xcli 插件开发陷阱
+
+## 必须用 `parameters` 不是 `params`
+xcli 框架通过 `cmd.parameters` 读取 Zod schema，`site.command()` 中必须用 `parameters: z.object({...})`
+
+## script 标签用 state: 'attached'
+`<script>` 是 hidden 元素，`waitForSelector('#case-data')` 默认等 visible 会超时
+正确: `page.waitForSelector('#case-data', { state: 'attached' })` 或 `page.waitForFunction(...)`
+
+## safeGoto 必须传 ctx.page
+`safeGoto(ctx.page, url)` 而不是 `safeGoto(ctx, url)`
+
+## case-data 读取方式
+```typescript
+const result = await ctx.page.evaluate(() => {
+  const el = document.getElementById('case-data') as HTMLScriptElement;
+  if (!el?.textContent) return null;
+  return JSON.parse(el.textContent);
+});
+```
+
+## 智能降级 scrapeDynamicCase
+页面渲染 500 时，降级到文件系统读取 JSON 数据

@@ -1,10 +1,11 @@
-import type { Page } from 'playwright-core';
-import type { CommandHandler, CommandModule } from './types.js';
+import type { Page, Frame } from 'playwright-core';
+import type { CommandHandler, CommandModule, PageContext } from './types.js';
 import { navigationCommands } from './navigation.js';
 import { interactionCommands } from './interaction.js';
 import { queryCommands } from './query.js';
 import { snapshotCommands } from './snapshot.js';
 import { evaluateCommands } from './evaluate.js';
+import { frameCommands } from './frame.js';
 
 const allCommands: CommandModule = {
   ...navigationCommands,
@@ -12,6 +13,7 @@ const allCommands: CommandModule = {
   ...queryCommands,
   ...snapshotCommands,
   ...evaluateCommands,
+  ...frameCommands,
 };
 
 const aliases: Record<string, string> = {
@@ -29,8 +31,7 @@ export function hasCommand(commandName: string): boolean {
   return resolvedName in allCommands;
 }
 
-// eslint-disable-next-line require-await
-export async function executePageCommand(
+export function executePageCommand(
   page: Page,
   commandName: string,
   args: Record<string, unknown>
@@ -39,7 +40,24 @@ export async function executePageCommand(
   if (!handler) {
     throw new Error(`Unknown command: ${commandName}`);
   }
-  return handler(page, args);
+
+  const frameRef = args.frame;
+  delete args.frame;
+
+  let context: PageContext = page;
+  if (frameRef !== undefined) {
+    const frames = page.frames();
+    if (typeof frameRef === 'number') {
+      context = frames[frameRef] || page;
+    } else if (typeof frameRef === 'string') {
+      context =
+        frames.find((f: Frame) => f.url().includes(frameRef)) ||
+        frames.find((f: Frame) => f.name() === frameRef) ||
+        page;
+    }
+  }
+
+  return handler(context, args);
 }
 
 export { navigationCommands } from './navigation.js';

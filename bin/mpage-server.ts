@@ -1,5 +1,11 @@
 #!/usr/bin/env node
-import { chromium, type Browser, type Page, type BrowserContext } from 'playwright-core';
+import {
+  chromium,
+  type Browser,
+  type Page,
+  type BrowserContext,
+  type Frame,
+} from 'playwright-core';
 import * as net from 'net';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -11,13 +17,18 @@ import {
   deleteSessionInfo,
   isProcessRunning,
 } from '../src/index.js';
-import { executePageCommand, hasCommand } from '../src/server/commands/index.js';
+import { hasCommand, getCommandHandler } from '../src/server/commands/index.js';
 import type { SessionInfo } from '../src/types.js';
 import { DEFAULT_CHROMIUM_PATH } from '../src/constants.js';
 import { RecorderController, PlaybackEngine } from '../src/server/recorder/index.js';
 
 const sessionName = process.argv[2] || 'default';
 const cdpEndpoint = process.argv[3] || '';
+
+interface UrlChange {
+  from: string;
+  to: string;
+}
 
 interface Session {
   name: string;
@@ -30,6 +41,8 @@ interface Session {
   createdAt: number;
   lastUsed: number;
   recorder: RecorderController | null;
+  urlChanges: UrlChange[];
+  lastUrl: string;
 }
 
 const session: Session = {
@@ -43,6 +56,8 @@ const session: Session = {
   createdAt: Date.now(),
   lastUsed: Date.now(),
   recorder: null,
+  urlChanges: [],
+  lastUrl: '',
 };
 
 function saveCurrentSessionInfo(): void {
@@ -57,6 +72,25 @@ function saveCurrentSessionInfo(): void {
     lastUsed: session.lastUsed,
   };
   saveSessionInfo(info);
+}
+
+function bindUrlListener(page: Page): void {
+  session.lastUrl = page.url();
+  page.on('framenavigated', (frame) => {
+    if (frame !== page.mainFrame()) return;
+    const currentUrl = page.url();
+    if (currentUrl && currentUrl !== session.lastUrl) {
+      session.urlChanges.push({ from: session.lastUrl, to: currentUrl });
+      session.lastUrl = currentUrl;
+    }
+  });
+}
+
+function drainUrlTips(): string[] {
+  if (session.urlChanges.length === 0) return [];
+  const tips = session.urlChanges.map((c) => `URL 变化: ${c.from} → ${c.to}`);
+  session.urlChanges = [];
+  return tips;
 }
 
 async function initSession(): Promise<boolean> {
@@ -151,6 +185,9 @@ async function initSession(): Promise<boolean> {
     }
 
     saveCurrentSessionInfo();
+    if (session.page) {
+      bindUrlListener(session.page);
+    }
     return true;
   } catch (e) {
     console.error(`Failed to init session: ${e}`);
@@ -182,6 +219,7 @@ async function ensurePageAvailable(): Promise<Page> {
       try {
         session.page = await session.context.newPage();
         page = session.page;
+        bindUrlListener(page);
         console.error(`[mpage-server] Recreated page for session '${session.name}'`);
       } catch {
         console.error(`[mpage-server] Failed to create page, attempting to reconnect...`);
@@ -212,7 +250,25 @@ async function handleCommand(cmd: string, args: Record<string, unknown>): Promis
     throw new Error(`Unknown command: ${cmd}`);
   }
 
-  return executePageCommand(page, cmd, args);
+  let context: Page | Frame = page;
+  const frameRef = args.frame;
+  delete args.frame;
+
+  if (frameRef !== undefined) {
+    const frames = page.frames();
+    if (typeof frameRef === 'number') {
+      context = frames[frameRef] || page;
+    } else if (typeof frameRef === 'string') {
+      context =
+        frames.find((f: Frame) => f.url().includes(frameRef)) ||
+        frames.find((f: Frame) => f.name() === frameRef) ||
+        page;
+    }
+  }
+
+  const handler = getCommandHandler(cmd);
+  if (!handler) throw new Error(`Unknown command: ${cmd}`);
+  return handler(context, args);
 }
 
 // eslint-disable-next-line require-await
@@ -313,18 +369,34 @@ async function handleConnection(conn: net.Socket) {
         if (command) {
           try {
             const result = await handleCommand(command, args);
-            const response: { success: boolean; content?: unknown; error?: string; tips?: string } =
-              {
-                success: true,
-                content: result,
-              };
+            const urlTips = drainUrlTips();
+            const response: {
+              success: boolean;
+              content?: unknown;
+              error?: string;
+              tips?: string[];
+            } = {
+              success: true,
+              content: result,
+            };
+            if (urlTips.length > 0) {
+              response.tips = urlTips;
+            }
             conn.write(JSON.stringify(response) + '\n');
           } catch (e: unknown) {
-            const response: { success: boolean; content?: unknown; error?: string; tips?: string } =
-              {
-                success: false,
-                error: (e as Error).message,
-              };
+            const urlTips = drainUrlTips();
+            const response: {
+              success: boolean;
+              content?: unknown;
+              error?: string;
+              tips?: string[];
+            } = {
+              success: false,
+              error: (e as Error).message,
+            };
+            if (urlTips.length > 0) {
+              response.tips = urlTips;
+            }
             conn.write(JSON.stringify(response) + '\n');
           }
           return;

@@ -11,7 +11,7 @@ import type { IPCResponse } from './ipc.js';
 export interface ExecuteResult {
   output: string;
   error: boolean;
-  tips?: string;
+  tips?: string[];
 }
 
 function layoutToYaml(node: unknown, indent: number = 0): string {
@@ -108,7 +108,7 @@ export async function executePipeline(
   jsonMode: boolean = false
 ): Promise<ExecuteResult> {
   let currentOutput = '';
-  let currentTips = '';
+  let currentTips: string[] = [];
 
   for (const cmdStr of pipeline) {
     const parts = splitCommand(cmdStr);
@@ -122,7 +122,7 @@ export async function executePipeline(
         error: true,
         tips:
           suggestions.length > 0
-            ? `你是想输入 '${suggestions[0]}' 吗？相似命令: ${suggestions.join(', ')}`
+            ? [`你是想输入 '${suggestions[0]}' 吗？相似命令: ${suggestions.join(', ')}`]
             : undefined,
       };
     }
@@ -130,13 +130,19 @@ export async function executePipeline(
     const schema = commands[cmd].schema;
     const args = parseArgsToRecord(cmdArgs, schema);
 
+    const frameRef = args.frame;
+    delete args.frame;
+
     try {
       schema.parse(args);
     } catch (e: unknown) {
       return { output: `Invalid args for ${cmd}: ${(e as Error).message}`, error: true };
     }
 
-    const result = await executeCommand(sendRequest, cmd, args, jsonMode);
+    const requestArgs = { ...args };
+    if (frameRef !== undefined) requestArgs.frame = frameRef;
+
+    const result = await executeCommand(sendRequest, cmd, requestArgs, jsonMode);
     currentOutput = result.output;
     if (result.tips) currentTips = result.tips;
     if (result.error) return { output: currentOutput, error: true, tips: currentTips };
@@ -153,7 +159,7 @@ export async function executeCommandChain(
   const parsed = parseCommandChain(input);
   let lastOutput = '',
     lastError = false,
-    lastTips = '';
+    lastTips: string[] = [];
 
   for (const { pipeline, type } of parsed) {
     if (type === 'and' && lastError) continue;

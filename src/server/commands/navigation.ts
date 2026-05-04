@@ -1,37 +1,46 @@
-import type { Page } from 'playwright-core';
-import type { CommandModule } from './types.js';
+import type { Page, Frame } from 'playwright-core';
+import type { CommandModule, PageContext } from './types.js';
+
+function getUrl(ctx: PageContext): string {
+  if ((ctx as Page).url) return (ctx as Page).url();
+  return (ctx as Frame).url();
+}
 
 export const navigationCommands: CommandModule = {
-  goto: async (page: Page, args: Record<string, unknown>) => {
+  goto: async (ctx: PageContext, args: Record<string, unknown>) => {
+    const page = ctx as Page;
     await page.goto(args.url as string, {
       waitUntil: (args.waitUntil as 'load' | 'domcontentloaded' | 'networkidle') || 'load',
       timeout: (args.timeout as number) || 30000,
     });
-    return { url: page.url() };
+    return { url: getUrl(page) };
   },
 
-  goBack: async (page: Page) => {
+  goBack: async (ctx: PageContext) => {
+    const page = ctx as Page;
     await page.goBack();
-    return { url: page.url() };
+    return { url: getUrl(page) };
   },
 
-  goForward: async (page: Page) => {
+  goForward: async (ctx: PageContext) => {
+    const page = ctx as Page;
     await page.goForward();
-    return { url: page.url() };
+    return { url: getUrl(page) };
   },
 
-  reload: async (page: Page) => {
+  reload: async (ctx: PageContext) => {
+    const page = ctx as Page;
     await page.reload();
-    return { url: page.url() };
+    return { url: getUrl(page) };
   },
 
-  title: async (page: Page) => {
-    const title = await page.title();
+  title: async (ctx: PageContext) => {
+    const title = await ctx.title();
     return { title };
   },
 
   // eslint-disable-next-line require-await
-  url: async (page: Page) => {
-    return { url: page.url() };
+  url: async (ctx: PageContext) => {
+    return { url: getUrl(ctx) };
   },
 };

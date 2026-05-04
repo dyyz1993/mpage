@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>XCLI Viewer</title>
+  <style>
+    body { margin: 0; background: #1a1a1a; display: flex; flex-direction: column; height: 100vh; }
+    #status { background: #222; color: #0f0; padding: 5px 10px; font-size: 12px; font-family: monospace; }
+    #canvas { background: #000; cursor: crosshair; }
+  </style>
+</head>
+<body>
+  <div id="status">连接中...</div>
+  <canvas id="canvas"></canvas>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const status = document.getElementById('status');
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get('s') || 'default';
+
+    let frameCount = 0;
+    let lastTime = performance.now();
+    let fps = 0;
+    let viewport = null;
+
+    const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${protocol}//${location.host}/ws`);
+    let connected = false;
+
+    function resizeCanvas() {
+      const maxW = window.innerWidth;
+      const maxH = window.innerHeight - 30;
+      if (!viewport) {
+        canvas.style.width = maxW + 'px';
+        canvas.style.height = maxH + 'px';
+        canvas.style.margin = '0';
+        return;
+      }
+      const scale = Math.min(maxW / viewport.width, maxH / viewport.height);
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      canvas.style.width = (viewport.width * scale) + 'px';
+      canvas.style.height = (viewport.height * scale) + 'px';
+      canvas.style.margin = '0';
+      canvas.style.display = 'block';
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+
+    function updateFPS() {
+      const now = performance.now();
+      frameCount++;
+      if (now - lastTime >= 1000) {
+        fps = Math.round(frameCount * 1000 / (now - lastTime));
+        frameCount = 0;
+        lastTime = now;
+        status.textContent = connected ? `FPS: ${fps}` : '连接已断开';
+      }
+    }
+
+    ws.onopen = () => {
+      connected = true;
+      status.textContent = 'FPS: 0';
+      ws.send(JSON.stringify({ type: 'attach', sessionId }));
+    };
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === 'screenshot') {
+        if (data.viewport) {
+          viewport = data.viewport;
+          resizeCanvas();
+        }
+        const img = new Image();
+        img.onload = () => {
+          if (!viewport) {
+            viewport = { width: img.width, height: img.height };
+            resizeCanvas();
+          }
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          updateFPS();
+        };
+        img.src = 'data:image/png;base64,' + data.data;
+      } else if (data.type === 'error') {
+        status.textContent = '错误: ' + data.message;
+      }
+    };
+
+    ws.onclose = () => {
+      connected = false;
+      status.textContent = '连接已断开';
+    };
+
+    ws.onerror = () => {
+      status.textContent = '连接错误';
+    };
+
+    canvas.addEventListener('click', (e) => {
+      if (!connected) return;
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      ws.send(JSON.stringify({
+        type: 'click',
+        x: Math.round((e.clientX - rect.left) * scaleX),
+        y: Math.round((e.clientY - rect.top) * scaleY),
+        sessionId
+      }));
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (!connected) return;
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      ws.send(JSON.stringify({
+        type: 'mousemove',
+        x: Math.round((e.clientX - rect.left) * scaleX),
+        y: Math.round((e.clientY - rect.top) * scaleY),
+        sessionId
+      }));
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (!connected) return;
+      ws.send(JSON.stringify({ type: 'key', key: e.key, sessionId }));
+    });
+  </script>
+</body>
+</html>

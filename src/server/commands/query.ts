@@ -1,11 +1,11 @@
-import type { Page } from 'playwright-core';
+import type { PageContext } from './types.js';
 import type { CommandModule } from './types.js';
 import { STRUCTURE_EXTRACTOR_CODE } from './structure-extractor.js';
 
 export const queryCommands: CommandModule = {
-  query: async (page: Page, args: Record<string, unknown>) => {
+  query: async (context: PageContext, args: Record<string, unknown>) => {
     const selector = args.selector as string;
-    const result = await page.evaluate((s) => {
+    const result = await context.evaluate((s) => {
       const elements = Array.from(document.querySelectorAll(s));
       return elements.slice(0, 20).map((el, i) => ({
         index: i,
@@ -19,10 +19,10 @@ export const queryCommands: CommandModule = {
     return { elements: result, count: result.length };
   },
 
-  find: async (page: Page, args: Record<string, unknown>) => {
+  find: async (context: PageContext, args: Record<string, unknown>) => {
     const text = args.text as string;
     const tag = (args.tag as string) || '*';
-    const result = await page.evaluate(
+    const result = await context.evaluate(
       (opts) => {
         return Array.from(document.querySelectorAll(opts.tag))
           .filter((el) => {
@@ -60,12 +60,12 @@ export const queryCommands: CommandModule = {
     return { elements: result, count: result.length };
   },
 
-  html: async (page: Page, args: Record<string, unknown>) => {
+  html: async (context: PageContext, args: Record<string, unknown>) => {
     let html: string;
     if (args.selector) {
-      html = await page.innerHTML(args.selector as string);
+      html = await context.innerHTML(args.selector as string);
     } else {
-      html = await page.content();
+      html = await context.content();
     }
 
     if (args.clean) {
@@ -91,27 +91,27 @@ export const queryCommands: CommandModule = {
     return { html };
   },
 
-  text: async (page: Page, args: Record<string, unknown>) => {
-    const text = await page.textContent((args.selector as string) || 'body');
+  text: async (context: PageContext, args: Record<string, unknown>) => {
+    const text = await context.textContent((args.selector as string) || 'body');
     return { text };
   },
 
-  inputValue: async (page: Page, args: Record<string, unknown>) => {
-    const value = await page.locator(args.selector as string).inputValue();
+  inputValue: async (context: PageContext, args: Record<string, unknown>) => {
+    const value = await context.locator(args.selector as string).inputValue();
     return { value };
   },
 
-  textContent: async (page: Page, args: Record<string, unknown>) => {
-    const text = await page.locator(args.selector as string).textContent();
+  textContent: async (context: PageContext, args: Record<string, unknown>) => {
+    const text = await context.locator(args.selector as string).textContent();
     return { text };
   },
 
-  getAttribute: async (page: Page, args: Record<string, unknown>) => {
-    const value = await page.getAttribute(args.selector as string, args.name as string);
+  getAttribute: async (context: PageContext, args: Record<string, unknown>) => {
+    const value = await context.getAttribute(args.selector as string, args.name as string);
     return { value };
   },
 
-  structure: async (page: Page, args: Record<string, unknown>) => {
+  structure: async (context: PageContext, args: Record<string, unknown>) => {
     const selector = (args.selector as string) || 'body';
 
     interface ExtractorResult {
@@ -119,11 +119,11 @@ export const queryCommands: CommandModule = {
       yaml: string;
     }
 
-    await page.addScriptTag({
+    await context.addScriptTag({
       content: `window.__structureExtractor = ${STRUCTURE_EXTRACTOR_CODE};`,
     });
 
-    const result = await page.evaluate((sel: string): ExtractorResult => {
+    const result = await context.evaluate((sel: string): ExtractorResult => {
       const ext = (window as unknown as Record<string, unknown>).__structureExtractor;
       if (typeof ext === 'function') {
         return (ext as (opts: { selector: string }) => ExtractorResult)({ selector: sel });

@@ -148,6 +148,20 @@ export const commands: Record<string, CommandDefinition> = {
     }),
     description: 'Get page structure layout with selectors and array detection',
   },
+  frames: {
+    schema: z.object({}),
+    description: 'List all frames (iframes) on the page',
+  },
+  frame: {
+    schema: z.object({
+      index: z.number().optional(),
+      name: z.string().optional(),
+      url: z.string().optional(),
+      reset: z.boolean().optional(),
+    }),
+    description:
+      'Switch to a frame by index, name, or URL pattern. Use --reset true to switch back to main frame',
+  },
 };
 
 export function getCommandNames(): string[] {

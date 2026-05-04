@@ -10,8 +10,8 @@ export interface SessionInfo {
 }
 
 export type CommandResult =
-  | { success: true; content?: unknown; tips?: string }
-  | { success: false; error: string; content?: unknown; tips?: string };
+  | { success: true; content?: unknown; tips?: string[] }
+  | { success: false; error: string; content?: unknown; tips?: string[] };
 
 export interface CommandDefinition {
   schema: ZodSchema;

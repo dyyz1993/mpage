@@ -2,6 +2,7 @@
   "name": "@dyyz1993/xpage",
   "version": "1.0.2",
   "description": "Playwright browser automation CLI with CDP support",
+  "private": true,
   "type": "module",
   "bin": {
     "mpage": "dist/bin/mpage.js"
@@ -10,8 +11,8 @@
   "types": "dist/src/index.d.ts",
   "exports": {
     ".": {
-      "types": "dist/src/index.d.ts",
-      "import": "dist/src/index.js"
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
     }
   },
   "files": [
@@ -20,13 +21,16 @@
   ],
   "scripts": {
     "xpage": "npx tsx bin/mpage.ts",
-    "build": "tsup",
+    "build:packages": "pnpm -r --filter './packages/*' --stream run build",
+    "build": "pnpm run build:packages && tsup",
     "dev": "npx tsx bin/mpage.ts",
     "lint": "eslint . --ext .ts,.tsx",
+    "lint:packages": "pnpm -r --filter './packages/*' --stream run lint",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write \"src/**/*.ts\" \"bin/**/*.ts\" \"tests/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"bin/**/*.ts\" \"tests/**/*.ts\"",
     "typecheck": "tsc --noEmit",
+    "typecheck:packages": "pnpm -r --filter './packages/*' --stream run typecheck",
     "test": "tsx --test tests/**/*.test.ts",
     "prepublishOnly": "npm run build",
     "prepare": "husky",

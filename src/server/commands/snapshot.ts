@@ -1,28 +1,28 @@
 import * as path from 'path';
 import { DEFAULT_STORAGE } from '../../session/storage.js';
 import type { Page } from 'playwright-core';
-import type { CommandModule } from './types.js';
+import type { CommandModule, PageContext } from './types.js';
 
 export const snapshotCommands: CommandModule = {
-  screenshot: async (page: Page, args: Record<string, unknown>) => {
+  screenshot: async (ctx: PageContext, args: Record<string, unknown>) => {
     const filename = (args.path as string) || `screenshot-${Date.now()}.png`;
     const filePath = path.join(DEFAULT_STORAGE, filename);
-    await page.screenshot({ ...args, path: filePath });
+    await (ctx as Page).screenshot({ ...args, path: filePath });
     return { path: filePath };
   },
 
-  screenshotBase64: async (page: Page, args: Record<string, unknown>) => {
-    const buffer = await page.screenshot({
+  screenshotBase64: async (ctx: PageContext, args: Record<string, unknown>) => {
+    const buffer = await (ctx as Page).screenshot({
       fullPage: (args.fullPage as boolean) || false,
       ...(args.type ? { type: args.type as 'png' | 'jpeg' } : {}),
     });
     return { screenshot: buffer.toString('base64') };
   },
 
-  a11y: async (page: Page, args: Record<string, unknown>) => {
+  a11y: async (ctx: PageContext, args: Record<string, unknown>) => {
     const selector = (args.selector as string) || 'body';
     const format = (args.format as string) || 'yaml';
-    const snapshot = await page.evaluate((sel: string) => {
+    const snapshot = await ctx.evaluate((sel: string) => {
       function walk(node: Element | null, depth: number): Record<string, unknown> | null {
         if (!node || node.nodeType !== 1) return null;
 
@@ -187,9 +187,9 @@ export const snapshotCommands: CommandModule = {
     return { snapshot: (snapshot as { json: unknown; yaml: string }).yaml };
   },
 
-  snapshot: async (page: Page, args: Record<string, unknown>) => {
+  snapshot: async (ctx: PageContext, args: Record<string, unknown>) => {
     const selector = (args.selector as string) || 'body';
-    const snapshot = await page.locator(selector).ariaSnapshot();
+    const snapshot = await ctx.locator(selector).ariaSnapshot();
     return { snapshot };
   },
 };
