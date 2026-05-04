@@ -21,7 +21,7 @@
   ],
   "scripts": {
     "xpage": "npx tsx bin/mpage.ts",
-    "build:packages": "pnpm -r --filter './packages/*' --stream --sort run build",
+    "build:packages": "pnpm -r --filter './packages/*' --sort --workspace-concurrency=1 build",
     "build": "pnpm run build:packages && tsup",
     "dev": "npx tsx bin/mpage.ts",
     "lint": "eslint . --ext .ts,.tsx",
