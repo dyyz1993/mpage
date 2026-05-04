@@ -14,8 +14,11 @@ import type {
 } from './protocol/plugin-protocol.js';
 import { SiteInstanceImpl, DEFAULT_SCOPE } from './protocol/plugin-protocol.js';
 import { resolve, isAbsolute, extname, basename, dirname } from 'path';
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { createJiti } = require('jiti') as typeof import('jiti');
+/* eslint-disable @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires, @typescript-eslint/consistent-type-imports */
+const jitiModule: {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+  createJiti: (...args: unknown[]) => ReturnType<typeof import('jiti').createJiti>;
+} = require('jiti');
 import { fileURLToPath } from 'url';
 import type { Core } from './core.js';
 import { PluginStorage } from './plugin-storage.js';
@@ -336,7 +339,7 @@ export class PluginLoader {
 
       const packageName = this.core.config.pluginPackageName ?? this.core.config.name;
       const coreEntryPath = resolve(dirname(fileURLToPath(import.meta.url)), '../index.ts');
-      const jiti = createJiti(import.meta.url, {
+      const jiti = jitiModule.createJiti(import.meta.url, {
         interopDefault: true,
         alias: { [packageName]: coreEntryPath },
       });
