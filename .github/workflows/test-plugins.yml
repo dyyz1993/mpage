@@ -22,7 +22,7 @@ jobs:
           cache: pnpm
 
       - name: Configure pnpm
-        run: echo "node-linker=hoisted" > .npmrc
+        run: echo "shamefully-hoist=true" > .npmrc
 
       - run: pnpm install --frozen-lockfile
 
