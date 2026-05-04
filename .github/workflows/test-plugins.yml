@@ -22,7 +22,7 @@ jobs:
           cache: pnpm
 
       - name: Configure pnpm
-        run: echo "shamefully-hoist=true" > .npmrc
+        run: echo "public-hoist-pattern[]=jiti" > .npmrc
 
       - run: pnpm install
 
