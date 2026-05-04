@@ -25,6 +25,7 @@ batch-*.cjs
 # 录制产物
 recordings/
 *.yaml
+!pnpm-lock.yaml
 !xcli/**/*.yaml
 doubao-*.json
 recording-*.json
