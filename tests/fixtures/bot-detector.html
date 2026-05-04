@@ -1,0 +1,1791 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bot Detector - 反爬行为检测</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    background: #0a0a0a;
+    color: #e0e0e0;
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  #trajectory-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .dashboard {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 280px 1fr 320px;
+    grid-template-rows: auto 1fr;
+    height: 100vh;
+    gap: 0;
+  }
+
+  .header {
+    grid-column: 1 / -1;
+    background: #111;
+    border-bottom: 1px solid #222;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header h1 { font-size: 16px; font-weight: 600; color: #fff; }
+  .header .verdict {
+    font-size: 14px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    transition: all 0.3s;
+  }
+  .verdict-human { background: #0a3d0a; color: #4ade80; border: 1px solid #166534; }
+  .verdict-suspicious { background: #3d3d0a; color: #facc15; border: 1px solid #854d0e; }
+  .verdict-bot { background: #3d0a0a; color: #f87171; border: 1px solid #991b1b; }
+
+  .left-panel {
+    background: #111;
+    border-right: 1px solid #222;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .center-area {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px;
+    overflow-y: auto;
+    justify-content: flex-start;
+  }
+
+  .right-panel {
+    background: #111;
+    border-left: 1px solid #222;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .card {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .card-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #666;
+    margin-bottom: 8px;
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 13px;
+  }
+  .stat-label { color: #999; }
+  .stat-value { color: #e0e0e0; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .stat-value.good { color: #4ade80; }
+  .stat-value.warn { color: #facc15; }
+  .stat-value.bad { color: #f87171; }
+
+  .score-bar {
+    width: 100%;
+    height: 6px;
+    background: #2a2a2a;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s, background 0.3s;
+  }
+
+  .test-zone {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 20px;
+    width: 100%;
+    max-width: 560px;
+    flex-shrink: 0;
+  }
+  .test-zone h3 {
+    font-size: 14px;
+    color: #fff;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .test-zone p {
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 10px;
+  }
+
+  .test-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+    text-align: center;
+  }
+  .test-btn:hover { background: #1d4ed8; }
+  .test-btn:active { background: #1e40af; transform: scale(0.98); }
+
+  .test-btn.small {
+    width: auto;
+    padding: 8px 16px;
+    font-size: 12px;
+    display: inline-block;
+    margin: 4px;
+  }
+
+  .test-input {
+    width: 100%;
+    padding: 10px 14px;
+    background: #222;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #e0e0e0;
+    font-size: 14px;
+    margin: 8px 0;
+    outline: none;
+  }
+  .test-input:focus { border-color: #2563eb; }
+
+  .test-checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 0;
+    font-size: 13px;
+    color: #999;
+  }
+
+  .click-target {
+    width: 60px; height: 60px;
+    background: #7c3aed;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 11px;
+    cursor: pointer;
+    margin: 12px auto;
+    transition: transform 0.1s;
+    user-select: none;
+  }
+  .click-target:hover { transform: scale(1.05); }
+  .click-target:active { transform: scale(0.95); }
+  .click-target.hit { background: #16a34a; }
+
+  .event-log {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 11px;
+    line-height: 1.6;
+    color: #666;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .event-log .event-move { color: #555; }
+  .event-log .event-click { color: #facc15; }
+  .event-log .event-key { color: #60a5fa; }
+  .event-log .event-alert { color: #f87171; font-weight: 600; }
+
+  .mini-heatmap {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #111;
+    border-radius: 4px;
+    border: 1px solid #2a2a2a;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 12px;
+  }
+  .check-icon {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+  .check-pass { background: #0a3d0a; color: #4ade80; }
+  .check-warn { background: #3d3d0a; color: #facc15; }
+  .check-fail { background: #3d0a0a; color: #f87171; }
+  .check-unknown { background: #2a2a2a; color: #666; }
+
+  .hover-box {
+    width: 100%;
+    height: 60px;
+    background: #1e3a5f;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+  .hover-box:hover { background: #3b82f6; transform: scale(1.02); }
+  .hover-box .hover-label { color: #fff; font-size: 13px; pointer-events: none; }
+  .hover-box .hover-hidden {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.7);
+    padding: 6px;
+    text-align: center;
+    font-size: 11px;
+    color: #facc15;
+    transform: translateY(100%);
+    transition: transform 0.3s;
+  }
+  .hover-box:hover .hover-hidden { transform: translateY(0); }
+
+  .drag-container {
+    display: flex;
+    gap: 16px;
+    margin: 8px 0;
+    min-height: 100px;
+  }
+  .drag-source, .drag-target {
+    flex: 1;
+    background: #222;
+    border: 2px dashed #444;
+    border-radius: 8px;
+    padding: 8px;
+    min-height: 90px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .drag-target.drag-over { border-color: #4ade80; background: #0a2a0a; }
+  .drag-label { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+  .drag-item {
+    width: 90%;
+    padding: 8px 12px;
+    background: #7c3aed;
+    color: #fff;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: grab;
+    text-align: center;
+    user-select: none;
+    transition: opacity 0.2s;
+  }
+  .drag-item:active { cursor: grabbing; }
+  .drag-item.dragging { opacity: 0.4; }
+
+  .scroll-box {
+    width: 100%;
+    height: 100px;
+    background: #222;
+    border-radius: 8px;
+    overflow-y: auto;
+    padding: 8px 12px;
+    margin: 8px 0;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #999;
+  }
+  .scroll-box::-webkit-scrollbar { width: 6px; }
+  .scroll-box::-webkit-scrollbar-track { background: #1a1a1a; }
+  .scroll-box::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+
+  .dropdown-wrapper { position: relative; margin: 8px 0; }
+  .dropdown-trigger {
+    width: 100%;
+    padding: 10px 14px;
+    background: #222;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #e0e0e0;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+  }
+  .dropdown-trigger .arrow { font-size: 10px; color: #666; transition: transform 0.2s; }
+  .dropdown-trigger.open .arrow { transform: rotate(180deg); }
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0; right: 0;
+    background: #222;
+    border: 1px solid #333;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s;
+    z-index: 10;
+  }
+  .dropdown-menu.open { max-height: 180px; }
+  .dropdown-option {
+    padding: 8px 14px;
+    font-size: 13px;
+    color: #ccc;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .dropdown-option:hover { background: #333; }
+
+  .hover-menu-nav {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    padding: 12px 0;
+  }
+  .hover-menu-trigger {
+    position: relative;
+    padding: 8px 16px;
+    font-size: 14px;
+    color: #ccc;
+    cursor: pointer;
+    user-select: none;
+  }
+  .hover-menu-panel {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    min-width: 200px;
+    padding: 4px 0;
+    z-index: 100;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  }
+  .hover-menu-trigger:hover .hover-menu-panel {
+    display: block;
+  }
+  .hover-menu-item {
+    padding: 8px 16px;
+    font-size: 13px;
+    color: #aaa;
+    transition: background 0.1s, color 0.1s;
+  }
+  .hover-menu-item:hover {
+    background: #2563eb;
+    color: #fff;
+  }
+
+  .slider-container { margin: 8px 0; width: 100%; }
+  .slider-track {
+    position: relative;
+    width: 100%;
+    height: 8px;
+    background: #333;
+    border-radius: 4px;
+    margin: 12px 0;
+  }
+  .slider-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    background: #7c3aed;
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.05s;
+  }
+  .slider-thumb {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px; height: 20px;
+    background: #a78bfa;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    cursor: grab;
+    left: 0%;
+    transition: left 0.05s;
+  }
+  .slider-thumb:active { cursor: grabbing; }
+  .slider-value {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: #a78bfa;
+  }
+
+  .form-step { display: none; }
+  .form-step.active { display: block; }
+  .form-progress {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+  .form-progress-dot {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: #333;
+    transition: background 0.3s;
+  }
+  .form-progress-dot.done { background: #4ade80; }
+  .form-progress-dot.current { background: #2563eb; }
+  .form-label {
+    display: block;
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 4px;
+  }
+
+  .results-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .results-table th {
+    text-align: left;
+    padding: 6px 8px;
+    color: #666;
+    font-weight: 600;
+    border-bottom: 1px solid #333;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .results-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #1a1a1a;
+    color: #ccc;
+  }
+  .case-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .badge-pending { background: #2a2a2a; color: #666; }
+  .badge-pass { background: #0a3d0a; color: #4ade80; }
+  .badge-warn { background: #3d3d0a; color: #facc15; }
+  .badge-fail { background: #3d0a0a; color: #f87171; }
+</style>
+</head>
+<body>
+
+<canvas id="trajectory-canvas"></canvas>
+
+<div class="dashboard">
+  <div class="header">
+    <h1>Bot Detector</h1>
+    <div>
+      <span class="stat-label" style="margin-right:12px">Bot Score:</span>
+      <span id="bot-score" class="stat-value" style="font-size:18px;font-weight:700">0</span>
+      <span class="stat-label" style="margin-left:4px">/100</span>
+    </div>
+    <div id="verdict" class="verdict verdict-human">WAITING</div>
+  </div>
+
+  <div class="left-panel">
+    <div class="card">
+      <div class="card-title">Navigator 检测</div>
+      <div id="nav-checks"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">鼠标轨迹分析</div>
+      <div class="stat-row"><span class="stat-label">移动点数</span><span id="move-count" class="stat-value">0</span></div>
+      <div class="stat-row"><span class="stat-label">平均曲率</span><span id="avg-curvature" class="stat-value">-</span></div>
+      <div class="stat-row"><span class="stat-label">速度方差</span><span id="speed-variance" class="stat-value">-</span></div>
+      <div class="stat-row"><span class="stat-label">直线段占比</span><span id="straight-ratio" class="stat-value">-</span></div>
+      <div class="stat-row"><span class="stat-label">加速/减速切换</span><span id="acc-changes" class="stat-value">0</span></div>
+      <div class="stat-row"><span class="stat-label">轨迹评分</span><span id="trajectory-score" class="stat-value">-</span></div>
+      <div class="score-bar"><div id="trajectory-bar" class="score-bar-fill" style="width:0%;background:#4ade80"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">点击行为分析</div>
+      <div class="stat-row"><span class="stat-label">总点击数</span><span id="click-count" class="stat-value">0</span></div>
+      <div class="stat-row"><span class="stat-label">无移动直达点击</span><span id="teleport-clicks" class="stat-value">0</span></div>
+      <div class="stat-row"><span class="stat-label">点击偏移标准差</span><span id="click-offset-std" class="stat-value">-</span></div>
+      <div class="stat-row"><span class="stat-label">mousedown→click 间隔</span><span id="md-click-gap" class="stat-value">-</span></div>
+      <div class="stat-row"><span class="stat-label">点击精准度评分</span><span id="click-score" class="stat-value">-</span></div>
+      <div class="score-bar"><div id="click-bar" class="score-bar-fill" style="width:0%;background:#4ade80"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">时序分析</div>
+      <div class="stat-row"><span class="stat-label">操作间隔 CV</span><span id="interval-cv" class="stat-value">-</span></div>
+      <div class="stat-row"><span class="stat-label">事件总数</span><span id="total-events" class="stat-value">0</span></div>
+      <div class="stat-row"><span class="stat-label">时序评分</span><span id="timing-score" class="stat-value">-</span></div>
+      <div class="score-bar"><div id="timing-bar" class="score-bar-fill" style="width:0%;background:#4ade80"></div></div>
+    </div>
+  </div>
+
+  <div class="center-area">
+    <div class="test-zone">
+      <h3>Interaction Test Zone</h3>
+      <button class="test-btn" id="btn-a">Button A - Click Me</button>
+      <button class="test-btn" id="btn-b">Button B - Click Me Too</button>
+      <input class="test-input" id="input-name" placeholder="Type your name..." />
+      <input class="test-input" id="input-search" placeholder="Search something..." />
+      <div style="text-align:center;margin-top:8px">
+        <button class="test-btn small" id="btn-c">Small 1</button>
+        <button class="test-btn small" id="btn-d">Small 2</button>
+        <button class="test-btn small" id="btn-e">Small 3</button>
+      </div>
+      <div class="test-checkbox-row">
+        <input type="checkbox" id="cb-1" /> <label for="cb-1">Option A</label>
+        <input type="checkbox" id="cb-2" /> <label for="cb-2">Option B</label>
+        <input type="checkbox" id="cb-3" /> <label for="cb-3">Option C</label>
+      </div>
+    </div>
+
+    <div class="test-zone">
+      <h3>Target Practice</h3>
+      <p>Click the purple target as fast as you can. 5 rounds.</p>
+      <div class="click-target" id="target-1">START</div>
+      <div style="text-align:center;font-size:12px;color:#666">
+        Round: <span id="round-num">0</span> / 5 &nbsp;&nbsp; Avg: <span id="avg-reaction">-</span>ms
+      </div>
+    </div>
+
+    <div class="test-zone" id="hover-case-zone">
+      <h3>Hover Case</h3>
+      <p>Hover over the boxes below. Hidden content will be revealed.</p>
+      <div class="hover-box" id="hover-box-1">
+        <span class="hover-label">Hover over me</span>
+        <div class="hover-hidden" id="hover-hidden-1">Secret content revealed!</div>
+      </div>
+      <div class="hover-box" id="hover-box-2" style="background:#1e3a1e">
+        <span class="hover-label">Hover here too</span>
+        <div class="hover-hidden" id="hover-hidden-2">Another secret!</div>
+      </div>
+      <div id="hover-result" style="text-align:center;font-size:12px;color:#666;margin-top:8px">Status: Waiting for hover...</div>
+    </div>
+
+    <div class="test-zone" id="drag-case-zone">
+      <h3>Drag & Drop Case</h3>
+      <p>Drag items from left to right.</p>
+      <div class="drag-container">
+        <div class="drag-source" id="drag-source">
+          <span class="drag-label">Source</span>
+          <div class="drag-item" id="drag-item-a" draggable="true">Item A</div>
+          <div class="drag-item" id="drag-item-b" draggable="true">Item B</div>
+        </div>
+        <div class="drag-target" id="drag-target">
+          <span class="drag-label">Target</span>
+        </div>
+      </div>
+      <div id="drag-result" style="text-align:center;font-size:12px;color:#666;margin-top:8px">Status: Waiting for drag...</div>
+    </div>
+
+    <div class="test-zone" id="scroll-case-zone">
+      <h3>Scroll Case</h3>
+      <p>Scroll through the content below smoothly.</p>
+      <div class="scroll-box" id="scroll-box">
+        <p style="font-weight:600;color:#e0e0e0;margin-bottom:6px">The History of the Internet</p>
+        <p>The origins of the Internet date back to the development of packet switching and research commissioned by the United States Department of Defense in the 1960s to enable time-sharing of computers.</p>
+        <p style="margin-top:6px">The primary precursor network, the ARPANET, initially served as a backbone for interconnection of regional academic and military networks in the 1970s.</p>
+        <p style="margin-top:6px">The linking of commercial networks and enterprises by the early 1990s marked the beginning of the transition to the modern Internet.</p>
+        <p style="margin-top:6px">Since the mid-1990s, the Internet has had a revolutionary impact on culture, commerce, and technology, including the rise of near-instant communication by electronic mail.</p>
+        <p style="margin-top:6px">Online shopping, digital marketing, and social media have all become integral parts of modern life. The Internet continues to evolve with new technologies like IoT, AI, and blockchain.</p>
+        <p style="margin-top:6px;color:#4ade80;font-style:italic">You reached the bottom! Scroll detection complete.</p>
+      </div>
+      <div id="scroll-result" style="text-align:center;font-size:12px;color:#666;margin-top:8px">Status: Waiting for scroll...</div>
+    </div>
+
+    <div class="test-zone" id="dropdown-case-zone">
+      <h3>Dropdown Case</h3>
+      <p>Click to open, then select an option.</p>
+      <div class="dropdown-wrapper" id="dropdown-wrapper">
+        <div class="dropdown-trigger" id="dropdown-trigger">
+          <span id="dropdown-label">Select a color...</span>
+          <span class="arrow">&#9660;</span>
+        </div>
+        <div class="dropdown-menu" id="dropdown-menu">
+          <div class="dropdown-option" data-value="red" style="color:#f87171">Red</div>
+          <div class="dropdown-option" data-value="green" style="color:#4ade80">Green</div>
+          <div class="dropdown-option" data-value="blue" style="color:#60a5fa">Blue</div>
+          <div class="dropdown-option" data-value="yellow" style="color:#facc15">Yellow</div>
+          <div class="dropdown-option" data-value="purple" style="color:#a78bfa">Purple</div>
+        </div>
+      </div>
+      <div id="dropdown-result" style="text-align:center;font-size:12px;color:#666;margin-top:8px">Status: Waiting for selection...</div>
+    </div>
+
+    <div class="test-zone" id="hover-menu-case-zone">
+      <h3>Hover Menu Case</h3>
+      <p style="text-align:center;font-size:12px;color:#666;margin-bottom:12px">
+        Hover on the nav item to open menu, then move to an option and click it.
+      </p>
+      <div class="hover-menu-nav" id="hover-menu-nav">
+        <div class="hover-menu-trigger" id="hover-menu-trigger">
+          Products <span style="font-size:10px">▼</span>
+          <div class="hover-menu-panel" id="hover-menu-panel">
+            <div class="hover-menu-item" data-value="analytics">Analytics Dashboard</div>
+            <div class="hover-menu-item" data-value="monitor">Real-time Monitor</div>
+            <div class="hover-menu-item" data-value="alerts">Smart Alerts</div>
+            <div class="hover-menu-item" data-value="reports">Custom Reports</div>
+            <div class="hover-menu-item" data-value="api">API Access</div>
+          </div>
+        </div>
+        <div class="hover-menu-trigger" style="opacity:0.4">Docs</div>
+        <div class="hover-menu-trigger" style="opacity:0.4">Pricing</div>
+      </div>
+      <div id="hover-menu-result" style="text-align:center;font-size:12px;color:#666;margin-top:8px">Status: Waiting for hover...</div>
+    </div>
+
+    <div class="test-zone" id="slider-case-zone">
+      <h3>Slider Case</h3>
+      <p>Drag the slider to 75 or above.</p>
+      <div class="slider-container" id="slider-container">
+        <div class="slider-value" id="slider-value-display">0</div>
+        <div class="slider-track" id="slider-track">
+          <div class="slider-fill" id="slider-fill"></div>
+          <div class="slider-thumb" id="slider-thumb"></div>
+        </div>
+      </div>
+      <div id="slider-result" style="text-align:center;font-size:12px;color:#666;margin-top:8px">Status: Waiting for slider interaction...</div>
+    </div>
+
+    <div class="test-zone" id="form-case-zone">
+      <h3>Multi-step Form Case</h3>
+      <p>Fill out the 2-step form and submit.</p>
+      <div class="form-progress">
+        <div class="form-progress-dot current" id="form-dot-1"></div>
+        <div class="form-progress-dot" id="form-dot-2"></div>
+      </div>
+      <div class="form-step active" id="form-step-1">
+        <label class="form-label">Full Name</label>
+        <input class="test-input" id="form-name" placeholder="John Doe" />
+        <label class="form-label">Email</label>
+        <input class="test-input" id="form-email" placeholder="john@example.com" />
+        <button class="test-btn" id="form-next-btn">Next Step &#8594;</button>
+      </div>
+      <div class="form-step" id="form-step-2">
+        <label class="form-label">City</label>
+        <input class="test-input" id="form-city" placeholder="New York" />
+        <label class="form-label">Phone</label>
+        <input class="test-input" id="form-phone" placeholder="+1 234 567 890" />
+        <button class="test-btn" id="form-submit-btn" style="background:#16a34a">Submit</button>
+      </div>
+      <div id="form-result" style="text-align:center;font-size:12px;color:#666;margin-top:8px">Status: Waiting for form input...</div>
+    </div>
+
+    <div class="test-zone" id="case-results-zone">
+      <h3>Case Results</h3>
+      <table class="results-table">
+        <thead>
+          <tr><th>Case</th><th>Status</th><th>Bot Score</th><th>Details</th></tr>
+        </thead>
+        <tbody id="case-results-body">
+          <tr id="result-row-hover"><td style="font-weight:500">Hover</td><td><span class="case-badge badge-pending">PENDING</span></td><td>-</td><td>Not started</td></tr>
+          <tr id="result-row-drag"><td style="font-weight:500">Drag & Drop</td><td><span class="case-badge badge-pending">PENDING</span></td><td>-</td><td>Not started</td></tr>
+          <tr id="result-row-scroll"><td style="font-weight:500">Scroll</td><td><span class="case-badge badge-pending">PENDING</span></td><td>-</td><td>Not started</td></tr>
+          <tr id="result-row-dropdown"><td style="font-weight:500">Dropdown</td><td><span class="case-badge badge-pending">PENDING</span></td><td>-</td><td>Not started</td></tr>
+        <tr id="result-row-hoverMenu"><td style="font-weight:500">Hover Menu</td><td><span class="case-badge badge-pending">PENDING</span></td><td>-</td><td>Not started</td></tr>
+          <tr id="result-row-slider"><td style="font-weight:500">Slider</td><td><span class="case-badge badge-pending">PENDING</span></td><td>-</td><td>Not started</td></tr>
+          <tr id="result-row-form"><td style="font-weight:500">Multi-step Form</td><td><span class="case-badge badge-pending">PENDING</span></td><td>-</td><td>Not started</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="right-panel">
+    <div class="card">
+      <div class="card-title">实时事件流</div>
+      <div id="event-log" class="event-log"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">鼠标热力图</div>
+      <canvas id="heatmap" class="mini-heatmap"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">检测摘要</div>
+      <div id="detection-summary"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Raw Data (JSON)</div>
+      <pre id="raw-data" style="font-size:10px;color:#555;max-height:150px;overflow:auto;font-family:monospace">{}</pre>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var state = {
+    mousePositions: [],
+    clicks: [],
+    keyEvents: [],
+    actionTimestamps: [],
+    mousedownTimes: {},
+    targetRounds: [],
+    currentRound: 0,
+    totalEvents: 0,
+    hoverData: { enterCount: 0, movesBeforeEnter: [], completed: false },
+    dragData: { dragStarts: 0, dragMoves: [], drops: 0, trajectory: [], completed: false },
+    scrollData: { events: [], positions: [], completed: false },
+    dropdownData: { openTime: null, mousePath: [], selectedValue: null, completed: false },
+    hoverMenuData: { openTime: null, mousePath: [], hoveredItems: [], selectedValue: null, completed: false },
+    sliderData: { changes: [], isDragging: false, dragTrajectory: [], completed: false },
+    formData: { step: 1, submitTime: null, fieldTimestamps: [], completed: false },
+  };
+
+  var caseResults = {
+    hover: { status: 'pending', score: 0, detail: 'Not started' },
+    drag: { status: 'pending', score: 0, detail: 'Not started' },
+    scroll: { status: 'pending', score: 0, detail: 'Not started' },
+    dropdown: { status: 'pending', score: 0, detail: 'Not started' },
+    hoverMenu: { status: 'pending', score: 0, detail: 'Not started' },
+    slider: { status: 'pending', score: 0, detail: 'Not started' },
+    form: { status: 'pending', score: 0, detail: 'Not started' },
+  };
+
+  var canvas = document.getElementById('trajectory-canvas');
+  var ctx = canvas.getContext('2d');
+  var heatmapCanvas = document.getElementById('heatmap');
+  var heatmapCtx = heatmapCanvas.getContext('2d');
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    heatmapCanvas.width = heatmapCanvas.offsetWidth * 2;
+    heatmapCanvas.height = heatmapCanvas.offsetHeight * 2;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  var TRAJECTORY_MAX = 300;
+  var eventLog = document.getElementById('event-log');
+  var logCount = 0;
+
+  function logEvent(cls, text) {
+    logCount++;
+    if (logCount > 200) {
+      var first = eventLog.firstChild;
+      if (first) eventLog.removeChild(first);
+    }
+    var div = document.createElement('div');
+    div.className = cls;
+    div.textContent = text;
+    eventLog.appendChild(div);
+    eventLog.scrollTop = eventLog.scrollHeight;
+  }
+
+  document.addEventListener('mousemove', function(e) {
+    state.mousePositions.push({
+      x: e.clientX, y: e.clientY,
+      t: performance.now(),
+      movementX: e.movementX,
+      movementY: e.movementY,
+    });
+    if (state.mousePositions.length > TRAJECTORY_MAX) {
+      state.mousePositions.shift();
+    }
+    state.totalEvents++;
+
+    if (state.dropdownData.openTime !== null && !state.dropdownData.completed) {
+      state.dropdownData.mousePath.push({ x: e.clientX, y: e.clientY, t: performance.now() });
+      if (state.dropdownData.mousePath.length <= 3) {
+        logEvent('event-move', 'DROPDOWN path #' + state.dropdownData.mousePath.length + ' at (' + e.clientX + ',' + e.clientY + ')');
+      }
+    }
+    if (state.hoverMenuData.openTime !== null && !state.hoverMenuData.completed) {
+      state.hoverMenuData.mousePath.push({ x: e.clientX, y: e.clientY, t: performance.now() });
+    }
+    if (state.sliderData.isDragging) {
+      state.sliderData.dragTrajectory.push({ x: e.clientX, t: performance.now() });
+    }
+
+    drawTrajectory();
+    drawHeatmap(e.clientX, e.clientY);
+  });
+
+  document.addEventListener('mousedown', function(e) {
+    state.mousedownTimes[e.clientX + ',' + e.clientY] = performance.now();
+    state.totalEvents++;
+  });
+
+  document.addEventListener('click', function(e) {
+    var now = performance.now();
+    var mdTime = state.mousedownTimes[e.clientX + ',' + e.clientY];
+    var mdClickGap = mdTime ? (now - mdTime) : null;
+
+    var lastMove = state.mousePositions.length > 0
+      ? state.mousePositions[state.mousePositions.length - 1]
+      : null;
+
+    var distanceFromLastMove = lastMove
+      ? Math.hypot(e.clientX - lastMove.x, e.clientY - lastMove.y)
+      : Infinity;
+
+    var target = e.target;
+    var rect = target.getBoundingClientRect();
+    var centerX = rect.left + rect.width / 2;
+    var centerY = rect.top + rect.height / 2;
+    var offsetFromCenter = Math.hypot(e.clientX - centerX, e.clientY - centerY);
+    var elementSize = Math.max(rect.width, rect.height);
+    var normalizedOffset = elementSize > 0 ? offsetFromCenter / (elementSize / 2) : 0;
+
+    state.clicks.push({
+      x: e.clientX,
+      y: e.clientY,
+      t: now,
+      target: target.tagName + (target.id ? '#' + target.id : '') + (target.className ? '.' + target.className : ''),
+      offsetFromCenter: offsetFromCenter,
+      normalizedOffset: normalizedOffset,
+      distanceFromLastMove: distanceFromLastMove,
+      movementBefore: countMovesNearClick(e.clientX, e.clientY, now),
+      mdClickGap: mdClickGap,
+    });
+
+    state.actionTimestamps.push(now);
+    state.totalEvents++;
+
+    logEvent('event-click',
+      'CLICK (' + e.clientX + ',' + e.clientY + ') ' +
+      'offset=' + offsetFromCenter.toFixed(1) + 'px ' +
+      'dist=' + distanceFromLastMove.toFixed(0) + 'px ' +
+      'md_gap=' + (mdClickGap !== null ? mdClickGap.toFixed(0) + 'ms' : 'null') +
+      ' \u2192 ' + target.tagName
+    );
+
+    analyze();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    state.keyEvents.push({ key: e.key, t: performance.now() });
+    state.actionTimestamps.push(performance.now());
+    state.totalEvents++;
+    logEvent('event-key', 'KEY ' + e.key);
+    analyze();
+  });
+
+  function countMovesNearClick(cx, cy, clickTime) {
+    var window_ = 500;
+    var radius = 50;
+    var count = 0;
+    for (var i = state.mousePositions.length - 1; i >= 0; i--) {
+      var p = state.mousePositions[i];
+      if (clickTime - p.t > window_) break;
+      if (Math.hypot(p.x - cx, p.y - cy) < radius) count++;
+    }
+    return count;
+  }
+
+  // ===== Target Practice =====
+  var targetEl = document.getElementById('target-1');
+  var targetStartTime = 0;
+  var targetPositions = [
+    { x: -60, y: -20 }, { x: 60, y: -30 },
+    { x: -40, y: 20 }, { x: 70, y: 10 }, { x: 0, y: -40 },
+  ];
+
+  targetEl.addEventListener('click', function() {
+    var now = performance.now();
+    if (state.currentRound === 0) {
+      state.currentRound = 1;
+      targetStartTime = now;
+      targetEl.textContent = '1';
+      targetEl.classList.remove('hit');
+    } else if (state.currentRound <= 5) {
+      var reaction = now - targetStartTime;
+      state.targetRounds.push(reaction);
+      targetEl.classList.add('hit');
+      logEvent('event-click', 'TARGET round ' + state.currentRound + ': ' + reaction.toFixed(0) + 'ms');
+
+      if (state.currentRound >= 5) {
+        var avg = state.targetRounds.reduce(function(a,b){return a+b},0) / state.targetRounds.length;
+        document.getElementById('avg-reaction').textContent = avg.toFixed(0);
+        targetEl.textContent = 'DONE';
+        analyze();
+        return;
+      }
+
+      state.currentRound++;
+      targetEl.textContent = String(state.currentRound);
+      targetStartTime = now;
+      var pos = targetPositions[state.currentRound - 1] || { x: 0, y: 0 };
+      targetEl.style.transform = 'translate(' + pos.x + 'px,' + pos.y + 'px)';
+    }
+  });
+
+  // ===== Hover Case =====
+  var hoverBoxes = document.querySelectorAll('.hover-box');
+  hoverBoxes.forEach(function(box) {
+    box.addEventListener('mouseenter', function(e) {
+      var now = performance.now();
+      state.hoverData.enterCount++;
+
+      var recentMoves = 0;
+      for (var i = state.mousePositions.length - 1; i >= 0; i--) {
+        var p = state.mousePositions[i];
+        if (now - p.t > 800) break;
+        recentMoves++;
+      }
+      state.hoverData.movesBeforeEnter.push(recentMoves);
+
+      if (state.hoverData.enterCount >= 3) state.hoverData.completed = true;
+      logEvent('event-move', 'HOVER enter #' + state.hoverData.enterCount + ' moves_before=' + recentMoves);
+      analyze();
+    });
+
+    box.addEventListener('mouseover', function() {
+      state.totalEvents++;
+    });
+  });
+
+  // ===== Drag & Drop Case =====
+  var dragItems = document.querySelectorAll('.drag-item');
+  var dragTarget = document.getElementById('drag-target');
+  var currentDragItem = null;
+
+  dragItems.forEach(function(item) {
+    item.addEventListener('dragstart', function(e) {
+      state.dragData.dragStarts++;
+      currentDragItem = item;
+      item.classList.add('dragging');
+      state.dragData.trajectory = [];
+      logEvent('event-click', 'DRAG start: ' + item.id);
+    });
+
+    item.addEventListener('dragend', function() {
+      item.classList.remove('dragging');
+      currentDragItem = null;
+      logEvent('event-move', 'DRAG end');
+    });
+  });
+
+  dragTarget.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    dragTarget.classList.add('drag-over');
+    state.dragData.trajectory.push({ x: e.clientX, y: e.clientY, t: performance.now() });
+  });
+
+  dragTarget.addEventListener('dragleave', function() {
+    dragTarget.classList.remove('drag-over');
+  });
+
+  dragTarget.addEventListener('drop', function(e) {
+    e.preventDefault();
+    dragTarget.classList.remove('drag-over');
+
+    if (currentDragItem) {
+      var item = currentDragItem;
+      item.remove();
+      dragTarget.appendChild(item);
+      item.classList.remove('dragging');
+      state.dragData.drops++;
+
+      var dropRect = dragTarget.getBoundingClientRect();
+      var precision = Math.hypot(e.clientX - (dropRect.left + dropRect.width/2), e.clientY - (dropRect.top + dropRect.height/2));
+      logEvent('event-click', 'DROP: ' + item.id + ' precision=' + precision.toFixed(0) + 'px');
+
+      if (dragTarget.querySelectorAll('.drag-item').length === 2) {
+        state.dragData.completed = true;
+      }
+      analyze();
+    }
+  });
+
+  // ===== Scroll Case =====
+  var scrollBox = document.getElementById('scroll-box');
+
+  scrollBox.addEventListener('scroll', function() {
+    var now = performance.now();
+    var scrollTop = scrollBox.scrollTop;
+    state.scrollData.events.push({ t: now, scrollTop: scrollTop });
+    state.scrollData.positions.push(scrollTop);
+    if (state.scrollData.events.length > 100) state.scrollData.events.shift();
+
+    var scrollPct = scrollTop / (scrollBox.scrollHeight - scrollBox.clientHeight) * 100;
+    if (!state.scrollData.completed && scrollPct > 90) {
+      state.scrollData.completed = true;
+      logEvent('event-move', 'SCROLL reached bottom');
+    }
+    analyze();
+  });
+
+  // ===== Dropdown Case =====
+  var dropdownTrigger = document.getElementById('dropdown-trigger');
+  var dropdownMenu = document.getElementById('dropdown-menu');
+  var dropdownLabel = document.getElementById('dropdown-label');
+  var dropdownOpen = false;
+
+  dropdownTrigger.addEventListener('click', function() {
+    dropdownOpen = !dropdownOpen;
+    dropdownTrigger.classList.toggle('open', dropdownOpen);
+    dropdownMenu.classList.toggle('open', dropdownOpen);
+
+    if (dropdownOpen) {
+      state.dropdownData.openTime = performance.now();
+      state.dropdownData.mousePath = [];
+      logEvent('event-click', 'DROPDOWN opened');
+    } else {
+      state.dropdownData.openTime = null;
+      logEvent('event-click', 'DROPDOWN closed');
+    }
+  });
+
+  document.querySelectorAll('.dropdown-option').forEach(function(opt) {
+    opt.addEventListener('click', function() {
+      var val = opt.getAttribute('data-value');
+      dropdownLabel.textContent = opt.textContent;
+      dropdownOpen = false;
+      dropdownTrigger.classList.remove('open');
+      dropdownMenu.classList.remove('open');
+
+      state.dropdownData.selectedValue = val;
+      state.dropdownData.completed = true;
+
+      var elapsed = state.dropdownData.openTime ? performance.now() - state.dropdownData.openTime : 0;
+      var pathLen = state.dropdownData.mousePath.length;
+      logEvent('event-click', 'DROPDOWN selected: ' + val + ' elapsed=' + elapsed.toFixed(0) + 'ms path=' + pathLen);
+      analyze();
+    });
+  });
+
+  // ===== Hover Menu Case =====
+  var hoverMenuTrigger = document.getElementById('hover-menu-trigger');
+  var hoverMenuPanel = document.getElementById('hover-menu-panel');
+
+  hoverMenuTrigger.addEventListener('mouseenter', function() {
+    state.hoverMenuData.openTime = performance.now();
+    state.hoverMenuData.mousePath = [];
+    state.hoverMenuData.hoveredItems = [];
+    logEvent('event-move', 'HOVER-MENU opened');
+  });
+
+  hoverMenuTrigger.addEventListener('mouseleave', function() {
+    if (!state.hoverMenuData.completed) {
+      state.hoverMenuData.openTime = null;
+    }
+  });
+
+  document.querySelectorAll('.hover-menu-item').forEach(function(item) {
+    item.addEventListener('mouseenter', function() {
+      if (state.hoverMenuData.openTime !== null) {
+        state.hoverMenuData.hoveredItems.push({
+          value: item.getAttribute('data-value'),
+          t: performance.now()
+        });
+      }
+    });
+
+    item.addEventListener('click', function() {
+      var val = item.getAttribute('data-value');
+      state.hoverMenuData.selectedValue = val;
+      state.hoverMenuData.completed = true;
+
+      var elapsed = state.hoverMenuData.openTime ? performance.now() - state.hoverMenuData.openTime : 0;
+      var pathLen = state.hoverMenuData.mousePath.length;
+      var hovered = state.hoverMenuData.hoveredItems.length;
+      logEvent('event-click', 'HOVER-MENU selected: ' + val + ' elapsed=' + elapsed.toFixed(0) + 'ms path=' + pathLen + ' hovered=' + hovered);
+      analyze();
+    });
+  });
+
+  // ===== Slider Case =====
+  var sliderTrack = document.getElementById('slider-track');
+  var sliderThumb = document.getElementById('slider-thumb');
+  var sliderFill = document.getElementById('slider-fill');
+  var sliderValueDisplay = document.getElementById('slider-value-display');
+  var sliderValue = 0;
+
+  function updateSlider(clientX) {
+    var rect = sliderTrack.getBoundingClientRect();
+    var ratio = (clientX - rect.left) / rect.width;
+    ratio = Math.max(0, Math.min(1, ratio));
+    sliderValue = Math.round(ratio * 100);
+    sliderThumb.style.left = ratio * 100 + '%';
+    sliderFill.style.width = ratio * 100 + '%';
+    sliderValueDisplay.textContent = sliderValue;
+    state.sliderData.changes.push({ value: sliderValue, t: performance.now() });
+  }
+
+  sliderThumb.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+    state.sliderData.isDragging = true;
+    state.sliderData.dragTrajectory = [];
+    state.sliderData.changes = [];
+    logEvent('event-click', 'SLIDER drag start value=' + sliderValue);
+  });
+
+  document.addEventListener('mouseup', function() {
+    if (state.sliderData.isDragging) {
+      state.sliderData.isDragging = false;
+      logEvent('event-click', 'SLIDER drag end value=' + sliderValue);
+      if (sliderValue >= 75) state.sliderData.completed = true;
+      analyze();
+    }
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    if (state.sliderData.isDragging) {
+      updateSlider(e.clientX);
+    }
+  });
+
+  sliderTrack.addEventListener('click', function(e) {
+    updateSlider(e.clientX);
+    if (sliderValue >= 75) state.sliderData.completed = true;
+    analyze();
+  });
+
+  // ===== Multi-step Form =====
+  var formNextBtn = document.getElementById('form-next-btn');
+  var formSubmitBtn = document.getElementById('form-submit-btn');
+  var formStep1 = document.getElementById('form-step-1');
+  var formStep2 = document.getElementById('form-step-2');
+  var formDot1 = document.getElementById('form-dot-1');
+  var formDot2 = document.getElementById('form-dot-2');
+
+  function trackFormField(el, fieldName) {
+    el.addEventListener('focus', function() {
+      state.formData.fieldTimestamps.push({ field: fieldName, event: 'focus', t: performance.now() });
+    });
+    el.addEventListener('input', function() {
+      state.formData.fieldTimestamps.push({ field: fieldName, event: 'input', t: performance.now() });
+    });
+    el.addEventListener('blur', function() {
+      state.formData.fieldTimestamps.push({ field: fieldName, event: 'blur', t: performance.now() });
+    });
+  }
+
+  trackFormField(document.getElementById('form-name'), 'name');
+  trackFormField(document.getElementById('form-email'), 'email');
+  trackFormField(document.getElementById('form-city'), 'city');
+  trackFormField(document.getElementById('form-phone'), 'phone');
+
+  formNextBtn.addEventListener('click', function() {
+    var nameVal = document.getElementById('form-name').value.trim();
+    var emailVal = document.getElementById('form-email').value.trim();
+    if (!nameVal || !emailVal) return;
+
+    state.formData.step = 2;
+    formStep1.classList.remove('active');
+    formStep2.classList.add('active');
+    formDot1.classList.remove('current');
+    formDot1.classList.add('done');
+    formDot2.classList.add('current');
+    logEvent('event-click', 'FORM step 1\u21922');
+    analyze();
+  });
+
+  formSubmitBtn.addEventListener('click', function() {
+    var cityVal = document.getElementById('form-city').value.trim();
+    var phoneVal = document.getElementById('form-phone').value.trim();
+    if (!cityVal || !phoneVal) return;
+
+    state.formData.step = 3;
+    state.formData.submitTime = performance.now();
+    state.formData.completed = true;
+    formDot2.classList.remove('current');
+    formDot2.classList.add('done');
+    logEvent('event-click', 'FORM submitted');
+    analyze();
+  });
+
+  // ===== Draw Trajectory =====
+  function drawTrajectory() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    var pts = state.mousePositions;
+    if (pts.length < 2) return;
+
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+    ctx.strokeStyle = 'rgba(99, 102, 241, 0.3)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    for (var i = Math.max(0, pts.length - 5); i < pts.length; i++) {
+      var alpha = (i - (pts.length - 5)) / 5;
+      if (alpha < 0) alpha = 0;
+      ctx.beginPath();
+      ctx.arc(pts[i].x, pts[i].y, 2 + alpha * 2, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(99, 102, 241,' + (0.2 + alpha * 0.6) + ')';
+      ctx.fill();
+    }
+  }
+
+  // ===== Heatmap =====
+  var heatmapData = {};
+  function drawHeatmap(x, y) {
+    var gx = Math.floor(x / 20);
+    var gy = Math.floor(y / 20);
+    var key = gx + ',' + gy;
+    heatmapData[key] = (heatmapData[key] || 0) + 1;
+
+    var maxVal = 1;
+    for (var k in heatmapData) { if (heatmapData[k] > maxVal) maxVal = heatmapData[k]; }
+
+    var cw = heatmapCanvas.width;
+    var ch = heatmapCanvas.height;
+    heatmapCtx.clearRect(0, 0, cw, ch);
+
+    var scaleX = cw / window.innerWidth;
+    var scaleY = ch / window.innerHeight;
+
+    for (var k in heatmapData) {
+      var parts = k.split(',');
+      var px = parseInt(parts[0]) * 20 * scaleX;
+      var py = parseInt(parts[1]) * 20 * scaleY;
+      var intensity = heatmapData[k] / maxVal;
+      var r = Math.floor(255 * intensity);
+      var g = Math.floor(80 * (1 - intensity));
+      heatmapCtx.fillStyle = 'rgba(' + r + ',' + g + ',0,' + (0.2 + intensity * 0.5) + ')';
+      heatmapCtx.fillRect(px, py, 20 * scaleX, 20 * scaleY);
+    }
+  }
+
+  // ===== Case Analysis =====
+  function analyzeHoverCase() {
+    var d = state.hoverData;
+    if (d.enterCount === 0) {
+      caseResults.hover = { status: 'pending', score: 0, detail: 'Not started' };
+      document.getElementById('hover-result').textContent = 'Status: Waiting for hover...';
+      document.getElementById('hover-result').style.color = '#666';
+      return;
+    }
+    var avgMoves = d.movesBeforeEnter.reduce(function(a,b){return a+b}, 0) / d.movesBeforeEnter.length;
+    var score = 0;
+    if (avgMoves < 3) score += 40;
+    else if (avgMoves < 8) score += 20;
+    if (d.enterCount < 2) score += 10;
+
+    var status, detail;
+    if (score >= 30) { status = 'fail'; detail = 'Suspicious: avg ' + avgMoves.toFixed(1) + ' moves before hover'; }
+    else if (score >= 15) { status = 'warn'; detail = 'Marginal: avg ' + avgMoves.toFixed(1) + ' moves before hover'; }
+    else { status = 'pass'; detail = 'Natural: avg ' + avgMoves.toFixed(1) + ' moves before hover'; }
+    if (d.enterCount >= 2) detail += ' (' + d.enterCount + ' hovers)';
+
+    caseResults.hover = { status: status, score: score, detail: detail };
+    document.getElementById('hover-result').textContent = 'Status: ' + detail;
+    document.getElementById('hover-result').style.color = status === 'pass' ? '#4ade80' : status === 'warn' ? '#facc15' : '#f87171';
+  }
+
+  function analyzeDragCase() {
+    var d = state.dragData;
+    if (d.dragStarts === 0) {
+      caseResults.drag = { status: 'pending', score: 0, detail: 'Not started' };
+      document.getElementById('drag-result').textContent = 'Status: Waiting for drag...';
+      document.getElementById('drag-result').style.color = '#666';
+      return;
+    }
+    var score = 0;
+    var detail;
+    if (d.trajectory.length < 5) { score += 30; detail = 'Suspicious: only ' + d.trajectory.length + ' drag positions'; }
+    else if (d.trajectory.length < 15) { score += 15; detail = 'Marginal: ' + d.trajectory.length + ' drag positions'; }
+    else { detail = 'Natural: ' + d.trajectory.length + ' drag positions'; }
+
+    if (d.trajectory.length >= 3) {
+      var straightCount = 0;
+      for (var i = 2; i < d.trajectory.length; i++) {
+        var ax = d.trajectory[i].x - d.trajectory[i-1].x;
+        var bx = d.trajectory[i-1].x - d.trajectory[i-2].x;
+        if (Math.abs(ax - bx) < 1) straightCount++;
+      }
+      var straightRatio = straightCount / (d.trajectory.length - 2);
+      if (straightRatio > 0.9) { score += 20; detail += ', too-straight path'; }
+    }
+
+    if (d.drops >= 2) detail += ', all dropped';
+    else detail += ', ' + d.drops + '/2 dropped';
+
+    var status = d.completed ? (score >= 25 ? 'fail' : score >= 12 ? 'warn' : 'pass') : 'pending';
+    if (!d.completed) detail += ' (incomplete)';
+
+    caseResults.drag = { status: status, score: score, detail: detail };
+    document.getElementById('drag-result').textContent = 'Status: ' + detail;
+    document.getElementById('drag-result').style.color = status === 'pass' ? '#4ade80' : status === 'warn' ? '#facc15' : '#f87171';
+  }
+
+  function analyzeScrollCase() {
+    var d = state.scrollData;
+    if (d.events.length < 3) {
+      caseResults.scroll = { status: 'pending', score: 0, detail: 'Not started' };
+      document.getElementById('scroll-result').textContent = 'Status: Waiting for scroll...';
+      document.getElementById('scroll-result').style.color = '#666';
+      return;
+    }
+    var score = 0;
+    var detail;
+    if (d.events.length >= 5) {
+      var deltas = [];
+      for (var i = 1; i < d.events.length; i++) {
+        deltas.push({
+          scrollDelta: Math.abs(d.events[i].scrollTop - d.events[i-1].scrollTop),
+          timeDelta: d.events[i].t - d.events[i-1].t,
+        });
+      }
+      var bigJumps = deltas.filter(function(dd) { return dd.scrollDelta > 100 && dd.timeDelta < 16; }).length;
+      var instantJumps = deltas.filter(function(dd) { return dd.scrollDelta > 200 && dd.timeDelta < 5; }).length;
+
+      if (instantJumps > 2) { score += 35; detail = 'Suspicious: ' + instantJumps + ' instant jumps'; }
+      else if (bigJumps > 5) { score += 20; detail = 'Marginal: ' + bigJumps + ' large jumps'; }
+      else { detail = 'Natural: smooth scrolling (' + d.events.length + ' events)'; }
+
+      var avgDelta = deltas.reduce(function(a,dd){return a + dd.scrollDelta}, 0) / deltas.length;
+      if (avgDelta > 80) { score += 15; detail += ', avg jump=' + avgDelta.toFixed(0) + 'px'; }
+    } else {
+      detail = 'Too few scroll events';
+      score += 10;
+    }
+
+    var status = d.completed ? (score >= 25 ? 'fail' : score >= 12 ? 'warn' : 'pass') : 'pending';
+    caseResults.scroll = { status: status, score: score, detail: detail };
+    document.getElementById('scroll-result').textContent = 'Status: ' + detail;
+    document.getElementById('scroll-result').style.color = status === 'pass' ? '#4ade80' : status === 'warn' ? '#facc15' : '#f87171';
+  }
+
+  function analyzeDropdownCase() {
+    var d = state.dropdownData;
+    if (!d.completed) {
+      if (d.openTime === null) {
+        caseResults.dropdown = { status: 'pending', score: 0, detail: 'Not started' };
+      } else {
+        caseResults.dropdown = { status: 'pending', score: 0, detail: 'Dropdown open, waiting for selection' };
+      }
+      document.getElementById('dropdown-result').textContent = 'Status: Waiting for selection...';
+      document.getElementById('dropdown-result').style.color = '#666';
+      return;
+    }
+    var score = 0;
+    var detail;
+    var elapsed = d.openTime ? performance.now() - d.openTime : 999;
+    var pathLen = d.mousePath.length;
+
+    if (elapsed < 100) { score += 25; detail = 'Suspicious: selected in ' + elapsed.toFixed(0) + 'ms'; }
+    else if (elapsed < 300) { score += 12; detail = 'Marginal: selected in ' + elapsed.toFixed(0) + 'ms'; }
+    else { detail = 'Natural: selected in ' + elapsed.toFixed(0) + 'ms'; }
+
+    if (pathLen < 2 && elapsed < 300) { score += 25; detail = 'Bot-like: ' + pathLen + ' mouse moves, selected in ' + elapsed.toFixed(0) + 'ms'; }
+    else if (pathLen < 2) { score += 10; detail += ', only ' + pathLen + ' mouse moves'; }
+    else if (pathLen < 5) { score += 5; detail += ', ' + pathLen + ' mouse moves'; }
+    else { detail += ', ' + pathLen + ' mouse moves'; }
+    detail += ' \u2192 ' + d.selectedValue;
+
+    var status = score >= 25 ? 'fail' : score >= 12 ? 'warn' : 'pass';
+    caseResults.dropdown = { status: status, score: score, detail: detail };
+    document.getElementById('dropdown-result').textContent = 'Status: ' + detail;
+    document.getElementById('dropdown-result').style.color = status === 'pass' ? '#4ade80' : status === 'warn' ? '#facc15' : '#f87171';
+  }
+
+  function analyzeHoverMenuCase() {
+    var d = state.hoverMenuData;
+    if (!d.completed) {
+      if (d.openTime === null) {
+        caseResults.hoverMenu = { status: 'pending', score: 0, detail: 'Not started' };
+      } else {
+        caseResults.hoverMenu = { status: 'pending', score: 0, detail: 'Menu open, waiting for selection' };
+      }
+      document.getElementById('hover-menu-result').textContent = 'Status: Waiting for hover...';
+      document.getElementById('hover-menu-result').style.color = '#666';
+      return;
+    }
+    var score = 0;
+    var detail;
+    var elapsed = d.openTime ? performance.now() - d.openTime : 0;
+    var pathLen = d.mousePath.length;
+    var hovered = d.hoveredItems.length;
+
+    if (elapsed < 50) { score += 20; detail = 'Bot-like: selected in ' + elapsed.toFixed(0) + 'ms'; }
+    else if (elapsed < 200) { score += 10; detail = 'Fast: selected in ' + elapsed.toFixed(0) + 'ms'; }
+    else { detail = 'Natural: selected in ' + elapsed.toFixed(0) + 'ms'; }
+
+    if (pathLen < 2 && elapsed < 200) { score += 15; detail += ', ' + pathLen + ' mouse moves (suspicious)'; }
+    else if (pathLen < 2) { detail += ', ' + pathLen + ' mouse moves'; }
+    else { detail += ', ' + pathLen + ' mouse moves'; }
+
+    if (hovered < 1) { score += 10; detail += ', no item hover'; }
+    else { detail += ', ' + hovered + ' items hovered'; }
+
+    detail += ' → ' + d.selectedValue;
+
+    var status = score >= 25 ? 'fail' : score >= 12 ? 'warn' : 'pass';
+    caseResults.hoverMenu = { status: status, score: score, detail: detail };
+    document.getElementById('hover-menu-result').textContent = 'Status: ' + detail;
+    document.getElementById('hover-menu-result').style.color = status === 'pass' ? '#4ade80' : status === 'warn' ? '#facc15' : '#f87171';
+  }
+
+  function analyzeSliderCase() {
+    var d = state.sliderData;
+    if (d.changes.length === 0) {
+      caseResults.slider = { status: 'pending', score: 0, detail: 'Not started' };
+      document.getElementById('slider-result').textContent = 'Status: Waiting for slider interaction...';
+      document.getElementById('slider-result').style.color = '#666';
+      return;
+    }
+    var score = 0;
+    var detail;
+    if (d.changes.length <= 2) { score += 35; detail = 'Suspicious: only ' + d.changes.length + ' value changes (jump)'; }
+    else if (d.changes.length <= 5) { score += 18; detail = 'Marginal: ' + d.changes.length + ' value changes'; }
+    else { detail = 'Natural: ' + d.changes.length + ' gradual changes'; }
+
+    if (d.changes.length >= 3) {
+      var totalGap = 0;
+      for (var i = 1; i < d.changes.length; i++) totalGap += d.changes[i].t - d.changes[i-1].t;
+      var avgTime = totalGap / (d.changes.length - 1);
+      if (avgTime < 5) { score += 20; detail += ', too fast (' + avgTime.toFixed(1) + 'ms/step)'; }
+      else if (avgTime < 16) { score += 8; detail += ', fast (' + avgTime.toFixed(1) + 'ms/step)'; }
+      else { detail += ', natural pace (' + avgTime.toFixed(1) + 'ms/step)'; }
+    }
+    if (d.dragTrajectory.length > 0) detail += ', trajectory=' + d.dragTrajectory.length + 'pts';
+
+    var status = d.completed ? (score >= 25 ? 'fail' : score >= 12 ? 'warn' : 'pass') : 'pending';
+    caseResults.slider = { status: status, score: score, detail: detail };
+    document.getElementById('slider-result').textContent = 'Status: ' + detail;
+    document.getElementById('slider-result').style.color = status === 'pass' ? '#4ade80' : status === 'warn' ? '#facc15' : '#f87171';
+  }
+
+  function analyzeFormCase() {
+    var d = state.formData;
+    if (d.fieldTimestamps.length === 0) {
+      caseResults.form = { status: 'pending', score: 0, detail: 'Not started' };
+      document.getElementById('form-result').textContent = 'Status: Waiting for form input...';
+      document.getElementById('form-result').style.color = '#666';
+      return;
+    }
+    var score = 0;
+    var detail;
+    var fields = {};
+    d.fieldTimestamps.forEach(function(ft) {
+      if (!fields[ft.field]) fields[ft.field] = { focus: 0, inputs: 0, blur: 0 };
+      if (ft.event === 'focus') fields[ft.field].focus++;
+      if (ft.event === 'input') fields[ft.field].inputs++;
+      if (ft.event === 'blur') fields[ft.field].blur++;
+    });
+
+    var emptyFields = Object.keys(fields).filter(function(f) { return fields[f].inputs === 0; });
+    if (emptyFields.length > 0 && d.step >= 2) {
+      score += 15;
+      detail = 'Some fields have no input events: ' + emptyFields.join(', ');
+    } else {
+      detail = Object.keys(fields).length + ' fields interacted';
+    }
+
+    var focusTimes = d.fieldTimestamps.filter(function(ft) { return ft.event === 'focus'; });
+    if (focusTimes.length >= 2) {
+      var intervals = [];
+      for (var i = 1; i < focusTimes.length; i++) intervals.push(focusTimes[i].t - focusTimes[i-1].t);
+      var avgInterval = intervals.reduce(function(a,b){return a+b},0) / intervals.length;
+      if (avgInterval < 50) { score += 25; detail += ', tab-too-fast (' + avgInterval.toFixed(0) + 'ms)'; }
+      else if (avgInterval < 200) { score += 10; detail += ', fast tab (' + avgInterval.toFixed(0) + 'ms)'; }
+      else { detail += ', natural pace (' + avgInterval.toFixed(0) + 'ms)'; }
+    }
+    if (d.completed) detail += ', submitted';
+
+    var status = d.completed ? (score >= 25 ? 'fail' : score >= 12 ? 'warn' : 'pass') : 'pending';
+    caseResults.form = { status: status, score: score, detail: detail };
+    document.getElementById('form-result').textContent = 'Status: ' + detail;
+    document.getElementById('form-result').style.color = status === 'pass' ? '#4ade80' : status === 'warn' ? '#facc15' : '#f87171';
+  }
+
+  function updateCaseResultsTable() {
+    var cases = ['hover', 'drag', 'scroll', 'dropdown', 'hoverMenu', 'slider', 'form'];
+    var caseNames = { hover: 'Hover', drag: 'Drag & Drop', scroll: 'Scroll', dropdown: 'Dropdown', hoverMenu: 'Hover Menu', slider: 'Slider', form: 'Multi-step Form' };
+    cases.forEach(function(name) {
+      var r = caseResults[name];
+      var row = document.getElementById('result-row-' + name);
+      if (!row) return;
+      var scoreText = r.score > 0 ? r.score + '/50' : '-';
+      row.innerHTML =
+        '<td style="font-weight:500">' + caseNames[name] + '</td>' +
+        '<td><span class="case-badge badge-' + r.status + '">' + r.status.toUpperCase() + '</span></td>' +
+        '<td>' + scoreText + '</td>' +
+        '<td>' + r.detail + '</td>';
+    });
+  }
+
+  // ===== Analysis =====
+  function analyze() {
+    var botScore = 0;
+    var checks = [];
+
+    // --- 1. Navigator checks (30 points) ---
+    var wdFlag = !!navigator.webdriver;
+    checks.push({ name: 'navigator.webdriver', pass: !wdFlag, detail: wdFlag ? 'true (DETECTED)' : 'false' });
+    if (wdFlag) botScore += 25;
+
+    var plugins = navigator.plugins ? navigator.plugins.length : 0;
+    var pluginsOk = plugins > 0;
+    checks.push({ name: 'navigator.plugins', pass: pluginsOk, detail: plugins + ' plugins' });
+    if (!pluginsOk) botScore += 5;
+
+    var languages = navigator.languages && navigator.languages.length > 0;
+    checks.push({ name: 'navigator.languages', pass: languages, detail: languages ? navigator.languages.join(',') : 'empty' });
+    if (!languages) botScore += 3;
+
+    try {
+      var chromeRT = !!window.chrome && !!window.chrome.runtime;
+      checks.push({ name: 'chrome.runtime', pass: true, detail: chromeRT ? 'exists' : 'absent (normal)' });
+    } catch(e) {
+      checks.push({ name: 'chrome.runtime', pass: true, detail: 'error' });
+    }
+
+    var permissionsSync = false;
+    try { permissionsSync = typeof PermissionStatus.prototype.query === 'function'; } catch(e) {}
+    checks.push({ name: 'Permissions API', pass: true, detail: permissionsSync ? 'native' : 'normal' });
+    renderNavChecks(checks);
+
+    // --- 2. Mouse trajectory analysis (25 points) ---
+    var trajScore = 0;
+    var pts = state.mousePositions;
+    document.getElementById('move-count').textContent = pts.length;
+
+    if (pts.length >= 10) {
+      var curvatures = [];
+      var speeds = [];
+      var straightSegments = 0;
+
+      for (var i = 2; i < pts.length; i++) {
+        var ax = pts[i].x - pts[i-1].x;
+        var ay = pts[i].y - pts[i-1].y;
+        var bx = pts[i-1].x - pts[i-2].x;
+        var by = pts[i-1].y - pts[i-2].y;
+        var angleChange = Math.abs(Math.atan2(ay, ax) - Math.atan2(by, bx));
+        if (angleChange > Math.PI) angleChange = 2 * Math.PI - angleChange;
+        curvatures.push(angleChange);
+        var speed = Math.hypot(ax, ay) / Math.max(1, pts[i].t - pts[i-1].t);
+        speeds.push(speed);
+        if (angleChange < 0.02) straightSegments++;
+      }
+
+      var avgCurv = curvatures.reduce(function(a,b){return a+b},0) / curvatures.length;
+      document.getElementById('avg-curvature').textContent = (avgCurv * 180 / Math.PI).toFixed(2) + 'deg';
+      var straightRatio = straightSegments / curvatures.length;
+      document.getElementById('straight-ratio').textContent = (straightRatio * 100).toFixed(1) + '%';
+      var meanSpeed = speeds.reduce(function(a,b){return a+b},0) / speeds.length;
+      var speedVar = speeds.reduce(function(a,b){return a + (b - meanSpeed) * (b - meanSpeed)},0) / speeds.length;
+      document.getElementById('speed-variance').textContent = speedVar.toFixed(4);
+
+      var accChanges = 0;
+      for (var i = 1; i < speeds.length; i++) {
+        if ((speeds[i] - speeds[i-1]) * (speeds[i-1] - (speeds[i-2] || speeds[i-1])) < 0) accChanges++;
+      }
+      document.getElementById('acc-changes').textContent = accChanges;
+
+      if (avgCurv < 0.03) trajScore += 10;
+      if (straightRatio > 0.9) trajScore += 8;
+      if (speedVar < 0.0001) trajScore += 7;
+      trajScore = Math.min(trajScore, 25);
+    } else if (clicks.length >= 2) {
+      trajScore = 25;
+      document.getElementById('avg-curvature').textContent = 'too few moves';
+      document.getElementById('straight-ratio').textContent = '-';
+      document.getElementById('speed-variance').textContent = '-';
+      document.getElementById('acc-changes').textContent = '0';
+    }
+    botScore += trajScore;
+    updateScoreDisplay('trajectory', trajScore, 25);
+
+    // --- 3. Click behavior (25 points) ---
+    var clickScore = 0;
+    var clicks = state.clicks;
+    document.getElementById('click-count').textContent = clicks.length;
+
+    if (clicks.length >= 2) {
+      var teleportClicks = 0;
+      var offsets = [];
+      var mdGaps = [];
+      for (var i = 0; i < clicks.length; i++) {
+        var c = clicks[i];
+        if (c.distanceFromLastMove > 100) teleportClicks++;
+        offsets.push(c.normalizedOffset);
+        if (c.mdClickGap !== null) mdGaps.push(c.mdClickGap);
+      }
+
+      document.getElementById('teleport-clicks').textContent = teleportClicks;
+      if (teleportClicks > 0) clickScore += Math.min(10, teleportClicks * 3);
+
+      var meanOff = offsets.reduce(function(a,b){return a+b},0) / offsets.length;
+      var offStd = Math.sqrt(offsets.reduce(function(a,b){return a + (b - meanOff) * (b - meanOff)},0) / offsets.length);
+      document.getElementById('click-offset-std').textContent = offStd.toFixed(3);
+      if (offStd < 0.02) clickScore += 12;
+      else if (offStd < 0.05) clickScore += 7;
+
+      if (mdGaps.length > 0) {
+        var avgMdGap = mdGaps.reduce(function(a,b){return a+b},0) / mdGaps.length;
+        document.getElementById('md-click-gap').textContent = avgMdGap.toFixed(1) + 'ms';
+        if (avgMdGap < 2) clickScore += 25;
+        else if (avgMdGap < 10) clickScore += 15;
+        else if (avgMdGap < 30) clickScore += 6;
+
+        var instantClicks = mdGaps.filter(function(g) { return g < 1; }).length;
+        var instantRatio = instantClicks / mdGaps.length;
+        if (instantRatio > 0.5) clickScore += 15;
+        else if (instantRatio > 0.2) clickScore += 8;
+      }
+    }
+    clickScore = Math.min(clickScore, 40);
+
+    // --- 3.5 Move/Click ratio ---
+    if (clicks.length >= 3 && pts.length > 0) {
+      var moveClickRatio = pts.length / clicks.length;
+      if (moveClickRatio < 3) {
+        var ratioScore = Math.min(15, Math.round((3 - moveClickRatio) * 5));
+        clickScore += ratioScore;
+      }
+    }
+
+    clickScore = Math.min(clickScore, 50);
+    botScore += clickScore;
+    updateScoreDisplay('click', clickScore, 25);
+
+    // --- 4. Timing analysis (20 points) ---
+    var timingScore = 0;
+    var ts = state.actionTimestamps;
+    document.getElementById('total-events').textContent = state.totalEvents;
+
+    if (ts.length >= 5) {
+      var intervals = [];
+      for (var i = 1; i < ts.length; i++) intervals.push(ts[i] - ts[i-1]);
+      var meanInterval = intervals.reduce(function(a,b){return a+b},0) / intervals.length;
+      var intervalStd = Math.sqrt(intervals.reduce(function(a,b){return a + (b - meanInterval) * (b - meanInterval)},0) / intervals.length);
+      var cv = meanInterval > 0 ? intervalStd / meanInterval : 0;
+      document.getElementById('interval-cv').textContent = cv.toFixed(3);
+      if (cv < 0.1) timingScore += 15;
+      else if (cv < 0.2) timingScore += 8;
+    }
+    timingScore = Math.min(timingScore, 20);
+    botScore += timingScore;
+    updateScoreDisplay('timing', timingScore, 20);
+
+    // --- Final ---
+    botScore = Math.min(botScore, 100);
+    document.getElementById('bot-score').textContent = botScore;
+    document.getElementById('bot-score').className = 'stat-value ' +
+      (botScore < 25 ? 'good' : botScore < 50 ? 'warn' : 'bad');
+
+    var verdict = document.getElementById('verdict');
+    if (botScore < 15) { verdict.textContent = 'HUMAN'; verdict.className = 'verdict verdict-human'; }
+    else if (botScore < 45) { verdict.textContent = 'SUSPICIOUS'; verdict.className = 'verdict verdict-suspicious'; }
+    else { verdict.textContent = 'BOT'; verdict.className = 'verdict verdict-bot'; }
+
+    // --- Case analysis ---
+    analyzeHoverCase();
+    analyzeDragCase();
+    analyzeScrollCase();
+    analyzeDropdownCase();
+    analyzeHoverMenuCase();
+    analyzeSliderCase();
+    analyzeFormCase();
+    updateCaseResultsTable();
+
+    renderSummary(botScore, checks);
+    renderRawData();
+  }
+
+  function updateScoreDisplay(id, score, max) {
+    var el = document.getElementById(id + '-score');
+    var bar = document.getElementById(id + '-bar');
+    var pct = (score / max * 100).toFixed(0);
+    el.textContent = score + '/' + max;
+    el.className = 'stat-value ' + (score < max * 0.3 ? 'good' : score < max * 0.6 ? 'warn' : 'bad');
+    bar.style.width = pct + '%';
+    bar.style.background = score < max * 0.3 ? '#4ade80' : score < max * 0.6 ? '#facc15' : '#f87171';
+  }
+
+  function renderNavChecks(checks) {
+    var html = '';
+    for (var i = 0; i < checks.length; i++) {
+      var c = checks[i];
+      var cls = c.pass ? 'check-pass' : 'check-fail';
+      var icon = c.pass ? '\u2713' : '\u2717';
+      html += '<div class="check-item">' +
+        '<span class="check-icon ' + cls + '">' + icon + '</span>' +
+        '<span style="color:#aaa">' + c.name + '</span>' +
+        '<span style="color:#666;margin-left:auto;font-size:10px">' + c.detail + '</span></div>';
+    }
+    document.getElementById('nav-checks').innerHTML = html;
+  }
+
+  function renderSummary(botScore, navChecks) {
+    var items = [];
+    if (navigator.webdriver) items.push('webdriver=true');
+    if (state.clicks.some(function(c){ return c.distanceFromLastMove > 100; })) items.push('teleport clicks detected');
+    if (state.mousePositions.length >= 10) {
+      var avgCurv = 0;
+      var pts = state.mousePositions;
+      for (var i = 2; i < pts.length; i++) {
+        var a = Math.atan2(pts[i].y - pts[i-1].y, pts[i].x - pts[i-1].x);
+        var b = Math.atan2(pts[i-1].y - pts[i-2].y, pts[i-1].x - pts[i-2].x);
+        avgCurv += Math.abs(a - b);
+      }
+      avgCurv /= (pts.length - 2);
+      if (avgCurv < 0.03) items.push('too-straight trajectory');
+    }
+    if (state.clicks.length >= 2) {
+      var offsets = state.clicks.map(function(c){ return c.normalizedOffset; });
+      var mean = offsets.reduce(function(a,b){return a+b},0) / offsets.length;
+      var std = Math.sqrt(offsets.reduce(function(a,b){return a + (b - mean) * (b - mean)},0) / offsets.length);
+      if (std < 0.05) items.push('clicks too precise');
+    }
+    var html = '';
+    if (items.length === 0 && botScore < 20) {
+      html = '<div style="color:#4ade80;font-size:12px">No bot indicators detected</div>';
+    } else {
+      for (var i = 0; i < items.length; i++) {
+        html += '<div class="check-item"><span class="check-icon check-fail">\u2717</span><span style="color:#f87171;font-size:12px">' + items[i] + '</span></div>';
+      }
+    }
+    document.getElementById('detection-summary').innerHTML = html;
+  }
+
+  function renderRawData() {
+    var data = {
+      webdriver: navigator.webdriver,
+      mousePoints: state.mousePositions.length,
+      clicks: state.clicks.length,
+      lastClick: state.clicks.length > 0 ? state.clicks[state.clicks.length - 1] : null,
+      avgCurvature: document.getElementById('avg-curvature').textContent,
+      botScore: document.getElementById('bot-score').textContent,
+      cases: Object.keys(caseResults).reduce(function(acc, key) {
+        acc[key] = { status: caseResults[key].status, score: caseResults[key].score };
+        return acc;
+      }, {}),
+    };
+    document.getElementById('raw-data').textContent = JSON.stringify(data, null, 2);
+  }
+
+  analyze();
+})();
+</script>
+</body>
+</html>
