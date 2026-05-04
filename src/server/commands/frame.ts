@@ -2,6 +2,7 @@ import type { Page, Frame } from 'playwright-core';
 import type { CommandModule, PageContext } from './types.js';
 
 export const frameCommands: CommandModule = {
+  // eslint-disable-next-line require-await
   frames: async (ctx: PageContext) => {
     const page = ctx as Page;
     const frames = page.frames();
@@ -16,6 +17,7 @@ export const frameCommands: CommandModule = {
     };
   },
 
+  // eslint-disable-next-line require-await
   frame: async (ctx: PageContext, args: Record<string, unknown>) => {
     const page = ctx as Page;
     const frames = page.frames();

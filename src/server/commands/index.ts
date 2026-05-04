@@ -57,7 +57,7 @@ export function executePageCommand(
     }
   }
 
-  return handler(context, args);
+  return Promise.resolve(handler(context, args));
 }
 
 export { navigationCommands } from './navigation.js';
