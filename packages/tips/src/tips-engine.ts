@@ -48,13 +48,13 @@ export function formatResult<T>(
         lines.push(JSON.stringify(result.data, null, 2));
       }
       if (result.tips.length > 0) {
-        lines.push('', 'Tips:', ...result.tips.map((t) => `  - ${t}`));
+        lines.push('', 'Tips:', ...result.tips.map((t: string) => `  - ${t}`));
       }
       return lines.join('\n');
     }
     const lines: string[] = [`Error: ${result.message}`];
     if (result.tips.length > 0) {
-      lines.push('', 'Suggestions:', ...result.tips.map((t) => `  → ${t}`));
+      lines.push('', 'Suggestions:', ...result.tips.map((t: string) => `  → ${t}`));
     }
     return lines.join('\n');
   }
