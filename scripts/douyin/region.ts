@@ -29,10 +29,6 @@ function rectContains(outer: Rect, inner: Rect): boolean {
   );
 }
 
-function rectCenter(r: Rect): { x: number; y: number } {
-  return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
-}
-
 function rectArea(r: Rect): number {
   return r.width * r.height;
 }
@@ -40,7 +36,7 @@ function rectArea(r: Rect): number {
 export function queryByRegion(
   root: Document | Element,
   region: Partial<Rect> & { padding?: number },
-  options?: { minSize?: number; maxSize?: number; filter?: (el: ElementInfo) => boolean },
+  options?: { minSize?: number; maxSize?: number; filter?: (el: ElementInfo) => boolean }
 ): ElementInfo[] {
   const {
     x = 0,
@@ -54,7 +50,12 @@ export function queryByRegion(
   } = { ...region, ...options };
 
   const results: ElementInfo[] = [];
-  const searchArea: Rect = { x: x - padding, y: y - padding, width: width + padding * 2, height: height + padding * 2 };
+  const searchArea: Rect = {
+    x: x - padding,
+    y: y - padding,
+    width: width + padding * 2,
+    height: height + padding * 2,
+  };
 
   root.querySelectorAll('*').forEach((el) => {
     const r = el.getBoundingClientRect();
@@ -74,8 +75,14 @@ export function queryByRegion(
       innerHTML: el.innerHTML?.slice(0, 300) || '',
       tabIndex: el.tabIndex,
       cursor: style.cursor || '',
-      visible: style.display !== 'none' && style.visibility !== 'hidden' && r.width > 0 && r.height > 0,
-      rect: { x: Math.round(r.x), y: Math.round(r.y), width: Math.round(r.width), height: Math.round(r.height) },
+      visible:
+        style.display !== 'none' && style.visibility !== 'hidden' && r.width > 0 && r.height > 0,
+      rect: {
+        x: Math.round(r.x),
+        y: Math.round(r.y),
+        width: Math.round(r.width),
+        height: Math.round(r.height),
+      },
     };
 
     if (filter && !filter(info)) return;
@@ -95,26 +102,35 @@ export function queryByRegion(
 export function findInRegion(
   root: Document | Element,
   region: Partial<Rect> & { padding?: number },
-  matcher?: (info: ElementInfo) => boolean,
+  matcher?: (info: ElementInfo) => boolean
 ): ElementInfo | null {
   const results = queryByRegion(root, region, { filter: matcher });
   return results[0] ?? null;
 }
 
 export function clickRegion(
-  page: { evaluate: (fn: string) => Promise<unknown>; click: (x: number, y: number) => Promise<void> },
+  page: {
+    evaluate: (fn: string) => Promise<unknown>;
+    click: (x: number, y: number) => Promise<void>;
+  },
   region: Partial<Rect>,
-  matcher?: (info: ElementInfo) => boolean,
+  matcher?: (info: ElementInfo) => boolean
 ): Promise<ElementInfo | null> {
-  const el = await page.evaluate(({ region: reg, match }) => {
-    const { queryByRegion, findInRegion } = (globalThis as any);
-    const info = findInRegion(document, reg, match);
-    if (info) {
-      const el = document.elementFromPoint(info.rect.x + info.rect.width / 2, info.rect.y + info.rect.height / 2);
-      if (el) el.click();
-    }
-    return info;
-  }, { region, matcher }) as ElementInfo | null;
+  const el = (await page.evaluate(
+    ({ region: reg, match }) => {
+      const { findInRegion } = globalThis as any;
+      const info = findInRegion(document, reg, match);
+      if (info) {
+        const el = document.elementFromPoint(
+          info.rect.x + info.rect.width / 2,
+          info.rect.y + info.rect.height / 2
+        );
+        if (el) el.click();
+      }
+      return info;
+    },
+    { region, matcher }
+  )) as ElementInfo | null;
 
   return el;
 }
