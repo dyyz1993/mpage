@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readdirSync, existsSync, readFileSync, writeFileSync } from 'fs';
+import { readdirSync, existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
 import {
