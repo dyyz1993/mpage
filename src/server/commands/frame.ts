@@ -2,7 +2,7 @@ import type { Page, Frame } from 'playwright-core';
 import type { CommandModule, PageContext } from './types.js';
 
 export const frameCommands: CommandModule = {
-  frames: (ctx: PageContext) => {
+  frames: async (ctx: PageContext) => {
     const page = ctx as Page;
     const frames = page.frames();
     return {
@@ -16,7 +16,7 @@ export const frameCommands: CommandModule = {
     };
   },
 
-  frame: (ctx: PageContext, args: Record<string, unknown>) => {
+  frame: async (ctx: PageContext, args: Record<string, unknown>) => {
     const page = ctx as Page;
     const frames = page.frames();
 
