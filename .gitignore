@@ -53,8 +53,7 @@ test-ui.html
 .trae/
 
 # xcli 工作目录
-xcli/.xcli/
-xcli/config/
+xcli/
 
 # packages build output
 packages/*/dist/
