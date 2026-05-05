@@ -7,6 +7,7 @@ export default defineConfig({
       'tests/e2e/**',
       'tests/server/recorder-integration.test.ts',
       'tests/server/recorder-navigation.test.ts',
+      'tests/server/websocket.test.ts',
       'node_modules/**',
       'dist/**',
     ],

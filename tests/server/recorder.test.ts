@@ -56,16 +56,16 @@ function createMockPage(overrides: Partial<Page> = {}): Page {
     goto: vi.fn(() => {}),
     evaluate: vi.fn((fn: (...args: unknown[]) => unknown | string) => {
       if (typeof fn === 'string') {
-        return undefined;
+        return Promise.resolve(undefined);
       }
-      return 'mocked result';
+      return Promise.resolve('mocked result');
     }),
     addInitScript: vi.fn(() => {}),
     addScriptTag: vi.fn(() => {}),
     exposeFunction: vi.fn(() => {}),
     viewportSize: vi.fn(() => ({ width: 1280, height: 720 })),
     url: vi.fn(() => 'https://example.com'),
-    title: vi.fn(() => 'Example Domain'),
+    title: vi.fn(() => Promise.resolve('Example Domain')),
     click: vi.fn(() => {}),
     fill: vi.fn(() => {}),
     hover: vi.fn(() => {}),
