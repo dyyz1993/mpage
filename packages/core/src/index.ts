@@ -131,11 +131,19 @@ export {
   stopDaemon,
   getDaemonStatus,
   killAllDaemon,
+  startWSServer,
+  stopWSServer,
+  getWSServer,
 } from './daemon/daemon-manager.js';
+export type { ExtendedDaemonConfig } from './daemon/daemon-manager.js';
 export { WorkerManager } from './daemon/worker-manager.js';
 export type { WorkerManagerConfig } from './daemon/worker-manager.js';
 export { startHttpServer } from './daemon/http-server.js';
 export type { RPCHandler, HttpServerConfig } from './daemon/http-server.js';
+export { WSServer } from './daemon/ws-server.js';
+export type { WSMessage, WSServerConfig, WSMessageHandler } from './daemon/ws-server.js';
+export { WSClient } from './daemon/ws-client.js';
+export type { WSClientConfig, WSMessageCallback, WSEventCallback } from './daemon/ws-client.js';
 
 export type {
   PluginInstallerType,

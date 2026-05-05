@@ -15,7 +15,7 @@ function createMockCDPSession(): CDPSession {
   const listeners: Map<string, ConsoleHandler[]> = new Map();
 
   return {
-    send: vi.fn(async () => {}),
+    send: vi.fn(() => {}),
     on: vi.fn((event: string, handler: ConsoleHandler) => {
       const existing = listeners.get(event) || [];
       existing.push(handler);
@@ -105,12 +105,12 @@ function createMockPage(overrides: Partial<Page> = {}): Page {
       navigationListeners.forEach((h) => h({}));
     },
     mouse: {
-      move: vi.fn(async () => {}),
+      move: vi.fn(() => {}),
     } as unknown,
     keyboard: {
-      press: vi.fn(async () => {}),
-      down: vi.fn(async () => {}),
-      up: vi.fn(async () => {}),
+      press: vi.fn(() => {}),
+      down: vi.fn(() => {}),
+      up: vi.fn(() => {}),
     } as unknown,
     ...overrides,
   } as unknown as Page & { emitConsole: (text: string) => void; emitNavigation: () => void };

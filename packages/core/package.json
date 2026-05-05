@@ -1,6 +1,6 @@
 {
   "name": "@dyyz1993/xcli-core",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "Core framework for building plugin-based CLI applications with scaffolding, daemon, and session management",
   "type": "module",
   "main": "dist/index.js",
@@ -41,10 +41,12 @@
   },
   "dependencies": {
     "zod": "^3.24.0",
-    "jiti": "^2.4.0"
+    "jiti": "^2.4.0",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "@types/ws": "^8.5.13",
     "tsup": "^8.0.0",
     "typescript": "^5.0.0"
   }

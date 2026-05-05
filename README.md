@@ -2,6 +2,21 @@
 
 Browser automation engine library based on Playwright — recording, playback, page structure extraction, and command execution.
 
+[![CI Status](https://github.com/dyyz1993/mpage/workflows/CI/badge.svg)](https://github.com/dyyz1993/mpage/actions)
+[![codecov](https://codecov.io/gh/dyyz1993/mpage/branch/master/graph/badge.svg)](https://codecov.io/gh/dyyz1993/mpage)
+[![npm version](https://img.shields.io/npm/v/@dyyz1993/xpage.svg)](https://www.npmjs.com/package/@dyyz1993/xpage)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## Overview
+
+`@dyyz1993/xpage` is a powerful browser automation engine built on top of Playwright. It provides:
+
+- **Unified Command Interface** — All operations through `(page, args) => Promise<result>`
+- **Recording & Playback** — Record user interactions and replay them
+- **Page Structure Extraction** — Get semantic layout trees
+- **Accessibility Tree** — Extract ARIA accessibility information
+- **Command Chaining** — Execute multiple commands in sequence
+
 ## Install
 
 ```bash
@@ -9,6 +24,43 @@ npm install @dyyz1993/xpage
 ```
 
 Requires Node.js >= 18.0.0.
+
+## Quick Start
+
+Get started in minutes:
+
+```typescript
+import { executePageCommand } from '@dyyz1993/xpage';
+import { chromium } from 'playwright-core';
+
+async function run() {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+
+  // Navigate
+  await executePageCommand(page, 'goto', { url: 'https://example.com' });
+
+  // Get title
+  const { title } = await executePageCommand(page, 'title', {});
+  console.log(title);
+
+  // Take screenshot
+  await executePageCommand(page, 'screenshot', { path: 'example.png' });
+
+  await browser.close();
+}
+
+run();
+```
+
+See the [Quick Start Guide](./docs/quickstart.md) for more examples.
+
+## Documentation
+
+- **[Quick Start Guide](./docs/quickstart.md)** — Get started in minutes
+- **[API Reference](./docs/api.md)** — Complete API documentation
+- **[Recording & Playback](./docs/quickstart.md#recording)** — Record and replay user actions
+- **[Page Structure](./docs/quickstart.md#4-extract-page-structure)** — Extract semantic layouts
 
 ## Core Capabilities
 

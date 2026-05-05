@@ -2,11 +2,18 @@ import { spawn } from 'child_process';
 import { join } from 'path';
 import { existsSync, readFileSync, readdirSync, unlinkSync } from 'fs';
 import type { DaemonConfig } from './worker-protocol.js';
+import { WSServer, type WSServerConfig } from './ws-server.js';
 
 export interface DaemonPaths {
   configDir: string;
   daemonConfigPath: string;
 }
+
+export interface ExtendedDaemonConfig extends DaemonConfig {
+  wsServer?: WSServerConfig;
+}
+
+let wsServer: WSServer | null = null;
 
 function resolvePaths(config: DaemonConfig): DaemonPaths {
   return {
@@ -65,6 +72,27 @@ export function isDaemonRunning(config: DaemonConfig): boolean {
     removeDaemonConfig(paths);
     return false;
   }
+}
+
+export async function startWSServer(config: WSServerConfig): Promise<WSServer> {
+  if (wsServer) {
+    return wsServer;
+  }
+
+  wsServer = new WSServer(config);
+  await wsServer.start();
+  return wsServer;
+}
+
+export async function stopWSServer(): Promise<void> {
+  if (wsServer) {
+    await wsServer.stop();
+    wsServer = null;
+  }
+}
+
+export function getWSServer(): WSServer | null {
+  return wsServer;
 }
 
 // eslint-disable-next-line require-await
@@ -131,18 +159,19 @@ export async function stopDaemon(config: DaemonConfig): Promise<void> {
   const paths = resolvePaths(config);
   if (!isDaemonRunning(config)) {
     removeDaemonConfig(paths);
-    return;
+  } else {
+    const pid = getDaemonPid(paths);
+    try {
+      process.kill(pid, 'SIGTERM');
+    } catch (e: unknown) {
+      if ((e as { code?: string }).code !== 'ESRCH') {
+        throw e;
+      }
+    }
+    removeDaemonConfig(paths);
   }
 
-  const pid = getDaemonPid(paths);
-  try {
-    process.kill(pid, 'SIGTERM');
-  } catch (e: unknown) {
-    if ((e as { code?: string }).code !== 'ESRCH') {
-      throw e;
-    }
-  }
-  removeDaemonConfig(paths);
+  await stopWSServer();
 }
 
 export function getDaemonStatus(config: DaemonConfig): {
@@ -165,18 +194,19 @@ export async function killAllDaemon(config: DaemonConfig): Promise<void> {
   const paths = resolvePaths(config);
   if (!isDaemonRunning(config)) {
     removeDaemonConfig(paths);
-    return;
+  } else {
+    const pid = getDaemonPid(paths);
+    try {
+      process.kill(pid, 'SIGKILL');
+    } catch (e: unknown) {
+      if ((e as { code?: string }).code !== 'ESRCH') {
+        throw e;
+      }
+    }
+    removeDaemonConfig(paths);
   }
 
-  const pid = getDaemonPid(paths);
-  try {
-    process.kill(pid, 'SIGKILL');
-  } catch (e: unknown) {
-    if ((e as { code?: string }).code !== 'ESRCH') {
-      throw e;
-    }
-  }
-  removeDaemonConfig(paths);
+  await stopWSServer();
 
   const files = readdirSync(paths.configDir).filter(
     (f: string) => f.endsWith('.json') && f !== 'daemon.json'

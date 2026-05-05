@@ -622,7 +622,7 @@ describe('Website Structure Validation', () => {
     );
   }
 
-  it('should generate summary report', () => {
+  it('should generate summary report', { timeout: 60000 }, () => {
     console.log('\n\n========== 结构提取汇总报告 ==========\n');
 
     const results: Array<{
