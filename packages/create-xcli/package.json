@@ -41,7 +41,7 @@
     "directory": "packages/create-xcli"
   },
   "dependencies": {
-    "@dyyz1993/xcli-core": "workspace:*"
+    "@dyyz1993/xcli-core": "^0.6.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
