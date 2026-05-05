@@ -17,7 +17,7 @@
     "README.md"
   ],
   "scripts": {
-    "build:packages": "pnpm -r --filter './packages/*' --sort run build",
+    "build:packages": "pnpm -r --filter './packages/*' --sort --workspace-concurrency=1 run build",
     "build": "pnpm run build:packages && tsup",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:packages": "pnpm -r --filter './packages/*' --stream run lint",
