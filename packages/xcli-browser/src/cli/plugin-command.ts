@@ -6,6 +6,7 @@ import {
   wrapResult,
   withMeta,
 } from '@dyyz1993/xcli-core';
+import type { BrowserCommandContext } from '../context.js';
 import { resolve } from 'path';
 import { CORE_CONFIG, getOutputMode, outputResult, outputError, helpGen } from './output.js';
 
@@ -98,6 +99,8 @@ export async function handlePluginCommand(
       options: values,
       cwd: process.cwd(),
       page: null,
+      browser: null,
+      browserContext: null,
       storage: site.getStorage(),
       output: {
         mode,
@@ -109,7 +112,7 @@ export async function handlePluginCommand(
       config: {},
       site,
       cliName: 'xcli-browser',
-    });
+    } as unknown as BrowserCommandContext);
 
     const wrapped = wrapResult(result);
     const withDuration = withMeta(wrapped, {

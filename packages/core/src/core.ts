@@ -1,25 +1,10 @@
 import { join } from 'path';
 import { homedir } from 'os';
 import { PluginLoader } from './plugin-loader.js';
-import type { CommandContext, SiteInstance } from './protocol/plugin-protocol.js';
-
-function parseOptions(args: string[]): Record<string, unknown> {
-  const options: Record<string, unknown> = {};
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    if (arg.startsWith('--')) {
-      const key = arg.slice(2);
-      const next = args[i + 1];
-      if (next && !next.startsWith('--')) {
-        options[key] = next;
-        i++;
-      } else {
-        options[key] = true;
-      }
-    }
-  }
-  return options;
-}
+import type { CommandContext, SiteInstance, CommandEntry } from './protocol/plugin-protocol.js';
+import { buildInputSchema, CommandError } from './protocol/plugin-protocol.js';
+import { parseArgs } from './arg-parser.js';
+import { coerceCliArgs } from './param-coercion.js';
 
 function levenshtein(a: string, b: string): number {
   const m = a.length;
@@ -131,9 +116,13 @@ export class Core {
     }
 
     const site = this.loader.findCommand(commandName)?.site;
+    const parsed = parseArgs(commandArgs);
+
+    const params = this.buildValidatedParams(entry, parsed.options, parsed.positional);
+
     const ctx: CommandContext = {
-      args: commandArgs.filter((a) => !a.startsWith('--')),
-      options: parseOptions(commandArgs),
+      args: parsed.positional,
+      options: parsed.options,
       cwd: process.cwd(),
       storage: site?.getStorage() ?? {
         get: () => Promise.resolve(null),
@@ -152,7 +141,7 @@ export class Core {
     };
 
     try {
-      const result = await entry.handler({}, ctx);
+      const result = await entry.handler(params, ctx);
       if (result && typeof result === 'object') {
         console.log(JSON.stringify(result, null, 2));
       }
@@ -161,6 +150,53 @@ export class Core {
       console.error(err instanceof Error ? err.message : String(err));
       return 1;
     }
+  }
+
+  private buildValidatedParams(
+    entry: CommandEntry,
+    options: Record<string, unknown>,
+    positional: string[]
+  ): Record<string, unknown> {
+    if (!entry.parameters) {
+      return { ...options };
+    }
+
+    const coerced = coerceCliArgs(entry.parameters, options);
+    const combined = { ...coerced };
+
+    const schema = buildInputSchema({ parameters: entry.parameters });
+    const shape = this.getZodShape(schema);
+    const positionalKeys = Object.keys(shape);
+
+    for (let i = 0; i < positional.length && i < positionalKeys.length; i++) {
+      const key = positionalKeys[i];
+      if (combined[key] === undefined) {
+        combined[key] = positional[i];
+      }
+    }
+
+    const result = schema.safeParse(combined);
+    if (!result.success) {
+      const msg = result.error.errors
+        .map(
+          (e: { path: (string | number)[]; message: string }) => `${e.path.join('.')}: ${e.message}`
+        )
+        .join(', ');
+      throw new CommandError('INVALID_ARGS', msg);
+    }
+
+    return result.data as Record<string, unknown>;
+  }
+
+  private getZodShape(schema: unknown): Record<string, unknown> {
+    if (schema === null || typeof schema !== 'object') return {};
+    const def = (schema as { _def?: { typeName?: string; shape?: unknown } })._def;
+    if (!def || def.typeName !== 'ZodObject' || !def.shape) return {};
+    const shape =
+      typeof def.shape === 'function'
+        ? (def.shape as () => Record<string, unknown>)()
+        : (def.shape as Record<string, unknown>);
+    return shape;
   }
 
   private suggestCommand(input: string): string | null {

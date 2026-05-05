@@ -2,7 +2,7 @@
   "tests-commands-batch1": {
     "id": "ses_20a328574ffeJBDB5t0snBuhbG",
     "name": "tests-commands-batch1",
-    "parentID": "main",
+    "parentID": "ses_20a361aacffeF7IBtl5XR9Xve2",
     "status": "running",
     "createdAt": 1777945377534
   },

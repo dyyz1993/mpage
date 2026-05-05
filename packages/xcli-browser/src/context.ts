@@ -19,5 +19,7 @@ export function checkBrowserScope(scope: CommandScope, ctx: BrowserCommandContex
       return ctx.page ? null : '需要活跃的页面，请先执行 xcli open <url>';
     case 'element':
       return ctx.page ? null : '需要活跃的页面，请先执行 xcli open <url>';
+    default:
+      return null;
   }
 }

@@ -21,6 +21,7 @@ export type {
   CommandEntry,
   CommandHandler,
   CommandScope,
+  BaseScope,
   StorageContext,
   OutputContext,
   OutputMode,
@@ -32,6 +33,7 @@ export type {
 
 export {
   COMMAND_SCOPE_ORDER,
+  BROWSER_SCOPE_ORDER,
   DEFAULT_SCOPE,
   CommandError,
   SiteInstanceImpl,

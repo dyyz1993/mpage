@@ -1,13 +1,18 @@
 import { z } from 'zod';
 import type { CommandResult } from '../command-result.js';
 
-export type CommandScope = 'project' | 'browser' | 'page' | 'element';
+export type BaseScope = 'project' | 'module' | 'resource' | 'action';
+export type CommandScope = string;
 
-export const COMMAND_SCOPE_ORDER: Record<CommandScope, number> = {
+export const BROWSER_SCOPE_ORDER: Record<string, number> = {
   project: 0,
   browser: 1,
   page: 2,
   element: 3,
+};
+
+export const COMMAND_SCOPE_ORDER: Record<string, number> = {
+  ...BROWSER_SCOPE_ORDER,
 };
 
 export const DEFAULT_SCOPE: CommandScope = 'page';

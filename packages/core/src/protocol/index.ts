@@ -1,6 +1,8 @@
 export {
   type CommandScope,
+  type BaseScope,
   COMMAND_SCOPE_ORDER,
+  BROWSER_SCOPE_ORDER,
   DEFAULT_SCOPE,
   type Option,
   OptionSchema,
