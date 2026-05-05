@@ -1,12 +1,9 @@
 {
   "name": "@dyyz1993/xpage",
   "version": "1.0.2",
-  "description": "Playwright browser automation CLI with CDP support",
+  "description": "Browser automation engine library based on Playwright",
   "private": true,
   "type": "module",
-  "bin": {
-    "mpage": "dist/bin/mpage.js"
-  },
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "exports": {
@@ -20,24 +17,19 @@
     "README.md"
   ],
   "scripts": {
-    "xpage": "npx tsx bin/mpage.ts",
     "build:packages": "pnpm -r --filter './packages/*' --sort run build",
     "build": "pnpm run build:packages && tsup",
-    "dev": "npx tsx bin/mpage.ts",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:packages": "pnpm -r --filter './packages/*' --stream run lint",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
-    "format": "prettier --write \"src/**/*.ts\" \"bin/**/*.ts\" \"tests/**/*.ts\"",
-    "format:check": "prettier --check \"src/**/*.ts\" \"bin/**/*.ts\" \"tests/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\"",
     "typecheck": "tsc --noEmit",
     "typecheck:packages": "pnpm -r --filter './packages/*' --stream run typecheck",
     "test": "tsx --test tests/**/*.test.ts",
-    "test:plugins": "tsx tests/e2e/plugin-test-runner.ts",
     "prepublishOnly": "npm run build",
     "prepare": "husky",
-    "validate": "npm run typecheck && npm run lint && npm run build && npm test",
-    "validate:mpage": "npm run typecheck && npm run lint && npm run build",
-    "validate:xcli": "echo 'xcli has been removed, skipping' && exit 0"
+    "validate": "npm run typecheck && npm run lint && npm run build && npm test"
   },
   "lint-staged": {
     "*.ts": [
@@ -73,7 +65,9 @@
     "browser",
     "automation",
     "cdp",
-    "cli"
+    "recording",
+    "playback",
+    "engine"
   ],
   "author": "dyyz1993",
   "license": "MIT",

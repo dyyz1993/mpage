@@ -165,6 +165,8 @@ export {
   BASE_CLI_TEMPLATE,
   MINIMAL_PLUGIN_TEMPLATE,
   BROWSER_APP_TEMPLATE,
+  DATABASE_CLI_TEMPLATE,
+  API_CLI_TEMPLATE,
 } from './scaffold/index.js';
 
 export { generateTips } from './output/tips-engine.js';

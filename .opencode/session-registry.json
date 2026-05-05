@@ -12,5 +12,12 @@
     "parentID": "main",
     "status": "running",
     "createdAt": 1777945411903
+  },
+  "restructure-commands": {
+    "id": "ses_209dc4ed2ffebVRkQGvY3KD5oo",
+    "name": "restructure-commands",
+    "parentID": "ses_209e052c8ffesfmEyn9uBAsW3Y",
+    "status": "running",
+    "createdAt": 1777951027507
   }
 }

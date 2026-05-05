@@ -9,53 +9,21 @@ coverage/
 *.tsbuildinfo
 tmp/
 
-# 临时调试脚本
-debug-*.ts
-debug-*.js
-cdp-*.ts
-test-*.ts
-test-*.js
-test-*.cjs
-verify-*.ts
-demo-*.ts
-replay.js
-replay.py
-batch-*.cjs
-
-# 录制产物
+output/
 recordings/
 *.yaml
 !pnpm-lock.yaml
-!xcli/**/*.yaml
 doubao-*.json
 recording-*.json
 *-summary.json
 
-# scripts 目录下的调试和工具文件
-scripts/buildDomTree.js
-scripts/highlight-renderer.js
-scripts/visualize-structure.ts
-scripts/extract-*.ts
-scripts/check-*.ts
-scripts/clean-*.ts
-scripts/save-snapshot*.ts
-scripts/simple-*.ts
-scripts/structure-extractor*.js
-scripts/*-recording*.ts
-scripts/test-extractor-code.cjs
-
-# 工具内部数据
 .codenomad/
-
-# 临时测试文件
-test-ui.html
-
-# Trae 相关
 .trae/
-
-# xcli 工作目录
 xcli/
 
-# packages build output
+test-api-cli/
+test-db-cli/
+test-ui.html
+
 packages/*/dist/
 packages/*/node_modules/

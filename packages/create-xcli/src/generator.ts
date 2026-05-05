@@ -4,6 +4,8 @@ import {
   BASE_CLI_TEMPLATE,
   MINIMAL_PLUGIN_TEMPLATE,
   BROWSER_APP_TEMPLATE,
+  DATABASE_CLI_TEMPLATE,
+  API_CLI_TEMPLATE,
 } from '@dyyz1993/xcli-core';
 import type { PromptResult } from './prompts.js';
 
@@ -12,6 +14,8 @@ export function createEngine(): ScaffoldEngine {
   engine.registerTemplate(BASE_CLI_TEMPLATE);
   engine.registerTemplate(MINIMAL_PLUGIN_TEMPLATE);
   engine.registerTemplate(BROWSER_APP_TEMPLATE);
+  engine.registerTemplate(DATABASE_CLI_TEMPLATE);
+  engine.registerTemplate(API_CLI_TEMPLATE);
   return engine;
 }
 
