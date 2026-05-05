@@ -1,5 +1,4 @@
-import { describe, it, beforeEach, afterEach } from 'node:test';
-import assert from 'node:assert';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
@@ -55,14 +54,14 @@ describe('session-manager (storage layer)', () => {
       saveSessionInfo(info);
 
       const loaded = loadSessionInfo(name);
-      assert.ok(loaded);
-      assert.strictEqual(loaded.name, name);
-      assert.strictEqual(loaded.serverPid, process.pid);
+      expect(loaded).toBeTruthy();
+      expect(loaded!.name).toBe(name);
+      expect(loaded!.serverPid).toBe(process.pid);
     });
 
     it('should return null for non-existent session', () => {
       const loaded = loadSessionInfo(`${testPrefix}nonexistent`);
-      assert.strictEqual(loaded, null);
+      expect(loaded).toBeNull();
     });
   });
 
@@ -70,10 +69,10 @@ describe('session-manager (storage layer)', () => {
     it('should delete session info', async () => {
       const name = `${testPrefix}delete`;
       saveSessionInfo(makeSessionInfo(name));
-      assert.ok(loadSessionInfo(name));
+      expect(loadSessionInfo(name)).toBeTruthy();
 
       await deleteSessionInfo(name);
-      assert.strictEqual(loadSessionInfo(name), null);
+      expect(loadSessionInfo(name)).toBeNull();
     });
 
     it('should not throw when deleting non-existent session', async () => {
@@ -85,25 +84,25 @@ describe('session-manager (storage layer)', () => {
     it('should return consistent socket path', () => {
       const name = `${testPrefix}socket`;
       const socketPath = getSocketPath(name);
-      assert.ok(socketPath.includes(name));
-      assert.ok(socketPath.includes('socket'));
+      expect(socketPath.includes(name)).toBeTruthy();
+      expect(socketPath.includes('socket')).toBeTruthy();
     });
 
     it('should return same path for same name', () => {
       const name = `${testPrefix}consistent`;
       const path1 = getSocketPath(name);
       const path2 = getSocketPath(name);
-      assert.strictEqual(path1, path2);
+      expect(path1).toBe(path2);
     });
   });
 
   describe('isProcessRunning', () => {
     it('should return true for current process', () => {
-      assert.strictEqual(isProcessRunning(process.pid), true);
+      expect(isProcessRunning(process.pid)).toBe(true);
     });
 
     it('should return false for non-existent PID', () => {
-      assert.strictEqual(isProcessRunning(99999999), false);
+      expect(isProcessRunning(99999999)).toBe(false);
     });
   });
 
@@ -116,10 +115,10 @@ describe('session-manager (storage layer)', () => {
 
       const sessions = listSessions();
       const testSessions = sessions.filter((s) => s.name.startsWith(testPrefix));
-      assert.ok(testSessions.length >= 2);
+      expect(testSessions.length >= 2).toBeTruthy();
       const names = testSessions.map((s) => s.name);
-      assert.ok(names.includes(name1));
-      assert.ok(names.includes(name2));
+      expect(names.includes(name1)).toBeTruthy();
+      expect(names.includes(name2)).toBeTruthy();
     });
   });
 
@@ -132,18 +131,18 @@ describe('session-manager (storage layer)', () => {
       const { getOrCreateSession } = await import('../../src/client/session-manager.js');
       const result = await getOrCreateSession('/nonexistent/path.ts', name);
 
-      assert.ok(result);
-      assert.strictEqual(result!.info.name, name);
-      assert.strictEqual(result!.info.serverPid, process.pid);
-    });
+      expect(result).toBeTruthy();
+      expect(result!.info.name).toBe(name);
+      expect(result!.info.serverPid).toBe(process.pid);
+    }, 30000);
 
     it('should return null for new session when server cannot start', async () => {
       const name = `${testPrefix}new-fail`;
       const { getOrCreateSession } = await import('../../src/client/session-manager.js');
       const result = await getOrCreateSession('/nonexistent/path.ts', name);
 
-      assert.strictEqual(result, null);
-    });
+      expect(result).toBeNull();
+    }, 30000);
 
     it('should clean up stale session and fail to start', async () => {
       const name = `${testPrefix}stale`;
@@ -152,13 +151,13 @@ describe('session-manager (storage layer)', () => {
         pid: 99999999,
       });
       saveSessionInfo(staleInfo);
-      assert.ok(loadSessionInfo(name));
+      expect(loadSessionInfo(name)).toBeTruthy();
 
       const { getOrCreateSession } = await import('../../src/client/session-manager.js');
       const result = await getOrCreateSession('/nonexistent/path.ts', name);
 
-      assert.strictEqual(result, null);
-    });
+      expect(result).toBeNull();
+    }, 30000);
 
     it('should return existing CDP session when same endpoint', async () => {
       const name = `${testPrefix}cdp-same`;
@@ -171,8 +170,8 @@ describe('session-manager (storage layer)', () => {
       const { getOrCreateSession } = await import('../../src/client/session-manager.js');
       const result = await getOrCreateSession('/path.ts', name, 'http://localhost:9222');
 
-      assert.ok(result);
-      assert.strictEqual(result!.info.cdpEndpoint, 'http://localhost:9222');
-    });
+      expect(result).toBeTruthy();
+      expect(result!.info.cdpEndpoint).toBe('http://localhost:9222');
+    }, 30000);
   });
 });

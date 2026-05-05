@@ -1,26 +1,25 @@
-import { describe, it, mock } from 'node:test';
-import assert from 'node:assert';
+import { describe, it, expect, vi } from 'vitest';
 import { interactionCommands } from '../../../src/server/commands/interaction.js';
 import type { Page, Locator } from 'playwright-core';
 
 function createMockPage(overrides: Partial<Page> = {}): Page {
   const mockLocator: Locator = {
-    scrollIntoViewIfNeeded: mock.fn(async () => {}),
+    scrollIntoViewIfNeeded: vi.fn(async () => {}),
   } as unknown as Locator;
 
   return {
-    click: mock.fn(async () => {}),
-    fill: mock.fn(async () => {}),
-    type: mock.fn(async () => {}),
-    press: mock.fn(async () => {}),
-    hover: mock.fn(async () => {}),
-    evaluate: mock.fn(async () => {}),
-    locator: mock.fn(() => mockLocator),
-    selectOption: mock.fn(() => Promise.resolve([])),
-    check: mock.fn(() => Promise.resolve()),
-    waitForSelector: mock.fn(() => Promise.resolve({})),
-    waitForTimeout: mock.fn(async () => {}),
-    waitForLoadState: mock.fn(async () => {}),
+    click: vi.fn(async () => {}),
+    fill: vi.fn(async () => {}),
+    type: vi.fn(async () => {}),
+    press: vi.fn(async () => {}),
+    hover: vi.fn(async () => {}),
+    evaluate: vi.fn(async () => {}),
+    locator: vi.fn(() => mockLocator),
+    selectOption: vi.fn(() => Promise.resolve([])),
+    check: vi.fn(() => Promise.resolve()),
+    waitForSelector: vi.fn(() => Promise.resolve({})),
+    waitForTimeout: vi.fn(async () => {}),
+    waitForLoadState: vi.fn(async () => {}),
     ...overrides,
   } as unknown as Page;
 }
@@ -30,35 +29,35 @@ describe('interactionCommands - click', () => {
     const mockPage = createMockPage();
     const result = await interactionCommands.click(mockPage, { selector: '#button' });
 
-    assert.deepStrictEqual(result, { selector: '#button' });
-    assert.strictEqual((mockPage.click as ReturnType<typeof mock.fn>).mock.calls.length, 1);
+    expect(result).toStrictEqual({ selector: '#button' });
+    expect((mockPage.click as ReturnType<typeof vi.fn>).mock.calls.length).toBe(1);
   });
 
   it('should pass timeout option to click', async () => {
     const mockPage = createMockPage();
     await interactionCommands.click(mockPage, { selector: '#btn', timeout: 5000 });
 
-    const calls = (mockPage.click as ReturnType<typeof mock.fn>).mock.calls;
-    const options = calls[0].arguments[1] as Record<string, unknown>;
-    assert.strictEqual(options.timeout, 5000);
+    const calls = (mockPage.click as ReturnType<typeof vi.fn>).mock.calls;
+    const options = calls[0][1] as Record<string, unknown>;
+    expect(options.timeout).toBe(5000);
   });
 
   it('should pass force option to click', async () => {
     const mockPage = createMockPage();
     await interactionCommands.click(mockPage, { selector: '#btn', force: true });
 
-    const calls = (mockPage.click as ReturnType<typeof mock.fn>).mock.calls;
-    const options = calls[0].arguments[1] as Record<string, unknown>;
-    assert.strictEqual(options.force, true);
+    const calls = (mockPage.click as ReturnType<typeof vi.fn>).mock.calls;
+    const options = calls[0][1] as Record<string, unknown>;
+    expect(options.force).toBe(true);
   });
 
   it('should wait for selector before clicking when element not immediately visible', async () => {
     const mockPage = createMockPage();
     await interactionCommands.click(mockPage, { selector: '#btn', timeout: 3000 });
 
-    const waitCalls = (mockPage.waitForSelector as ReturnType<typeof mock.fn>).mock.calls;
-    assert.strictEqual(waitCalls.length, 1, 'should call waitForSelector before click');
-    assert.strictEqual(waitCalls[0].arguments[0], '#btn');
+    const waitCalls = (mockPage.waitForSelector as ReturnType<typeof vi.fn>).mock.calls;
+    expect(waitCalls.length).toBe(1);
+    expect(waitCalls[0][0]).toBe('#btn');
   });
 });
 
@@ -70,17 +69,17 @@ describe('interactionCommands - select', () => {
       value: 'shanghai',
     });
 
-    assert.deepStrictEqual(result, { selector: '#city', value: 'shanghai' });
-    assert.strictEqual((mockPage.selectOption as ReturnType<typeof mock.fn>).mock.calls.length, 1);
+    expect(result).toStrictEqual({ selector: '#city', value: 'shanghai' });
+    expect((mockPage.selectOption as ReturnType<typeof vi.fn>).mock.calls.length).toBe(1);
   });
 
   it('should call selectOption with correct arguments', async () => {
     const mockPage = createMockPage();
     await interactionCommands.select(mockPage, { selector: '#sel', value: 'opt1' });
 
-    const calls = (mockPage.selectOption as ReturnType<typeof mock.fn>).mock.calls;
-    assert.strictEqual(calls[0].arguments[0], '#sel');
-    assert.strictEqual(calls[0].arguments[1], 'opt1');
+    const calls = (mockPage.selectOption as ReturnType<typeof vi.fn>).mock.calls;
+    expect(calls[0][0]).toBe('#sel');
+    expect(calls[0][1]).toBe('opt1');
   });
 });
 
@@ -89,16 +88,16 @@ describe('interactionCommands - check', () => {
     const mockPage = createMockPage();
     const result = await interactionCommands.check(mockPage, { selector: '#agree' });
 
-    assert.deepStrictEqual(result, { selector: '#agree' });
-    assert.strictEqual((mockPage.check as ReturnType<typeof mock.fn>).mock.calls.length, 1);
+    expect(result).toStrictEqual({ selector: '#agree' });
+    expect((mockPage.check as ReturnType<typeof vi.fn>).mock.calls.length).toBe(1);
   });
 
   it('should call check with correct selector', async () => {
     const mockPage = createMockPage();
     await interactionCommands.check(mockPage, { selector: '[data-testid=cb]' });
 
-    const calls = (mockPage.check as ReturnType<typeof mock.fn>).mock.calls;
-    assert.strictEqual(calls[0].arguments[0], '[data-testid=cb]');
+    const calls = (mockPage.check as ReturnType<typeof vi.fn>).mock.calls;
+    expect(calls[0][0]).toBe('[data-testid=cb]');
   });
 });
 
@@ -107,17 +106,17 @@ describe('interactionCommands - waitForSelector', () => {
     const mockPage = createMockPage();
     const result = await interactionCommands.waitForSelector(mockPage, { selector: '.loaded' });
 
-    assert.deepStrictEqual(result, { selector: '.loaded' });
-    const calls = (mockPage.waitForSelector as ReturnType<typeof mock.fn>).mock.calls;
-    assert.strictEqual(calls.length, 1);
+    expect(result).toStrictEqual({ selector: '.loaded' });
+    const calls = (mockPage.waitForSelector as ReturnType<typeof vi.fn>).mock.calls;
+    expect(calls.length).toBe(1);
   });
 
   it('should wait for selector with custom timeout', async () => {
     const mockPage = createMockPage();
     await interactionCommands.waitForSelector(mockPage, { selector: '.item', timeout: 5000 });
 
-    const calls = (mockPage.waitForSelector as ReturnType<typeof mock.fn>).mock.calls;
-    const options = calls[0].arguments[1] as Record<string, unknown>;
-    assert.strictEqual(options.timeout, 5000);
+    const calls = (mockPage.waitForSelector as ReturnType<typeof vi.fn>).mock.calls;
+    const options = calls[0][1] as Record<string, unknown>;
+    expect(options.timeout).toBe(5000);
   });
 });

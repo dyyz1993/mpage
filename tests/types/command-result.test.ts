@@ -1,5 +1,4 @@
-import { describe, it } from 'node:test';
-import assert from 'node:assert';
+import { describe, it, expect } from 'vitest';
 import type { CommandResult } from '../../src/types.js';
 
 describe('CommandResult type contract', () => {
@@ -9,8 +8,8 @@ describe('CommandResult type contract', () => {
       content: { url: 'http://example.com' },
       tips: 'some tip',
     };
-    assert.strictEqual(result.success, true);
-    assert.ok(result.content);
+    expect(result.success).toBe(true);
+    expect(result.content).toBeTruthy();
   });
 
   it('failure result should require error and allow tips', () => {
@@ -18,14 +17,14 @@ describe('CommandResult type contract', () => {
       success: false,
       error: 'Something went wrong',
     };
-    assert.strictEqual(result.success, false);
-    assert.ok(result.error);
+    expect(result.success).toBe(false);
+    expect(result.error).toBeTruthy();
   });
 
   it('success result with no content is valid', () => {
     const result: CommandResult = {
       success: true,
     };
-    assert.strictEqual(result.success, true);
+    expect(result.success).toBe(true);
   });
 });

@@ -1,0 +1,24 @@
+import { z } from 'zod';
+import { ok } from '@dyyz1993/xcli-core';
+import type { BrowserCommandDefinition } from './command-registry.js';
+
+const params = z.object({
+  selector: z.string().describe('Element selector'),
+  text: z.string().describe('Text to type'),
+  delay: z.number().default(50).describe('Delay between keystrokes (ms)'),
+  clear: z.boolean().default(false).describe('Clear field before typing'),
+});
+
+export const typeCommand: BrowserCommandDefinition<typeof params> = {
+  name: 'type',
+  description: 'Type text into an element (character by character)',
+  scope: 'element',
+  parameters: params,
+  handler: async (p, ctx) => {
+    if (p.clear) {
+      await ctx.page.fill(p.selector, '');
+    }
+    await ctx.page.type(p.selector, p.text, { delay: p.delay });
+    return ok({ selector: p.selector, length: p.text.length });
+  },
+};

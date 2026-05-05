@@ -1,5 +1,4 @@
-import { describe, it, beforeEach, afterEach } from 'node:test';
-import assert from 'node:assert';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
@@ -49,23 +48,23 @@ describe('session storage', () => {
   describe('getSessionPath', () => {
     it('should return path under DEFAULT_STORAGE', () => {
       const result = getSessionPath('my-session');
-      assert.ok(result.includes('my-session'));
-      assert.ok(result.includes('sessions'));
+      expect(result.includes('my-session')).toBeTruthy();
+      expect(result.includes('sessions')).toBeTruthy();
     });
   });
 
   describe('getSessionFile', () => {
     it('should return session.json path', () => {
       const result = getSessionFile('my-session');
-      assert.ok(result.endsWith('session.json'));
+      expect(result.endsWith('session.json')).toBeTruthy();
     });
   });
 
   describe('getSocketPath', () => {
     it('should return socket path under session dir', () => {
       const result = getSocketPath('my-session');
-      assert.ok(result.endsWith('socket'));
-      assert.ok(result.includes('my-session'));
+      expect(result.endsWith('socket')).toBeTruthy();
+      expect(result.includes('my-session')).toBeTruthy();
     });
   });
 
@@ -75,11 +74,11 @@ describe('session storage', () => {
       saveSessionInfo(info);
 
       const loaded = loadSessionInfo('round-trip-test');
-      assert.ok(loaded !== null);
-      assert.strictEqual(loaded!.name, 'round-trip-test');
-      assert.strictEqual(loaded!.cdpEndpoint, info.cdpEndpoint);
-      assert.strictEqual(loaded!.pid, info.pid);
-      assert.strictEqual(loaded!.isCDP, info.isCDP);
+      expect(loaded).not.toBeNull();
+      expect(loaded!.name).toBe('round-trip-test');
+      expect(loaded!.cdpEndpoint).toBe(info.cdpEndpoint);
+      expect(loaded!.pid).toBe(info.pid);
+      expect(loaded!.isCDP).toBe(info.isCDP);
 
       await deleteSessionInfo('round-trip-test');
     });
@@ -95,11 +94,11 @@ describe('session storage', () => {
       saveSessionInfo(info);
 
       const loaded = loadSessionInfo('fields-test');
-      assert.ok(loaded !== null);
-      assert.strictEqual(loaded!.isCDP, false);
-      assert.strictEqual(loaded!.socketPath, '/custom/socket.sock');
-      assert.strictEqual(loaded!.createdAt, 1700000000000);
-      assert.strictEqual(loaded!.lastUsed, 1700000001000);
+      expect(loaded).not.toBeNull();
+      expect(loaded!.isCDP).toBe(false);
+      expect(loaded!.socketPath).toBe('/custom/socket.sock');
+      expect(loaded!.createdAt).toBe(1700000000000);
+      expect(loaded!.lastUsed).toBe(1700000001000);
 
       await deleteSessionInfo('fields-test');
     });
@@ -112,8 +111,8 @@ describe('session storage', () => {
       saveSessionInfo(info2);
 
       const loaded = loadSessionInfo('overwrite-test');
-      assert.ok(loaded !== null);
-      assert.strictEqual(loaded!.pid, 22222);
+      expect(loaded).not.toBeNull();
+      expect(loaded!.pid).toBe(22222);
 
       await deleteSessionInfo('overwrite-test');
     });
@@ -122,7 +121,7 @@ describe('session storage', () => {
   describe('loadSessionInfo', () => {
     it('should return null for non-existent session', () => {
       const result = loadSessionInfo('non-existent-session-xyz');
-      assert.strictEqual(result, null);
+      expect(result).toBeNull();
     });
   });
 
@@ -132,10 +131,10 @@ describe('session storage', () => {
       saveSessionInfo(info);
 
       const sessionPath = getSessionPath('delete-test');
-      assert.ok(fs.existsSync(sessionPath));
+      expect(fs.existsSync(sessionPath)).toBeTruthy();
 
       await deleteSessionInfo('delete-test');
-      assert.ok(!fs.existsSync(sessionPath));
+      expect(fs.existsSync(sessionPath)).toBeFalsy();
     });
 
     it('should not throw for non-existent session', async () => {
@@ -162,12 +161,12 @@ describe('session storage', () => {
       try {
         await deleteSessionInfo('retry-delay-test');
 
-        assert.strictEqual(callCount, 3, 'should make 3 attempts');
+        expect(callCount).toBe(3);
 
         const delay1 = callTimestamps[1] - callTimestamps[0];
         const delay2 = callTimestamps[2] - callTimestamps[1];
-        assert.ok(delay1 >= 50, `delay 1→2 should be >= 50ms, got ${delay1}ms`);
-        assert.ok(delay2 >= 50, `delay 2→3 should be >= 50ms, got ${delay2}ms`);
+        expect(delay1 >= 50).toBeTruthy();
+        expect(delay2 >= 50).toBeTruthy();
       } finally {
         fs.rmSync = originalRmSync;
         const sessionPath = getSessionPath('retry-delay-test');
@@ -181,7 +180,7 @@ describe('session storage', () => {
   describe('listSessions', () => {
     it('should return empty array when no sessions exist', () => {
       const sessions = listSessions();
-      assert.ok(Array.isArray(sessions));
+      expect(Array.isArray(sessions)).toBeTruthy();
     });
 
     it('should list saved sessions', async () => {
@@ -192,8 +191,8 @@ describe('session storage', () => {
 
       const sessions = listSessions();
       const names = sessions.map((s) => s.name);
-      assert.ok(names.includes('list-test-1'));
-      assert.ok(names.includes('list-test-2'));
+      expect(names.includes('list-test-1')).toBeTruthy();
+      expect(names.includes('list-test-2')).toBeTruthy();
 
       await deleteSessionInfo('list-test-1');
       await deleteSessionInfo('list-test-2');
@@ -204,9 +203,9 @@ describe('session storage', () => {
       fs.mkdirSync(corruptPath, { recursive: true });
       fs.writeFileSync(path.join(corruptPath, 'session.json'), 'not-valid-json{{{', 'utf-8');
 
-      assert.throws(() => {
+      expect(() => {
         loadSessionInfo('corrupt-session');
-      }, SyntaxError);
+      }).toThrow(SyntaxError);
 
       await deleteSessionInfo('corrupt-session');
     });
@@ -218,11 +217,11 @@ describe('session storage', () => {
       saveSessionInfo(info);
 
       const fileContent = fs.readFileSync(getSessionFile('format-test'), 'utf-8');
-      assert.ok(fileContent.includes('\n'));
-      assert.ok(fileContent.includes('  '));
+      expect(fileContent.includes('\n')).toBeTruthy();
+      expect(fileContent.includes('  ')).toBeTruthy();
 
       const parsed = JSON.parse(fileContent);
-      assert.strictEqual(parsed.name, 'format-test');
+      expect(parsed.name).toBe('format-test');
 
       await deleteSessionInfo('format-test');
     });

@@ -26,7 +26,7 @@ export function runPluginCommand(
   cmd.push('--json');
 
   return new Promise((resolve, _reject) => {
-    const process = spawn(cmd[0], cmd.slice(1), {
+    const child = spawn(cmd[0], cmd.slice(1), {
       cwd: process.cwd(),
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -34,15 +34,15 @@ export function runPluginCommand(
     let stdout = '';
     let stderr = '';
 
-    process.stdout.on('data', (data) => {
+    child.stdout.on('data', (data) => {
       stdout += data.toString();
     });
 
-    process.stderr.on('data', (data) => {
+    child.stderr.on('data', (data) => {
       stderr += data.toString();
     });
 
-    process.on('close', (code) => {
+    child.on('close', (code) => {
       const duration = Date.now() - startTime;
 
       if (code !== 0) {

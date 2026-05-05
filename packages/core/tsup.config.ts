@@ -6,5 +6,5 @@ export default createConfig({
   dts: true,
   clean: true,
   sourcemap: true,
-  external: ['jiti'],
+  external: ['jiti', 'zod'],
 });

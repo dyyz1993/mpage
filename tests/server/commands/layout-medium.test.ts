@@ -1,5 +1,4 @@
-import { describe, it } from 'node:test';
-import assert from 'node:assert';
+import { describe, it, expect } from 'vitest';
 import { JSDOM } from 'jsdom';
 
 interface LayoutNode {
@@ -622,8 +621,8 @@ describe('Layout Medium Extraction', () => {
     const dom = new JSDOM(html);
     const layout = extractLayoutMedium(dom.window.document.body);
     const yaml = layoutToYaml(layout);
-    assert.ok(!yaml.includes('icon-a'));
-    assert.ok(!yaml.includes('icon-b'));
+    expect(yaml.includes('icon-a')).toBeFalsy();
+    expect(yaml.includes('icon-b')).toBeFalsy();
   });
 
   it('should filter Tailwind utility classes', () => {
@@ -634,9 +633,9 @@ describe('Layout Medium Extraction', () => {
     const dom = new JSDOM(html);
     const layout = extractLayoutMedium(dom.window.document.body);
     const yaml = layoutToYaml(layout);
-    assert.ok(!yaml.includes('bg-transparent'));
-    assert.ok(!yaml.includes('border-neutral'));
-    assert.ok(yaml.includes('.header-container'));
+    expect(yaml.includes('bg-transparent')).toBeFalsy();
+    expect(yaml.includes('border-neutral')).toBeFalsy();
+    expect(yaml.includes('.header-container')).toBeTruthy();
   });
 
   it('should support data-testid selector', () => {
@@ -646,7 +645,7 @@ describe('Layout Medium Extraction', () => {
     const dom = new JSDOM(html);
     const layout = extractLayoutMedium(dom.window.document.body);
     const yaml = layoutToYaml(layout);
-    assert.ok(yaml.includes('[data-testid="login-button"]'));
+    expect(yaml.includes('[data-testid="login-button"]')).toBeTruthy();
   });
 
   it('should support data-e2e selector', () => {
@@ -656,7 +655,7 @@ describe('Layout Medium Extraction', () => {
     const dom = new JSDOM(html);
     const layout = extractLayoutMedium(dom.window.document.body);
     const yaml = layoutToYaml(layout);
-    assert.ok(yaml.includes('[data-e2e="recommend-list-item"]'));
+    expect(yaml.includes('[data-e2e="recommend-list-item"]')).toBeTruthy();
   });
 
   it('should normalize similar selectors', () => {
@@ -668,8 +667,8 @@ describe('Layout Medium Extraction', () => {
     const dom = new JSDOM(html);
     const layout = extractLayoutMedium(dom.window.document.body);
     const yaml = layoutToYaml(layout);
-    assert.ok(yaml.includes('#vjs-track-option-*'));
-    assert.ok(yaml.includes('×3'));
+    expect(yaml.includes('#vjs-track-option-*')).toBeTruthy();
+    expect(yaml.includes('×3')).toBeTruthy();
   });
 
   it('should group similar layout nodes', () => {
@@ -681,8 +680,8 @@ describe('Layout Medium Extraction', () => {
     const dom = new JSDOM(html);
     const layout = extractLayoutMedium(dom.window.document.body);
     const yaml = layoutToYaml(layout);
-    assert.ok(yaml.includes('.note-item'));
-    assert.ok(yaml.includes('×3'));
+    expect(yaml.includes('.note-item')).toBeTruthy();
+    expect(yaml.includes('×3')).toBeTruthy();
   });
 
   it('should preserve children when parent div has no selector', () => {
@@ -694,7 +693,7 @@ describe('Layout Medium Extraction', () => {
     const dom = new JSDOM(html);
     const layout = extractLayoutMedium(dom.window.document.body);
     const yaml = layoutToYaml(layout);
-    assert.ok(yaml.includes('#main-content'));
+    expect(yaml.includes('#main-content')).toBeTruthy();
   });
 
   it('should mark dynamic content with *', () => {
@@ -712,8 +711,8 @@ describe('Layout Medium Extraction', () => {
     const dom = new JSDOM(html);
     const layout = extractLayoutMedium(dom.window.document.body);
     const yaml = layoutToYaml(layout);
-    assert.ok(yaml.includes('.footer-column'));
-    assert.ok(yaml.includes('×3'));
+    expect(yaml.includes('.footer-column')).toBeTruthy();
+    expect(yaml.includes('×3')).toBeTruthy();
   });
 
   it('should merge similar structures with different children', () => {
@@ -731,7 +730,7 @@ describe('Layout Medium Extraction', () => {
     const dom = new JSDOM(html);
     const layout = extractLayoutMedium(dom.window.document.body);
     const yaml = layoutToYaml(layout);
-    assert.ok(yaml.includes('.l-stack'));
-    assert.ok(yaml.includes('×2'));
+    expect(yaml.includes('.l-stack')).toBeTruthy();
+    expect(yaml.includes('×2')).toBeTruthy();
   });
 });

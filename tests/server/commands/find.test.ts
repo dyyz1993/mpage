@@ -1,11 +1,10 @@
-import { describe, it, mock } from 'node:test';
-import assert from 'node:assert';
+import { describe, it, expect, vi } from 'vitest';
 import type { Page } from 'playwright-core';
 
 function createCapturePage(): { page: Page; getSource: () => string } {
   let source = '';
   const page = {
-    evaluate: mock.fn((fn: unknown) => {
+    evaluate: vi.fn((fn: unknown) => {
       if (typeof fn === 'function') {
         source = fn.toString();
       }
@@ -22,7 +21,7 @@ describe('find command', () => {
     const { queryCommands } = await import('../../../src/server/commands/query.js');
     await queryCommands.find!(page, { text: '新建会话' });
 
-    assert.ok(getSource().includes('aria-label'), 'find should search aria-label attribute');
+    expect(getSource().includes('aria-label')).toBeTruthy();
   });
 
   it('should search title attribute', async () => {
@@ -32,10 +31,7 @@ describe('find command', () => {
     await queryCommands.find!(page, { text: 'tooltip text' });
 
     const src = getSource();
-    assert.ok(
-      src.includes('title') && src.includes('getAttribute'),
-      'find should search title attribute via getAttribute'
-    );
+    expect(src.includes('title') && src.includes('getAttribute')).toBeTruthy();
   });
 
   it('should search placeholder attribute', async () => {
@@ -44,6 +40,6 @@ describe('find command', () => {
     const { queryCommands } = await import('../../../src/server/commands/query.js');
     await queryCommands.find!(page, { text: '搜索会话...' });
 
-    assert.ok(getSource().includes('placeholder'), 'find should search placeholder attribute');
+    expect(getSource().includes('placeholder')).toBeTruthy();
   });
 });

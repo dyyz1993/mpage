@@ -1,5 +1,4 @@
-import { describe, it } from 'node:test';
-import assert from 'node:assert';
+import { describe, it, expect } from 'vitest';
 import { snapshotCommands } from '../../../src/server/commands/snapshot.js';
 import type { Page } from 'playwright-core';
 
@@ -25,36 +24,34 @@ describe('a11y command — selector injection safety', () => {
 
     await snapshotCommands.a11y(mockPage, { selector: dangerousSelector });
 
-    assert.equal(mockPage._calls.length, 1, 'evaluate should be called once');
+    expect(mockPage._calls.length).toBe(1);
     const [call] = mockPage._calls;
-    assert.equal(typeof call.fn, 'function', 'evaluate should receive a function, not a string');
-    assert.equal(call.args[0], dangerousSelector, 'selector should be passed as argument');
+    expect(typeof call.fn === 'function').toBeTruthy();
+    expect(call.args[0]).toBe(dangerousSelector);
   });
 
   it('should handle selectors with single quotes safely', async () => {
     const selectorWithQuotes = "[data-value='test']";
     const mockPage = createMockPage();
 
-    await assert.doesNotReject(async () => {
-      await snapshotCommands.a11y(mockPage, { selector: selectorWithQuotes });
-    });
+    await expect(
+      snapshotCommands.a11y(mockPage, { selector: selectorWithQuotes })
+    ).resolves.toBeDefined();
 
     const [call] = mockPage._calls;
-    assert.equal(typeof call.fn, 'function');
-    assert.equal(call.args[0], selectorWithQuotes);
+    expect(typeof call.fn === 'function').toBeTruthy();
+    expect(call.args[0]).toBe(selectorWithQuotes);
   });
 
   it('should handle selectors with mixed quotes and special chars', async () => {
     const selector = `[aria-label="it's a \"test\""]`;
     const mockPage = createMockPage();
 
-    await assert.doesNotReject(async () => {
-      await snapshotCommands.a11y(mockPage, { selector });
-    });
+    await expect(snapshotCommands.a11y(mockPage, { selector })).resolves.toBeDefined();
 
     const [call] = mockPage._calls;
-    assert.equal(typeof call.fn, 'function');
-    assert.equal(call.args[0], selector);
+    expect(typeof call.fn === 'function').toBeTruthy();
+    expect(call.args[0]).toBe(selector);
   });
 
   it('should use default selector "body" when none provided', async () => {
@@ -63,7 +60,7 @@ describe('a11y command — selector injection safety', () => {
     await snapshotCommands.a11y(mockPage, {});
 
     const [call] = mockPage._calls;
-    assert.equal(typeof call.fn, 'function');
-    assert.equal(call.args[0], 'body');
+    expect(typeof call.fn === 'function').toBeTruthy();
+    expect(call.args[0]).toBe('body');
   });
 });

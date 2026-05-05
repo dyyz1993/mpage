@@ -48,7 +48,6 @@ export interface CommandContext {
   args: string[];
   options: Record<string, unknown>;
   cwd: string;
-  page: unknown;
   storage: StorageContext;
   output: OutputContext;
   error: (msg: string) => void;
@@ -277,9 +276,16 @@ export class SiteInstanceImpl implements SiteInstance {
     }
     if (this.config.isLogin) {
       return this.config.isLogin({
-        page: null,
+        args: [],
+        options: {},
+        cwd: '',
         storage: this.storage,
-      } as CommandContext);
+        output: { mode: 'text', showTips: false, color: false, emoji: false },
+        error: () => {},
+        config: {},
+        site: this,
+        cliName: this.cliName,
+      });
     }
     const token = await this.storage.get('auth_token');
     return !!token;

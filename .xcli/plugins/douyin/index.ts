@@ -1,5 +1,5 @@
 import type { XCLIAPI } from 'xcli';
-import type { NetworkCapture } from '@xcli/browser';
+import type { NetworkCapture } from '@xcli/browser-app';
 import { z } from 'zod';
 
 const API = {
@@ -75,7 +75,7 @@ async function scrollAndCollect(
   network: NetworkCapture,
   pattern: RegExp,
   maxPages: number,
-  scrollFn: () => Promise<void>,
+  scrollFn: () => Promise<void>
 ) {
   for (let i = 0; i < maxPages; i++) {
     const prev = network.filter(pattern).length;
@@ -109,15 +109,14 @@ export default function (xcli: XCLIAPI): void {
       await page.goto(params.url, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
       await scrollAndCollect(page, network, API.posts, params.maxPages, () =>
-        page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)),
+        page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
       );
 
       const posts = network.filter(API.posts);
-      const allItems = posts.flatMap(
-        (d) =>
-          Array.isArray((d.body as Record<string, unknown>)?.aweme_list)
-            ? ((d.body as Record<string, unknown>).aweme_list as Record<string, unknown>[])
-            : [],
+      const allItems = posts.flatMap((d) =>
+        Array.isArray((d.body as Record<string, unknown>)?.aweme_list)
+          ? ((d.body as Record<string, unknown>).aweme_list as Record<string, unknown>[])
+          : []
       );
 
       return { total: allItems.length, videos: allItems.map(parseVideo) };
@@ -197,7 +196,7 @@ export default function (xcli: XCLIAPI): void {
       });
 
       await scrollAndCollect(page, network, API.comments, params.maxPages, () =>
-        page.evaluate(() => window.scrollBy(0, 500)),
+        page.evaluate(() => window.scrollBy(0, 500))
       );
 
       const commentData = network.filter(API.comments);
@@ -324,7 +323,9 @@ export default function (xcli: XCLIAPI): void {
       await page.waitForTimeout(6000);
 
       const video = page.locator('video').first();
-      try { await video.click({ timeout: 3000 }); } catch {}
+      try {
+        await video.click({ timeout: 3000 });
+      } catch {}
 
       const aiBtn = page.locator('svg.wNbQukcA').first();
       await aiBtn.click({ timeout: 5000 });
@@ -337,7 +338,9 @@ export default function (xcli: XCLIAPI): void {
             await frame.waitForSelector('#ai-search-root', { timeout: 3000 });
             aiFrame = frame;
             break;
-          } catch { continue; }
+          } catch {
+            continue;
+          }
         }
       }
       if (!aiFrame) throw new Error('未找到 AI 搜索 iframe');
@@ -376,7 +379,10 @@ export default function (xcli: XCLIAPI): void {
                   const liText = li.textContent?.trim() || '';
                   const tm = liText.match(/(\d{4}\s*年|\d{1,2}\s*月\s*\d{1,2}\s*日?)/);
                   const strong = li.querySelector('strong')?.textContent?.trim() || '';
-                  const detail = liText.replace(strong, '').replace(/^\d{4}\s*年.?\d{1,2}\s*月.?\d{1,2}\s*日?/, '').trim();
+                  const detail = liText
+                    .replace(strong, '')
+                    .replace(/^\d{4}\s*年.?\d{1,2}\s*月.?\d{1,2}\s*日?/, '')
+                    .trim();
                   timeline.push({ time: tm ? tm[1] : '', title: strong, detail });
                 });
               }
@@ -384,7 +390,10 @@ export default function (xcli: XCLIAPI): void {
               el.querySelectorAll('li').forEach((li) => {
                 const strong = li.querySelector('strong')?.textContent?.trim() || '';
                 const liText = li.textContent?.trim() || '';
-                const content = liText.replace(strong, '').replace(/^[:：]\s*/, '').trim();
+                const content = liText
+                  .replace(strong, '')
+                  .replace(/^[:：]\s*/, '')
+                  .trim();
                 keyPoints.push({ title: strong, content });
               });
             } else if (text && tag !== 'button') {

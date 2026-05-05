@@ -1,5 +1,4 @@
-import { describe, it, beforeEach, afterEach } from 'node:test';
-import assert from 'node:assert';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as net from 'net';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -78,10 +77,10 @@ describe('sendRequest', () => {
       args: { url: 'https://example.com' },
     });
 
-    assert.strictEqual(result.success, true);
+    expect(result.success).toBe(true);
     const content = result.content as { echo: { command: string; args: { url: string } } };
-    assert.strictEqual(content.echo.command, 'goto');
-    assert.strictEqual(content.echo.args.url, 'https://example.com');
+    expect(content.echo.command).toBe('goto');
+    expect(content.echo.args.url).toBe('https://example.com');
   });
 
   it('should handle success:false response', async () => {
@@ -92,21 +91,15 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(serverSocketPath, { command: 'click' });
 
-    assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, 'Element not found');
+    expect(result.success).toBe(false);
+    expect(result.error).toBe('Element not found');
   });
 
   it('should handle connection error', async () => {
     server.close();
     const nonexistentSocket = path.join(tmpDir, 'nonexistent.sock');
 
-    await assert.rejects(
-      () => sendRequest(nonexistentSocket, { command: 'test' }),
-      (err: Error) => {
-        assert.ok(err.message.length > 0);
-        return true;
-      }
-    );
+    await expect(sendRequest(nonexistentSocket, { command: 'test' })).rejects.toThrow();
   });
 
   it('should handle timeout', async () => {
@@ -116,9 +109,9 @@ describe('sendRequest', () => {
       delay: 5000,
     }));
 
-    await assert.rejects(() => sendRequest(serverSocketPath, { command: 'test' }, 200), {
-      message: 'Timeout',
-    });
+    await expect(sendRequest(serverSocketPath, { command: 'test' }, 200)).rejects.toThrow(
+      'Timeout'
+    );
   });
 
   it('should use default timeout of 30000', async () => {
@@ -131,8 +124,8 @@ describe('sendRequest', () => {
     const result = await sendRequest(serverSocketPath, { command: 'test' });
     const elapsed = Date.now() - start;
 
-    assert.strictEqual(result.success, true);
-    assert.ok(elapsed < 30000, 'Should complete well before default timeout');
+    expect(result.success).toBe(true);
+    expect(elapsed < 30000).toBeTruthy();
   });
 
   it('should handle response with tips', async () => {
@@ -143,8 +136,8 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(serverSocketPath, { command: 'click' });
 
-    assert.strictEqual(result.success, true);
-    assert.strictEqual(result.tips, 'Try --force');
+    expect(result.success).toBe(true);
+    expect(result.tips).toBe('Try --force');
   });
 
   it('should handle large response', async () => {
@@ -156,8 +149,8 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(serverSocketPath, { command: 'test' });
 
-    assert.strictEqual(result.success, true);
-    assert.strictEqual(result.content, largeContent);
+    expect(result.success).toBe(true);
+    expect(result.content).toBe(largeContent);
   });
 
   it('should handle response with null content', async () => {
@@ -168,7 +161,7 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(serverSocketPath, { command: 'wait' });
 
-    assert.strictEqual(result.success, true);
-    assert.strictEqual(result.content, null);
+    expect(result.success).toBe(true);
+    expect(result.content).toBe(null);
   });
 });

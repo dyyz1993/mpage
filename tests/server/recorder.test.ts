@@ -1,6 +1,4 @@
-/* eslint-disable require-await, no-return-await */
-import { describe, it, mock } from 'node:test';
-import assert from 'node:assert';
+import { describe, it, expect, vi } from 'vitest';
 import { RecorderController } from '../../src/server/recorder/controller.js';
 import { PlaybackEngine } from '../../src/server/recorder/player.js';
 import { getRecorderScript } from '../../src/server/recorder/inject.js';
@@ -17,13 +15,13 @@ function createMockCDPSession(): CDPSession {
   const listeners: Map<string, ConsoleHandler[]> = new Map();
 
   return {
-    send: mock.fn(async () => {}),
-    on: mock.fn((event: string, handler: ConsoleHandler) => {
+    send: vi.fn(async () => {}),
+    on: vi.fn((event: string, handler: ConsoleHandler) => {
       const existing = listeners.get(event) || [];
       existing.push(handler);
       listeners.set(event, existing);
     }),
-    off: mock.fn((event: string, handler: ConsoleHandler) => {
+    off: vi.fn((event: string, handler: ConsoleHandler) => {
       const existing = listeners.get(event) || [];
       const index = existing.indexOf(handler);
       if (index > -1) existing.splice(index, 1);
@@ -43,46 +41,46 @@ function createMockPage(overrides: Partial<Page> = {}): Page {
   const pageRef: { current: Page | null } = { current: null };
 
   const mockContext: BrowserContext = {
-    newCDPSession: mock.fn(async () => cdpSession),
-    exposeFunction: mock.fn(async () => {}),
-    addInitScript: mock.fn(async () => {}),
-    route: mock.fn(async () => {}),
-    on: mock.fn(() => {}),
-    off: mock.fn(() => {}),
-    pages: mock.fn(() => (pageRef.current ? [pageRef.current] : [])),
-    browser: mock.fn(() => null),
+    newCDPSession: vi.fn(() => cdpSession),
+    exposeFunction: vi.fn(() => {}),
+    addInitScript: vi.fn(() => {}),
+    route: vi.fn(() => {}),
+    on: vi.fn(() => {}),
+    off: vi.fn(() => {}),
+    pages: vi.fn(() => (pageRef.current ? [pageRef.current] : [])),
+    browser: vi.fn(() => null),
   } as unknown as BrowserContext;
 
   const mockPage = {
-    context: mock.fn(() => mockContext),
-    goto: mock.fn(async () => {}),
-    evaluate: mock.fn(async (fn: (...args: unknown[]) => unknown | string) => {
+    context: vi.fn(() => mockContext),
+    goto: vi.fn(() => {}),
+    evaluate: vi.fn((fn: (...args: unknown[]) => unknown | string) => {
       if (typeof fn === 'string') {
         return undefined;
       }
       return 'mocked result';
     }),
-    addInitScript: mock.fn(async () => {}),
-    addScriptTag: mock.fn(async () => {}),
-    exposeFunction: mock.fn(async () => {}),
-    viewportSize: mock.fn(() => ({ width: 1280, height: 720 })),
-    url: mock.fn(() => 'https://example.com'),
-    title: mock.fn(async () => 'Example Domain'),
-    click: mock.fn(async () => {}),
-    fill: mock.fn(async () => {}),
-    hover: mock.fn(async () => {}),
-    focus: mock.fn(async () => {}),
-    dblclick: mock.fn(async () => {}),
-    waitForSelector: mock.fn(async () => {}),
-    waitForLoadState: mock.fn(async () => {}),
-    waitForTimeout: mock.fn(async () => {}),
-    waitForURL: mock.fn(async () => {}),
-    $: mock.fn(async () => ({})),
-    isVisible: mock.fn(async () => true),
-    isHidden: mock.fn(async () => false),
-    textContent: mock.fn(async () => ''),
-    setViewportSize: mock.fn(async () => {}),
-    on: mock.fn((event: string, handler: ConsoleHandler | NavigationHandler) => {
+    addInitScript: vi.fn(() => {}),
+    addScriptTag: vi.fn(() => {}),
+    exposeFunction: vi.fn(() => {}),
+    viewportSize: vi.fn(() => ({ width: 1280, height: 720 })),
+    url: vi.fn(() => 'https://example.com'),
+    title: vi.fn(() => 'Example Domain'),
+    click: vi.fn(() => {}),
+    fill: vi.fn(() => {}),
+    hover: vi.fn(() => {}),
+    focus: vi.fn(() => {}),
+    dblclick: vi.fn(() => {}),
+    waitForSelector: vi.fn(() => {}),
+    waitForLoadState: vi.fn(() => {}),
+    waitForTimeout: vi.fn(() => {}),
+    waitForURL: vi.fn(() => {}),
+    $: vi.fn(() => ({})),
+    isVisible: vi.fn(() => true),
+    isHidden: vi.fn(() => false),
+    textContent: vi.fn(() => ''),
+    setViewportSize: vi.fn(() => {}),
+    on: vi.fn((event: string, handler: ConsoleHandler | NavigationHandler) => {
       if (event === 'console') {
         consoleListeners.push(handler as ConsoleHandler);
       }
@@ -90,7 +88,7 @@ function createMockPage(overrides: Partial<Page> = {}): Page {
         navigationListeners.push(handler as NavigationHandler);
       }
     }),
-    off: mock.fn((event: string, handler: ConsoleHandler | NavigationHandler) => {
+    off: vi.fn((event: string, handler: ConsoleHandler | NavigationHandler) => {
       if (event === 'console') {
         const index = consoleListeners.indexOf(handler as ConsoleHandler);
         if (index > -1) consoleListeners.splice(index, 1);
@@ -107,12 +105,12 @@ function createMockPage(overrides: Partial<Page> = {}): Page {
       navigationListeners.forEach((h) => h({}));
     },
     mouse: {
-      move: mock.fn(async () => {}),
+      move: vi.fn(async () => {}),
     } as unknown,
     keyboard: {
-      press: mock.fn(async () => {}),
-      down: mock.fn(async () => {}),
-      up: mock.fn(async () => {}),
+      press: vi.fn(async () => {}),
+      down: vi.fn(async () => {}),
+      up: vi.fn(async () => {}),
     } as unknown,
     ...overrides,
   } as unknown as Page & { emitConsole: (text: string) => void; emitNavigation: () => void };
@@ -125,19 +123,19 @@ describe('RecorderController', () => {
   describe('getRecorderScript', () => {
     it('should return a valid JavaScript string', () => {
       const script = getRecorderScript();
-      assert.ok(typeof script === 'string');
-      assert.ok(script.includes('PageRecorder'));
-      assert.ok(script.includes('window.__pageRecorder'));
+      expect(typeof script === 'string').toBeTruthy();
+      expect(script.includes('PageRecorder')).toBeTruthy();
+      expect(script.includes('window.__pageRecorder')).toBeTruthy();
     });
 
     it('should contain event handlers', () => {
       const script = getRecorderScript();
-      assert.ok(script.includes('handleClick'));
-      assert.ok(script.includes('handleMouseMove'));
-      assert.ok(script.includes('handleScroll'));
-      assert.ok(script.includes('handleKeyDown'));
-      assert.ok(script.includes('handleInput'));
-      assert.ok(script.includes('handleFocus'));
+      expect(script.includes('handleClick')).toBeTruthy();
+      expect(script.includes('handleMouseMove')).toBeTruthy();
+      expect(script.includes('handleScroll')).toBeTruthy();
+      expect(script.includes('handleKeyDown')).toBeTruthy();
+      expect(script.includes('handleInput')).toBeTruthy();
+      expect(script.includes('handleFocus')).toBeTruthy();
     });
   });
 
@@ -147,7 +145,7 @@ describe('RecorderController', () => {
       const recorder = new RecorderController(mockPage);
 
       const status = recorder.getStatus();
-      assert.strictEqual(status, null);
+      expect(status).toBeNull();
     });
   });
 
@@ -159,8 +157,8 @@ describe('RecorderController', () => {
       await recorder.start({ url: 'https://example.com' });
 
       const status = recorder.getStatus();
-      assert.ok(status?.isRecording);
-      assert.strictEqual(status?.eventCount, 1);
+      expect(status?.isRecording).toBeTruthy();
+      expect(status?.eventCount).toBe(1);
     });
 
     it('should throw error if already recording', async () => {
@@ -169,9 +167,9 @@ describe('RecorderController', () => {
 
       await recorder.start({ url: 'https://example.com' });
 
-      await assert.rejects(async () => await recorder.start({ url: 'https://example.com' }), {
-        message: 'Recording is already in progress',
-      });
+      await expect(recorder.start({ url: 'https://example.com' })).rejects.toThrow(
+        'Recording is already in progress'
+      );
     });
 
     it('should navigate to URL if provided', async () => {
@@ -180,7 +178,7 @@ describe('RecorderController', () => {
 
       await recorder.start({ url: 'https://test.com' });
 
-      assert.strictEqual((mockPage.goto as ReturnType<typeof mock.fn>).mock.calls.length, 1);
+      expect((mockPage.goto as ReturnType<typeof vi.fn>).mock.calls.length).toBe(1);
     });
   });
 
@@ -192,19 +190,17 @@ describe('RecorderController', () => {
       await recorder.start({ url: 'https://example.com' });
       const result = await recorder.stop();
 
-      assert.ok(result.session);
-      assert.ok(result.path);
-      assert.ok(result.session.id.startsWith('rec_'));
-      assert.strictEqual(result.session.startUrl, 'https://example.com');
+      expect(result.session).toBeTruthy();
+      expect(result.path).toBeTruthy();
+      expect(result.session.id.startsWith('rec_')).toBeTruthy();
+      expect(result.session.startUrl).toBe('https://example.com');
     });
 
     it('should throw error if not recording', async () => {
       const mockPage = createMockPage();
       const recorder = new RecorderController(mockPage);
 
-      await assert.rejects(async () => await recorder.stop(), {
-        message: 'No recording in progress',
-      });
+      await expect(recorder.stop()).rejects.toThrow('No recording in progress');
     });
 
     it('should reset recording state after stop', async () => {
@@ -215,7 +211,7 @@ describe('RecorderController', () => {
       await recorder.stop();
 
       const status = recorder.getStatus();
-      assert.strictEqual(status, null);
+      expect(status).toBeNull();
     });
 
     it('should await all trackedPages addScriptTag calls before clearing', async () => {
@@ -224,7 +220,7 @@ describe('RecorderController', () => {
 
       const pages = delays.map((delay, idx) => {
         const p = createMockPage({
-          addScriptTag: mock.fn(async (opts: { content: string }) => {
+          addScriptTag: vi.fn(async (opts: { content: string }) => {
             if (opts.content && opts.content.includes('__pageRecorder.stop')) {
               await new Promise((r) => setTimeout(r, delay));
               completedPages.push(`page-${idx}`);
@@ -243,14 +239,8 @@ describe('RecorderController', () => {
 
       await recorder.stop();
 
-      assert.ok(
-        completedPages.includes('page-1'),
-        'page-1 addScriptTag should have completed (only called from trackedPages loop)'
-      );
-      assert.ok(
-        completedPages.includes('page-2'),
-        'page-2 addScriptTag should have completed (only called from trackedPages loop)'
-      );
+      expect(completedPages.includes('page-1')).toBeTruthy();
+      expect(completedPages.includes('page-2')).toBeTruthy();
     });
   });
 
@@ -260,7 +250,7 @@ describe('RecorderController', () => {
       const recorder = new RecorderController(mockPage);
 
       const status = recorder.getStatus();
-      assert.strictEqual(status, null);
+      expect(status).toBeNull();
     });
 
     it('should return status when recording', async () => {
@@ -270,8 +260,8 @@ describe('RecorderController', () => {
       await recorder.start({ url: 'https://example.com' });
 
       const status = recorder.getStatus();
-      assert.ok(status?.isRecording);
-      assert.ok(status?.duration >= 0);
+      expect(status?.isRecording).toBeTruthy();
+      expect(status?.duration >= 0).toBeTruthy();
     });
   });
 });
@@ -313,7 +303,7 @@ describe('PlaybackEngine', () => {
       const mockPage = createMockPage();
       const player = await PlaybackEngine.fromFile(mockPage, filePath);
 
-      assert.ok(player);
+      expect(player).toBeTruthy();
 
       fs.unlinkSync(filePath);
     });
@@ -349,10 +339,10 @@ describe('PlaybackEngine', () => {
       const player = new PlaybackEngine(mockPage, recording);
       const result = await player.play({ noDelay: true });
 
-      assert.ok(result.success);
-      assert.strictEqual(result.eventsPlayed, 1);
-      assert.strictEqual(result.totalEvents, 1);
-      assert.strictEqual((mockPage.click as ReturnType<typeof mock.fn>).mock.calls.length, 1);
+      expect(result.success).toBeTruthy();
+      expect(result.eventsPlayed).toBe(1);
+      expect(result.totalEvents).toBe(1);
+      expect((mockPage.click as ReturnType<typeof vi.fn>).mock.calls.length).toBe(1);
     });
 
     it('should execute fill event', async () => {
@@ -384,8 +374,8 @@ describe('PlaybackEngine', () => {
       const player = new PlaybackEngine(mockPage, recording);
       const result = await player.play({ noDelay: true });
 
-      assert.ok(result.success);
-      assert.strictEqual((mockPage.fill as ReturnType<typeof mock.fn>).mock.calls.length, 1);
+      expect(result.success).toBeTruthy();
+      expect((mockPage.fill as ReturnType<typeof vi.fn>).mock.calls.length).toBe(1);
     });
 
     it('should execute hover event', async () => {
@@ -417,8 +407,8 @@ describe('PlaybackEngine', () => {
       const player = new PlaybackEngine(mockPage, recording);
       const result = await player.play({ noDelay: true });
 
-      assert.ok(result.success);
-      assert.strictEqual((mockPage.hover as ReturnType<typeof mock.fn>).mock.calls.length, 1);
+      expect(result.success).toBeTruthy();
+      expect((mockPage.hover as ReturnType<typeof vi.fn>).mock.calls.length).toBe(1);
     });
 
     it('should execute scroll event', async () => {
@@ -449,8 +439,8 @@ describe('PlaybackEngine', () => {
       const player = new PlaybackEngine(mockPage, recording);
       const result = await player.play({ noDelay: true });
 
-      assert.ok(result.success);
-      assert.strictEqual((mockPage.evaluate as ReturnType<typeof mock.fn>).mock.calls.length, 1);
+      expect(result.success).toBeTruthy();
+      expect((mockPage.evaluate as ReturnType<typeof vi.fn>).mock.calls.length).toBe(1);
     });
 
     it('should execute keydown event', async () => {
@@ -481,16 +471,16 @@ describe('PlaybackEngine', () => {
       const player = new PlaybackEngine(mockPage, recording);
       const result = await player.play({ noDelay: true });
 
-      assert.ok(result.success);
-      const contextMock = mockPage.context as ReturnType<typeof mock.fn>;
-      const ctx = contextMock.mock.calls[0].result;
-      const newCDPSessionMock = ctx.newCDPSession as ReturnType<typeof mock.fn>;
-      const cdp = await newCDPSessionMock.mock.calls[0].result;
-      const cdpSendCalls = (cdp.send as ReturnType<typeof mock.fn>).mock.calls;
+      expect(result.success).toBeTruthy();
+      const contextMock = mockPage.context as ReturnType<typeof vi.fn>;
+      const ctx = contextMock.mock.results[0].value;
+      const newCDPSessionMock = ctx.newCDPSession as ReturnType<typeof vi.fn>;
+      const cdp = await newCDPSessionMock.mock.results[0].value;
+      const cdpSendCalls = (cdp.send as ReturnType<typeof vi.fn>).mock.calls;
       const keyDispatchCalls = cdpSendCalls.filter(
-        (call: { arguments: unknown[] }) => call.arguments[0] === 'Input.dispatchKeyEvent'
+        (call: unknown[]) => call[0] === 'Input.dispatchKeyEvent'
       );
-      assert.strictEqual(keyDispatchCalls.length, 1);
+      expect(keyDispatchCalls.length).toBe(1);
     });
 
     it('should execute focus event', async () => {
@@ -522,8 +512,8 @@ describe('PlaybackEngine', () => {
       const player = new PlaybackEngine(mockPage, recording);
       const result = await player.play({ noDelay: true });
 
-      assert.ok(result.success);
-      assert.strictEqual((mockPage.focus as ReturnType<typeof mock.fn>).mock.calls.length, 1);
+      expect(result.success).toBeTruthy();
+      expect((mockPage.focus as ReturnType<typeof vi.fn>).mock.calls.length).toBe(1);
     });
 
     it('should execute multiple events in sequence', async () => {
@@ -569,9 +559,9 @@ describe('PlaybackEngine', () => {
       const player = new PlaybackEngine(mockPage, recording);
       const result = await player.play({ noDelay: true });
 
-      assert.ok(result.success);
-      assert.strictEqual(result.eventsPlayed, 3);
-      assert.strictEqual(result.totalEvents, 3);
+      expect(result.success).toBeTruthy();
+      expect(result.eventsPlayed).toBe(3);
+      expect(result.totalEvents).toBe(3);
     });
 
     it('should handle wait conditions', async () => {
@@ -604,16 +594,13 @@ describe('PlaybackEngine', () => {
       const player = new PlaybackEngine(mockPage, recording);
       const result = await player.play({ noDelay: true });
 
-      assert.ok(result.success);
-      assert.strictEqual(
-        (mockPage.waitForSelector as ReturnType<typeof mock.fn>).mock.calls.length,
-        1
-      );
+      expect(result.success).toBeTruthy();
+      expect((mockPage.waitForSelector as ReturnType<typeof vi.fn>).mock.calls.length).toBe(1);
     });
 
     it('should stop on error when stopOnError is true', async () => {
       const mockPage = createMockPage({
-        click: mock.fn(async (selector: string) => {
+        click: vi.fn((selector: string) => {
           if (selector === '#error-button') {
             throw new Error('Element not found');
           }
@@ -653,15 +640,15 @@ describe('PlaybackEngine', () => {
       const player = new PlaybackEngine(mockPage, recording);
       const result = await player.play({ noDelay: true, stopOnError: true });
 
-      assert.ok(!result.success);
-      assert.strictEqual(result.errors.length, 1);
-      assert.strictEqual(result.errors[0].eventIndex, 0);
+      expect(result.success).toBeFalsy();
+      expect(result.errors.length).toBe(1);
+      expect(result.errors[0].eventIndex).toBe(0);
     });
 
     it('should continue on error when stopOnError is false', async () => {
       let clickCount = 0;
       const mockPage = createMockPage({
-        click: mock.fn(async (selector: string) => {
+        click: vi.fn((selector: string) => {
           clickCount++;
           if (selector === '#error-button') {
             throw new Error('Element not found');
@@ -702,14 +689,14 @@ describe('PlaybackEngine', () => {
       const player = new PlaybackEngine(mockPage, recording);
       const result = await player.play({ noDelay: true, stopOnError: false });
 
-      assert.ok(!result.success);
-      assert.strictEqual(result.errors.length, 1);
-      assert.strictEqual(clickCount, 2);
+      expect(result.success).toBeFalsy();
+      expect(result.errors.length).toBe(1);
+      expect(clickCount).toBe(2);
     });
 
     it('should call onProgress callback', async () => {
       const mockPage = createMockPage();
-      type ProgressInfo = { current: number; total: number; event: RecordedEvent };
+      type ProgressInfo = { current: number; total: number; event: Record<string, unknown> };
       const progressCalls: ProgressInfo[] = [];
 
       const recording: RecordingSession = {
@@ -745,15 +732,15 @@ describe('PlaybackEngine', () => {
       const player = new PlaybackEngine(mockPage, recording);
       const result = await player.play({
         noDelay: true,
-        onProgress: (info) => progressCalls.push(info),
+        onProgress: (info) => progressCalls.push(info as ProgressInfo),
       });
 
-      assert.ok(result.success);
-      assert.strictEqual(progressCalls.length, 2);
-      assert.strictEqual(progressCalls[0].current, 1);
-      assert.strictEqual(progressCalls[0].total, 2);
-      assert.strictEqual(progressCalls[1].current, 2);
-      assert.strictEqual(progressCalls[1].total, 2);
+      expect(result.success).toBeTruthy();
+      expect(progressCalls.length).toBe(2);
+      expect(progressCalls[0].current).toBe(1);
+      expect(progressCalls[0].total).toBe(2);
+      expect(progressCalls[1].current).toBe(2);
+      expect(progressCalls[1].total).toBe(2);
     });
   });
 });

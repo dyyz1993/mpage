@@ -1,17 +1,16 @@
-import { describe, it } from 'node:test';
-import assert from 'node:assert';
+import { describe, it, expect } from 'vitest';
 import { execSync } from 'child_process';
 
 describe('constants', () => {
   it('DEFAULT_CHROMIUM_PATH should fallback to macOS default', async () => {
     const { DEFAULT_CHROMIUM_PATH } = await import('../src/constants.js');
-    assert.strictEqual(DEFAULT_CHROMIUM_PATH, '/Applications/Chromium.app/Contents/MacOS/Chromium');
+    expect(DEFAULT_CHROMIUM_PATH).toBe('/Applications/Chromium.app/Contents/MacOS/Chromium');
   });
 
   it('DEFAULT_STORAGE should end with mpage', async () => {
     const { DEFAULT_STORAGE } = await import('../src/constants.js');
-    assert.ok(DEFAULT_STORAGE.endsWith('mpage'));
-    assert.ok(typeof DEFAULT_STORAGE === 'string');
+    expect(DEFAULT_STORAGE.endsWith('mpage')).toBeTruthy();
+    expect(typeof DEFAULT_STORAGE === 'string').toBeTruthy();
   });
 
   it('DEFAULT_CHROMIUM_PATH should respect MPAGE_CHROMIUM_PATH env var', () => {
@@ -21,7 +20,7 @@ describe('constants', () => {
     )
       .toString()
       .trim();
-    assert.strictEqual(result, '/custom/chromium');
+    expect(result).toBe('/custom/chromium');
   });
 
   it('DEFAULT_STORAGE should respect MPAGE_STORAGE_DIR env var', () => {
@@ -31,6 +30,6 @@ describe('constants', () => {
     )
       .toString()
       .trim();
-    assert.strictEqual(result, '/custom/storage/mpage');
+    expect(result).toBe('/custom/storage/mpage');
   });
 });

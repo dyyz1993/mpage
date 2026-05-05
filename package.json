@@ -37,7 +37,7 @@
     "prepare": "husky",
     "validate": "npm run typecheck && npm run lint && npm run build && npm test",
     "validate:mpage": "npm run typecheck && npm run lint && npm run build",
-    "validate:xcli": "cd xcli && npm run typecheck && npm run lint && npm test"
+    "validate:xcli": "echo 'xcli has been removed, skipping' && exit 0"
   },
   "lint-staged": {
     "*.ts": [

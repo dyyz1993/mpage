@@ -89,3 +89,80 @@ export type { GuardConfig, GuardRule } from './agent-guard.js';
 
 export { validateExecution, formatValidationReport } from './validator.js';
 export type { ValidationResult, ToolCallRecord } from './validator.js';
+
+// --- New Phase 2 exports (domain-agnostic) ---
+
+export type { SessionMeta } from './session/session-meta.js';
+export { SessionManager } from './session/session-manager.js';
+export {
+  findSession,
+  createSessionMeta,
+  removeSession,
+  getSession,
+  clearAll as clearAllSessions,
+  listSessions,
+  sessions,
+} from './session/session-store.js';
+export {
+  saveArchive,
+  loadArchive,
+  listArchives,
+  searchArchives,
+  diffArchives,
+  appendCommandToArchive,
+  configureArchiveStore,
+} from './session/session-archive.js';
+export type {
+  ToolCallRecord as ArchiveToolCallRecord,
+  CommandArchiveEntry,
+  OutlineEntry,
+  SessionArchive,
+  ArchiveStoreConfig,
+} from './session/session-archive.js';
+
+export type { IPCMessage, IPCResponse } from './daemon/ipc-types.js';
+export type { WorkerContext, WorkerEntryPoint, DaemonConfig } from './daemon/worker-protocol.js';
+export { DEFAULT_DAEMON_CONFIG } from './daemon/worker-protocol.js';
+export {
+  isDaemonRunning,
+  startDaemon,
+  stopDaemon,
+  getDaemonStatus,
+  killAllDaemon,
+} from './daemon/daemon-manager.js';
+export { WorkerManager } from './daemon/worker-manager.js';
+export type { WorkerManagerConfig } from './daemon/worker-manager.js';
+export { startHttpServer } from './daemon/http-server.js';
+export type { RPCHandler, HttpServerConfig } from './daemon/http-server.js';
+
+export type {
+  PluginInstallerType,
+  InstallOptions,
+  PluginInstance as InstalledPluginInstance,
+  PluginInstaller,
+} from './plugin/plugin-installer.js';
+
+export { PluginInstallerRegistry } from './plugin/plugin-installer-registry.js';
+export type { InstallerRegistryConfig } from './plugin/plugin-installer-registry.js';
+
+export type { ScopeDefinition, ScopeLevel, ScopeConfig } from './command/scope.js';
+export { DEFAULT_SCOPE as DEFAULT_GENERIC_SCOPE } from './command/scope.js';
+
+export { ScopeRegistry } from './command/scope-registry.js';
+export type { ScopedCommand } from './command/scope-registry.js';
+
+export { ScaffoldEngine } from './scaffold/index.js';
+export type {
+  ScaffoldTemplate,
+  TemplateFile,
+  TemplateVariable,
+  ScaffoldOptions,
+  ScaffoldResult,
+} from './scaffold/index.js';
+export {
+  BASE_CLI_TEMPLATE,
+  MINIMAL_PLUGIN_TEMPLATE,
+  BROWSER_APP_TEMPLATE,
+} from './scaffold/index.js';
+
+export { generateTips } from './output/tips-engine.js';

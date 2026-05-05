@@ -1,5 +1,4 @@
-import { describe, it, before, after } from 'node:test';
-import assert from 'node:assert';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { chromium } from 'playwright-core';
 import { RecorderController } from '../../src/server/recorder/controller.js';
 import type { Browser } from 'playwright-core';
@@ -7,14 +6,14 @@ import type { Browser } from 'playwright-core';
 describe('Navigation Events Recording Tests', { timeout: 120000 }, () => {
   let browser: Browser;
 
-  before(async () => {
+  beforeAll(async () => {
     browser = await chromium.launch({
       headless: true,
       executablePath: '/Applications/Chromium.app/Contents/MacOS/Chromium',
     });
   });
 
-  after(async () => {
+  afterAll(async () => {
     await browser.close();
   });
 
@@ -54,11 +53,7 @@ describe('Navigation Events Recording Tests', { timeout: 120000 }, () => {
       console.log('✅ PASS: navigation event was recorded');
     }
 
-    assert.ok(
-      navigationEvents.length >= 1,
-      `Should have at least 1 navigation event, got ${navigationEvents.length}. ` +
-        `Navigation events are needed to track page transitions during playback.`
-    );
+    expect(navigationEvents.length >= 1).toBeTruthy();
 
     await context.close();
   });
@@ -87,11 +82,7 @@ describe('Navigation Events Recording Tests', { timeout: 120000 }, () => {
       console.log('✅ PASS: page_load event was recorded');
     }
 
-    assert.ok(
-      pageLoadEvents.length >= 1,
-      `Should have at least 1 page_load event, got ${pageLoadEvents.length}. ` +
-        `Page load events help synchronize playback with page readiness.`
-    );
+    expect(pageLoadEvents.length >= 1).toBeTruthy();
 
     await context.close();
   });
@@ -130,11 +121,7 @@ describe('Navigation Events Recording Tests', { timeout: 120000 }, () => {
       console.log('✅ PASS: hash_change event was recorded');
     }
 
-    assert.ok(
-      hashChangeEvents.length >= 2,
-      `Should have at least 2 hash_change events, got ${hashChangeEvents.length}. ` +
-        `Hash change events are needed for single-page application navigation.`
-    );
+    expect(hashChangeEvents.length >= 2).toBeTruthy();
 
     await context.close();
   });
@@ -173,11 +160,7 @@ describe('Navigation Events Recording Tests', { timeout: 120000 }, () => {
       console.log('✅ PASS: navigation events from pushState were recorded');
     }
 
-    assert.ok(
-      navigationEvents.length >= 2,
-      `Should have at least 2 navigation events from pushState, got ${navigationEvents.length}. ` +
-        `SPA routing via history.pushState must be tracked for proper playback.`
-    );
+    expect(navigationEvents.length >= 2).toBeTruthy();
 
     await context.close();
   });
@@ -211,11 +194,7 @@ describe('Navigation Events Recording Tests', { timeout: 120000 }, () => {
       console.log('✅ PASS: navigation event from replaceState was recorded');
     }
 
-    assert.ok(
-      navigationEvents.length >= 1,
-      `Should have at least 1 navigation event from replaceState, got ${navigationEvents.length}. ` +
-        `SPA routing via history.replaceState must be tracked for proper playback.`
-    );
+    expect(navigationEvents.length >= 1).toBeTruthy();
 
     await context.close();
   });
@@ -257,11 +236,7 @@ describe('Navigation Events Recording Tests', { timeout: 120000 }, () => {
       console.log('✅ PASS: navigation events for popstate were recorded');
     }
 
-    assert.ok(
-      navigationEvents.length >= 3,
-      `Should have at least 3 navigation events (2 pushState + 1 popstate), got ${navigationEvents.length}. ` +
-        `Browser back/forward navigation must be tracked for proper playback.`
-    );
+    expect(navigationEvents.length >= 3).toBeTruthy();
 
     await context.close();
   });
@@ -288,12 +263,12 @@ describe('Navigation Events Recording Tests', { timeout: 120000 }, () => {
       const navEvent = navigationEvents[0];
       console.log('Navigation event data:', JSON.stringify(navEvent.data, null, 2));
 
-      assert.ok(navEvent.data?.url, 'Navigation event should include URL in data');
+      expect(navEvent.data?.url).toBeTruthy();
 
       console.log(`✅ Navigation event has URL: ${navEvent.data.url}`);
     } else {
       console.log('❌ No navigation events to check data structure');
-      assert.fail('No navigation events recorded to verify data structure');
+      expect.unreachable('No navigation events recorded to verify data structure');
     }
 
     await context.close();

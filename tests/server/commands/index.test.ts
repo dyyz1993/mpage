@@ -1,5 +1,4 @@
-import { describe, it, mock } from 'node:test';
-import assert from 'node:assert';
+import { describe, it, expect, vi } from 'vitest';
 import {
   getCommandHandler,
   hasCommand,
@@ -9,11 +8,9 @@ import type { Page } from 'playwright-core';
 
 function createMockPage(): Page {
   return {
-    // eslint-disable-next-line require-await
-    goto: mock.fn(async () => {}),
-    // eslint-disable-next-line require-await
-    title: mock.fn(async () => 'Test'),
-    url: mock.fn(() => 'https://example.com'),
+    goto: vi.fn(() => {}),
+    title: vi.fn(() => 'Test'),
+    url: vi.fn(() => 'https://example.com'),
   } as unknown as Page;
 }
 
@@ -21,51 +18,51 @@ describe('commands index', () => {
   describe('getCommandHandler', () => {
     it('should return handler for valid command', () => {
       const handler = getCommandHandler('goto');
-      assert.ok(typeof handler === 'function');
+      expect(typeof handler === 'function').toBeTruthy();
     });
 
     it('should return null for invalid command', () => {
       const handler = getCommandHandler('nonexistent');
-      assert.strictEqual(handler, null);
+      expect(handler).toBeNull();
     });
 
     it('should resolve aliases', () => {
       const handler = getCommandHandler('findByText');
-      assert.ok(typeof handler === 'function');
+      expect(typeof handler === 'function').toBeTruthy();
     });
 
     it('should resolve waitForTimeout alias', () => {
       const handler = getCommandHandler('waitForTimeout');
-      assert.ok(typeof handler === 'function');
+      expect(typeof handler === 'function').toBeTruthy();
     });
 
     it('should return handler for select, check, waitForSelector', () => {
-      assert.ok(typeof getCommandHandler('select') === 'function');
-      assert.ok(typeof getCommandHandler('check') === 'function');
-      assert.ok(typeof getCommandHandler('waitForSelector') === 'function');
+      expect(typeof getCommandHandler('select') === 'function').toBeTruthy();
+      expect(typeof getCommandHandler('check') === 'function').toBeTruthy();
+      expect(typeof getCommandHandler('waitForSelector') === 'function').toBeTruthy();
     });
   });
 
   describe('hasCommand', () => {
     it('should return true for valid command', () => {
-      assert.strictEqual(hasCommand('goto'), true);
-      assert.strictEqual(hasCommand('click'), true);
-      assert.strictEqual(hasCommand('fill'), true);
+      expect(hasCommand('goto')).toBe(true);
+      expect(hasCommand('click')).toBe(true);
+      expect(hasCommand('fill')).toBe(true);
     });
 
     it('should return false for invalid command', () => {
-      assert.strictEqual(hasCommand('nonexistent'), false);
+      expect(hasCommand('nonexistent')).toBe(false);
     });
 
     it('should work with aliases', () => {
-      assert.strictEqual(hasCommand('findByText'), true);
-      assert.strictEqual(hasCommand('waitForTimeout'), true);
+      expect(hasCommand('findByText')).toBe(true);
+      expect(hasCommand('waitForTimeout')).toBe(true);
     });
 
     it('should recognize select, check, waitForSelector commands', () => {
-      assert.strictEqual(hasCommand('select'), true);
-      assert.strictEqual(hasCommand('check'), true);
-      assert.strictEqual(hasCommand('waitForSelector'), true);
+      expect(hasCommand('select')).toBe(true);
+      expect(hasCommand('check')).toBe(true);
+      expect(hasCommand('waitForSelector')).toBe(true);
     });
   });
 
@@ -74,16 +71,15 @@ describe('commands index', () => {
       const mockPage = createMockPage();
       const result = await executePageCommand(mockPage, 'url', {});
 
-      assert.deepStrictEqual(result, { url: 'https://example.com' });
+      expect(result).toStrictEqual({ url: 'https://example.com' });
     });
 
-    it('should throw for invalid command', async () => {
+    it('should throw for invalid command', () => {
       const mockPage = createMockPage();
 
-      // eslint-disable-next-line no-return-await, require-await
-      await assert.rejects(async () => await executePageCommand(mockPage, 'nonexistent', {}), {
-        message: 'Unknown command: nonexistent',
-      });
+      expect(() => executePageCommand(mockPage, 'nonexistent', {})).toThrow(
+        'Unknown command: nonexistent'
+      );
     });
   });
 });

@@ -1,6 +1,7 @@
 {
-  "name": "@xcli/core",
-  "version": "0.1.0",
+  "name": "@dyyz1993/xcli-core",
+  "version": "0.4.1",
+  "description": "Core framework for building plugin-based CLI applications with scaffolding, daemon, and session management",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,12 +11,33 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "cli",
+    "plugin",
+    "scaffold",
+    "daemon",
+    "xcli",
+    "framework"
+  ],
+  "author": "dyyz1993",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dyyz1993/mpage.git",
+    "directory": "packages/core"
   },
   "dependencies": {
     "zod": "^3.24.0",

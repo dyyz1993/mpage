@@ -67,37 +67,6 @@ importers:
         specifier: ^4.1.0
         version: 4.1.5(@types/node@20.19.39)(jsdom@29.1.1)(vite@8.0.10(@types/node@20.19.39)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/browser:
-    dependencies:
-      '@dyyz1993/xpage':
-        specifier: workspace:*
-        version: link:../..
-      '@xcli/core':
-        specifier: workspace:*
-        version: link:../core
-      '@xcli/session':
-        specifier: workspace:*
-        version: link:../session
-      '@xcli/tips':
-        specifier: workspace:*
-        version: link:../tips
-      playwright:
-        specifier: ^1.40.0
-        version: 1.59.1
-      playwright-core:
-        specifier: ^1.58.2
-        version: 1.59.1
-    devDependencies:
-      '@types/node':
-        specifier: ^20.0.0
-        version: 20.19.39
-      tsup:
-        specifier: ^8.0.0
-        version: 8.5.1(jiti@2.6.1)(postcss@8.5.13)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.4)
-      typescript:
-        specifier: ^5.0.0
-        version: 5.9.3
-
   packages/core:
     dependencies:
       jiti:
@@ -117,19 +86,35 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
-  packages/daemon:
+  packages/create-xcli:
     dependencies:
+      '@dyyz1993/xcli-core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.39
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.1(jiti@2.6.1)(postcss@8.5.13)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.4)
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
+  packages/xcli-browser:
+    dependencies:
+      '@dyyz1993/xcli-core':
+        specifier: workspace:*
+        version: link:../core
       '@dyyz1993/xpage':
         specifier: workspace:*
         version: link:../..
-      '@xcli/core':
-        specifier: workspace:*
-        version: link:../core
-      '@xcli/session':
-        specifier: workspace:*
-        version: link:../session
       playwright:
-        specifier: ^1.52.0
+        specifier: ^1.40.0
+        version: 1.59.1
+      playwright-core:
+        specifier: ^1.58.2
         version: 1.59.1
       ws:
         specifier: ^8.18.0
@@ -141,109 +126,6 @@ importers:
       '@types/ws':
         specifier: ^8.18.1
         version: 8.18.1
-      tsup:
-        specifier: ^8.0.0
-        version: 8.5.1(jiti@2.6.1)(postcss@8.5.13)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.4)
-      typescript:
-        specifier: ^5.0.0
-        version: 5.9.3
-
-  packages/ghcli:
-    dependencies:
-      '@xcli/core':
-        specifier: workspace:*
-        version: link:../core
-      '@xcli/tips':
-        specifier: workspace:*
-        version: link:../tips
-      zod:
-        specifier: ^3.24.0
-        version: 3.25.76
-    devDependencies:
-      '@types/node':
-        specifier: ^20.0.0
-        version: 20.19.39
-      tsup:
-        specifier: ^8.0.0
-        version: 8.5.1(jiti@2.6.1)(postcss@8.5.13)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.4)
-      tsx:
-        specifier: ^4.0.0
-        version: 4.21.0
-      typescript:
-        specifier: ^5.0.0
-        version: 5.9.3
-
-  packages/session:
-    dependencies:
-      '@xcli/core':
-        specifier: workspace:*
-        version: link:../core
-    devDependencies:
-      '@types/node':
-        specifier: ^20.0.0
-        version: 20.19.39
-      '@types/ws':
-        specifier: ^8.5.0
-        version: 8.18.1
-      playwright:
-        specifier: ^1.40.0
-        version: 1.59.1
-      tsup:
-        specifier: ^8.0.0
-        version: 8.5.1(jiti@2.6.1)(postcss@8.5.13)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.4)
-      typescript:
-        specifier: ^5.0.0
-        version: 5.9.3
-      ws:
-        specifier: ^8.16.0
-        version: 8.20.0
-
-  packages/tips:
-    dependencies:
-      '@xcli/core':
-        specifier: workspace:*
-        version: link:../core
-      yaml:
-        specifier: ^2.4.0
-        version: 2.8.4
-    devDependencies:
-      '@types/node':
-        specifier: ^20.0.0
-        version: 20.19.39
-      tsup:
-        specifier: ^8.0.0
-        version: 8.5.1(jiti@2.6.1)(postcss@8.5.13)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.4)
-      typescript:
-        specifier: ^5.0.0
-        version: 5.9.3
-
-  packages/xcli:
-    dependencies:
-      '@dyyz1993/xpage':
-        specifier: workspace:*
-        version: link:../..
-      '@xcli/browser':
-        specifier: workspace:*
-        version: link:../browser
-      '@xcli/core':
-        specifier: workspace:*
-        version: link:../core
-      '@xcli/daemon':
-        specifier: workspace:*
-        version: link:../daemon
-      '@xcli/session':
-        specifier: workspace:*
-        version: link:../session
-      '@xcli/tips':
-        specifier: workspace:*
-        version: link:../tips
-      zod:
-        specifier: ^3.24.0
-        version: 3.25.76
-    devDependencies:
-      '@types/node':
-        specifier: ^20.0.0
-        version: 20.19.39
       tsup:
         specifier: ^8.0.0
         version: 8.5.1(jiti@2.6.1)(postcss@8.5.13)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.4)

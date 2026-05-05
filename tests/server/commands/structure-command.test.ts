@@ -1,5 +1,4 @@
-import { describe, it, mock } from 'node:test';
-import assert from 'node:assert';
+import { describe, it, expect, vi } from 'vitest';
 import { queryCommands } from '../../../src/server/commands/query.js';
 import type { Page } from 'playwright-core';
 
@@ -10,11 +9,11 @@ function createMockPage(): {
   const addScriptTagCalls: Array<{ content?: string; path?: string }> = [];
 
   const page = {
-    addScriptTag: mock.fn((opts: { content?: string; path?: string }) => {
+    addScriptTag: vi.fn((opts: { content?: string; path?: string }) => {
       addScriptTagCalls.push({ content: opts.content, path: opts.path });
       return Promise.resolve();
     }),
-    evaluate: mock.fn((_fn: (..._args: unknown[]) => unknown, ..._args: unknown[]) => {
+    evaluate: vi.fn((_fn: (..._args: unknown[]) => unknown, ..._args: unknown[]) => {
       return Promise.resolve({
         layout: { containers: [], lists: [] },
         yaml: 'body: [1KB]',
@@ -31,22 +30,19 @@ describe('structure command - addScriptTag usage', () => {
 
     await queryCommands.structure(page, { selector: 'body' });
 
-    assert.strictEqual(addScriptTagCalls.length, 1, 'addScriptTag should be called exactly once');
+    expect(addScriptTagCalls.length).toBe(1);
 
     const call = addScriptTagCalls[0];
-    assert.strictEqual(call.path, undefined, 'addScriptTag must NOT be called with path');
-    assert.ok(call.content, 'addScriptTag must be called with content');
-    assert.ok(
-      call.content.includes('__structureExtractor'),
-      'content should define __structureExtractor'
-    );
+    expect(call.path).toBeUndefined();
+    expect(call.content).toBeTruthy();
+    expect(call.content!.includes('__structureExtractor')).toBeTruthy();
   });
 
   it('should not write temp files via fs.writeFileSync', async () => {
     const { page } = createMockPage();
 
     const result = await queryCommands.structure(page, { selector: 'body' });
-    assert.ok(result, 'structure command should succeed without file I/O');
+    expect(result).toBeTruthy();
   });
 
   it('should return structure and yaml from evaluate', async () => {
@@ -54,9 +50,9 @@ describe('structure command - addScriptTag usage', () => {
 
     const result = await queryCommands.structure(page, { selector: '#main' });
 
-    assert.ok(result, 'result should be defined');
+    expect(result).toBeTruthy();
     const r = result as Record<string, unknown>;
-    assert.ok('structure' in r, 'result should have structure');
-    assert.ok('yaml' in r, 'result should have yaml');
+    expect('structure' in r).toBeTruthy();
+    expect('yaml' in r).toBeTruthy();
   });
 });

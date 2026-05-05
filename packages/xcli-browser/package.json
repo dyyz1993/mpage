@@ -1,0 +1,36 @@
+{
+  "name": "@xcli/browser-app",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "xcli-browser": "dist/bin/xcli-browser.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@dyyz1993/xcli-core": "workspace:*",
+    "@dyyz1993/xpage": "workspace:*",
+    "playwright": "^1.40.0",
+    "playwright-core": "^1.58.2",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/ws": "^8.18.1",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}

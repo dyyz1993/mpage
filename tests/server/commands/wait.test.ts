@@ -1,5 +1,4 @@
-import { describe, it, mock } from 'node:test';
-import assert from 'node:assert';
+import { describe, it, expect, vi } from 'vitest';
 import type { Page } from 'playwright-core';
 
 function createWaitPage(): {
@@ -10,11 +9,11 @@ function createWaitPage(): {
   const loadStates: string[] = [];
   const timeouts: number[] = [];
   const page = {
-    waitForLoadState: mock.fn((state: string) => {
+    waitForLoadState: vi.fn((state: string) => {
       loadStates.push(state);
       return Promise.resolve();
     }),
-    waitForTimeout: mock.fn((ms: number) => {
+    waitForTimeout: vi.fn((ms: number) => {
       timeouts.push(ms);
       return Promise.resolve();
     }),
@@ -29,7 +28,7 @@ describe('wait command', () => {
     const { evaluateCommands } = await import('../../../src/server/commands/evaluate.js');
     await evaluateCommands.wait!(page, { state: 'networkidle' });
 
-    assert.deepStrictEqual(getLoadStates(), ['networkidle']);
+    expect(getLoadStates()).toStrictEqual(['networkidle']);
   });
 
   it('should call waitForTimeout when only timeout is provided', async () => {
@@ -38,7 +37,7 @@ describe('wait command', () => {
     const { evaluateCommands } = await import('../../../src/server/commands/evaluate.js');
     await evaluateCommands.wait!(page, { timeout: 3000 });
 
-    assert.deepStrictEqual(getTimeouts(), [3000]);
+    expect(getTimeouts()).toStrictEqual([3000]);
   });
 
   it('should accept state values: load, domcontentloaded, networkidle', async () => {
@@ -50,6 +49,6 @@ describe('wait command', () => {
       await evaluateCommands.wait!(page, { state });
     }
 
-    assert.deepStrictEqual(getLoadStates(), ['load', 'domcontentloaded', 'networkidle']);
+    expect(getLoadStates()).toStrictEqual(['load', 'domcontentloaded', 'networkidle']);
   });
 });
