@@ -27,3 +27,9 @@ test-ui.html
 
 packages/*/dist/
 packages/*/node_modules/
+
+test-scaffold*/
+.opencode/node_modules/
+.yalc/
+yalc.lock
+package-lock.json

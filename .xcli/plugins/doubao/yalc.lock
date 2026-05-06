@@ -1,9 +1,0 @@
-{
-  "version": "v1",
-  "packages": {
-    "xcli": {
-      "signature": "2faee0eedc423d57535c3c19b4935749",
-      "file": true
-    }
-  }
-}
