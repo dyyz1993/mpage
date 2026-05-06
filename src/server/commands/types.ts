@@ -1,3 +1,4 @@
+export type { Page, Frame } from 'playwright-core';
 import type { Page, Frame } from 'playwright-core';
 
 export type PageContext = Page | Frame;

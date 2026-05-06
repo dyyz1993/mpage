@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ok } from '@dyyz1993/xcli-core';
+import { executePageCommand } from '@dyyz1993/xpage';
 import type { BrowserCommandDefinition } from './command-registry.js';
 
 const params = z.object({
@@ -14,11 +15,11 @@ export const checkCommand: BrowserCommandDefinition<typeof params> = {
   scope: 'element',
   parameters: params,
   handler: async (p, ctx) => {
-    if (p.checked) {
-      await ctx.page.check(p.selector, { force: p.force });
-    } else {
-      await ctx.page.uncheck(p.selector, { force: p.force });
-    }
-    return ok({ selector: p.selector, checked: p.checked });
+    const result = await executePageCommand(ctx.page, 'check', {
+      selector: p.selector,
+      checked: p.checked,
+      force: p.force,
+    });
+    return ok(result);
   },
 };

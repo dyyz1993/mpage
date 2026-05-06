@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ok } from '@dyyz1993/xcli-core';
+import { executePageCommand } from '@dyyz1993/xpage';
 import type { BrowserCommandDefinition } from './command-registry.js';
 
 const params = z.object({
@@ -13,7 +14,10 @@ export const selectCommand: BrowserCommandDefinition<typeof params> = {
   scope: 'element',
   parameters: params,
   handler: async (p, ctx) => {
-    const values = await ctx.page.selectOption(p.selector, p.value);
-    return ok({ selector: p.selector, selectedValues: values });
+    const result = await executePageCommand(ctx.page, 'select', {
+      selector: p.selector,
+      value: p.value,
+    });
+    return ok(result);
   },
 };

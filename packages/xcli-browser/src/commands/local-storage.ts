@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ok } from '@dyyz1993/xcli-core';
+import { executePageCommand } from '@dyyz1993/xpage';
 import type { BrowserCommandDefinition } from './command-registry.js';
 
 export const getLocalStorageCommand: BrowserCommandDefinition = {
@@ -7,17 +8,8 @@ export const getLocalStorageCommand: BrowserCommandDefinition = {
   description: 'Get all localStorage entries',
   scope: 'page',
   handler: async (_p, ctx) => {
-    const data = await ctx.page.evaluate(() => {
-      const entries: Record<string, string> = {};
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key) {
-          entries[key] = localStorage.getItem(key) ?? '';
-        }
-      }
-      return entries;
-    });
-    return ok({ data });
+    const result = await executePageCommand(ctx.page, 'getLocalStorage', {});
+    return ok(result);
   },
 };
 
@@ -32,13 +24,11 @@ export const setLocalStorageCommand: BrowserCommandDefinition<typeof setLocalSto
   scope: 'page',
   parameters: setLocalStorageParams,
   handler: async (p, ctx) => {
-    await ctx.page.evaluate(
-      ({ key, value }) => {
-        localStorage.setItem(key, value);
-      },
-      { key: p.key, value: p.value }
-    );
-    return ok({ key: p.key });
+    const result = await executePageCommand(ctx.page, 'setLocalStorage', {
+      key: p.key,
+      value: p.value,
+    });
+    return ok(result);
   },
 };
 
@@ -47,9 +37,7 @@ export const clearLocalStorageCommand: BrowserCommandDefinition = {
   description: 'Clear all localStorage entries',
   scope: 'page',
   handler: async (_p, ctx) => {
-    await ctx.page.evaluate(() => {
-      localStorage.clear();
-    });
-    return ok({ cleared: true });
+    const result = await executePageCommand(ctx.page, 'clearLocalStorage', {});
+    return ok(result);
   },
 };

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ok } from '@dyyz1993/xcli-core';
+import { executePageCommand } from '@dyyz1993/xpage';
 import type { BrowserCommandDefinition } from './command-registry.js';
 
 const params = z.object({
@@ -16,23 +17,13 @@ export const mouseCommand: BrowserCommandDefinition<typeof params> = {
   scope: 'page',
   parameters: params,
   handler: async (p, ctx) => {
-    switch (p.action) {
-      case 'move':
-        await ctx.page.mouse.move(p.x, p.y, { steps: p.steps });
-        break;
-      case 'down':
-        await ctx.page.mouse.down({ button: p.button });
-        break;
-      case 'up':
-        await ctx.page.mouse.up({ button: p.button });
-        break;
-      case 'click':
-        await ctx.page.mouse.click(p.x, p.y, { button: p.button });
-        break;
-      case 'dblclick':
-        await ctx.page.mouse.dblclick(p.x, p.y, { button: p.button });
-        break;
-    }
-    return ok({ action: p.action, x: p.x, y: p.y });
+    const result = await executePageCommand(ctx.page, 'mouse', {
+      action: p.action,
+      x: p.x,
+      y: p.y,
+      button: p.button,
+      steps: p.steps,
+    });
+    return ok(result);
   },
 };

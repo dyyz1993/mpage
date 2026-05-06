@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ok } from '@dyyz1993/xcli-core';
+import { executePageCommand } from '@dyyz1993/xpage';
 import type { BrowserCommandDefinition } from './command-registry.js';
 
 export const getCookiesCommand: BrowserCommandDefinition = {
@@ -7,8 +8,8 @@ export const getCookiesCommand: BrowserCommandDefinition = {
   description: 'Get all cookies for the current page',
   scope: 'page',
   handler: async (_p, ctx) => {
-    const cookies = await ctx.browserContext.cookies();
-    return ok({ cookies });
+    const result = await executePageCommand(ctx.page, 'getCookies', {});
+    return ok(result);
   },
 };
 
@@ -29,8 +30,8 @@ export const setCookieCommand: BrowserCommandDefinition<typeof setCookieParams> 
   scope: 'page',
   parameters: setCookieParams,
   handler: async (p, ctx) => {
-    await ctx.browserContext.addCookies([p]);
-    return ok({ name: p.name });
+    const result = await executePageCommand(ctx.page, 'setCookie', p);
+    return ok(result);
   },
 };
 
@@ -39,7 +40,7 @@ export const clearCookiesCommand: BrowserCommandDefinition = {
   description: 'Clear all cookies',
   scope: 'page',
   handler: async (_p, ctx) => {
-    await ctx.browserContext.clearCookies();
-    return ok({ cleared: true });
+    const result = await executePageCommand(ctx.page, 'clearCookies', {});
+    return ok(result);
   },
 };

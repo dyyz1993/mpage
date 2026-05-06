@@ -1,7 +1,6 @@
 import type { WorkerEntryPoint, WorkerContext } from '@dyyz1993/xcli-core';
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright';
 import { RecorderController, PlaybackEngine, executePageCommand } from '@dyyz1993/xpage';
-import type { Cookie } from 'playwright';
 
 interface WorkerSession {
   id: string;
@@ -30,109 +29,64 @@ function findSession(name: string): WorkerSession | undefined {
   return undefined;
 }
 
-interface MpageCommandMapping {
-  command: string;
-  mapArgs: (p: Record<string, unknown>) => Record<string, unknown>;
-  mapResult: (result: unknown, p: Record<string, unknown>) => unknown;
-}
+const SESSION_LIFECYCLE_COMMANDS = new Set([
+  'session.create',
+  'session.close',
+  'session.closeAll',
+  'session.list',
+]);
 
-const mpageCommandMap: Record<string, MpageCommandMapping> = {
-  'page.goto': {
-    command: 'goto',
-    mapArgs: (p) => ({ url: p.url, waitUntil: p.waitUntil }),
-    mapResult: (result, p) => ({ ok: true, ...(result as Record<string, unknown>), url: p.url }),
-  },
-  'page.click': {
-    command: 'click',
-    mapArgs: (p) => ({ selector: p.selector }),
-    mapResult: (_r, p) => ({ ok: true, selector: p.selector }),
-  },
-  'page.fill': {
-    command: 'fill',
-    mapArgs: (p) => ({ selector: p.selector, value: p.text }),
-    mapResult: (_r, p) => ({ ok: true, selector: p.selector, text: p.text }),
-  },
-  'page.type': {
-    command: 'type',
-    mapArgs: (p) => ({ selector: p.selector, text: p.text }),
-    mapResult: (_r, p) => ({ ok: true, selector: p.selector, text: p.text }),
-  },
-  'page.press': {
-    command: 'press',
-    mapArgs: (p) => ({ selector: p.selector, key: p.key }),
-    mapResult: (_r, p) => ({ ok: true, key: p.key, selector: p.selector }),
-  },
-  'page.select': {
-    command: 'select',
-    mapArgs: (p) => ({ selector: p.selector, value: p.value }),
-    mapResult: (_r, p) => ({ ok: true, selector: p.selector, value: p.value }),
-  },
-  'page.check': {
-    command: 'check',
-    mapArgs: (p) => ({ selector: p.selector }),
-    mapResult: (_r, p) => ({ ok: true, selector: p.selector }),
-  },
-  'page.html': {
-    command: 'html',
-    mapArgs: (p) => ({ selector: p.selector, clean: p.clean }),
-    mapResult: (result) => result,
-  },
-  'page.screenshot': {
-    command: 'screenshotBase64',
-    mapArgs: (p) => ({ fullPage: p.fullPage, type: p.type }),
-    mapResult: (result) => result,
-  },
-  'page.scroll': {
-    command: 'scroll',
-    mapArgs: (p) => {
-      const dir = p.direction as string;
-      const dist = p.distance as number;
-      if (dir === 'up') return { x: 0, y: -dist };
-      if (dir === 'down') return { x: 0, y: dist };
-      return { x: p.x, y: p.y };
-    },
-    mapResult: (_r, p) => ({ ok: true, direction: p.direction, distance: p.distance }),
-  },
-  'page.eval': {
-    command: 'evaluateRaw',
-    mapArgs: (p) => ({ script: p.script }),
-    mapResult: (result) => result,
-  },
-  'page.waitForSelector': {
-    command: 'waitForSelector',
-    mapArgs: (p) => ({ selector: p.selector, timeout: p.timeout }),
-    mapResult: (_r, p) => ({ ok: true, selector: p.selector }),
-  },
-  'page.waitForTimeout': {
-    command: 'wait',
-    mapArgs: (p) => ({ timeout: p.timeout }),
-    mapResult: (_r, p) => ({ ok: true, timeout: p.timeout }),
-  },
-  'page.refresh': {
-    command: 'reload',
-    mapArgs: () => ({}),
-    mapResult: () => ({ ok: true }),
-  },
-  'page.structure': {
-    command: 'structure',
-    mapArgs: (p) => ({ selector: p.selector || 'body' }),
-    mapResult: (result) => ({ ok: true, ...(result as Record<string, unknown>) }),
-  },
+const RECORDER_COMMANDS = new Set(['recorder.start', 'recorder.stop', 'recorder.status']);
+
+const REPLAY_COMMANDS = new Set(['replay.start']);
+
+const DIRECT_PAGE_COMMANDS: Record<string, string> = {
+  'page.snapshot': 'a11y',
+  'page.mouse': 'mouse',
+  'page.get': 'getProperty',
+  'page.navigate': '_navigate',
+  'page.http': '_http',
+  'page.fetch': '_http',
+  'page.addCookie': 'setCookie',
 };
 
-async function executeMpageCommand(
-  page: Page,
-  mapping: MpageCommandMapping,
-  p: Record<string, unknown>
-): Promise<unknown> {
-  const mpageArgs = mapping.mapArgs(p);
-  const result = await executePageCommand(page, mapping.command, mpageArgs);
-  return mapping.mapResult(result, p);
-}
+const STORAGE_COMMANDS = new Set(['storage.get', 'storage.set', 'storage.clear']);
 
 async function routeCommand(method: string, params: Record<string, unknown>): Promise<unknown> {
   const p = params ?? {};
 
+  if (SESSION_LIFECYCLE_COMMANDS.has(method)) {
+    return handleSessionCommand(method, p);
+  }
+
+  if (STORAGE_COMMANDS.has(method)) {
+    return handleStorageCommand(method, p);
+  }
+
+  if (RECORDER_COMMANDS.has(method)) {
+    return handleRecorderCommand(method, p);
+  }
+
+  if (REPLAY_COMMANDS.has(method)) {
+    return handleReplayCommand(method, p);
+  }
+
+  if (method in DIRECT_PAGE_COMMANDS) {
+    return handleDirectPageCommand(method, p);
+  }
+
+  if (method.startsWith('page.')) {
+    const session = findSession(p.name as string);
+    if (!session) return { ok: false, error: 'Session not found' };
+    const commandName = method.replace('page.', '');
+    const result = await executePageCommand(session.page, commandName, p);
+    return { ok: true, ...(result as Record<string, unknown>) };
+  }
+
+  throw new Error(`Unknown method: ${method}`);
+}
+
+async function handleSessionCommand(method: string, p: Record<string, unknown>): Promise<unknown> {
   switch (method) {
     case 'session.create': {
       const b = await getBrowser();
@@ -174,23 +128,23 @@ async function routeCommand(method: string, params: Record<string, unknown>): Pr
       };
     }
 
+    default:
+      throw new Error(`Unknown session method: ${method}`);
+  }
+}
+
+async function handleStorageCommand(method: string, p: Record<string, unknown>): Promise<unknown> {
+  switch (method) {
     case 'storage.get': {
       const gs = findSession(p.name as string);
       if (!gs) return p.type === 'cookies' ? { cookies: [] } : { localStorage: {} };
       if (p.type === 'cookies') {
-        const cookies = await gs.context.cookies();
-        return { cookies };
+        const result = await executePageCommand(gs.page, 'getCookies', {});
+        return result;
       }
       if (p.type === 'localStorage') {
-        const lsData = await gs.page.evaluate(() => {
-          const result: Record<string, string> = {};
-          for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key) result[key] = localStorage.getItem(key) || '';
-          }
-          return result;
-        });
-        return { localStorage: lsData };
+        const result = await executePageCommand(gs.page, 'getLocalStorage', {});
+        return { localStorage: (result as Record<string, unknown>).data };
       }
       return p.type === 'cookies' ? { cookies: [] } : { localStorage: {} };
     }
@@ -199,12 +153,12 @@ async function routeCommand(method: string, params: Record<string, unknown>): Pr
       const ss = findSession(p.name as string);
       if (!ss) return { ok: true };
       if (p.type === 'cookies' && p.data) {
-        await ss.context.addCookies([p.data as Cookie]);
+        await executePageCommand(ss.page, 'setCookie', p.data as Record<string, unknown>);
       } else if (p.type === 'localStorage' && p.key !== undefined) {
-        await ss.page.evaluate(
-          ([k, v]) => localStorage.setItem(k, v),
-          [p.key as string, (p.value as string) || '']
-        );
+        await executePageCommand(ss.page, 'setLocalStorage', {
+          key: p.key as string,
+          value: (p.value as string) || '',
+        });
       }
       return { ok: true };
     }
@@ -213,157 +167,20 @@ async function routeCommand(method: string, params: Record<string, unknown>): Pr
       const cs = findSession(p.name as string);
       if (!cs) return { ok: true };
       if (p.type === 'cookies') {
-        await cs.context.clearCookies();
+        await executePageCommand(cs.page, 'clearCookies', {});
       } else if (p.type === 'localStorage') {
-        await cs.page.evaluate(() => localStorage.clear());
+        await executePageCommand(cs.page, 'clearLocalStorage', {});
       }
       return { ok: true };
     }
 
-    case 'page.snapshot': {
-      const snps = findSession(p.name as string);
-      if (!snps) return { elements: [] };
-      const elements = await snps.page.evaluate(
-        (interactive: boolean) => {
-          const allElements = document.querySelectorAll(
-            interactive ? 'a, button, input, select, textarea, [onclick], [role="button"]' : '*'
-          );
-          const results: Array<{ tag: string; text: string; attrs: Record<string, string> }> = [];
-          const seen = new Set<string>();
+    default:
+      throw new Error(`Unknown storage method: ${method}`);
+  }
+}
 
-          allElements.forEach((el) => {
-            const tag = el.tagName.toLowerCase();
-            const text = el.textContent?.trim().slice(0, 100) || '';
-            const attrs: Record<string, string> = {};
-            for (const attr of el.attributes) {
-              attrs[attr.name] = attr.value;
-            }
-            const key = `${tag}-${text}-${Object.keys(attrs).join(',')}`;
-            if (!seen.has(key) && (text || tag === 'img' || tag === 'input')) {
-              seen.add(key);
-              results.push({ tag, text, attrs });
-            }
-          });
-
-          return results.slice(0, 100).map((item, idx) => ({
-            ref: `@e${idx + 1}`,
-            ...item,
-          }));
-        },
-        (p.interactiveOnly as boolean) || false
-      );
-      return { elements };
-    }
-
-    case 'page.mouse': {
-      const ms = findSession(p.name as string);
-      if (!ms) return { ok: false, error: 'Session not found' };
-      const action = p.action as string;
-      const x = p.x as number;
-      const y = p.y as number;
-      const steps = p.steps as number | undefined;
-      if (action === 'move') {
-        await ms.page.mouse.move(x, y, { steps: steps || 1 });
-      } else if (action === 'down') {
-        await ms.page.mouse.down();
-      } else if (action === 'up') {
-        await ms.page.mouse.up();
-      } else if (action === 'click') {
-        await ms.page.mouse.click(x, y);
-      }
-      return { ok: true, action, x, y };
-    }
-
-    case 'page.get': {
-      const gts = findSession(p.name as string);
-      if (!gts) return { ok: false, error: 'Session not found' };
-      const prop = p.property as string;
-      if (prop === 'url') {
-        return { ok: true, property: prop, selector: p.selector, value: gts.page.url() };
-      }
-      if (prop === 'title') {
-        const titleResult = await executePageCommand(gts.page, 'title', {});
-        return {
-          ok: true,
-          property: prop,
-          selector: p.selector,
-          value: (titleResult as Record<string, unknown>).title as string,
-        };
-      }
-      if (p.selector) {
-        if (prop === 'value') {
-          const valueResult = await executePageCommand(gts.page, 'inputValue', {
-            selector: p.selector,
-          });
-          return {
-            ok: true,
-            property: prop,
-            selector: p.selector,
-            value: (valueResult as Record<string, unknown>).value as string,
-          };
-        }
-        const textResult = await executePageCommand(gts.page, 'textContent', {
-          selector: p.selector,
-        });
-        return {
-          ok: true,
-          property: prop,
-          selector: p.selector,
-          value: (textResult as Record<string, unknown>).text as string,
-        };
-      }
-      return { ok: true, property: prop, selector: p.selector, value: '' };
-    }
-
-    case 'page.navigate': {
-      const ns = findSession(p.name as string);
-      if (!ns) return { ok: false, error: 'Session not found' };
-      const direction = p.direction as string;
-      if (direction === 'back') {
-        await executePageCommand(ns.page, 'goBack', {});
-      } else if (direction === 'forward') {
-        await executePageCommand(ns.page, 'goForward', {});
-      }
-      return { ok: true, direction };
-    }
-
-    case 'page.http':
-    case 'page.fetch': {
-      const fts = findSession(p.name as string);
-      if (!fts) return { ok: false, error: 'Session not found' };
-      const requestHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (p.headers) Object.assign(requestHeaders, p.headers as Record<string, string>);
-      const fetchOptions: RequestInit = {
-        method: (p.method as string) || 'GET',
-        headers: requestHeaders,
-      };
-      if (p.body && (p.method === 'POST' || p.method === 'PUT' || p.method === 'PATCH')) {
-        fetchOptions.body = JSON.stringify(p.body);
-      }
-      const response = await fts.page.evaluate(
-        async ({ u, opts }: { u: string; opts: RequestInit }) => {
-          const res = await fetch(u, opts);
-          const contentType = res.headers.get('content-type') || '';
-          let data;
-          if (contentType.includes('json')) {
-            data = await res.json();
-          } else {
-            data = await res.text();
-          }
-          return { status: res.status, ok: res.ok, contentType, data };
-        },
-        { u: p.url as string, opts: fetchOptions }
-      );
-      return response;
-    }
-
-    case 'page.addCookie': {
-      const acs = findSession(p.name as string);
-      if (!acs) return { ok: false, error: 'Session not found' };
-      await acs.context.addCookies([p.cookie as Cookie]);
-      return { ok: true, cookie: p.cookie };
-    }
-
+async function handleRecorderCommand(method: string, p: Record<string, unknown>): Promise<unknown> {
+  switch (method) {
     case 'recorder.start': {
       const recSession = findSession(p.name as string);
       if (!recSession) throw new Error('Session not found');
@@ -394,22 +211,131 @@ async function routeCommand(method: string, params: Record<string, unknown>): Pr
       return { ok: true, status: sSession.recorder.getStatus() };
     }
 
-    case 'replay.start': {
-      const replaySession = findSession(p.name as string);
-      if (!replaySession) throw new Error('Session not found');
-      const engine = await PlaybackEngine.fromFile(replaySession.page, p.filePath as string);
-      const replayResult = await engine.play({ slowMo: (p.slowMo as number) || 1 });
-      return { ok: true, result: replayResult };
+    default:
+      throw new Error(`Unknown recorder method: ${method}`);
+  }
+}
+
+async function handleReplayCommand(method: string, p: Record<string, unknown>): Promise<unknown> {
+  if (method === 'replay.start') {
+    const replaySession = findSession(p.name as string);
+    if (!replaySession) throw new Error('Session not found');
+    const engine = await PlaybackEngine.fromFile(replaySession.page, p.filePath as string);
+    const replayResult = await engine.play({ slowMo: (p.slowMo as number) || 1 });
+    return { ok: true, result: replayResult };
+  }
+  throw new Error(`Unknown replay method: ${method}`);
+}
+
+async function handleDirectPageCommand(
+  method: string,
+  p: Record<string, unknown>
+): Promise<unknown> {
+  const session = findSession(p.name as string);
+  if (!session) return { ok: false, error: 'Session not found' };
+
+  switch (method) {
+    case 'page.snapshot': {
+      const result = await executePageCommand(session.page, 'a11y', {
+        selector: p.selector || 'body',
+        format: 'yaml',
+      });
+      return result;
     }
 
-    default: {
-      if (method in mpageCommandMap) {
-        const session = findSession(p.name as string);
-        if (!session) return { ok: false, error: 'Session not found' };
-        return executeMpageCommand(session.page, mpageCommandMap[method], p);
-      }
-      throw new Error(`Unknown method: ${method}`);
+    case 'page.mouse': {
+      return executePageCommand(session.page, 'mouse', {
+        action: p.action,
+        x: p.x,
+        y: p.y,
+        steps: p.steps,
+      });
     }
+
+    case 'page.get': {
+      const prop = p.property as string;
+      if (prop === 'url') {
+        return { ok: true, property: prop, selector: p.selector, value: session.page.url() };
+      }
+      if (prop === 'title') {
+        const titleResult = await executePageCommand(session.page, 'title', {});
+        return {
+          ok: true,
+          property: prop,
+          selector: p.selector,
+          value: (titleResult as Record<string, unknown>).title as string,
+        };
+      }
+      if (p.selector) {
+        if (prop === 'value') {
+          const valueResult = await executePageCommand(session.page, 'inputValue', {
+            selector: p.selector,
+          });
+          return {
+            ok: true,
+            property: prop,
+            selector: p.selector,
+            value: (valueResult as Record<string, unknown>).value as string,
+          };
+        }
+        const textResult = await executePageCommand(session.page, 'textContent', {
+          selector: p.selector,
+        });
+        return {
+          ok: true,
+          property: prop,
+          selector: p.selector,
+          value: (textResult as Record<string, unknown>).text as string,
+        };
+      }
+      return { ok: true, property: prop, selector: p.selector, value: '' };
+    }
+
+    case 'page.navigate': {
+      const direction = p.direction as string;
+      if (direction === 'back') {
+        await executePageCommand(session.page, 'goBack', {});
+      } else if (direction === 'forward') {
+        await executePageCommand(session.page, 'goForward', {});
+      }
+      return { ok: true, direction };
+    }
+
+    case 'page.http':
+    case 'page.fetch': {
+      const requestHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (p.headers) Object.assign(requestHeaders, p.headers as Record<string, string>);
+      const fetchOptions: RequestInit = {
+        method: (p.method as string) || 'GET',
+        headers: requestHeaders,
+      };
+      if (p.body && (p.method === 'POST' || p.method === 'PUT' || p.method === 'PATCH')) {
+        fetchOptions.body = JSON.stringify(p.body);
+      }
+      const response = await session.page.evaluate(
+        async ({ u, opts }: { u: string; opts: RequestInit }) => {
+          const res = await fetch(u, opts);
+          const contentType = res.headers.get('content-type') || '';
+          let data;
+          if (contentType.includes('json')) {
+            data = await res.json();
+          } else {
+            data = await res.text();
+          }
+          return { status: res.status, ok: res.ok, contentType, data };
+        },
+        { u: p.url as string, opts: fetchOptions }
+      );
+      return response;
+    }
+
+    case 'page.addCookie': {
+      await executePageCommand(session.page, 'setCookie', p.cookie as Record<string, unknown>);
+      return { ok: true, cookie: p.cookie };
+    }
+
+    default:
+      throw new Error(`Unknown direct page method: ${method}`);
   }
 }
 
@@ -418,8 +344,7 @@ export class BrowserWorker implements WorkerEntryPoint {
     await getBrowser();
   }
 
-  // eslint-disable-next-line require-await
-  async execute(method: string, params: Record<string, unknown>): Promise<unknown> {
+  execute(method: string, params: Record<string, unknown>): Promise<unknown> {
     return routeCommand(method, params);
   }
 

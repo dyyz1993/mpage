@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ok } from '@dyyz1993/xcli-core';
+import { executePageCommand } from '@dyyz1993/xpage';
 import type { BrowserCommandDefinition } from './command-registry.js';
 
 const params = z.object({
@@ -17,18 +18,10 @@ export const setViewportCommand: BrowserCommandDefinition<typeof params> = {
   scope: 'browser',
   parameters: params,
   handler: async (p, ctx) => {
-    const viewport = ctx.page.viewportSize();
-    await ctx.page.setViewportSize({
-      width: p.width ?? viewport?.width ?? 1280,
-      height: p.height ?? viewport?.height ?? 720,
+    const result = await executePageCommand(ctx.page, 'setViewport', {
+      width: p.width,
+      height: p.height,
     });
-    if (p.userAgent) {
-      await ctx.browserContext.setExtraHTTPHeaders({});
-      await ctx.page.context().clearCookies();
-    }
-    return ok({
-      width: p.width ?? viewport?.width ?? 1280,
-      height: p.height ?? viewport?.height ?? 720,
-    });
+    return ok(result);
   },
 };

@@ -12,11 +12,30 @@ export const snapshotCommands: CommandModule = {
   },
 
   screenshotBase64: async (ctx: PageContext, args: Record<string, unknown>) => {
-    const buffer = await (ctx as Page).screenshot({
+    const options: Record<string, unknown> = {
       fullPage: (args.fullPage as boolean) || false,
-      ...(args.type ? { type: args.type as 'png' | 'jpeg' } : {}),
-    });
-    return { screenshot: buffer.toString('base64') };
+    };
+    if (args.type) options.type = args.type;
+    if (args.quality !== undefined) options.quality = args.quality;
+    if (args.selector) {
+      const buffer = await (ctx as Page)
+        .locator(args.selector as string)
+        .first()
+        .screenshot(options);
+      return {
+        screenshot: buffer.toString('base64'),
+        data: buffer.toString('base64'),
+        format: args.type || 'png',
+        size: buffer.length,
+      };
+    }
+    const buffer = await (ctx as Page).screenshot(options);
+    return {
+      screenshot: buffer.toString('base64'),
+      data: buffer.toString('base64'),
+      format: args.type || 'png',
+      size: buffer.length,
+    };
   },
 
   a11y: async (ctx: PageContext, args: Record<string, unknown>) => {

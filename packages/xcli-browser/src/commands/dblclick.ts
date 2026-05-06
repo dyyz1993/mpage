@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ok } from '@dyyz1993/xcli-core';
+import { executePageCommand } from '@dyyz1993/xpage';
 import type { BrowserCommandDefinition } from './command-registry.js';
 
 const params = z.object({
@@ -15,11 +16,12 @@ export const dblclickCommand: BrowserCommandDefinition<typeof params> = {
   scope: 'element',
   parameters: params,
   handler: async (p, ctx) => {
-    await ctx.page.dblclick(p.selector, {
+    const result = await executePageCommand(ctx.page, 'dblclick', {
+      selector: p.selector,
       button: p.button,
       delay: p.delay,
       force: p.force,
     });
-    return ok({ selector: p.selector });
+    return ok(result);
   },
 };

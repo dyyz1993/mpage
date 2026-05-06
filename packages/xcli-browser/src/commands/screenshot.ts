@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ok } from '@dyyz1993/xcli-core';
+import { executePageCommand } from '@dyyz1993/xpage';
 import type { BrowserCommandDefinition } from './command-registry.js';
 
 const params = z.object({
@@ -15,23 +16,12 @@ export const screenshotCommand: BrowserCommandDefinition<typeof params> = {
   scope: 'page',
   parameters: params,
   handler: async (p, ctx) => {
-    const options: Record<string, unknown> = {
-      type: p.type,
+    const result = await executePageCommand(ctx.page, 'screenshotBase64', {
+      selector: p.selector,
       fullPage: p.fullPage,
-    };
-    if (p.quality !== undefined && p.type === 'jpeg') {
-      options.quality = p.quality;
-    }
-    let buffer: Buffer;
-    if (p.selector) {
-      buffer = await ctx.page.locator(p.selector).first().screenshot(options);
-    } else {
-      buffer = await ctx.page.screenshot(options);
-    }
-    return ok({
-      data: buffer.toString('base64'),
-      format: p.type,
-      size: buffer.length,
+      type: p.type,
+      quality: p.quality,
     });
+    return ok(result);
   },
 };

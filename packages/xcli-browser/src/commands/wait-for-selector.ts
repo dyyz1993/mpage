@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ok } from '@dyyz1993/xcli-core';
+import { executePageCommand } from '@dyyz1993/xpage';
 import type { BrowserCommandDefinition } from './command-registry.js';
 
 const params = z.object({
@@ -17,7 +18,11 @@ export const waitForSelectorCommand: BrowserCommandDefinition<typeof params> = {
   scope: 'page',
   parameters: params,
   handler: async (p, ctx) => {
-    await ctx.page.waitForSelector(p.selector, { state: p.state, timeout: p.timeout });
-    return ok({ selector: p.selector, found: true });
+    const result = await executePageCommand(ctx.page, 'waitForSelector', {
+      selector: p.selector,
+      state: p.state,
+      timeout: p.timeout,
+    });
+    return ok(result);
   },
 };

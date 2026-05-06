@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ok } from '@dyyz1993/xcli-core';
+import { executePageCommand } from '@dyyz1993/xpage';
 import type { BrowserCommandDefinition } from './command-registry.js';
 
 const params = z.object({
@@ -14,11 +15,11 @@ export const pressCommand: BrowserCommandDefinition<typeof params> = {
   scope: 'page',
   parameters: params,
   handler: async (p, ctx) => {
-    if (p.selector) {
-      await ctx.page.press(p.selector, p.key, { delay: p.delay });
-    } else {
-      await ctx.page.keyboard.press(p.key, { delay: p.delay });
-    }
-    return ok({ key: p.key });
+    const result = await executePageCommand(ctx.page, 'press', {
+      key: p.key,
+      selector: p.selector,
+      delay: p.delay,
+    });
+    return ok(result);
   },
 };

@@ -5,7 +5,7 @@ export const commands: Record<string, CommandDefinition> = {
   goto: {
     schema: z.object({
       url: z.string(),
-      waitUntil: z.enum(['load', 'domcontentloaded', 'networkidle']).optional(),
+      waitUntil: z.enum(['load', 'domcontentloaded', 'networkidle', 'commit']).optional(),
       timeout: z.number().optional(),
     }),
     description: 'Navigate to URL',
@@ -13,16 +13,31 @@ export const commands: Record<string, CommandDefinition> = {
   click: {
     schema: z.object({
       selector: z.string(),
+      button: z.enum(['left', 'right', 'middle']).optional(),
+      clickCount: z.number().optional(),
+      delay: z.number().optional(),
       timeout: z.number().optional(),
       force: z.boolean().optional(),
     }),
     description: 'Click element',
   },
+  dblclick: {
+    schema: z.object({
+      selector: z.string(),
+      button: z.enum(['left', 'right', 'middle']).optional(),
+      delay: z.number().optional(),
+      timeout: z.number().optional(),
+      force: z.boolean().optional(),
+    }),
+    description: 'Double-click element',
+  },
   fill: {
     schema: z.object({
       selector: z.string(),
       value: z.string(),
+      clear: z.boolean().optional(),
       timeout: z.number().optional(),
+      force: z.boolean().optional(),
     }),
     description: 'Fill input',
   },
@@ -31,6 +46,8 @@ export const commands: Record<string, CommandDefinition> = {
       selector: z.string(),
       text: z.string(),
       delay: z.number().optional(),
+      clear: z.boolean().optional(),
+      timeout: z.number().optional(),
     }),
     description: 'Type text',
   },
@@ -46,6 +63,8 @@ export const commands: Record<string, CommandDefinition> = {
     schema: z.object({
       selector: z.string(),
       timeout: z.number().optional(),
+      force: z.boolean().optional(),
+      modifiers: z.array(z.enum(['Alt', 'Control', 'Meta', 'Shift'])).optional(),
     }),
     description: 'Hover element',
   },
@@ -67,15 +86,81 @@ export const commands: Record<string, CommandDefinition> = {
   check: {
     schema: z.object({
       selector: z.string(),
+      checked: z.boolean().optional(),
+      force: z.boolean().optional(),
     }),
-    description: 'Check checkbox',
+    description: 'Check/uncheck checkbox',
   },
   waitForSelector: {
     schema: z.object({
       selector: z.string(),
       timeout: z.number().optional(),
+      state: z.enum(['attached', 'detached', 'visible', 'hidden']).optional(),
     }),
     description: 'Wait for element to appear in DOM',
+  },
+  mouse: {
+    schema: z.object({
+      action: z.enum(['move', 'down', 'up', 'click', 'dblclick']),
+      x: z.number().optional(),
+      y: z.number().optional(),
+      button: z.enum(['left', 'right', 'middle']).optional(),
+      steps: z.number().optional(),
+    }),
+    description: 'Low-level mouse control',
+  },
+  getProperty: {
+    schema: z.object({
+      selector: z.string().optional(),
+      property: z.string(),
+    }),
+    description: 'Get element property value',
+  },
+  setViewport: {
+    schema: z.object({
+      width: z.number().optional(),
+      height: z.number().optional(),
+      deviceScaleFactor: z.number().optional(),
+      isMobile: z.boolean().optional(),
+      hasTouch: z.boolean().optional(),
+    }),
+    description: 'Set viewport size',
+  },
+  getCookies: {
+    schema: z.object({}),
+    description: 'Get all cookies',
+  },
+  setCookie: {
+    schema: z.object({
+      name: z.string(),
+      value: z.string(),
+      domain: z.string().optional(),
+      path: z.string().optional(),
+      expires: z.number().optional(),
+      httpOnly: z.boolean().optional(),
+      secure: z.boolean().optional(),
+      sameSite: z.enum(['Strict', 'Lax', 'None']).optional(),
+    }),
+    description: 'Set a cookie',
+  },
+  clearCookies: {
+    schema: z.object({}),
+    description: 'Clear all cookies',
+  },
+  getLocalStorage: {
+    schema: z.object({}),
+    description: 'Get all localStorage entries',
+  },
+  setLocalStorage: {
+    schema: z.object({
+      key: z.string(),
+      value: z.string(),
+    }),
+    description: 'Set a localStorage entry',
+  },
+  clearLocalStorage: {
+    schema: z.object({}),
+    description: 'Clear all localStorage entries',
   },
   waitForTimeout: {
     schema: z.object({ timeout: z.number() }),
@@ -85,12 +170,19 @@ export const commands: Record<string, CommandDefinition> = {
     schema: z.object({
       path: z.string().optional(),
       fullPage: z.boolean().optional(),
+      type: z.enum(['png', 'jpeg']).optional(),
+      quality: z.number().optional(),
+      selector: z.string().optional(),
     }),
     description: 'Take screenshot',
   },
   evaluate: {
     schema: z.object({ expression: z.string() }),
     description: 'Evaluate JavaScript',
+  },
+  evaluateRaw: {
+    schema: z.object({ script: z.string() }),
+    description: 'Evaluate raw async JavaScript',
   },
   title: {
     schema: z.object({}),
@@ -104,6 +196,7 @@ export const commands: Record<string, CommandDefinition> = {
     schema: z.object({
       selector: z.string().optional(),
       clean: z.boolean().optional(),
+      full: z.boolean().optional(),
     }),
     description: 'Get HTML content (use --clean true to remove Vue attrs and empty elements)',
   },

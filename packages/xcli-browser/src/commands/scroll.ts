@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ok } from '@dyyz1993/xcli-core';
+import { executePageCommand } from '@dyyz1993/xpage';
 import type { BrowserCommandDefinition } from './command-registry.js';
 
 const params = z.object({
@@ -15,27 +16,29 @@ export const scrollCommand: BrowserCommandDefinition<typeof params> = {
   parameters: params,
   handler: async (p, ctx) => {
     if (p.selector) {
-      const element = ctx.page.locator(p.selector).first();
-      if (p.direction === 'down') {
-        await element.evaluate((el, d) => el.scrollBy(0, d as number), p.distance);
-      } else if (p.direction === 'up') {
-        await element.evaluate((el, d) => el.scrollBy(0, -(d as number)), p.distance);
-      } else if (p.direction === 'right') {
-        await element.evaluate((el, d) => el.scrollBy(d as number, 0), p.distance);
-      } else {
-        await element.evaluate((el, d) => el.scrollBy(-(d as number), 0), p.distance);
-      }
-    } else {
-      if (p.direction === 'down') {
-        await ctx.page.mouse.wheel(0, p.distance);
-      } else if (p.direction === 'up') {
-        await ctx.page.mouse.wheel(0, -p.distance);
-      } else if (p.direction === 'right') {
-        await ctx.page.mouse.wheel(p.distance, 0);
-      } else {
-        await ctx.page.mouse.wheel(-p.distance, 0);
-      }
+      const result = await executePageCommand(ctx.page, 'scroll', {
+        selector: p.selector,
+      });
+      return ok({
+        selector: p.selector,
+        direction: p.direction,
+        distance: p.distance,
+        ...(result as Record<string, unknown>),
+      });
     }
-    return ok({ direction: p.direction, distance: p.distance });
+    const dir = p.direction;
+    const dist = p.distance;
+    let x = 0;
+    let y = 0;
+    if (dir === 'up') y = -dist;
+    else if (dir === 'down') y = dist;
+    else if (dir === 'left') x = -dist;
+    else x = dist;
+    const result = await executePageCommand(ctx.page, 'scroll', { x, y });
+    return ok({
+      direction: p.direction,
+      distance: p.distance,
+      ...(result as Record<string, unknown>),
+    });
   },
 };

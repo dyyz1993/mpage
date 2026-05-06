@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ok } from '@dyyz1993/xcli-core';
+import { executePageCommand } from '@dyyz1993/xpage';
 import type { BrowserCommandDefinition } from './command-registry.js';
 
 const params = z.object({
@@ -16,12 +17,13 @@ export const clickCommand: BrowserCommandDefinition<typeof params> = {
   scope: 'element',
   parameters: params,
   handler: async (p, ctx) => {
-    await ctx.page.click(p.selector, {
+    const result = await executePageCommand(ctx.page, 'click', {
+      selector: p.selector,
       button: p.button,
       clickCount: p.clickCount,
       delay: p.delay,
       force: p.force,
     });
-    return ok({ selector: p.selector });
+    return ok(result);
   },
 };

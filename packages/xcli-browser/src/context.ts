@@ -1,6 +1,7 @@
 import type { CommandContext, CommandScope } from '@dyyz1993/xcli-core';
 import type { Page, Browser, BrowserContext } from 'playwright';
 import type { RecorderController } from '@dyyz1993/xpage';
+import { executePageCommand } from '@dyyz1993/xpage';
 
 export interface BrowserCommandContext extends CommandContext {
   page: Page;
@@ -22,4 +23,12 @@ export function checkBrowserScope(scope: CommandScope, ctx: BrowserCommandContex
     default:
       return null;
   }
+}
+
+export function executeCommand(
+  page: Page,
+  commandName: string,
+  params: Record<string, unknown>
+): Promise<unknown> {
+  return executePageCommand(page, commandName, params);
 }

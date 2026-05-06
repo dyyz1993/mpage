@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ok } from '@dyyz1993/xcli-core';
+import { executePageCommand } from '@dyyz1993/xpage';
 import type { BrowserCommandDefinition } from './command-registry.js';
 
 const params = z.object({
@@ -30,34 +31,10 @@ export const getPropertyCommand: BrowserCommandDefinition<typeof params> = {
   scope: 'element',
   parameters: params,
   handler: async (p, ctx) => {
-    const selector = p.selector ?? 'body';
-    const element = ctx.page.locator(selector).first();
-
-    let value: string | null | boolean;
-    switch (p.property) {
-      case 'text':
-        value = await element.textContent();
-        break;
-      case 'innerHTML':
-        value = await element.innerHTML();
-        break;
-      case 'outerHTML':
-        value = (await element.evaluate((el) => el.outerHTML)) as string;
-        break;
-      case 'value':
-        value = (await element.inputValue()) as string;
-        break;
-      case 'checked':
-        value = await element.isChecked();
-        break;
-      case 'disabled':
-        value = await element.isDisabled();
-        break;
-      default:
-        value = (await element.getAttribute(p.property)) ?? null;
-        break;
-    }
-
-    return ok({ selector, property: p.property, value });
+    const result = await executePageCommand(ctx.page, 'getProperty', {
+      selector: p.selector,
+      property: p.property,
+    });
+    return ok(result);
   },
 };

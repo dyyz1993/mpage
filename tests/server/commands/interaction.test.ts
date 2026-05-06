@@ -69,7 +69,7 @@ describe('interactionCommands - select', () => {
       value: 'shanghai',
     });
 
-    expect(result).toStrictEqual({ selector: '#city', value: 'shanghai' });
+    expect(result).toStrictEqual({ selector: '#city', value: 'shanghai', selectedValues: [] });
     expect((mockPage.selectOption as ReturnType<typeof vi.fn>).mock.calls.length).toBe(1);
   });
 
@@ -88,7 +88,7 @@ describe('interactionCommands - check', () => {
     const mockPage = createMockPage();
     const result = await interactionCommands.check(mockPage, { selector: '#agree' });
 
-    expect(result).toStrictEqual({ selector: '#agree' });
+    expect(result).toStrictEqual({ selector: '#agree', checked: true });
     expect((mockPage.check as ReturnType<typeof vi.fn>).mock.calls.length).toBe(1);
   });
 

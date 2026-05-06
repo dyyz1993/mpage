@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ok } from '@dyyz1993/xcli-core';
+import { executePageCommand } from '@dyyz1993/xpage';
 import type { BrowserCommandDefinition } from './command-registry.js';
 
 const params = z.object({
@@ -12,7 +13,9 @@ export const waitForTimeoutCommand: BrowserCommandDefinition<typeof params> = {
   scope: 'page',
   parameters: params,
   handler: async (p, ctx) => {
-    await ctx.page.waitForTimeout(p.timeout);
-    return ok({ waited: p.timeout });
+    const result = await executePageCommand(ctx.page, 'wait', {
+      timeout: p.timeout,
+    });
+    return ok(result);
   },
 };
