@@ -6,12 +6,14 @@ export default createConfig([
     format: ['esm'],
     dts: true,
     clean: true,
+    external: ['@dyyz1993/xcli-core'],
   },
   {
     entry: ['bin/create-xcli.ts'],
     format: ['esm'],
     dts: false,
     clean: false,
+    external: ['@dyyz1993/xcli-core'],
     banner: {
       js: '#!/usr/bin/env node',
     },
