@@ -1,0 +1,125 @@
+name: Template E2E Validation
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - 'packages/core/src/scaffold/**'
+      - 'packages/create-xcli/**'
+      - '.github/workflows/template-e2e.yml'
+  pull_request:
+    branches: [master, main]
+    paths:
+      - 'packages/core/src/scaffold/**'
+      - 'packages/create-xcli/**'
+  workflow_dispatch:
+
+jobs:
+  validate-templates:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        template: [base, minimal-plugin, browser, database, api]
+        node-version: [20]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: |
+          pnpm --filter @dyyz1993/xcli-core build
+          pnpm --filter create-xcli build
+
+      - name: Generate project from ${{ matrix.template }} template
+        run: |
+          cd /tmp
+          node ${{ github.workspace }}/packages/create-xcli/dist/create-xcli.js test-${{ matrix.template }} --template ${{ matrix.template }}
+          cd test-${{ matrix.template }}
+          echo "=== Generated files ==="
+          find . -not -path '*/node_modules/*' -type f
+
+      - name: Validate generated structure
+        run: |
+          PROJECT_DIR="/tmp/test-${{ matrix.template }}"
+
+          test -f "$PROJECT_DIR/package.json" || { echo "Missing package.json"; exit 1; }
+
+          if [ "${{ matrix.template }}" != "minimal-plugin" ]; then
+            test -d "$PROJECT_DIR/src" || { echo "Missing src/"; exit 1; }
+          fi
+
+          echo "Structure validation passed for ${{ matrix.template }}"
+
+      - name: Install generated project dependencies
+        run: |
+          cd /tmp/test-${{ matrix.template }}
+          npm install --legacy-peer-deps 2>&1 | tail -5
+
+      - name: Build generated project
+        run: |
+          cd /tmp/test-${{ matrix.template }}
+          npm run build 2>&1 | tail -10
+
+  full-user-journey:
+    runs-on: ubuntu-latest
+    needs: validate-templates
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Setup
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm --filter @dyyz1993/xcli-core build
+          pnpm --filter create-xcli build
+
+      - name: Journey 1 - Create base CLI, build and run
+        run: |
+          cd /tmp
+          node ${{ github.workspace }}/packages/create-xcli/dist/create-xcli.js journey-test
+          cd journey-test
+          npm install --legacy-peer-deps
+          npm run build
+          echo "=== Run CLI ==="
+          node dist/cli.js 2>&1 || true
+          echo "Journey 1 passed"
+
+      - name: Journey 2 - Create plugin and verify structure
+        run: |
+          cd /tmp
+          node ${{ github.workspace }}/packages/create-xcli/dist/create-xcli.js my-plugin -t minimal-plugin
+          cd my-plugin
+          cat index.ts
+          grep -q "createSite" index.ts || { echo "Missing createSite"; exit 1; }
+          grep -q "hello" index.ts || { echo "Missing hello command"; exit 1; }
+          echo "Journey 2 passed"
+
+  notify:
+    needs: [validate-templates, full-user-journey]
+    runs-on: ubuntu-latest
+    if: failure()
+    steps:
+      - name: Notify failure
+        run: echo "Template E2E validation failed!"
