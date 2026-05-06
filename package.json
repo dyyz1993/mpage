@@ -1,8 +1,8 @@
 {
   "name": "@dyyz1993/xpage",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Browser automation engine library based on Playwright",
-  "private": true,
+  "private": false,
   "type": "module",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
