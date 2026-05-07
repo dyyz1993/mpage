@@ -29,7 +29,7 @@ export const API_CLI_TEMPLATE: ScaffoldTemplate = {
   "description": "{{description}}",
   "type": "module",
   "bin": {
-    "{{projectName}}": "dist/bin/cli.js"
+    "{{projectName}}": "dist/cli.js"
   },
   "main": "dist/index.js",
   "scripts": {
@@ -169,13 +169,21 @@ export interface APICommandContext extends CommandContext {
 import { request } from 'undici';
 import type { APIConfig, RequestOptions, APIResponse } from './types.js';
 
+function parseConfig(raw: Record<string, unknown>): APIConfig {
+  return {
+    baseUrl: (raw.baseUrl as string) || 'https://api.example.com',
+    defaultHeaders: (raw.defaultHeaders as Record<string, string>) || {},
+    timeout: (raw.timeout as number) || 30000,
+  };
+}
+
 export class APIWorker implements WorkerEntryPoint {
   private ctx!: WorkerContext;
   private config!: APIConfig;
 
   async init(ctx: WorkerContext): Promise<void> {
     this.ctx = ctx;
-    this.config = ctx.config as APIConfig;
+    this.config = parseConfig(ctx.config);
     ctx.ipc.send('api:ready', { baseUrl: this.config.baseUrl });
   }
 
@@ -246,7 +254,7 @@ export class APIWorker implements WorkerEntryPoint {
 
     return {
       status: res.statusCode,
-      statusText: res.statusMessage || '',
+      statusText: '',
       headers: responseHeaders,
       body,
       duration: Date.now() - start,
@@ -264,9 +272,19 @@ export function createAPIWorker(): WorkerEntryPoint {
       content: `import { z } from 'zod';
 import type { Core } from '@dyyz1993/xcli-core';
 import { ok } from '@dyyz1993/xcli-core';
+import { request } from 'undici';
+
+const BASE_URL = '{{baseUrl}}';
+
+function resolveUrl(path: string): string {
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  const base = BASE_URL.replace(/\\/$/, '');
+  const rel = path.startsWith('/') ? path : \`/\${path}\`;
+  return \`\${base}\${rel}\`;
+}
 
 export function registerGetCommand(app: Core): void {
-  const site = app.loader.createSite({
+  const site = app.loader.getAPI().createSite({
     name: '{{projectName}}',
     url: '{{baseUrl}}',
   });
@@ -279,8 +297,14 @@ export function registerGetCommand(app: Core): void {
       headers: z.record(z.string()).optional().describe('Additional headers'),
     }),
     handler: async (params) => {
-      const result = await app.getDaemon().execute('get', params);
-      return ok(result);
+      const start = Date.now();
+      const url = resolveUrl(params.url);
+      const res = await request(url, {
+        method: 'GET',
+        headers: params.headers || {},
+      });
+      const body = await res.body.json();
+      return ok({ status: res.statusCode, body, duration: Date.now() - start }, [\`\${res.statusCode} \${url}\`]);
     },
   });
 }
@@ -291,9 +315,19 @@ export function registerGetCommand(app: Core): void {
       content: `import { z } from 'zod';
 import type { Core } from '@dyyz1993/xcli-core';
 import { ok } from '@dyyz1993/xcli-core';
+import { request } from 'undici';
+
+const BASE_URL = '{{baseUrl}}';
+
+function resolveUrl(path: string): string {
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  const base = BASE_URL.replace(/\\/$/, '');
+  const rel = path.startsWith('/') ? path : \`/\${path}\`;
+  return \`\${base}\${rel}\`;
+}
 
 export function registerPostCommand(app: Core): void {
-  const site = app.loader.createSite({
+  const site = app.loader.getAPI().createSite({
     name: '{{projectName}}',
     url: '{{baseUrl}}',
   });
@@ -307,8 +341,15 @@ export function registerPostCommand(app: Core): void {
       headers: z.record(z.string()).optional().describe('Additional headers'),
     }),
     handler: async (params) => {
-      const result = await app.getDaemon().execute('post', params);
-      return ok(result);
+      const start = Date.now();
+      const url = resolveUrl(params.url);
+      const res = await request(url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', ...params.headers },
+        body: params.body ? JSON.stringify(params.body) : undefined,
+      });
+      const body = await res.body.json();
+      return ok({ status: res.statusCode, body, duration: Date.now() - start }, [\`\${res.statusCode} \${url}\`]);
     },
   });
 }
@@ -319,9 +360,19 @@ export function registerPostCommand(app: Core): void {
       content: `import { z } from 'zod';
 import type { Core } from '@dyyz1993/xcli-core';
 import { ok } from '@dyyz1993/xcli-core';
+import { request } from 'undici';
+
+const BASE_URL = '{{baseUrl}}';
+
+function resolveUrl(path: string): string {
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  const base = BASE_URL.replace(/\\/$/, '');
+  const rel = path.startsWith('/') ? path : \`/\${path}\`;
+  return \`\${base}\${rel}\`;
+}
 
 export function registerPutCommand(app: Core): void {
-  const site = app.loader.createSite({
+  const site = app.loader.getAPI().createSite({
     name: '{{projectName}}',
     url: '{{baseUrl}}',
   });
@@ -334,8 +385,15 @@ export function registerPutCommand(app: Core): void {
       body: z.unknown().optional().describe('Request body (JSON)'),
     }),
     handler: async (params) => {
-      const result = await app.getDaemon().execute('put', params);
-      return ok(result);
+      const start = Date.now();
+      const url = resolveUrl(params.url);
+      const res = await request(url, {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: params.body ? JSON.stringify(params.body) : undefined,
+      });
+      const body = await res.body.json();
+      return ok({ status: res.statusCode, body, duration: Date.now() - start }, [\`\${res.statusCode} \${url}\`]);
     },
   });
 }
@@ -346,9 +404,19 @@ export function registerPutCommand(app: Core): void {
       content: `import { z } from 'zod';
 import type { Core } from '@dyyz1993/xcli-core';
 import { ok } from '@dyyz1993/xcli-core';
+import { request } from 'undici';
+
+const BASE_URL = '{{baseUrl}}';
+
+function resolveUrl(path: string): string {
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  const base = BASE_URL.replace(/\\/$/, '');
+  const rel = path.startsWith('/') ? path : \`/\${path}\`;
+  return \`\${base}\${rel}\`;
+}
 
 export function registerDeleteCommand(app: Core): void {
-  const site = app.loader.createSite({
+  const site = app.loader.getAPI().createSite({
     name: '{{projectName}}',
     url: '{{baseUrl}}',
   });
@@ -360,8 +428,11 @@ export function registerDeleteCommand(app: Core): void {
       url: z.string().describe('Request URL or path'),
     }),
     handler: async (params) => {
-      const result = await app.getDaemon().execute('delete', params);
-      return ok(result);
+      const start = Date.now();
+      const url = resolveUrl(params.url);
+      const res = await request(url, { method: 'DELETE' });
+      const body = await res.body.json();
+      return ok({ status: res.statusCode, body, duration: Date.now() - start }, [\`\${res.statusCode} \${url}\`]);
     },
   });
 }
@@ -428,7 +499,7 @@ npm run build
 ## Usage
 
 \`\`\`bash
-node dist/bin/cli.js <command>
+node dist/cli.js <command>
 \`\`\`
 
 ## Commands

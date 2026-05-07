@@ -54,13 +54,47 @@ jobs:
           name: coverage-report-${{ matrix.node-version }}
           path: ./coverage/
 
+  test-core:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm run build:packages
+
+      - name: Run core tests with coverage
+        run: cd packages/core && npx vitest run --coverage
+
+      - name: Upload core coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/core/coverage/lcov.info
+          flags: core-plugin-system
+          name: core-plugin-coverage
+          fail_ci_if_error: false
+
   feishu-notify:
     name: Feishu Notification
     if: always()
-    needs: [ci]
+    needs: [ci, test-core]
     uses: dyyz1993/ci-tools/.github/workflows/feishu-notify.yml@main
     with:
-      jobs: '{"ci":"${{ needs.ci.result }}"}'
+      jobs: '{"ci":"${{ needs.ci.result }}","test-core":"${{ needs.test-core.result }}"}'
       sha: ${{ github.sha }}
       ref: ${{ github.ref_name }}
       actor: ${{ github.actor }}

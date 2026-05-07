@@ -1,27 +1,10 @@
+import { loadArchive as loadSessionArchive } from './session/session-archive.js';
+
 export interface ToolCallRecord {
   tool: string;
   timestamp: number;
   duration: number;
   result: string;
-}
-
-interface ArchivedCommand {
-  command: string;
-  result: {
-    success: boolean;
-    data: unknown;
-  };
-  duration: number;
-  toolCalls: ToolCallRecord[];
-  validation?: {
-    l2_behavior?: {
-      score: number;
-    };
-  };
-}
-
-interface SessionArchive {
-  commands: ArchivedCommand[];
 }
 
 export interface ValidationResult {
@@ -42,10 +25,6 @@ export interface ValidationResult {
     status: 'pass' | 'warn' | 'skip';
     diff: string[];
   };
-}
-
-function loadArchive(_sessionId: string): SessionArchive | null {
-  return null;
 }
 
 export function validateExecution(
@@ -204,7 +183,7 @@ function validateRegression(
   currentData: unknown,
   currentDuration: number
 ): ValidationResult['l3_regression'] {
-  const archive = loadArchive(sessionId);
+  const archive = loadSessionArchive(sessionId);
 
   const commandKey = `${siteName} ${cmdName}`;
 

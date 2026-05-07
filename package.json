@@ -27,6 +27,8 @@
     "typecheck": "tsc --noEmit",
     "typecheck:packages": "pnpm -r --filter './packages/*' --stream run typecheck",
     "test": "tsx --test tests/**/*.test.ts",
+    "test:core": "cd packages/core && vitest run",
+    "test:all": "tsx --test tests/**/*.test.ts && pnpm run test:core",
     "prepublishOnly": "npm run build",
     "prepare": "husky",
     "validate": "npm run typecheck && npm run lint && npm run build && npm test"

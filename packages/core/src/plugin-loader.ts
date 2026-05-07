@@ -26,9 +26,11 @@ export class PluginInstance {
   readonly path: string;
   readonly siteName: string;
 
+  private registeredSiteNames: string[] = [];
   private registeredCommands: string[] = [];
   private registeredFlags: string[] = [];
   private registeredTools: string[] = [];
+  private overriddenCommands: Map<string, Command & { handler: CommandHandler }> = new Map();
   private loadHandlers: Array<() => void | Promise<void>> = [];
   private unloadHandlers: Array<() => void | Promise<void>> = [];
   private eventHandlers: Map<string, Set<EventHandler>> = new Map();
@@ -57,6 +59,10 @@ export class PluginInstance {
     return this._error;
   }
 
+  addSiteName(name: string): void {
+    this.registeredSiteNames.push(name);
+  }
+
   addCommand(name: string): void {
     this.registeredCommands.push(name);
   }
@@ -67,6 +73,16 @@ export class PluginInstance {
 
   addTool(name: string): void {
     this.registeredTools.push(name);
+  }
+
+  addOverriddenCommand(name: string, original: Command & { handler: CommandHandler }): void {
+    if (!this.overriddenCommands.has(name)) {
+      this.overriddenCommands.set(name, original);
+    }
+  }
+
+  getOverriddenCommands(): Map<string, Command & { handler: CommandHandler }> {
+    return this.overriddenCommands;
   }
 
   addLoadHandler(handler: () => void | Promise<void>): void {
@@ -82,6 +98,10 @@ export class PluginInstance {
       this.eventHandlers.set(event, new Set());
     }
     this.eventHandlers.get(event)?.add(handler);
+  }
+
+  getRegisteredSiteNames(): string[] {
+    return [...this.registeredSiteNames];
   }
 
   getRegisteredCommands(): string[] {
@@ -137,6 +157,7 @@ export class PluginInstance {
     this.loadHandlers = [];
     this.unloadHandlers = [];
     this.eventHandlers.clear();
+    this.registeredSiteNames = [];
     this.registeredCommands = [];
     this.registeredFlags = [];
     this.registeredTools = [];
@@ -216,11 +237,23 @@ export class PluginLoader {
         const site = new SiteInstanceImpl(config, pluginStorage);
         self.sites.set(config.name, site);
 
+        const active = self.getActiveInstance();
+        if (active) {
+          active.addSiteName(config.name);
+        }
+
         return site;
       },
 
       registerCommand(cmd: Command & { handler: CommandHandler }) {
         const key = cmd.name;
+        const existing = self.commands.get(key);
+        if (existing) {
+          const active = self.getActiveInstance();
+          if (active) {
+            active.addOverriddenCommand(key, existing);
+          }
+        }
         self.commands.set(key, cmd);
 
         const active = self.getActiveInstance();
@@ -403,11 +436,17 @@ export class PluginLoader {
 
   cleanupPluginRegistrations(instance: PluginInstance): void {
     for (const cmd of instance.getRegisteredCommands()) {
-      this.commands.delete(cmd);
+      const overridden = instance.getOverriddenCommands().get(cmd);
+      if (overridden) {
+        this.commands.set(cmd, overridden);
+      } else {
+        this.commands.delete(cmd);
+      }
     }
 
-    const siteName = instance.siteName;
-    this.sites.delete(siteName);
+    for (const siteName of instance.getRegisteredSiteNames()) {
+      this.sites.delete(siteName);
+    }
 
     for (const flag of instance.getRegisteredFlags()) {
       this.flags.delete(flag);
@@ -526,7 +565,7 @@ export class PluginLoader {
   }
 }
 
-function derivePluginId(pluginPath: string): string {
+export function derivePluginId(pluginPath: string): string {
   const base = basename(pluginPath, extname(pluginPath));
   if (base === 'index') {
     const parentDir = pluginPath.split('/').slice(-2, -1)[0] || base;

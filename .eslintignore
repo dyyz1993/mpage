@@ -6,3 +6,6 @@ node_modules/
 .env.local
 coverage/
 *.tsbuildinfo
+**/fixtures/**
+packages/core/vitest.config.ts
+packages/xcli-browser/vitest.config.ts

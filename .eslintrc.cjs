@@ -46,4 +46,18 @@ module.exports = {
     }],
   },
   ignorePatterns: ['dist', 'node_modules', '*.js', 'xcli/'],
+  overrides: [
+    {
+      files: ['**/__tests__/**/*.ts', 'tests/**/*.ts'],
+      rules: {
+        'require-await': 'off',
+        'no-return-await': 'off',
+        'no-throw-literal': 'off',
+        '@typescript-eslint/ban-types': 'off',
+        '@typescript-eslint/no-var-requires': 'off',
+        '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+        '@typescript-eslint/consistent-type-imports': 'off',
+      },
+    },
+  ],
 };

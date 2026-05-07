@@ -3,7 +3,7 @@
 ## 会话信息
 - **会话ID**: session-2026-05-05
 - **创建时间**: 2026-05-05
-- **最后更新**: 2026-05-05 (全部完成)
+- **最后更新**: 2026-05-07 (框架教学 & 插件系统测试)
 
 ## 用户需求记录
 
@@ -202,3 +202,88 @@
 - vitest (测试)
 - eslint + prettier (代码规范)
 - husky + lint-staged (Git hooks)
+
+---
+
+## 会话记录 — 框架教学 & 插件系统测试（2026-05-07）
+
+### 用户需求
+1. 了解项目是做什么的、各包的含义
+2. 框架有用部分 vs 剥离部分、架构设计、如何创建 CLI
+3. 完整跑一遍脚手架，提供教学，落盘到 KB
+4. 插件安装器 5 种类型是否有测试覆盖？用户要求补全测试 + GitHub CI 验证
+5. 插件命令覆盖原有指令，同时能调用原 handler（装饰器模式）
+
+### 已完成工作
+
+#### A. 脚手架全量验证 & 模板修复
+- 用 5 个模板分别生成项目：base(8文件)、minimal-plugin(3)、browser(11)、database(18)、api(17)
+- 每个模板执行 install → build → run 端到端验证
+- 发现并修复 5 类模板问题：
+  1. CoreConfig 必填字段缺失（base-cli 的 bin/cli.ts）
+  2. tsup 输出路径与 package.json bin 路径不匹配
+  3. database-cli TypeScript 类型断言错误（Record<string,unknown> as DatabaseConfig）
+  4. database-cli tsup 未 external 数据库驱动（better-sqlite3/mysql2/pg）
+  5. api-cli API 调用方式错误（app.loader.createSite → 正确 API）
+
+#### B. 教学文档 & 知识沉淀
+- 编写 `.opencode/tutorial-xcli-framework.md`（1123 行，8 章 + 3 附录）
+- KB 知识沉淀 9 篇：
+  | 文档 | ID |
+  |------|-----|
+  | xcli-core 框架架构总览 | b5418dgeo0 |
+  | WorkerEntryPoint 接口设计与生命周期 | ffzz4j1j7v |
+  | xcli-core 公共 API 速查表 | 2ivjfhjq8u |
+  | create-xcli 脚手架完整使用指南 | dej7sc9w86 |
+  | create-xcli 模板踩坑与修复记录 | w5hp9la7cc |
+  | xcli 插件开发完整模式指南 | sid81n0xol |
+  | xcli 插件开发最佳实践与禁令 | zbghumq0tx |
+  | xcli 插件系统测试架构与覆盖报告 | lwc8vho31l |
+  | Vitest monorepo 测试配置模式 | mtre8odm6v |
+
+#### C. 插件系统测试（从 0 到 125 个测试）
+新建 `packages/core/__tests__/plugin/` 目录，4 个测试文件：
+| 文件 | 测试数 | 覆盖范围 |
+|------|--------|---------|
+| installers.test.ts | 66 | 5 种安装器（local/npm/git/url/builtin）+ Registry |
+| plugin-loader.test.ts | 37 | jiti TS 加载、生命周期、createSite、命令清理、事件 |
+| plugin-e2e.test.ts | 7 | 完整链路 + 多插件共存 + 错误恢复 + storage 隔离 |
+| plugin-storage.test.ts | 15 | CRUD + 持久化 + 损坏恢复 |
+
+#### D. GitHub Actions CI 配置
+- 更新 `.github/workflows/ci.yml`：新增 `test-core` job
+- 新建 `.github/workflows/plugin-e2e.yml`：插件专属 CI（paths filter + 分步验证）
+- 根 `package.json` 新增 `test:core` / `test:all` 脚本
+
+#### E. 命令覆盖/包装功能（插件装饰器模式）
+改造 2 个源文件，新增 ~40 行代码：
+1. `CommandEntry.previousHandler` — 保存被覆盖的原始 handler
+2. `SiteInstance.getOriginalHandler()` — 获取原始 handler
+3. `PluginInstance.overriddenCommands` — 追踪覆盖关系
+4. `cleanupPluginRegistrations()` 恢复逻辑 — 卸载时恢复原始命令
+
+### 关键决策
+- 测试文件放在 `packages/core/__tests__/` 而非根 `tests/`（monorepo 包独立性）
+- jiti TS 加载测试不 mock，用真实文件系统验证编译
+- 命令覆盖使用"站点级 previousHandler + Loader 级 overriddenCommands"双层设计
+- 覆盖恢复策略：仅当命令未被其他插件进一步覆盖时才恢复
+
+### 进度跟踪
+- ✅ 脚手架全量验证
+- ✅ 教学文档
+- ✅ 知识沉淀 9 篇
+- ✅ 插件安装器单元测试（66 个）
+- ✅ PluginLoader jiti 测试（37 个）
+- ✅ 端到端测试（7 个）
+- ✅ PluginStorage 测试（15 个）
+- ✅ GitHub CI 配置
+- ✅ 命令覆盖/包装功能
+- ✅ 核心模块全量测试覆盖（595 个测试 / 91.35% Statements / 26 个测试文件）
+
+### 后续可选优化
+- 命令覆盖/包装功能的专项测试（多层覆盖、覆盖链恢复验证）
+- fail() 返回值场景的测试
+- 参数校验（Zod schema 验证）的测试
+- npm/git/url 安装器的真实网络测试（非 mock）
+- 更多领域模板的完整验证
+- marketplace 集成

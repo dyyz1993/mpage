@@ -110,6 +110,7 @@ export interface CommandEntry {
   examples?: Array<{ cmd: string; description: string }>;
   tips?: string[];
   handler: CommandHandler;
+  previousHandler?: CommandHandler;
 }
 
 export interface SiteInstance {
@@ -145,6 +146,7 @@ export interface SiteInstance {
     scope: CommandScope;
   }>;
   getCommand(name: string): CommandEntry | null;
+  getOriginalHandler(commandName: string): CommandHandler | undefined;
   executeLogin(ctx: CommandContext): Promise<void>;
   executeLogout(ctx: CommandContext): Promise<void>;
 }
@@ -233,6 +235,7 @@ export class SiteInstanceImpl implements SiteInstance {
       examples: cmd.examples,
       tips: cmd.tips,
       handler: cmd.handler as CommandHandler,
+      previousHandler: existing?.handler,
     });
     return this;
   }
@@ -249,6 +252,11 @@ export class SiteInstanceImpl implements SiteInstance {
 
   getCommand(name: string): CommandEntry | null {
     return this.commands.get(name) ?? null;
+  }
+
+  getOriginalHandler(commandName: string): CommandHandler | undefined {
+    const cmd = this.commands.get(commandName);
+    return cmd?.previousHandler;
   }
 
   getAllCommands(): Array<{

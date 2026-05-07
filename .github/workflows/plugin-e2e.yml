@@ -1,0 +1,78 @@
+name: Plugin System E2E
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'packages/core/src/plugin/**'
+      - 'packages/core/src/plugin-loader.ts'
+      - 'packages/core/__tests__/plugin/**'
+      - 'packages/core/__tests__/fixtures/**'
+      - '.github/workflows/plugin-e2e.yml'
+  pull_request:
+    branches: [master]
+    paths:
+      - 'packages/core/src/plugin/**'
+      - 'packages/core/src/plugin-loader.ts'
+      - 'packages/core/__tests__/plugin/**'
+      - 'packages/core/__tests__/fixtures/**'
+  workflow_dispatch:
+
+jobs:
+  plugin-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm run build:packages
+
+      - name: Run plugin installer tests
+        run: cd packages/core && npx vitest run __tests__/plugin/installers.test.ts
+
+      - name: Run PluginLoader tests
+        run: cd packages/core && npx vitest run __tests__/plugin/plugin-loader.test.ts
+
+      - name: Run all core tests with coverage
+        run: cd packages/core && npx vitest run --coverage
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/core/coverage/lcov.info
+          flags: core-plugin-system
+          name: core-plugin-e2e-coverage
+          fail_ci_if_error: false
+
+  feishu-notify:
+    name: Feishu Notification
+    if: always()
+    needs: [plugin-tests]
+    uses: dyyz1993/ci-tools/.github/workflows/feishu-notify.yml@main
+    with:
+      jobs: '{"plugin-tests":"${{ needs.plugin-tests.result }}"}'
+      sha: ${{ github.sha }}
+      ref: ${{ github.ref_name }}
+      actor: ${{ github.actor }}
+      repo: ${{ github.repository }}
+      run-id: ${{ github.run_id }}
+    secrets:
+      FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}

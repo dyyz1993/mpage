@@ -24,7 +24,7 @@ export const BASE_CLI_TEMPLATE: ScaffoldTemplate = {
   "description": "{{description}}",
   "type": "module",
   "bin": {
-    "{{projectName}}": "dist/bin/cli.js"
+    "{{projectName}}": "dist/cli.js"
   },
   "main": "dist/index.js",
   "scripts": {
@@ -92,6 +92,10 @@ import { Core } from '@dyyz1993/xcli-core';
 const app = new Core({
   name: '{{projectName}}',
   version: '0.1.0',
+  description: '{{description}}',
+  configDirName: '.{{projectName}}',
+  envPrefix: '{{projectName}}',
+  pluginDirs: [],
 });
 
 // Register your plugins here
@@ -130,7 +134,7 @@ npm run build
 ## Usage
 
 \`\`\`bash
-node dist/bin/cli.js <command>
+node dist/cli.js <command>
 \`\`\`
 
 ## Development

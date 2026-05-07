@@ -24,7 +24,7 @@ export const BROWSER_APP_TEMPLATE: ScaffoldTemplate = {
   "description": "{{description}}",
   "type": "module",
   "bin": {
-    "{{projectName}}": "dist/bin/cli.js"
+    "{{projectName}}": "dist/cli.js"
   },
   "main": "dist/index.js",
   "scripts": {
@@ -154,7 +154,7 @@ export async function closeBrowser(): Promise<void> {
 export function loadBrowserPlugin(_app: Core): void {
   // Register browser commands here
   // Example:
-  // const site = app.loader.createSite({ name: 'browser', url: '' });
+  // const site = app.loader.getAPI().createSite({ name: 'browser', url: '' });
   // site.command('open', { ... });
 }
 `,
@@ -215,7 +215,7 @@ npm run build
 ## Usage
 
 \`\`\`bash
-node dist/bin/cli.js <command>
+node dist/cli.js <command>
 \`\`\`
 
 ## Browser Automation

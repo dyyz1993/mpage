@@ -1,0 +1,8 @@
+{
+  "extends": "./node_modules/@dyyz1993/xcli-core/tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src/**/*", "bin/**/*"]
+}

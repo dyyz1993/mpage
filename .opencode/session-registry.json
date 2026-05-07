@@ -54,5 +54,75 @@
     "parentID": "ses_20657b8e2ffeT5pSIOkLbBI0mJ",
     "status": "running",
     "createdAt": 1778010205857
+  },
+  "write-core-tests": {
+    "id": "ses_1ff10fec7ffe6XMTl0mm3Fvg4f",
+    "name": "write-core-tests",
+    "parentID": "ses_1ff12a70cffeJe5dADrskPJscW",
+    "status": "running",
+    "createdAt": 1778132123961
+  },
+  "test-constants-branches": {
+    "id": "ses_1fdbcfbe6ffeab078YEVmA3PVV",
+    "name": "test-constants-branches",
+    "parentID": "ses_1fdbecd91ffeOrAOS0HYniPtUa",
+    "status": "running",
+    "createdAt": 1778154406973
+  },
+  "test-help-generator-branches": {
+    "id": "ses_1fdbcf9a2ffeymE54Tivp4FuYI",
+    "name": "test-help-generator-branches",
+    "parentID": "ses_1fdbecd91ffeOrAOS0HYniPtUa",
+    "status": "running",
+    "createdAt": 1778154407528
+  },
+  "test-ws-client-branches": {
+    "id": "ses_1fdbcf3ccffeHx0m4GYJyMbAdS",
+    "name": "test-ws-client-branches",
+    "parentID": "ses_1fdbecd91ffeOrAOS0HYniPtUa",
+    "status": "running",
+    "createdAt": 1778154409012
+  },
+  "test-agent-guard-branches": {
+    "id": "ses_1fdbcf65dffeOFXjn6XR5QVOjO",
+    "name": "test-agent-guard-branches",
+    "parentID": "ses_1fdbecd91ffeOrAOS0HYniPtUa",
+    "status": "running",
+    "createdAt": 1778154408366
+  },
+  "test-session-manager-branches": {
+    "id": "ses_1fdbcf0b9ffe0xt7pQKFrvUUqA",
+    "name": "test-session-manager-branches",
+    "parentID": "ses_1fdbecd91ffeOrAOS0HYniPtUa",
+    "status": "running",
+    "createdAt": 1778154409804
+  },
+  "test-plugin-loader-branches2": {
+    "id": "ses_1fdbceec7ffem3S1hbxC4pYvxu",
+    "name": "test-plugin-loader-branches2",
+    "parentID": "ses_1fdbecd91ffeOrAOS0HYniPtUa",
+    "status": "running",
+    "createdAt": 1778154410326
+  },
+  "snapshot-query-tests": {
+    "id": "ses_1fd4d4c4fffeKHhXBsFgImbfxS",
+    "name": "snapshot-query-tests",
+    "parentID": "ses_1fd4e975bffeqCyjIo6T4I3loB",
+    "status": "running",
+    "createdAt": 1778161726387
+  },
+  "mpage-tests-part1": {
+    "id": "ses_1fb3e0200ffeRdfegdBZGR6URl",
+    "name": "mpage-tests-part1",
+    "parentID": "ses_1fb41ffacffeUMIchQPCQUjVta",
+    "status": "running",
+    "createdAt": 1778196282880
+  },
+  "mpage-tests-part2": {
+    "id": "ses_1fb3dfeefffekxyRlK20LMajQR",
+    "name": "mpage-tests-part2",
+    "parentID": "ses_1fb41ffacffeUMIchQPCQUjVta",
+    "status": "running",
+    "createdAt": 1778196283665
   }
 }

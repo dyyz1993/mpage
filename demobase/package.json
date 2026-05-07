@@ -1,0 +1,25 @@
+{
+  "name": "demobase",
+  "version": "0.1.0",
+  "description": "A CLI tool built with @dyyz1993/xcli-core",
+  "type": "module",
+  "bin": {
+    "demobase": "dist/cli.js"
+  },
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@dyyz1993/xcli-core": "^0.6.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}

@@ -31,7 +31,7 @@ export const DATABASE_CLI_TEMPLATE: ScaffoldTemplate = {
   "description": "{{description}}",
   "type": "module",
   "bin": {
-    "{{projectName}}": "dist/bin/cli.js"
+    "{{projectName}}": "dist/cli.js"
   },
   "main": "dist/index.js",
   "scripts": {
@@ -81,12 +81,14 @@ export default defineConfig([
     format: ['esm'],
     dts: true,
     clean: true,
+    external: ['better-sqlite3', 'mysql2', 'pg'],
   },
   {
     entry: ['bin/cli.ts'],
     format: ['esm'],
     dts: false,
     clean: false,
+    external: ['better-sqlite3', 'mysql2', 'pg'],
   },
 ]);`,
     },
@@ -270,6 +272,20 @@ async function createPostgresConnection(config: DatabaseConfig): Promise<Databas
     },
   };
 }
+
+let _defaultConn: DatabaseConnection | null = null;
+let _defaultConfig: DatabaseConfig = { dbType: 'sqlite', filename: 'data.db' };
+
+export function setDefaultConfig(config: DatabaseConfig): void {
+  _defaultConfig = config;
+}
+
+export async function getDefaultConnection(): Promise<DatabaseConnection> {
+  if (!_defaultConn) {
+    _defaultConn = await createConnection(_defaultConfig);
+  }
+  return _defaultConn;
+}
 `,
     },
     {
@@ -298,13 +314,25 @@ export interface DatabaseCommandContext extends CommandContext {
 import { createConnection } from './connection.js';
 import type { DatabaseConnection, DatabaseConfig } from './types.js';
 
+function parseConfig(raw: Record<string, unknown>): DatabaseConfig {
+  return {
+    dbType: (raw.dbType as DatabaseConfig['dbType']) ?? 'sqlite',
+    host: raw.host as string | undefined,
+    port: raw.port as number | undefined,
+    user: raw.user as string | undefined,
+    password: raw.password as string | undefined,
+    database: raw.database as string | undefined,
+    filename: raw.filename as string | undefined,
+  };
+}
+
 export class DatabaseWorker implements WorkerEntryPoint {
   private ctx!: WorkerContext;
   private connection!: DatabaseConnection;
 
   async init(ctx: WorkerContext): Promise<void> {
     this.ctx = ctx;
-    const config = ctx.config as DatabaseConfig;
+    const config = parseConfig(ctx.config);
     this.connection = await createConnection(config);
     ctx.ipc.send('database:ready', { dbType: config.dbType });
   }
@@ -315,7 +343,7 @@ export class DatabaseWorker implements WorkerEntryPoint {
         return this.connection.query(params.sql as string, params.values as unknown[]);
 
       case 'tables': {
-        const config = this.ctx.config as DatabaseConfig;
+        const config = parseConfig(this.ctx.config);
         const sql =
           config.dbType === 'sqlite'
             ? "SELECT name, type FROM sqlite_master WHERE type IN ('table','view') AND name NOT LIKE 'sqlite_%'"
@@ -326,7 +354,7 @@ export class DatabaseWorker implements WorkerEntryPoint {
       }
 
       case 'describe': {
-        const config = this.ctx.config as DatabaseConfig;
+        const config = parseConfig(this.ctx.config);
         const table = params.table as string;
         const sql =
           config.dbType === 'sqlite'
@@ -342,7 +370,7 @@ export class DatabaseWorker implements WorkerEntryPoint {
         const data = params.data as Record<string, unknown>;
         const keys = Object.keys(data);
         const values = Object.values(data);
-        const placeholders = values.map((_, i) => (config as DatabaseConfig).dbType === 'postgres' ? \`$\${i + 1}\` : '?').join(', ');
+        const placeholders = values.map((_, i) => parseConfig(this.ctx.config).dbType === 'postgres' ? \`$\${i + 1}\` : '?').join(', ');
         const columns = keys.join(', ');
         const sql = \`INSERT INTO "\${table}" (\${columns}) VALUES (\${placeholders})\`;
         return this.connection.run(sql, values);
@@ -371,9 +399,10 @@ export function createDatabaseWorker(): WorkerEntryPoint {
       content: `import { z } from 'zod';
 import type { Core } from '@dyyz1993/xcli-core';
 import { ok } from '@dyyz1993/xcli-core';
+import { getDefaultConnection } from '../connection.js';
 
 export function registerQueryCommand(app: Core): void {
-  const site = app.loader.createSite({
+  const site = app.loader.getAPI().createSite({
     name: '{{projectName}}',
     url: '',
   });
@@ -386,11 +415,9 @@ export function registerQueryCommand(app: Core): void {
       values: z.array(z.unknown()).optional().describe('Query parameters'),
     }),
     handler: async (params) => {
-      const result = await app.getDaemon().execute('query', {
-        sql: params.sql,
-        values: params.values,
-      });
-      return ok(result);
+      const conn = await getDefaultConnection();
+      const result = await conn.query(params.sql, params.values);
+      return ok(result, [\`查询返回 \${result.rowCount} 行\`]);
     },
   });
 }
@@ -401,9 +428,10 @@ export function registerQueryCommand(app: Core): void {
       content: `import { z } from 'zod';
 import type { Core } from '@dyyz1993/xcli-core';
 import { ok } from '@dyyz1993/xcli-core';
+import { getDefaultConnection } from '../connection.js';
 
 export function registerTablesCommand(app: Core): void {
-  const site = app.loader.createSite({
+  const site = app.loader.getAPI().createSite({
     name: '{{projectName}}',
     url: '',
   });
@@ -413,8 +441,13 @@ export function registerTablesCommand(app: Core): void {
     scope: 'database',
     parameters: z.object({}).strict(),
     handler: async () => {
-      const result = await app.getDaemon().execute('tables', {});
-      return ok(result);
+      const conn = await getDefaultConnection();
+      const config = { dbType: 'sqlite' } as const;
+      const sql = config.dbType === 'sqlite'
+        ? "SELECT name, type FROM sqlite_master WHERE type IN ('table','view') AND name NOT LIKE 'sqlite_%'"
+        : 'SHOW TABLES';
+      const result = await conn.query(sql);
+      return ok(result, [\`共 \${result.rowCount} 个表\`]);
     },
   });
 }
@@ -425,9 +458,10 @@ export function registerTablesCommand(app: Core): void {
       content: `import { z } from 'zod';
 import type { Core } from '@dyyz1993/xcli-core';
 import { ok } from '@dyyz1993/xcli-core';
+import { getDefaultConnection } from '../connection.js';
 
 export function registerDescribeCommand(app: Core): void {
-  const site = app.loader.createSite({
+  const site = app.loader.getAPI().createSite({
     name: '{{projectName}}',
     url: '',
   });
@@ -439,8 +473,10 @@ export function registerDescribeCommand(app: Core): void {
       table: z.string().describe('Table name to describe'),
     }),
     handler: async (params) => {
-      const result = await app.getDaemon().execute('describe', { table: params.table });
-      return ok(result);
+      const conn = await getDefaultConnection();
+      const sql = \`PRAGMA table_info("\${params.table}")\`;
+      const result = await conn.query(sql);
+      return ok(result, [\`表 \${params.table} 共 \${result.rowCount} 列\`]);
     },
   });
 }
@@ -451,9 +487,10 @@ export function registerDescribeCommand(app: Core): void {
       content: `import { z } from 'zod';
 import type { Core } from '@dyyz1993/xcli-core';
 import { ok } from '@dyyz1993/xcli-core';
+import { getDefaultConnection } from '../connection.js';
 
 export function registerInsertCommand(app: Core): void {
-  const site = app.loader.createSite({
+  const site = app.loader.getAPI().createSite({
     name: '{{projectName}}',
     url: '',
   });
@@ -466,11 +503,14 @@ export function registerInsertCommand(app: Core): void {
       data: z.record(z.unknown()).describe('Column-value pairs to insert'),
     }),
     handler: async (params) => {
-      const result = await app.getDaemon().execute('insert', {
-        table: params.table,
-        data: params.data,
-      });
-      return ok(result);
+      const conn = await getDefaultConnection();
+      const keys = Object.keys(params.data);
+      const values = Object.values(params.data);
+      const placeholders = values.map(() => '?').join(', ');
+      const columns = keys.join(', ');
+      const sql = \`INSERT INTO "\${params.table}" (\${columns}) VALUES (\${placeholders})\`;
+      const result = await conn.run(sql, values);
+      return ok(result, [\`插入成功，影响 \${result.changes} 行\`]);
     },
   });
 }
@@ -539,7 +579,7 @@ npm run build
 ## Usage
 
 \`\`\`bash
-node dist/bin/cli.js <command>
+node dist/cli.js <command>
 \`\`\`
 
 ## Commands
