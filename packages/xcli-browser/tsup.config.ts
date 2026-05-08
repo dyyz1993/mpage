@@ -4,7 +4,7 @@ export default createConfig([
   {
     entry: ['src/index.ts'],
     format: ['esm'],
-    dts: { resolve: false },
+    dts: true,
     clean: true,
     sourcemap: true,
     external: ['playwright', 'playwright-core', '@dyyz1993/xcli-core', '@dyyz1993/xpage'],

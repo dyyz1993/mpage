@@ -4,7 +4,7 @@ export default createConfig([
   {
     entry: ['src/index.ts'],
     format: ['esm'],
-    dts: { resolve: false },
+    dts: true,
     clean: true,
     external: ['@dyyz1993/xcli-core'],
   },
