@@ -33,3 +33,4 @@ test-scaffold*/
 .yalc/
 yalc.lock
 package-lock.json
+website/.vitepress/cache/
