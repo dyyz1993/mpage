@@ -7,7 +7,7 @@ export default createConfig([
     dts: true,
     clean: true,
     sourcemap: true,
-    external: ['playwright', 'playwright-core'],
+    external: ['playwright', 'playwright-core', '@dyyz1993/xcli-core', '@dyyz1993/xpage'],
   },
   {
     entry: ['bin/xcli-browser.ts'],
@@ -15,7 +15,7 @@ export default createConfig([
     dts: false,
     clean: false,
     sourcemap: true,
-    external: ['playwright', 'playwright-core'],
+    external: ['playwright', 'playwright-core', '@dyyz1993/xcli-core', '@dyyz1993/xpage'],
   },
   {
     entry: ['src/daemon/worker-entry.ts'],
@@ -23,6 +23,6 @@ export default createConfig([
     dts: false,
     clean: false,
     sourcemap: true,
-    external: ['playwright', 'playwright-core'],
+    external: ['playwright', 'playwright-core', '@dyyz1993/xcli-core', '@dyyz1993/xpage'],
   },
 ]);
