@@ -38,7 +38,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build packages
-        run: pnpm run build:root && pnpm --filter @dyyz1993/xcli-core --filter create-xcli run build
+        run: pnpm run build
 
       - name: Generate project from ${{ matrix.template }} template
         run: |
@@ -94,8 +94,7 @@ jobs:
       - name: Setup
         run: |
           pnpm install --frozen-lockfile
-          pnpm run build:root
-          pnpm --filter @dyyz1993/xcli-core --filter create-xcli run build
+          pnpm run build
 
       - name: Journey 1 - Create base CLI, build and run
         run: |
