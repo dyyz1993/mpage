@@ -80,7 +80,7 @@ const site = app.loader.getAPI().createSite({
 site.command('hello', {
   description: '打个招呼',
   parameters: z.object({ name: z.string().default('World') }),
-  handler: async (params) => {
+  handler: async (params, ctx) => {
     return ok({ message: `Hello, ${params.name}!` }, [`向 ${params.name} 打了招呼`]);
   },
 });
@@ -107,7 +107,7 @@ export default function (xcli: XCLIAPI): void {
       name: z.string().describe('被问候者'),
       lang: z.enum(['zh', 'en']).default('zh').describe('语言'),
     }),
-    handler: async (params) => {
+    handler: async (params, ctx) => {
       const greeting = params.lang === 'zh' ? `你好, ${params.name}!` : `Hello, ${params.name}!`;
       return ok({ greeting }, [greeting]);
     },
