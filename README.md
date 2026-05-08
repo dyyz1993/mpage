@@ -6,6 +6,7 @@ Browser automation engine library based on Playwright — recording, playback, p
 [![codecov](https://codecov.io/gh/dyyz1993/mpage/branch/master/graph/badge.svg)](https://codecov.io/gh/dyyz1993/mpage)
 [![npm version](https://img.shields.io/npm/v/@dyyz1993/xpage.svg)](https://www.npmjs.com/package/@dyyz1993/xpage)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Documentation](https://img.shields.io/badge/docs-xcli-blue?style=for-the-badge&logo=vite)](https://dyyz1993.github.io/mpage/)
 
 ## Overview
 
@@ -57,10 +58,13 @@ See the [Quick Start Guide](./docs/quickstart.md) for more examples.
 
 ## Documentation
 
-- **[Quick Start Guide](./docs/quickstart.md)** — Get started in minutes
-- **[API Reference](./docs/api.md)** — Complete API documentation
-- **[Recording & Playback](./docs/quickstart.md#recording)** — Record and replay user actions
-- **[Page Structure](./docs/quickstart.md#4-extract-page-structure)** — Extract semantic layouts
+完整文档：[https://dyyz1993.github.io/mpage/](https://dyyz1993.github.io/mpage/)
+
+- **[快速开始](https://dyyz1993.github.io/mpage/guide/installation)** — 安装与创建项目
+- **[插件开发](https://dyyz1993.github.io/mpage/plugins/overview)** — 开发自定义插件
+- **[API 参考](https://dyyz1993.github.io/mpage/api/xpage/overview)** — 完整 API 文档
+- **[录制与回放](https://dyyz1993.github.io/mpage/guide/recording)** — 录制和回放用户操作
+- **[页面结构提取](https://dyyz1993.github.io/mpage/guide/structure)** — 提取语义布局
 
 ## Core Capabilities
 
