@@ -36,8 +36,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        env:
-          npm_config_shamefully_hoist: "true"
 
       - name: Build packages
         run: pnpm run build
@@ -49,6 +47,8 @@ jobs:
           cd test-${{ matrix.template }}
           echo "=== Generated files ==="
           find . -not -path '*/node_modules/*' -type f
+        env:
+          NODE_PATH: ${{ github.workspace }}/node_modules
 
       - name: Validate generated structure
         run: |
@@ -97,8 +97,6 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
           pnpm run build
-        env:
-          npm_config_shamefully_hoist: "true"
 
       - name: Journey 1 - Create base CLI, build and run
         run: |
@@ -110,6 +108,8 @@ jobs:
           echo "=== Run CLI ==="
           node dist/cli.js 2>&1 || true
           echo "Journey 1 passed"
+        env:
+          NODE_PATH: ${{ github.workspace }}/node_modules
 
       - name: Journey 2 - Create plugin and verify structure
         run: |
@@ -120,6 +120,8 @@ jobs:
           grep -q "createSite" index.ts || { echo "Missing createSite"; exit 1; }
           grep -q "hello" index.ts || { echo "Missing hello command"; exit 1; }
           echo "Journey 2 passed"
+        env:
+          NODE_PATH: ${{ github.workspace }}/node_modules
 
       - name: Journey 3 - Test database template commands
         run: |
@@ -134,6 +136,8 @@ jobs:
           node dist/cli.js query --help || true
           node dist/cli.js tables --help || true
           echo "Journey 3 passed"
+        env:
+          NODE_PATH: ${{ github.workspace }}/node_modules
 
       - name: Journey 4 - Test api template commands
         run: |
@@ -148,6 +152,8 @@ jobs:
           node dist/cli.js list --help || true
           node dist/cli.js inspect --help || true
           echo "Journey 4 passed"
+        env:
+          NODE_PATH: ${{ github.workspace }}/node_modules
 
       - name: Journey 5 - Test plugin install via local
         run: |
@@ -174,6 +180,8 @@ jobs:
           npm run build
           node dist/cli.js --help
           echo "Journey 5 passed"
+        env:
+          NODE_PATH: ${{ github.workspace }}/node_modules
 
   notify:
     needs: [validate-templates, full-user-journey]
