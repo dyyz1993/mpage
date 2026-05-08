@@ -34,7 +34,7 @@ export default function (xcli: XCLIAPI): void {
       name: z.string().default('World'),
     }),
     handler: async (params) => {
-      return { ok: true, message: `Hello, ${params.name}!` };
+      return { success: true, data: { message: `Hello, ${params.name}!` }, tips: [`向 ${params.name} 打了招呼`] };
     },
   });
 }

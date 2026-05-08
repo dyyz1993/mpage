@@ -37,7 +37,7 @@ export default function (cli: XCLIAPI): void {
       limit: z.number().default(10).describe('最大条数'),
     }),
     handler: async (params, ctx) => {
-      return { data: [], count: 0 };
+      return { success: true, data: { items: [], count: 0 }, tips: [`采集到 0 条数据`] };
     },
   });
 
@@ -100,12 +100,12 @@ site.command('save-data', {
   scope: 'project',
   parameters: z.object({
     key: z.string(),
-    value: z.any(),
+    value: z.string(),
   }),
   handler: async (params, ctx) => {
     await ctx.storage.set(params.key, params.value);
     const value = await ctx.storage.get(params.key);
-    return { ok: true, data: { [params.key]: value } };
+    return { success: true, data: { [params.key]: value }, tips: [`已保存 ${params.key}`] };
   },
 });
 ```

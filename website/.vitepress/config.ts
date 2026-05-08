@@ -49,6 +49,8 @@ export default defineConfig({
             { text: '快速开始', link: '/guide/xcli-quickstart' },
             { text: '脚手架创建', link: '/guide/scaffolding' },
             { text: '配置管理', link: '/guide/configuration' },
+            { text: 'CI 配置', link: '/guide/ci-setup' },
+            { text: '开发工作流', link: '/guide/development-workflow' },
           ],
         },
       ],
@@ -59,6 +61,7 @@ export default defineConfig({
         { text: '编写插件', link: '/tutorial/write-plugin' },
         { text: '自定义领域 CLI', link: '/tutorial/custom-domain-cli' },
         { text: '踩坑指南', link: '/tutorial/common-pitfalls' },
+        { text: '部署指南', link: '/tutorial/deploy-guide' },
       ],
 
       '/api/xpage/': [
@@ -86,6 +89,9 @@ export default defineConfig({
         { text: '命令 handler', link: '/plugins/command-handler' },
         { text: '安装器', link: '/plugins/installers' },
         { text: '最佳实践', link: '/plugins/best-practices' },
+        { text: '测试', link: '/plugins/testing' },
+        { text: '安装详解', link: '/plugins/install-step-by-step' },
+        { text: '发布插件', link: '/plugins/publishing' },
       ],
 
       '/architecture/': [

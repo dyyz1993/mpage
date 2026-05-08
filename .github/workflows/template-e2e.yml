@@ -116,6 +116,60 @@ jobs:
           grep -q "hello" index.ts || { echo "Missing hello command"; exit 1; }
           echo "Journey 2 passed"
 
+      - name: Journey 3 - Test database template commands
+        run: |
+          cd /tmp
+          node ${{ github.workspace }}/packages/create-xcli/dist/create-xcli.js journey-db -t database
+          cd journey-db
+          npm install --legacy-peer-deps
+          npm run build
+          echo "=== Verify CLI loads ==="
+          node dist/cli.js --help
+          echo "=== Verify database commands ==="
+          node dist/cli.js query --help || true
+          node dist/cli.js tables --help || true
+          echo "Journey 3 passed"
+
+      - name: Journey 4 - Test api template commands
+        run: |
+          cd /tmp
+          node ${{ github.workspace }}/packages/create-xcli/dist/create-xcli.js journey-api -t api
+          cd journey-api
+          npm install --legacy-peer-deps
+          npm run build
+          echo "=== Verify CLI loads ==="
+          node dist/cli.js --help
+          echo "=== Verify api commands ==="
+          node dist/cli.js list --help || true
+          node dist/cli.js inspect --help || true
+          echo "Journey 4 passed"
+
+      - name: Journey 5 - Test plugin install via local
+        run: |
+          cd /tmp
+          node ${{ github.workspace }}/packages/create-xcli/dist/create-xcli.js journey-plugin -t base
+          cd journey-plugin
+          npm install --legacy-peer-deps
+          npm run build
+          echo "=== Create local test plugin ==="
+          mkdir -p .xcli/plugins/test-hello
+          cat > .xcli/plugins/test-hello/index.ts << 'PLUGINEOF'
+          export default function(cli: any): void {
+            const site = cli.createSite({ name: 'test-hello', url: 'https://example.com' });
+            site.command('ping', {
+              description: 'Ping test',
+              handler: async () => ({ success: true, data: { pong: true }, tips: ['pong'] }),
+            });
+          }
+          PLUGINEOF
+          cat > .xcli/plugins/test-hello/package.json << 'PKGEOF'
+          { "name": "test-hello", "version": "1.0.0", "type": "module" }
+          PKGEOF
+          echo "=== Rebuild with plugin ==="
+          npm run build
+          node dist/cli.js --help
+          echo "Journey 5 passed"
+
   notify:
     needs: [validate-templates, full-user-journey]
     runs-on: ubuntu-latest

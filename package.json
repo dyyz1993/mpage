@@ -31,7 +31,10 @@
     "test:all": "tsx --test tests/**/*.test.ts && pnpm run test:core",
     "prepublishOnly": "npm run build",
     "prepare": "husky",
-    "validate": "npm run typecheck && npm run lint && npm run build && npm test"
+    "validate": "npm run typecheck && npm run lint && npm run build && npm run test",
+    "docs:dev": "cd website && npm run docs:dev",
+    "docs:build": "cd website && npm run docs:build",
+    "docs:preview": "cd website && npm run docs:preview"
   },
   "lint-staged": {
     "*.ts": [

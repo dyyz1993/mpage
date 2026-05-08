@@ -42,7 +42,7 @@ export default function (xcli: XCLIAPI): void {
       limit: z.number().default(10).describe('最大条数'),
     }),
     handler: async (params, ctx) => {
-      return { data: [], count: 0 };
+      return { success: true, data: { items: [], count: 0 }, tips: [`采集到 0 条数据`] };
     },
   });
 }
