@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18, 20]
+        node-version: [20, 22]
     steps:
       - uses: actions/checkout@v4
 
@@ -36,7 +36,7 @@ jobs:
         run: pnpm run build
 
       - name: Test with coverage
-        run: pnpm run test -- --coverage
+        run: npx vitest run --coverage
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
@@ -58,7 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18, 20]
+        node-version: [20, 22]
     steps:
       - uses: actions/checkout@v4
 
