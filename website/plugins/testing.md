@@ -1,5 +1,6 @@
 ---
-title: 插件测试
+title: 插件测试 - xcli 文档
+description: 使用 vitest 编写可运行的 xcli 插件测试，包括测试环境搭建、mock 技巧和完整示例。
 ---
 
 # 插件测试

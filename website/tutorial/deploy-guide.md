@@ -1,5 +1,6 @@
 ---
-title: 端到端：从零创建 CLI 到发布 npm
+title: 端到端：从零创建 CLI 到发布 npm - xcli 文档
+description: 完整项目生命周期教程：创建 CLI 项目、编写命令、本地调试、编写测试、配置 CI，到最终发布 npm。
 ---
 
 # 端到端：从零创建 CLI 到发布 npm

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dyyz1993.github.io/mpage/sitemap.xml

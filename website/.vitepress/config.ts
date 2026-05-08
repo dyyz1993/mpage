@@ -6,6 +6,47 @@ export default defineConfig({
   base: '/mpage/',
   lang: 'zh-CN',
 
+  head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/mpage/logo.svg' }],
+    ['meta', { name: 'theme-color', content: '#646cff' }],
+    ['meta', { name: 'og:type', content: 'website' }],
+    ['meta', { name: 'og:title', content: 'xcli - 插件化 CLI 框架 & 浏览器自动化引擎' }],
+    [
+      'meta',
+      {
+        name: 'og:description',
+        content:
+          '一个框架，无限领域。浏览器自动化、数据库管理、API 调试，5 分钟创建你的 CLI 工具。',
+      },
+    ],
+    ['meta', { name: 'og:url', content: 'https://dyyz1993.github.io/mpage/' }],
+    ['meta', { name: 'og:site_name', content: 'xcli' }],
+    ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
+    ['meta', { name: 'twitter:title', content: 'xcli - 插件化 CLI 框架' }],
+    [
+      'meta',
+      {
+        name: 'twitter:description',
+        content:
+          '一个框架，无限领域。浏览器自动化、数据库管理、API 调试，5 分钟创建你的 CLI 工具。',
+      },
+    ],
+    [
+      'meta',
+      {
+        name: 'keywords',
+        content: 'CLI, TypeScript, 插件化, 浏览器自动化, Playwright, Node.js, 脚手架',
+      },
+    ],
+  ],
+
+  sitemap: {
+    hostname: 'https://dyyz1993.github.io',
+    base: '/mpage/',
+  },
+
+  lastUpdated: true,
+
   themeConfig: {
     logo: '/logo.svg',
     siteTitle: 'xcli',

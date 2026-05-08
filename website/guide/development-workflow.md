@@ -1,5 +1,6 @@
 ---
-title: 开发工作流
+title: 开发工作流 - xcli 文档
+description: xcli 本地开发常用工作流和调试技巧，包括 npm link 全局调试、日志排查和热重载开发。
 ---
 
 # 开发工作流

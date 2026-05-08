@@ -1,5 +1,6 @@
 ---
-title: 插件开发概览
+title: 插件开发概览 - xcli 文档
+description: xcli 插件系统完整介绍，支持 TypeScript、热重载、命令注册和隔离命名空间，5 分钟上手插件开发。
 ---
 
 # 插件开发概览

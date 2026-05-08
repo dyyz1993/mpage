@@ -1,5 +1,6 @@
 ---
-title: CI 配置
+title: CI 配置 - xcli 文档
+description: 为 create-xcli 生成的项目配置 GitHub Actions CI，覆盖 lint、build、test 自动化验证。
 ---
 
 # CI 配置

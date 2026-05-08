@@ -1,5 +1,6 @@
 ---
-title: 发布插件
+title: 发布插件 - xcli 文档
+description: 将 xcli 插件发布到 npm 供其他用户安装使用，包含 package.json 配置和发布流程。
 ---
 
 # 发布插件
