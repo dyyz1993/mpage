@@ -1,0 +1,84 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Generate Release Notes
+        id: notes
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          
+          if [ -z "$PREV_TAG" ]; then
+            COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges)
+          else
+            COMMITS=$(git log ${PREV_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+          fi
+          
+          FEAT=$(echo "$COMMITS" | grep -i "^- feat" || true)
+          FIX=$(echo "$COMMITS" | grep -i "^- fix" || true)
+          REFACTOR=$(echo "$COMMITS" | grep -i "^- refactor" || true)
+          DOCS=$(echo "$COMMITS" | grep -i "^- docs" || true)
+          OTHER=$(echo "$COMMITS" | grep -vi "^- \(feat\|fix\|refactor\|docs\)" || true)
+          
+          {
+            if [ -n "$FEAT" ]; then
+              echo "## 🚀 新功能"
+              echo "$FEAT"
+              echo ""
+            fi
+            if [ -n "$FIX" ]; then
+              echo "## 🐛 修复"
+              echo "$FIX"
+              echo ""
+            fi
+            if [ -n "$REFACTOR" ]; then
+              echo "## 🔨 重构"
+              echo "$REFACTOR"
+              echo ""
+            fi
+            if [ -n "$DOCS" ]; then
+              echo "## 📚 文档"
+              echo "$DOCS"
+              echo ""
+            fi
+            if [ -n "$OTHER" ]; then
+              echo "## 📦 其他"
+              echo "$OTHER"
+            fi
+          } > release_notes.md
+          
+          echo "Generated release notes:"
+          cat release_notes.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release_notes.md
+          draft: false
+          prerelease: ${{ contains(github.ref, '-rc.') || contains(github.ref, '-beta.') }}
