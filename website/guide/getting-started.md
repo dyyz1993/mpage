@@ -49,7 +49,15 @@ await app.run(process.argv.slice(2));
 
 ## 下一步推荐
 
-- [安装指南](/guide/installation) — 详细的安装步骤
+### 快速上手
+- [安装与创建](/guide/installation) — 一条命令创建你的 CLI 项目
+- [创建你的 CLI](/tutorial/create-your-cli) — 手把手教程
+
+### 深入理解
 - [核心概念](/guide/core-concepts) — 三个包的关系
-- [创建你的 CLI](/tutorial/create-your-cli) — 5 分钟创建完整 CLI
+- [脚手架详解](/guide/scaffolding) — 5 个模板的完整对比
+
+### 开发进阶
+- [编写第一个命令](/tutorial/first-command) — 添加自定义命令
+- [插件开发](/plugins/overview) — 插件系统完整指南
 - [API 参考](/api/xpage/overview) — 完整 API 文档
