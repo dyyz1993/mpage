@@ -13,12 +13,13 @@ title: 安装插件（分步指南）
 ```bash
 mkdir -p .xcli/plugins/my-plugin
 cat > .xcli/plugins/my-plugin/index.ts << 'EOF'
+import { ok } from '@dyyz1993/xcli-core';
 import type { XCLIAPI } from '@dyyz1993/xcli-core';
 export default function (xcli: XCLIAPI): void {
   const site = xcli.createSite({ name: 'my-plugin', url: 'https://example.com' });
   site.command('ping', {
     description: 'Ping',
-    handler: async () => ({ success: true, data: { pong: true }, message: '', tips: ['pong'] }),
+    handler: async () => ok({ pong: true }, ['pong']),
   });
 }
 EOF

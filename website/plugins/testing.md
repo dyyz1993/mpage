@@ -27,8 +27,8 @@ export default defineConfig({ test: { globals: true, testTimeout: 10000 } });
 import { resolve } from 'path';
 import { mkdtempSync, writeFileSync, rmSync } from 'fs';
 import { tmpdir } from 'os';
-import { PluginLoader } from '../../src/plugin-loader.js';
-import type { Core, CoreConfig } from '../../src/core.js';
+import { PluginLoader, ok, fail } from '@dyyz1993/xcli-core';
+import type { Core, CoreConfig } from '@dyyz1993/xcli-core';
 
 function createMockCore(): Core {
   const tmp = mkdtempSync(resolve(tmpdir(), 'xcli-test-'));
@@ -53,16 +53,24 @@ function createTmpPlugin(code: string): string {
 ## 测试 handler 返回值
 
 ```typescript
+let loader: PluginLoader;
+
+beforeEach(() => {
+  loader = new PluginLoader(createMockCore());
+});
+
+afterEach(() => {
+  loader.unloadAll();
+});
+
 it('should return correct data', async () => {
   const dir = createTmpPlugin(`
+    import { ok } from '@dyyz1993/xcli-core';
     export default function(cli) {
       const site = cli.createSite({ name: 'test', url: 'https://example.com' });
       site.command('scrape', {
         description: 'Scrape',
-        handler: async () => ({
-          success: true, data: { items: [1, 2, 3] }, message: '',
-          tips: ['采集到 3 条数据'],
-        }),
+        handler: async () => ok({ items: [1, 2, 3] }, ['采集到 3 条数据']),
       });
     }
   `);
@@ -88,12 +96,13 @@ it('should return correct data', async () => {
 it('should validate parameters via Zod schema', async () => {
   const dir = createTmpPlugin(`
     import { z } from 'zod';
+    import { ok } from '@dyyz1993/xcli-core';
     export default function(cli) {
       const site = cli.createSite({ name: 'param-test', url: 'https://example.com' });
       site.command('search', {
         description: 'Search',
         parameters: z.object({ query: z.string() }),
-        handler: async (params) => ({ success: true, data: params, message: '', tips: [] }),
+        handler: async (params) => ok(params),
       });
     }
   `);
