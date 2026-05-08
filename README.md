@@ -2,11 +2,14 @@
 
 Browser automation engine library based on Playwright — recording, playback, page structure extraction, and command execution.
 
-[![CI Status](https://github.com/dyyz1993/mpage/workflows/CI/badge.svg)](https://github.com/dyyz1993/mpage/actions)
-[![codecov](https://codecov.io/gh/dyyz1993/mpage/branch/master/graph/badge.svg)](https://codecov.io/gh/dyyz1993/mpage)
-[![npm version](https://img.shields.io/npm/v/@dyyz1993/xpage.svg)](https://www.npmjs.com/package/@dyyz1993/xpage)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Documentation](https://img.shields.io/badge/docs-xcli-blue?style=for-the-badge&logo=vite)](https://dyyz1993.github.io/mpage/)
+[![CI](https://img.shields.io/github/actions/workflow/status/dyyz1993/mpage/ci.yml?branch=master&style=for-the-badge&logo=github)](https://github.com/dyyz1993/mpage/actions)
+
+[![npm xpage](https://img.shields.io/npm/v/@dyyz1993/xpage?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@dyyz1993/xpage)
+[![npm xcli-core](https://img.shields.io/npm/v/@dyyz1993/xcli-core?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@dyyz1993/xcli-core)
+
+[![Coverage](https://img.shields.io/codecov/c/github/dyyz1993/mpage/master?style=for-the-badge&logo=codecov)](https://codecov.io/gh/dyyz1993/mpage)
+[![License](https://img.shields.io/npm/l/@dyyz1993/xpage?style=for-the-badge)](https://github.com/dyyz1993/mpage/blob/master/LICENSE)
 
 ## Overview
 
