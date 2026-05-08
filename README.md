@@ -1,217 +1,146 @@
-# @dyyz1993/xpage
-
-Browser automation engine library based on Playwright — recording, playback, page structure extraction, and command execution.
-
 [![Documentation](https://img.shields.io/badge/docs-xcli-blue?style=for-the-badge&logo=vite)](https://dyyz1993.github.io/mpage/)
 [![CI](https://img.shields.io/github/actions/workflow/status/dyyz1993/mpage/ci.yml?branch=master&style=for-the-badge&logo=github)](https://github.com/dyyz1993/mpage/actions)
 
-[![npm xpage](https://img.shields.io/npm/v/@dyyz1993/xpage?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@dyyz1993/xpage)
-[![npm xcli-core](https://img.shields.io/npm/v/@dyyz1993/xcli-core?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@dyyz1993/xcli-core)
+[![npm xpage](https://img.shields.io/npm/v/@dyyz1993/xpage?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@dyyz1993/xpage) [![npm xcli-core](https://img.shields.io/npm/v/@dyyz1993/xcli-core?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@dyyz1993/xcli-core) [![npm create-xcli](https://img.shields.io/npm/v/create-xcli?style=for-the-badge&logo=npm&label=create-xcli)](https://www.npmjs.com/package/create-xcli)
 
 [![Coverage](https://img.shields.io/codecov/c/github/dyyz1993/mpage/master?style=for-the-badge&logo=codecov)](https://codecov.io/gh/dyyz1993/mpage)
 [![License](https://img.shields.io/npm/l/@dyyz1993/xpage?style=for-the-badge)](https://github.com/dyyz1993/mpage/blob/master/LICENSE)
 
-## Overview
+# mpage
 
-`@dyyz1993/xpage` is a powerful browser automation engine built on top of Playwright. It provides:
+**插件化 CLI 框架 + 浏览器自动化引擎**，5 分钟创建你的领域 CLI 工具。
 
-- **Unified Command Interface** — All operations through `(page, args) => Promise<result>`
-- **Recording & Playback** — Record user interactions and replay them
-- **Page Structure Extraction** — Get semantic layout trees
-- **Accessibility Tree** — Extract ARIA accessibility information
-- **Command Chaining** — Execute multiple commands in sequence
+## 它能做什么？
 
-## Install
+- **浏览器自动化** — 35+ 页面命令、录制/回放、页面结构提取
+- **插件系统** — TypeScript 运行时加载，命令覆盖/增强
+- **脚手架** — 一条命令生成项目，5 种模板覆盖常见场景
+- **通用框架** — 领域无关的核心设计，不绑定浏览器/数据库/API
+
+## 快速开始
+
+### 1. 创建项目
 
 ```bash
-npm install @dyyz1993/xpage
+npx create-xcli my-tool
 ```
 
-Requires Node.js >= 18.0.0.
+交互式选择模板：`base` / `browser` / `database` / `api` / `plugin`。
 
-## Quick Start
-
-Get started in minutes:
+### 2. 浏览器自动化（@dyyz1993/xpage）
 
 ```typescript
-import { executePageCommand } from '@dyyz1993/xpage';
-import { chromium } from 'playwright-core';
-
-async function run() {
-  const browser = await chromium.launch();
-  const page = await browser.newPage();
-
-  // Navigate
-  await executePageCommand(page, 'goto', { url: 'https://example.com' });
-
-  // Get title
-  const { title } = await executePageCommand(page, 'title', {});
-  console.log(title);
-
-  // Take screenshot
-  await executePageCommand(page, 'screenshot', { path: 'example.png' });
-
-  await browser.close();
-}
-
-run();
-```
-
-See the [Quick Start Guide](./docs/quickstart.md) for more examples.
-
-## Documentation
-
-完整文档：[https://dyyz1993.github.io/mpage/](https://dyyz1993.github.io/mpage/)
-
-- **[快速开始](https://dyyz1993.github.io/mpage/guide/installation)** — 安装与创建项目
-- **[插件开发](https://dyyz1993.github.io/mpage/plugins/overview)** — 开发自定义插件
-- **[API 参考](https://dyyz1993.github.io/mpage/api/xpage/overview)** — 完整 API 文档
-- **[录制与回放](https://dyyz1993.github.io/mpage/guide/recording)** — 录制和回放用户操作
-- **[页面结构提取](https://dyyz1993.github.io/mpage/guide/structure)** — 提取语义布局
-
-## Core Capabilities
-
-### 1. Page Commands
-
-Unified command interface, all operations via `(page, args) => Promise<result>`:
-
-| Command | Description | Parameters |
-|---------|-------------|------------|
-| `goto` | Navigate to URL | `url`, `waitUntil?`, `timeout?` |
-| `goBack` | Go back | — |
-| `goForward` | Go forward | — |
-| `reload` | Reload page | — |
-| `title` | Get page title | — |
-| `url` | Get current URL | — |
-| `click` | Click element | `selector`, `timeout?`, `force?` |
-| `fill` | Fill input | `selector`, `value`, `timeout?` |
-| `type` | Type text | `selector`, `text`, `delay?` |
-| `press` | Press key | `selector`, `key` |
-| `hover` | Hover element | `selector`, `timeout?` |
-| `scroll` | Scroll page | `selector?`, `x?`, `y?` |
-| `select` | Select option | `selector`, `value` |
-| `check` | Check checkbox | `selector` |
-| `waitForSelector` | Wait for element | `selector`, `timeout?` |
-| `query` | CSS selector query | `selector` |
-| `find` | Find by text | `text`, `tag?`, `exact?` |
-| `html` | Get HTML | `selector?`, `clean?` |
-| `text` | Get text content | `selector?` |
-| `textContent` | Get element text | `selector` |
-| `inputValue` | Get input value | `selector` |
-| `getAttribute` | Get attribute | `selector`, `name` |
-| `structure` | Page structure extraction | `selector?`, `maxDepth?` |
-| `screenshot` | Screenshot to file | `path?`, `fullPage?` |
-| `screenshotBase64` | Screenshot as Base64 | `fullPage?`, `type?` |
-| `a11y` | Accessibility tree | `selector?`, `format?` |
-| `snapshot` | ARIA snapshot | `selector?` |
-| `evaluate` | Execute JS expression | `expression` |
-| `evaluateRaw` | Execute async JS | `script` |
-| `wait` | Wait milliseconds | `timeout` |
-
-```typescript
-import { executePageCommand } from '@dyyz1993/xpage';
+import { executePageCommand, RecorderController, PlaybackEngine } from '@dyyz1993/xpage';
 import { chromium } from 'playwright-core';
 
 const browser = await chromium.launch();
 const page = await browser.newPage();
 
+// 导航 + 获取标题
 await executePageCommand(page, 'goto', { url: 'https://example.com' });
 const { title } = await executePageCommand(page, 'title', {});
-const { snapshot } = await executePageCommand(page, 'snapshot', { selector: 'body' });
+console.log(title); // "Example Domain"
+
+// 页面结构提取
+const { structure } = await executePageCommand(page, 'structure', { selector: 'body' });
+
+// 录制用户操作
+const recorder = new RecorderController(page);
+await recorder.start({ url: 'https://example.com', name: 'demo' });
+// ... 用户在浏览器中操作 ...
+const { path } = await recorder.stop('./recordings/demo.yaml');
+
+// 回放录制
+const player = await PlaybackEngine.fromFile(page, './recordings/demo.yaml');
+await player.play({ slowMo: 1 });
 
 await browser.close();
 ```
 
-### 2. Recorder (RecorderController)
-
-Record user actions in a real browser, producing structured YAML.
+### 3. 创建 CLI 工具（@dyyz1993/xcli-core）
 
 ```typescript
-import { RecorderController } from '@dyyz1993/xpage';
+import { Core, ok, fail } from '@dyyz1993/xcli-core';
+import { z } from 'zod';
 
-const recorder = new RecorderController(page);
-await recorder.start({ url: 'https://example.com', name: 'my-recording' });
-// ... user interacts with browser ...
-const { path, session } = await recorder.stop('./recordings/my-recording.yaml');
+const app = new Core({
+  name: 'my-tool',
+  version: '0.1.0',
+  description: '我的 CLI 工具',
+  configDirName: '.my-tool',
+  envPrefix: 'MY_TOOL',
+  pluginDirs: ['./plugins'],
+});
+
+const site = app.loader.getAPI().createSite({
+  name: 'builtin',
+  url: 'https://example.com',
+});
+
+site.command('hello', {
+  description: '打个招呼',
+  parameters: z.object({ name: z.string().default('World') }),
+  handler: async (params) => {
+    return ok({ message: `Hello, ${params.name}!` }, [`向 ${params.name} 打了招呼`]);
+  },
+});
+
+await app.run(process.argv.slice(2));
 ```
 
-### 3. Player (PlaybackEngine)
-
-Load recordings and replay them automatically.
+### 4. 开发插件
 
 ```typescript
-import { PlaybackEngine } from '@dyyz1993/xpage';
+import type { XCLIAPI } from '@dyyz1993/xcli-core';
+import { ok } from '@dyyz1993/xcli-core';
+import { z } from 'zod';
 
-const player = await PlaybackEngine.fromFile(page, './recordings/my-recording.yaml');
-const result = await player.play({ slowMo: 1, stopOnError: true });
+export default function (xcli: XCLIAPI): void {
+  const site = xcli.createSite({
+    name: 'my-plugin',
+    url: 'https://example.com',
+  });
+
+  site.command('greet', {
+    description: '问候命令',
+    parameters: z.object({
+      name: z.string().describe('被问候者'),
+      lang: z.enum(['zh', 'en']).default('zh').describe('语言'),
+    }),
+    handler: async (params) => {
+      const greeting = params.lang === 'zh' ? `你好, ${params.name}!` : `Hello, ${params.name}!`;
+      return ok({ greeting }, [greeting]);
+    },
+  });
+}
 ```
 
-### 4. Structure Extraction
+## 包结构
 
-Extract semantic layout tree from pages.
+本项目是 monorepo，包含以下包：
 
-```typescript
-const { structure, yaml } = await executePageCommand(page, 'structure', { selector: 'body' });
-```
+| 包 | 用途 |
+|---|---|
+| [`@dyyz1993/xcli-core`](https://www.npmjs.com/package/@dyyz1993/xcli-core) | CLI 框架核心 — 插件加载、命令路由、Session 管理、脚手架引擎 |
+| [`@xcli/browser-app`](https://www.npmjs.com/package/@xcli/browser-app) | 浏览器自动化 — 35+ 页面命令、录制/回放、结构提取 |
+| [`create-xcli`](https://www.npmjs.com/package/create-xcli) | 脚手架工具 — 一条命令生成项目 |
 
-### 5. Accessibility Tree
+## 文档
 
-```typescript
-const { snapshot } = await executePageCommand(page, 'a11y', { selector: 'main', format: 'yaml' });
-const { snapshot } = await executePageCommand(page, 'snapshot', { selector: 'body' });
-```
+完整文档：[https://dyyz1993.github.io/mpage/](https://dyyz1993.github.io/mpage/)
 
-## API Reference
+- [快速开始](https://dyyz1993.github.io/mpage/guide/installation) — 安装与创建项目
+- [插件开发](https://dyyz1993.github.io/mpage/plugins/overview) — 开发自定义插件
+- [API 参考](https://dyyz1993.github.io/mpage/api/xpage/overview) — 完整 API 文档
+- [录制与回放](https://dyyz1993.github.io/mpage/guide/recording) — 录制和回放用户操作
+- [页面结构提取](https://dyyz1993.github.io/mpage/guide/structure) — 提取语义布局
 
-### Command Execution
-
-```typescript
-import { executePageCommand, getCommandHandler, hasCommand } from '@dyyz1993/xpage';
-
-const handler = getCommandHandler('click');
-const exists = hasCommand('goto');
-const result = await executePageCommand(page, 'click', { selector: '#btn' });
-```
-
-### Command Definitions & Parsing
-
-```typescript
-import { commands, getCommandNames, parseArgsToRecord, parseCommandChain } from '@dyyz1993/xpage';
-
-commands['goto'].schema;
-getCommandNames();
-const parsed = parseCommandChain('goto url=https://example.com && click selector=#btn');
-```
-
-### Client IPC
-
-```typescript
-import { executeCommand, executePipeline, executeCommandChain, sendRequest } from '@dyyz1993/xpage';
-```
-
-### Session Management
-
-```typescript
-import {
-  ensureStorage, getSessionPath, loadSessionInfo,
-  saveSessionInfo, deleteSessionInfo, listSessions,
-} from '@dyyz1993/xpage';
-```
-
-## Related Projects
-
-- **@dyyz1993/xcli-core** — Plugin-based CLI framework built on this engine
-- **create-xcli** — Project scaffolding tool
-- **@dyyz1993/xcli-browser** — Browser domain reference implementation
-
-## Development
+## 开发
 
 ```bash
-npm run typecheck   # Type check
-npm run lint        # ESLint
-npm run build       # Build (tsup)
-npm test            # Run tests
-npm run validate    # typecheck + lint + build + test
+pnpm install
+pnpm run build
+pnpm run test
 ```
 
 ## License

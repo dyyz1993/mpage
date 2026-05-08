@@ -2,8 +2,8 @@
 layout: home
 hero:
   name: xcli
-  text: 插件化 CLI 框架 & 浏览器自动化引擎
-  tagline: 一个框架，无限领域。浏览器自动化、数据库管理、API 调试，5 分钟创建你的 CLI 工具。
+  text: 插件化 CLI 框架
+  tagline: 5 分钟创建你的领域 CLI 工具。浏览器自动化、数据库管理、API 调试，一个框架全搞定。
   actions:
     - theme: brand
       text: 快速开始
@@ -16,16 +16,27 @@ hero:
       link: https://github.com/dyyz1993/mpage
 
 features:
-  - title: 🔌 插件系统
-    details: jiti 运行时加载 TypeScript 插件，5 种安装方式（local/npm/git/url/builtin），热重载，隔离命名空间。
-  - title: 🏗️ 通用 CLI 框架
-    details: 领域无关的核心设计。Scope 层级管理、Daemon 后台进程、Worker 进程池、Session 持久化。
-  - title: 🕷️ 浏览器自动化
-    details: 基于 Playwright 的浏览器引擎。35+ 页面命令、录制/回放、页面结构提取、无障碍树。
-  - title: ⚡ 脚手架生成
-    details: 一条命令生成项目骨架。5 种内置模板（base/browser/database/api/plugin），TypeScript 开箱即用。
-  - title: 🔧 命令覆盖
-    details: 插件可覆盖原有命令并调用原始 handler。装饰器模式，前置/后置增强，卸载时自动恢复。
-  - title: 🧪 测试覆盖 99%
-    details: xcli-core 99% 测试覆盖率，1600+ 测试用例。Vitest 单元测试 + GitHub CI 自动验证。
+  - icon: 🔌
+    title: TypeScript 插件系统
+    details: jiti 运行时加载 .ts 插件，无需预编译。5 种安装方式（本地/npm/git/url/内置），支持热重载和隔离命名空间。插件可覆盖命令并调用原始 handler。
+
+  - icon: 🕷️
+    title: 浏览器自动化引擎
+    details: 基于 Playwright 的 35+ 页面命令。goto/click/type/screenshot 开箱即用，录制用户操作并回放，提取页面语义结构和无障碍树。
+
+  - icon: ⚡
+    title: 一条命令创建项目
+    details: npx create-xcli my-cli 即可生成完整项目骨架。5 种内置模板（base/browser/database/api/plugin），TypeScript + tsup + ESLint 开箱即用。
+
+  - icon: 🏗️
+    title: 领域无关的架构
+    details: Scope 层级（project/browser/page/element）、Daemon 后台进程、Worker 进程池、Session 持久化。不绑定浏览器或数据库，适配任何领域。
+
+  - icon: 🔄
+    title: 命令覆盖与增强
+    details: 插件可覆盖任意命令，装饰器模式支持前置/后置增强。通过 getOriginalHandler() 调用原始逻辑，卸载时自动恢复。
+
+  - icon: 🧪
+    title: 生产级质量保障
+    details: xcli-core 99% 测试覆盖率，1600+ 测试用例，42 页完整文档。Vitest 单元测试 + GitHub CI 全自动验证，Node 20/22 双版本测试。
 ---
