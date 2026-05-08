@@ -47,12 +47,20 @@ export const BASE_CLI_TEMPLATE: ScaffoldTemplate = {
     {
       path: 'tsconfig.json',
       content: `{
-  "extends": "./node_modules/@dyyz1993/xcli-core/tsconfig.base.json",
   "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "sourceMap": true,
     "outDir": "dist",
     "rootDir": "src"
   },
-  "include": ["src/**/*", "bin/**/*"]
+  "include": ["src/**/*", "bin/**/*"],
+  "exclude": ["node_modules", "dist"]
 }`,
     },
     {

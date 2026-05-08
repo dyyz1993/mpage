@@ -10,7 +10,7 @@ export default createConfig([
     clean: true,
     minify: false,
     sourcemap: true,
-    dts: true,
+    dts: { resolve: false },
     external: ['playwright-core'],
   },
 ]);

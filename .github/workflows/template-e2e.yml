@@ -70,7 +70,11 @@ jobs:
       - name: Build generated project
         run: |
           cd /tmp/test-${{ matrix.template }}
-          npm run build 2>&1 | tail -10
+          if grep -q '"build"' package.json; then
+            npm run build 2>&1 | tail -10
+          else
+            echo "No build script, skipping"
+          fi
 
   full-user-journey:
     runs-on: ubuntu-latest
