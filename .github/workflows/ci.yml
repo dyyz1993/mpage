@@ -25,6 +25,8 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
+        env:
+          npm_config_shamefully_hoist: "true"
 
       - name: Lint
         run: pnpm run lint
@@ -72,6 +74,8 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
+        env:
+          npm_config_shamefully_hoist: "true"
 
       - name: Build all
         run: pnpm run build

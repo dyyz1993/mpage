@@ -36,6 +36,8 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        env:
+          npm_config_shamefully_hoist: "true"
 
       - name: Build packages
         run: pnpm run build
@@ -95,6 +97,8 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
           pnpm run build
+        env:
+          npm_config_shamefully_hoist: "true"
 
       - name: Journey 1 - Create base CLI, build and run
         run: |
