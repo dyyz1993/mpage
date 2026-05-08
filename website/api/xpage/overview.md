@@ -91,8 +91,14 @@ import {
 ```typescript
 interface CommandResult<T = unknown> {
   success: boolean;
-  data?: T;
-  error?: Error;
+  data: T;
+  message?: string;
+  tips: string[];
+  meta?: {
+    duration?: number;
+    command?: string;
+    site?: string;
+  };
 }
 
 interface ChainExecutionResult {
@@ -102,20 +108,29 @@ interface ChainExecutionResult {
 }
 
 interface RecordedEvent {
-  type: string;
-  selector: string;
-  tagName: string;
-  data?: Record<string, unknown>;
+  id: string;
+  type: EventType;
   timestamp: number;
+  selector?: string;
+  xpath?: string;
+  tagName?: string;
+  text?: string;
+  data: EventData;
+  waitBefore?: WaitCondition[];
+  assertAfter?: AssertCondition[];
+  pageState?: PageState;
 }
 
 interface RecordingSession {
   id: string;
-  name: string;
-  startUrl: string;
-  startTime: string;
+  name?: string;
+  startTime: number;
+  endTime?: number;
   duration: number;
+  startUrl: string;
+  viewport: { width: number; height: number };
   events: RecordedEvent[];
+  metadata: RecordingMetadata;
 }
 ```
 

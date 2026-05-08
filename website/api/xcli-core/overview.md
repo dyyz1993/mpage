@@ -16,10 +16,12 @@ title: xcli-core API 概览
 | `DaemonManager` | 后台进程管理 |
 | `WorkerManager` | Worker 进程池 |
 | `WSServer` / `WSClient` | WebSocket 通信 |
-| `OutputFormatter` | 输出格式化 |
-| `HelpGenerator` | 帮助文本生成 |
+| `OutputFormatter` | 输出格式化（JSON/表格/YAML 等多格式输出） |
+| `HelpGenerator` | 帮助文本生成（自动从命令元数据生成 usage 文档） |
 | `ScaffoldEngine` | 项目模板生成 |
-| `ScopeRegistry` | 命令层级管理 |
+| `ScopeRegistry` | 命令层级管理（定义 project → browser → page → element 层级） |
+| `PluginStorage` | 插件持久化存储（每个插件独立的 key-value 存储） |
+| `PluginInstallerRegistry` | 插件安装器注册表 |
 
 ## 核心接口
 
@@ -27,17 +29,64 @@ title: xcli-core API 概览
 |------|------|
 | `XCLIAPI` | 插件开发者面对的核心接口 |
 | `SiteInstance` | 插件命名空间容器 |
-| `CommandContext` | 命令执行上下文 |
+| `CommandContext` | 命令执行上下文（含 page, storage, output） |
 | `WorkerEntryPoint` | Worker 生命周期接口 |
 | `CoreConfig` | CLI 配置 |
 | `ScopeDefinition` | 层级定义 |
+| `CommandResult` | 命令执行结果（success/data/tips/meta） |
+| `StorageContext` | 插件存储上下文 |
+| `OutputContext` | 输出控制上下文 |
+| `RcConfig` | 用户配置文件结构 |
 
 ## 工具函数
 
+### 命令结果
+
 ```typescript
-import { ok, fail, withMeta } from '@dyyz1993/xcli-core';
-import { startDaemon, stopDaemon, isDaemonRunning, getDaemonStatus } from '@dyyz1993/xcli-core';
-import { loadConfig, saveConfig, getConfigValue } from '@dyyz1993/xcli-core';
+import { ok, fail, withMeta, wrapResult, isCommandResult } from '@dyyz1993/xcli-core';
+```
+
+### Daemon 管理
+
+```typescript
+import { startDaemon, stopDaemon, isDaemonRunning, getDaemonStatus, killAllDaemon } from '@dyyz1993/xcli-core';
+```
+
+### 配置管理
+
+```typescript
+import {
+  loadConfig, saveConfig, getConfigValue, setConfigValue,
+  getEffectiveValue, getViewerHost, getChromiumPath, getDaemonPort,
+  getViewerUrl, getAllConfigKeys,
+} from '@dyyz1993/xcli-core';
+```
+
+### 参数解析
+
+```typescript
+import { parseArgs, mergeArgsWithDefaults, resolveShortOptions, coerceCliArgs } from '@dyyz1993/xcli-core';
+```
+
+### Agent Guard
+
+```typescript
+import {
+  checkGuard, loadGuardConfig, clearGuardCache,
+  addGuardRule, removeGuardRule, listGuardRules, setGuardIdentityKey,
+} from '@dyyz1993/xcli-core';
+```
+
+### 验证器
+
+```typescript
+import { validateExecution, formatValidationReport } from '@dyyz1993/xcli-core';
+```
+
+### 输出
+
+```typescript
+import { generateTips, outputFormatter, helpGenerator } from '@dyyz1993/xcli-core';
 ```
 
 ## 下一步
