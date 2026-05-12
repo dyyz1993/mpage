@@ -48,7 +48,7 @@
     "playwright-core": "^1.58.2",
     "ws": "^8.20.0",
     "yaml": "^2.8.2",
-    "zod": "^3.24.0"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@dyyz1993/xcli-core": "^0.6.0",
