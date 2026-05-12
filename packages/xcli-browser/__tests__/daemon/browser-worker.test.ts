@@ -40,13 +40,8 @@ vi.mock('@dyyz1993/xcli-core', () => ({
   ok: (data: unknown) => data,
 }));
 
-import {
-  BrowserWorker,
-  routeCommand,
-  sessions,
-  findSession,
-  getBrowser,
-} from '../../src/daemon/browser-worker.js';
+import { BrowserWorker, routeCommand, getBrowser } from '../../src/daemon/browser-worker.js';
+import { sessions, findSession } from '../../src/daemon/worker-session-ops.js';
 
 describe('BrowserWorker', () => {
   let worker: BrowserWorker;

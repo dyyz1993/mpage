@@ -2,7 +2,8 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { resolve } from 'path';
 import { mkdtempSync, writeFileSync, rmSync } from 'fs';
 import { tmpdir } from 'os';
-import { PluginLoader, PluginInstance } from '../../src/plugin-loader.js';
+import { PluginLoader } from '../../src/plugin-loader.js';
+import { PluginInstance } from '../../src/plugin-instance.js';
 import type { Core, CoreConfig } from '../../src/core.js';
 
 const FIXTURES = resolve(__dirname, '..', 'fixtures');

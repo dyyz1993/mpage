@@ -49,7 +49,9 @@ export type { CommandResult } from './command-result.js';
 export type { SessionInfo, CommandArgs, CommandValues } from './types.js';
 
 export { PluginLoader } from './plugin-loader.js';
-export type { PluginStatus, BuiltinCommandEntry, PluginInstance } from './plugin-loader.js';
+export type { BuiltinCommandEntry } from './plugin-loader.js';
+export { PluginInstance } from './plugin-instance.js';
+export type { PluginStatus, PluginLoaderHost } from './plugin-instance.js';
 
 export { PluginStorage } from './plugin-storage.js';
 
