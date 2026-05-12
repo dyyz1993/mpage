@@ -361,20 +361,8 @@ export class GroupedSiteInstance implements SiteInstance {
     this.config = parent.config;
   }
 
-  command<P extends ZodSchema, R extends ZodSchema>(
-    name: string,
-    cmd: {
-      description: string;
-      scope?: CommandScope;
-      override?: boolean;
-      parameters?: P;
-      result?: R;
-      requiresLogin?: boolean;
-      examples?: Array<{ cmd: string; description: string }>;
-      tips?: string[];
-      handler: (params: z.infer<P>, ctx: CommandContext) => Promise<z.infer<R>>;
-    }
-  ): SiteInstance {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  command(name: string, cmd: any): SiteInstance {
     this.parent.command(this.prefix + name, cmd);
     return this;
   }
