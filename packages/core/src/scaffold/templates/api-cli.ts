@@ -40,8 +40,8 @@ export const API_CLI_TEMPLATE: ScaffoldTemplate = {
     "start": "node dist/cli.js"
   },
   "dependencies": {
-    "@dyyz1993/xcli-core": "^0.6.0",
-    "zod": "^3.24.0",
+    "@dyyz1993/xcli-core": "^0.7.0",
+    "zod": "^3.25.0",
     "undici": "^7.0.0"
   },
   "devDependencies": {

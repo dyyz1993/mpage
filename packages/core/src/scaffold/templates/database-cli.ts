@@ -42,8 +42,8 @@ export const DATABASE_CLI_TEMPLATE: ScaffoldTemplate = {
     "start": "node dist/cli.js"
   },
   "dependencies": {
-    "@dyyz1993/xcli-core": "^0.6.0",
-    "zod": "^3.24.0"
+    "@dyyz1993/xcli-core": "^0.7.0",
+    "zod": "^3.25.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
