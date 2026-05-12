@@ -207,7 +207,7 @@ export class SiteInstanceImpl implements SiteInstance {
     this.cliName = cliName ?? 'xcli';
   }
 
-  command<P extends ZodSchema = ZodSchema, R extends ZodSchema = ZodSchema>(
+  command<P extends ZodSchema, R extends ZodSchema>(
     name: string,
     cmd: {
       description: string;
@@ -361,7 +361,7 @@ export class GroupedSiteInstance implements SiteInstance {
     this.config = parent.config;
   }
 
-  command<P extends ZodSchema = ZodSchema, R extends ZodSchema = ZodSchema>(
+  command<P extends ZodSchema, R extends ZodSchema>(
     name: string,
     cmd: {
       description: string;
