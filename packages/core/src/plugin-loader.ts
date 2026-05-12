@@ -233,6 +233,10 @@ export class PluginLoader {
 
     return {
       createSite(config: SiteConfig): SiteInstance {
+        const existing = self.sites.get(config.name);
+        if (existing) {
+          return existing;
+        }
         const pluginStorage = self.createPluginStorage(config.name);
         const site = new SiteInstanceImpl(config, pluginStorage);
         self.sites.set(config.name, site);
@@ -526,7 +530,27 @@ export class PluginLoader {
   }
 
   getAllCommands(): Array<Command & { handler: CommandHandler }> {
-    return Array.from(this.commands.values());
+    const all = new Map<string, Command & { handler: CommandHandler }>();
+    for (const cmd of this.commands.values()) {
+      all.set(cmd.name, cmd);
+    }
+    for (const site of this.sites.values()) {
+      for (const summary of site.getAllCommands()) {
+        if (!all.has(summary.name)) {
+          const entry = site.getCommand(summary.name);
+          if (entry) {
+            all.set(summary.name, {
+              name: entry.name,
+              description: entry.description,
+              requiresLogin: entry.requiresLogin ?? false,
+              tips: entry.tips,
+              handler: entry.handler,
+            });
+          }
+        }
+      }
+    }
+    return Array.from(all.values());
   }
 
   getSite(name: string): SiteInstance | undefined {

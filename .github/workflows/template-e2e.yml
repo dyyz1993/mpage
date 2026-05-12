@@ -65,6 +65,9 @@ jobs:
       - name: Install generated project dependencies
         run: |
           cd /tmp/test-${{ matrix.template }}
+          if grep -q '"@dyyz1993/xcli-core"' package.json; then
+            npm install @dyyz1993/xcli-core@${{ github.workspace }}/packages/core --legacy-peer-deps --no-save 2>&1 | tail -5
+          fi
           npm install --legacy-peer-deps 2>&1 | tail -5
 
       - name: Build generated project
@@ -103,6 +106,7 @@ jobs:
           cd /tmp
           node ${{ github.workspace }}/packages/create-xcli/dist/create-xcli.js journey-test
           cd journey-test
+          npm install @dyyz1993/xcli-core@${{ github.workspace }}/packages/core --legacy-peer-deps --no-save
           npm install --legacy-peer-deps
           npm run build
           echo "=== Run CLI ==="
@@ -128,6 +132,7 @@ jobs:
           cd /tmp
           node ${{ github.workspace }}/packages/create-xcli/dist/create-xcli.js journey-db -t database
           cd journey-db
+          npm install @dyyz1993/xcli-core@${{ github.workspace }}/packages/core --legacy-peer-deps --no-save
           npm install --legacy-peer-deps
           npm run build
           echo "=== Verify CLI loads ==="
@@ -144,13 +149,14 @@ jobs:
           cd /tmp
           node ${{ github.workspace }}/packages/create-xcli/dist/create-xcli.js journey-api -t api
           cd journey-api
+          npm install @dyyz1993/xcli-core@${{ github.workspace }}/packages/core --legacy-peer-deps --no-save
           npm install --legacy-peer-deps
           npm run build
           echo "=== Verify CLI loads ==="
           node dist/cli.js --help
           echo "=== Verify api commands ==="
-          node dist/cli.js list --help || true
-          node dist/cli.js inspect --help || true
+          node dist/cli.js get --help || true
+          node dist/cli.js post --help || true
           echo "Journey 4 passed"
         env:
           NODE_PATH: ${{ github.workspace }}/node_modules
@@ -160,6 +166,7 @@ jobs:
           cd /tmp
           node ${{ github.workspace }}/packages/create-xcli/dist/create-xcli.js journey-plugin -t base
           cd journey-plugin
+          npm install @dyyz1993/xcli-core@${{ github.workspace }}/packages/core --legacy-peer-deps --no-save
           npm install --legacy-peer-deps
           npm run build
           echo "=== Create local test plugin ==="

@@ -37,7 +37,7 @@ export const API_CLI_TEMPLATE: ScaffoldTemplate = {
     "dev": "tsup --watch",
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit",
-    "start": "node dist/bin/cli.js"
+    "start": "node dist/cli.js"
   },
   "dependencies": {
     "@dyyz1993/xcli-core": "^0.6.0",
