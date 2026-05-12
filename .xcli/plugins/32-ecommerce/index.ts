@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import type { XCLIAPI } from 'xcli';
 import { crawlerUrl } from '../_shared';
 
@@ -25,8 +25,7 @@ export default function (xcli: XCLIAPI) {
       username: z.string().default('admin').describe('用户名'),
       password: z.string().default('password').describe('密码'),
     }),
-    // @ts-ignore
-    handler: async (params: any, ctx: any) => {
+    handler: async (params, ctx) => {
       await ctx.page.goto(`${BASE_URL}/examples/32-ecommerce-admin.html?study`, {
         waitUntil: 'domcontentloaded',
       });
@@ -66,8 +65,7 @@ export default function (xcli: XCLIAPI) {
   plugin.command('logout', {
     description: '退出登录',
     requiresLogin: false,
-    // @ts-ignore
-    handler: async (_params: any, ctx: any) => {
+    handler: async (_params, ctx) => {
       await ctx.storage.delete('auth_token');
       return { success: true, message: '已退出登录' };
     },
@@ -80,8 +78,7 @@ export default function (xcli: XCLIAPI) {
       startDate: z.string().optional().describe('开始日期'),
       endDate: z.string().optional().describe('结束日期'),
     }),
-    // @ts-ignore
-    handler: async (params: any, ctx: any) => {
+    handler: async (params, ctx) => {
       const token = await ctx.storage.get<string>('auth_token');
       if (!token) {
         return { success: false, message: '请先登录' };
@@ -97,8 +94,7 @@ export default function (xcli: XCLIAPI) {
   plugin.command('scrape', {
     description: '采集所有订单（自动遍历全部分页）',
     parameters: z.object({}),
-    // @ts-ignore
-    handler: async (_params: any, ctx: any) => {
+    handler: async (_params, ctx) => {
       const token = await ctx.storage.get<string>('auth_token');
       if (!token) {
         return { success: false, message: '请先登录' };
@@ -128,8 +124,7 @@ export default function (xcli: XCLIAPI) {
   plugin.command('export', {
     description: '导出所有订单数据',
     parameters: z.object({}),
-    // @ts-ignore
-    handler: async (_params: any, ctx: any) => {
+    handler: async (_params, ctx) => {
       const token = await ctx.storage.get<string>('auth_token');
       if (!token) {
         return { success: false, message: '请先登录' };
@@ -142,8 +137,7 @@ export default function (xcli: XCLIAPI) {
   plugin.command('detail', {
     description: '获取订单详情',
     parameters: z.object({ orderId: z.string().describe('订单号') }),
-    // @ts-ignore
-    handler: async (params: any, ctx: any) => {
+    handler: async (params, ctx) => {
       const token = await ctx.storage.get<string>('auth_token');
       if (!token) {
         return { success: false, message: '请先登录' };

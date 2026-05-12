@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { join } from 'path';
 import { homedir } from 'os';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 vi.mock('../../src/plugin-loader.js', () => {
   const mockGetAllCommands = vi.fn(() => []);
@@ -312,9 +312,7 @@ describe('Core', () => {
         },
       });
 
-      await expect(core.run(['scrape', '--count', 'abc'])).rejects.toThrow(
-        'Expected number, received string'
-      );
+      await expect(core.run(['scrape', '--count', 'abc'])).rejects.toThrow('expected number');
     });
 
     it('includes help in error output for unknown command', async () => {

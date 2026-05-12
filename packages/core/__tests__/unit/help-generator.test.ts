@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { HelpGenerator, helpGenerator, type HelpOptions } from '../../src/help/help-generator.js';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 describe('HelpGenerator — header & description', () => {
   const gen = new HelpGenerator();

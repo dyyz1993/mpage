@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import type { XCLIAPI } from 'xcli';
 import { safeGoto, ok, fail, crawlerUrl } from '../_shared';
 
@@ -52,7 +52,7 @@ export default function (xcli: XCLIAPI) {
         });
         return ok(data, [
           `采集到 ${data.length} 个算术表达式`,
-          `题目: ${data.map((d: any) => d.expression).join(', ')}`,
+          `题目: ${data.map((d) => d.expression).join(', ')}`,
         ]);
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);

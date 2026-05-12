@@ -5,6 +5,9 @@ import {
   coerceCliArgs,
   wrapResult,
   withMeta,
+  type CommandEntry,
+  type SiteInstance,
+  type PluginLoader,
 } from '@dyyz1993/xcli-core';
 import type { BrowserCommandContext } from '../context.js';
 import { resolve } from 'path';
@@ -14,62 +17,16 @@ function join(...segments: string[]): string {
   return segments.join('/');
 }
 
-export async function handlePluginCommand(
+async function executeCommand(
   siteName: string,
   commandName: string,
+  cmd: CommandEntry,
   args: CommandArgs,
-  values: CommandValues
+  values: CommandValues,
+  mode: ReturnType<typeof getOutputMode>,
+  site: SiteInstance,
+  loader: PluginLoader
 ): Promise<void> {
-  const mode = getOutputMode(values);
-  const core = new Core(CORE_CONFIG);
-  const loader = core.loader;
-
-  const cwd = process.cwd();
-  const pluginDirs = CORE_CONFIG.pluginDirs.map((d) => resolve(cwd, d));
-
-  for (const dir of pluginDirs) {
-    try {
-      const { readdirSync } = await import('fs');
-      const entries = readdirSync(dir, { withFileTypes: true });
-      for (const entry of entries) {
-        if (entry.name.startsWith('.')) continue;
-        const pluginPath = entry.isDirectory()
-          ? join(dir, entry.name, 'index.ts')
-          : join(dir, entry.name);
-        try {
-          await loader.loadPlugin(pluginPath);
-        } catch {
-          // skip broken plugins
-        }
-      }
-    } catch {
-      // dir doesn't exist
-    }
-  }
-
-  const site = loader.getSite(siteName);
-  if (!site) {
-    const sites = loader.getSites();
-    if (sites.length > 0) {
-      const available = sites.map((s) => s.name).join(', ');
-      outputError(`Site '${siteName}' not found. Available: ${available}`, mode);
-    } else {
-      outputError(`Site '${siteName}' not found. No plugins loaded.`, mode);
-    }
-    process.exit(1);
-  }
-
-  const cmd = site.getCommand(commandName);
-  if (!cmd) {
-    const commands = site.getAllCommands();
-    const available = commands.map((c) => c.name).join(', ');
-    outputError(
-      `Command '${commandName}' not found in '${siteName}'. Available: ${available}`,
-      mode
-    );
-    process.exit(1);
-  }
-
   if (values.help) {
     console.log(
       helpGen.generate(
@@ -127,4 +84,75 @@ export async function handlePluginCommand(
   } finally {
     await loader.unload();
   }
+}
+
+export async function handlePluginCommand(
+  siteName: string,
+  commandName: string,
+  args: CommandArgs,
+  values: CommandValues
+): Promise<void> {
+  const mode = getOutputMode(values);
+  const core = new Core(CORE_CONFIG);
+  const loader = core.loader;
+
+  const cwd = process.cwd();
+  const pluginDirs = CORE_CONFIG.pluginDirs.map((d) => resolve(cwd, d));
+
+  for (const dir of pluginDirs) {
+    try {
+      const { readdirSync } = await import('fs');
+      const entries = readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.name.startsWith('.')) continue;
+        const pluginPath = entry.isDirectory()
+          ? join(dir, entry.name, 'index.ts')
+          : join(dir, entry.name);
+        try {
+          await loader.loadPlugin(pluginPath);
+        } catch {
+          // skip broken plugins
+        }
+      }
+    } catch {
+      // dir doesn't exist
+    }
+  }
+
+  const site = loader.getSite(siteName);
+  if (!site) {
+    const sites = loader.getSites();
+    if (sites.length > 0) {
+      const available = sites.map((s) => s.name).join(', ');
+      outputError(`Site '${siteName}' not found. Available: ${available}`, mode);
+    } else {
+      outputError(`Site '${siteName}' not found. No plugins loaded.`, mode);
+    }
+    process.exit(1);
+  }
+
+  let cmd = site.getCommand(commandName);
+  let resolvedName = commandName;
+
+  if (!cmd && args.length > 0) {
+    const dottedName = commandName + '.' + args[0];
+    const dottedCmd = site.getCommand(dottedName);
+    if (dottedCmd) {
+      cmd = dottedCmd;
+      resolvedName = dottedName;
+      args = args.slice(1);
+    }
+  }
+
+  if (!cmd) {
+    const commands = site.getAllCommands();
+    const available = commands.map((c) => c.name).join(', ');
+    outputError(
+      `Command '${commandName}' not found in '${siteName}'. Available: ${available}`,
+      mode
+    );
+    process.exit(1);
+  }
+
+  await executeCommand(siteName, resolvedName, cmd, args, values, mode, site, loader);
 }

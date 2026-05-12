@@ -73,7 +73,7 @@ export class HelpGenerator {
       const schemaAny = schema as unknown as Record<string, unknown>;
       const shape =
         (schemaAny.shape as Record<string, unknown>) ||
-        ((schemaAny._def as Record<string, unknown>)?.shape as () => Record<string, unknown>)?.();
+        ((schemaAny._def as Record<string, unknown>)?.shape as Record<string, unknown>);
       if (shape) {
         for (const [key, value] of Object.entries(shape)) {
           const fieldSchema = value as unknown as Record<string, unknown>;
@@ -110,7 +110,7 @@ export class HelpGenerator {
       const schemaAny = schema as unknown as Record<string, unknown>;
       const shape =
         (schemaAny.shape as Record<string, unknown>) ||
-        ((schemaAny._def as Record<string, unknown>)?.shape as () => Record<string, unknown>)?.();
+        ((schemaAny._def as Record<string, unknown>)?.shape as Record<string, unknown>);
       if (shape) {
         for (const [key, value] of Object.entries(shape)) {
           if (key === 'tips' || key === 'errors') continue;
@@ -149,35 +149,27 @@ export class HelpGenerator {
         return this.getZodType((s.unwrap as () => unknown)(), depth + 1);
       }
 
-      const typeName = (sDef?.typeName as string) || (schema as object).constructor?.name;
+      const typeName = (sDef?.type as string) || (schema as object).constructor?.name;
 
-      if (typeName === 'ZodString') return '[string]';
-      if (typeName === 'ZodNumber') return '[number]';
-      if (typeName === 'ZodBoolean') return '[boolean]';
-      if (typeName === 'ZodArray') {
-        let inner = sDef?.type;
-        if (!inner) inner = sDef?.innerType;
-        if (!inner) inner = sDef?.wrapped;
-        if (!inner && typeof s.unwrap === 'function') {
-          inner = ((s.unwrap as () => Record<string, unknown>)()._def as Record<string, unknown>)
-            ?.type;
-        }
+      if (typeName === 'string') return '[string]';
+      if (typeName === 'number') return '[number]';
+      if (typeName === 'boolean') return '[boolean]';
+      if (typeName === 'array') {
+        const inner = sDef?.element;
         const innerStr = inner ? this.getZodType(inner, depth + 1) : '[unknown]';
         return `[${innerStr}]`;
       }
-      if (typeName === 'ZodObject') {
+      if (typeName === 'object') {
         const shape =
-          (s.shape as Record<string, unknown>) ||
-          (sDef?.shape as () => Record<string, unknown>)?.();
+          (s.shape as Record<string, unknown>) || (sDef?.shape as Record<string, unknown>);
         if (shape && Object.keys(shape).length > 0) {
           return '[object] { ' + Object.keys(shape).join(', ') + ' }';
         }
         return '[object]';
       }
-      if (typeName === 'ZodOptional' || typeName === 'ZodDefault') {
+      if (typeName === 'optional' || typeName === 'default') {
         let inner = sDef?.innerType;
         if (!inner && s.innerType) inner = s.innerType;
-        if (!inner) inner = sDef?.type;
         if (!inner && typeof s.unwrap === 'function') inner = (s.unwrap as () => unknown)();
         if (!inner) {
           if (sDef?.defaultValue !== undefined) return '[string]';
@@ -277,17 +269,54 @@ export class HelpGenerator {
     lines.push('');
     lines.push(`${emoji ? '🌐 ' : ''}${siteName} (${url})`);
     lines.push('');
-    lines.push('Commands:');
 
-    for (const cmd of commands) {
-      const cmdStr = `  ${cmd.name.padEnd(15)} ${cmd.description}`;
-      lines.push(cmdStr);
+    const { ungrouped, grouped } = this.groupCommands(commands);
+
+    if (ungrouped.length > 0) {
+      lines.push('Commands:');
+      for (const cmd of ungrouped) {
+        const cmdStr = `  ${cmd.name.padEnd(15)} ${cmd.description}`;
+        lines.push(cmdStr);
+      }
+      lines.push('');
     }
 
-    lines.push('');
+    for (const [groupName, groupCmds] of grouped) {
+      lines.push(`${groupName}:`);
+      for (const cmd of groupCmds) {
+        const subName = cmd.name.slice(groupName.length + 1);
+        const cmdStr = `  ${subName.padEnd(15)} ${cmd.description}`;
+        lines.push(cmdStr);
+      }
+      lines.push('');
+    }
+
     lines.push(`Use '${cliName} ${siteName.toLowerCase()} <command> --help' for more info.`);
 
     return lines.join('\n');
+  }
+
+  private groupCommands(commands: Array<{ name: string; description: string }>): {
+    ungrouped: Array<{ name: string; description: string }>;
+    grouped: Map<string, Array<{ name: string; description: string }>>;
+  } {
+    const ungrouped: Array<{ name: string; description: string }> = [];
+    const grouped = new Map<string, Array<{ name: string; description: string }>>();
+
+    for (const cmd of commands) {
+      const dotIndex = cmd.name.indexOf('.');
+      if (dotIndex !== -1) {
+        const groupName = cmd.name.slice(0, dotIndex);
+        if (!grouped.has(groupName)) {
+          grouped.set(groupName, []);
+        }
+        grouped.get(groupName)!.push(cmd);
+      } else {
+        ungrouped.push(cmd);
+      }
+    }
+
+    return { ungrouped, grouped };
   }
 }
 

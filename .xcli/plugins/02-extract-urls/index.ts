@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import type { XCLIAPI } from 'xcli';
 import { crawlerUrl } from '../_shared';
 
@@ -131,7 +131,7 @@ tips:
       if (data.length < 15)
         errors.push({ field: 'length', expected: '>=15', actual: String(data.length) });
 
-      data.forEach((item: any, i: number) => {
+      data.forEach((item, i) => {
         if (typeof item.text !== 'string' || item.text.trim() === '')
           errors.push({
             field: `[${i}].text`,
@@ -148,7 +148,7 @@ tips:
           });
       });
 
-      const gpt5Link = data.find((l: any) => l.text.includes('GPT-5即将发布'));
+      const gpt5Link = data.find((l) => l.text.includes('GPT-5即将发布'));
       if (gpt5Link && gpt5Link.type !== '内部链接')
         errors.push({
           field: '[GPT-5]',
@@ -156,7 +156,7 @@ tips:
           actual: `type = "${gpt5Link.type}"`,
         });
 
-      const spacexLink = data.find((l: any) => l.text.includes('SpaceX'));
+      const spacexLink = data.find((l) => l.text.includes('SpaceX'));
       if (spacexLink && spacexLink.type !== '外部链接')
         errors.push({
           field: '[SpaceX]',

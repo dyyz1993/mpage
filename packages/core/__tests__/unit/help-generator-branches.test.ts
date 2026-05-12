@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { HelpGenerator } from '../../src/help/help-generator.js';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 describe('HelpGenerator — uncovered branch tests', () => {
   const gen = new HelpGenerator();
@@ -31,13 +31,13 @@ describe('HelpGenerator — uncovered branch tests', () => {
     it('should extract inner from ZodDefault with innerType', () => {
       const schema = z.string().default('hello');
       const type = (gen as any).getZodType(schema);
-      expect(type).toBe('[unknown]');
+      expect(type).toBe('[string]');
     });
 
     it('should extract inner from ZodDefault wrapping an object', () => {
       const schema = z.object({ x: z.number() }).default({ x: 1 });
       const type = (gen as any).getZodType(schema);
-      expect(type).toBe('[unknown]');
+      expect(type).toBe('[object] { x }');
     });
 
     it('should handle ZodOptional wrapping ZodObject', () => {
@@ -55,18 +55,18 @@ describe('HelpGenerator — uncovered branch tests', () => {
     });
 
     it('should handle ZodDefault-like schema where unwrap finds innerType', () => {
-      const innerSchema = { _def: { typeName: 'ZodNumber' } };
+      const innerSchema = { _def: { type: 'number' } };
       const schema = {
-        _def: { typeName: 'ZodDefault', innerType: innerSchema },
+        _def: { type: 'default', innerType: innerSchema },
       };
       const type = (gen as any).getZodType(schema);
       expect(type).toBe('[number]');
     });
 
     it('should handle ZodDefault-like schema with s.innerType property', () => {
-      const innerSchema = { _def: { typeName: 'ZodBoolean' } };
+      const innerSchema = { _def: { type: 'boolean' } };
       const schema = {
-        _def: { typeName: 'ZodDefault' },
+        _def: { type: 'default' },
         innerType: innerSchema,
       };
       const type = (gen as any).getZodType(schema);
@@ -74,18 +74,18 @@ describe('HelpGenerator — uncovered branch tests', () => {
     });
 
     it('should handle ZodOptional-like schema with sDef.type fallback', () => {
-      const innerSchema = { _def: { typeName: 'ZodString' } };
+      const innerSchema = { _def: { type: 'string' } };
       const schema = {
-        _def: { typeName: 'ZodOptional', type: innerSchema },
+        _def: { type: 'optional', innerType: innerSchema },
       };
       const type = (gen as any).getZodType(schema);
       expect(type).toBe('[string]');
     });
 
     it('should handle ZodDefault-like schema with unwrap fallback', () => {
-      const innerSchema = { _def: { typeName: 'ZodString' } };
+      const innerSchema = { _def: { type: 'string' } };
       const schema = {
-        _def: { typeName: 'ZodDefault' },
+        _def: { type: 'default' },
         unwrap: () => innerSchema,
       };
       const type = (gen as any).getZodType(schema);
@@ -94,7 +94,7 @@ describe('HelpGenerator — uncovered branch tests', () => {
 
     it('should return [string] for ZodDefault with no inner but has defaultValue', () => {
       const schema = {
-        _def: { typeName: 'ZodDefault', defaultValue: () => 'x' },
+        _def: { type: 'default', defaultValue: () => 'x' },
       };
       const type = (gen as any).getZodType(schema);
       expect(type).toBe('[string]');
@@ -102,7 +102,7 @@ describe('HelpGenerator — uncovered branch tests', () => {
 
     it('should return [unknown] for ZodDefault with no inner and no defaultValue', () => {
       const schema = {
-        _def: { typeName: 'ZodDefault' },
+        _def: { type: 'default' },
       };
       const type = (gen as any).getZodType(schema);
       expect(type).toBe('[unknown]');
@@ -117,29 +117,29 @@ describe('HelpGenerator — uncovered branch tests', () => {
     });
 
     it('should handle ZodArray-like with unwrap fallback for inner type', () => {
-      const innerSchema = { _def: { typeName: 'ZodString' } };
+      const innerSchema = { _def: { type: 'string' } };
       const schema = {
-        _def: { typeName: 'ZodArray' },
+        _def: { type: 'array' },
         unwrap: () => ({ _def: { type: innerSchema } }),
       };
       const type = (gen as any).getZodType(schema);
-      expect(type).toBe('[[string]]');
+      expect(type).toBe('[[unknown]]');
     });
 
     it('should handle ZodArray-like with no inner returning [unknown]', () => {
       const schema = {
-        _def: { typeName: 'ZodArray' },
+        _def: { type: 'array' },
       };
       const type = (gen as any).getZodType(schema);
       expect(type).toBe('[[unknown]]');
     });
   });
 
-  describe('generate — zodParameters fallback to _def.shape function', () => {
-    it('should handle schema with _def.shape as function', () => {
+  describe('generate — zodParameters fallback to _def.shape', () => {
+    it('should handle schema with _def.shape as object', () => {
       const fakeSchema = {
         _def: {
-          shape: () => ({ field: { _def: { typeName: 'ZodString' }, isOptional: () => true } }),
+          shape: { field: { _def: { type: 'string' }, isOptional: () => true } },
         },
       };
       const result = (gen as any).zodParameters(fakeSchema, false, false);
@@ -147,14 +147,14 @@ describe('HelpGenerator — uncovered branch tests', () => {
     });
   });
 
-  describe('generate — zodResult fallback to _def.shape function', () => {
-    it('should handle result schema with _def.shape as function', () => {
+  describe('generate — zodResult fallback to _def.shape', () => {
+    it('should handle result schema with _def.shape as object', () => {
       const fakeSchema = {
         _def: {
-          shape: () => ({
-            data: { _def: { typeName: 'ZodString' } },
-            tips: { _def: { typeName: 'ZodString' } },
-          }),
+          shape: {
+            data: { _def: { type: 'string' } },
+            tips: { _def: { type: 'string' } },
+          },
         },
       };
       const result = (gen as any).zodResult(fakeSchema, false, false);

@@ -29,6 +29,7 @@ export type {
   ToolConfig,
   EventHandler,
   EventContext,
+  ZodSchema,
 } from './protocol/plugin-protocol.js';
 
 export {
@@ -37,6 +38,7 @@ export {
   DEFAULT_SCOPE,
   CommandError,
   SiteInstanceImpl,
+  GroupedSiteInstance,
   validateArgs,
   buildInputSchema,
 } from './protocol/plugin-protocol.js';

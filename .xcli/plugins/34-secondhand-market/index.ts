@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import type { XCLIAPI } from 'xcli';
 import { crawlerUrl } from '../_shared';
 
@@ -36,7 +36,7 @@ export default function (xcli: XCLIAPI) {
       username: z.string().default('admin').describe('用户名'),
       password: z.string().default('password').describe('密码'),
     }),
-    handler: async (params: any, ctx: any) => {
+    handler: async (params, ctx) => {
       const BASE_URL = 'https://tools.docker.19930810.xyz:8443/tools/crawler-practice';
       const TARGET = `${BASE_URL}/examples/34`;
 
@@ -61,8 +61,7 @@ export default function (xcli: XCLIAPI) {
     parameters: z.object({
       page: z.number().default(1).describe('页码'),
     }),
-    // @ts-ignore
-    handler: async (params: any, ctx: any) => {
+    handler: async (params, ctx) => {
       const BASE_URL = 'https://tools.docker.19930810.xyz:8443/tools/crawler-practice';
       const TARGET = `${BASE_URL}/examples/34`;
 
@@ -78,8 +77,7 @@ export default function (xcli: XCLIAPI) {
     description: '采集所有商品（自动遍历全部分页）',
     requiresLogin: true,
     parameters: z.object({}),
-    // @ts-ignore
-    handler: async (_params: any, ctx: any) => {
+    handler: async (_params, ctx) => {
       const BASE_URL = 'https://tools.docker.19930810.xyz:8443/tools/crawler-practice';
       const TARGET = `${BASE_URL}/examples/34`;
 
@@ -115,8 +113,7 @@ export default function (xcli: XCLIAPI) {
     parameters: z.object({
       itemId: z.string().describe('商品ID'),
     }),
-    // @ts-ignore
-    handler: async (params: any, ctx: any) => {
+    handler: async (params, ctx) => {
       const BASE_URL = 'https://tools.docker.19930810.xyz:8443/tools/crawler-practice';
       const TARGET = `${BASE_URL}/examples/34`;
 
@@ -144,8 +141,7 @@ export default function (xcli: XCLIAPI) {
       description: z.string().describe('商品描述'),
       price: z.string().describe('商品价格'),
     }),
-    // @ts-ignore
-    handler: async (params: any, ctx: any) => {
+    handler: async (params, ctx) => {
       const BASE_URL = 'https://tools.docker.19930810.xyz:8443/tools/crawler-practice';
       const TARGET = `${BASE_URL}/examples/34`;
 

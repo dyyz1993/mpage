@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import type { XCLIAPI } from 'xcli';
 import { safeGoto, ok, fail, crawlerUrl } from '../_shared';
 

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import type { CommandResult } from '../command-result.js';
 
 export type BaseScope = 'project' | 'module' | 'resource' | 'action';
@@ -133,6 +133,8 @@ export interface SiteInstance {
     }
   ): SiteInstance;
 
+  group(name: string): SiteInstance;
+
   login(handler: (ctx: CommandContext) => Promise<void>): SiteInstance;
   logout(handler: (ctx: CommandContext) => Promise<void>): SiteInstance;
 
@@ -205,13 +207,13 @@ export class SiteInstanceImpl implements SiteInstance {
     this.cliName = cliName ?? 'xcli';
   }
 
-  command<P extends ZodSchema, R extends ZodSchema>(
+  command<P extends ZodSchema = ZodSchema, R extends ZodSchema = ZodSchema>(
     name: string,
     cmd: {
       description: string;
       scope?: CommandScope;
       override?: boolean;
-      parameters: P;
+      parameters?: P;
       result?: R;
       requiresLogin?: boolean;
       examples?: Array<{ cmd: string; description: string }>;
@@ -234,10 +236,14 @@ export class SiteInstanceImpl implements SiteInstance {
       result: cmd.result,
       examples: cmd.examples,
       tips: cmd.tips,
-      handler: cmd.handler as CommandHandler,
+      handler: cmd.handler as unknown as CommandHandler,
       previousHandler: existing?.handler,
     });
     return this;
+  }
+
+  group(name: string): SiteInstance {
+    return new GroupedSiteInstance(this, name);
   }
 
   login(handler: (ctx: CommandContext) => Promise<void>): SiteInstance {
@@ -340,15 +346,100 @@ export class SiteInstanceImpl implements SiteInstance {
   }
 }
 
+export class GroupedSiteInstance implements SiteInstance {
+  name: string;
+  url: string;
+  config: SiteConfig;
+  private prefix: string;
+  private parent: SiteInstanceImpl;
+
+  constructor(parent: SiteInstanceImpl, groupName: string) {
+    this.parent = parent;
+    this.prefix = groupName + '.';
+    this.name = parent.name;
+    this.url = parent.url;
+    this.config = parent.config;
+  }
+
+  command<P extends ZodSchema = ZodSchema, R extends ZodSchema = ZodSchema>(
+    name: string,
+    cmd: {
+      description: string;
+      scope?: CommandScope;
+      override?: boolean;
+      parameters?: P;
+      result?: R;
+      requiresLogin?: boolean;
+      examples?: Array<{ cmd: string; description: string }>;
+      tips?: string[];
+      handler: (params: z.infer<P>, ctx: CommandContext) => Promise<z.infer<R>>;
+    }
+  ): SiteInstance {
+    this.parent.command(this.prefix + name, cmd);
+    return this;
+  }
+
+  group(name: string): SiteInstance {
+    return new GroupedSiteInstance(this.parent, this.prefix + name);
+  }
+
+  login(handler: (ctx: CommandContext) => Promise<void>): SiteInstance {
+    this.parent.login(handler);
+    return this;
+  }
+
+  logout(handler: (ctx: CommandContext) => Promise<void>): SiteInstance {
+    this.parent.logout(handler);
+    return this;
+  }
+
+  isLoggedIn(): Promise<boolean> {
+    return this.parent.isLoggedIn();
+  }
+
+  requireLogin(): Promise<void> {
+    return this.parent.requireLogin();
+  }
+
+  getStorage(): StorageContext {
+    return this.parent.getStorage();
+  }
+
+  getAllCommands(): Array<{
+    name: string;
+    description: string;
+    requiresLogin?: boolean;
+    scope: CommandScope;
+  }> {
+    return this.parent.getAllCommands().filter((c) => c.name.startsWith(this.prefix));
+  }
+
+  getCommand(name: string): CommandEntry | null {
+    return this.parent.getCommand(this.prefix + name);
+  }
+
+  getOriginalHandler(commandName: string): CommandHandler | undefined {
+    return this.parent.getOriginalHandler(this.prefix + commandName);
+  }
+
+  executeLogin(ctx: CommandContext): Promise<void> {
+    return this.parent.executeLogin(ctx);
+  }
+
+  executeLogout(ctx: CommandContext): Promise<void> {
+    return this.parent.executeLogout(ctx);
+  }
+}
+
 export function buildInputSchema(command: { parameters?: ZodSchema; options?: Option[] }) {
   if (command.parameters) {
     return command.parameters;
   }
 
-  const shape: Record<string, z.ZodTypeAny> = {};
+  const shape: Record<string, z.ZodType> = {};
 
   for (const opt of command.options || []) {
-    let schema: z.ZodTypeAny;
+    let schema: z.ZodType;
 
     switch (opt.type) {
       case 'string':
@@ -368,7 +459,7 @@ export function buildInputSchema(command: { parameters?: ZodSchema; options?: Op
     }
 
     if (opt.default !== undefined) {
-      schema = schema.default(opt.default as unknown as z.ZodTypeAny);
+      schema = schema.default(opt.default as unknown as z.ZodType);
     }
     if (!opt.required) {
       schema = schema.optional();
@@ -388,10 +479,8 @@ export function validateArgs<T>(
   const result = schema.safeParse(argv);
 
   if (!result.success) {
-    const msg = result.error.errors
-      .map(
-        (e: { path: (string | number)[]; message: string }) => `${e.path.join('.')}: ${e.message}`
-      )
+    const msg = result.error.issues
+      .map((e: { path: PropertyKey[]; message: string }) => `${e.path.join('.')}: ${e.message}`)
       .join(', ');
     throw new CommandError('INVALID_ARGS', msg);
   }

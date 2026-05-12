@@ -1,1 +1,2 @@
+bash scripts/check-any-count.sh
 npx lint-staged

@@ -1,6 +1,7 @@
-import type { XCLIAPI } from 'xcli';
+import type { XCLIAPI } from '@dyyz1993/xcli-core';
+import type { Page } from 'playwright-core';
 import type { NetworkCapture } from '@xcli/browser-app';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 const API = {
   posts: /\/aweme\/v1\/web\/aweme\/post\//,
@@ -71,7 +72,7 @@ function parseVideo(item: Record<string, unknown>) {
 }
 
 async function scrollAndCollect(
-  page: any,
+  page: Page,
   network: NetworkCapture,
   pattern: RegExp,
   maxPages: number,

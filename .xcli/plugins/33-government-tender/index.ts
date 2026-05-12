@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import type { XCLIAPI } from 'xcli';
 import { safeGoto, ok, fail, crawlerUrl } from '../_shared';
 
@@ -52,7 +52,7 @@ export default function (xcli: XCLIAPI) {
         });
         return ok(data, [
           `采集到 ${data.length} 个元素`,
-          `招标: ${data.filter((d: any) => d.type === 'tender').length}, 表格: ${data.filter((d: any) => d.type === 'table').length}, 链接: ${data.filter((d: any) => d.type === 'link').length}`,
+          `招标: ${data.filter((d) => d.type === 'tender').length}, 表格: ${data.filter((d) => d.type === 'table').length}, 链接: ${data.filter((d) => d.type === 'link').length}`,
         ]);
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);

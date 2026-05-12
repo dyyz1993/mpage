@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import type { ZodSchema } from '../types.js';
 
 function unquote(s: string): string {

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { join } from 'path';
 import { homedir } from 'os';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 vi.mock('../../src/plugin-loader.js', () => {
   const mockGetAllCommands = vi.fn(() => []);
@@ -315,28 +315,21 @@ describe('Core - Branch Coverage', () => {
       expect(result).toEqual({});
     });
 
-    it('returns empty object when typeName is not ZodObject', () => {
-      const schema = { _def: { typeName: 'ZodString' } };
+    it('returns empty object when type is not object', () => {
+      const schema = { _def: { type: 'string' } };
       const result = (core as any).getZodShape(schema);
       expect(result).toEqual({});
     });
 
     it('returns empty object when shape is missing', () => {
-      const schema = { _def: { typeName: 'ZodObject' } };
+      const schema = { _def: { type: 'object' } };
       const result = (core as any).getZodShape(schema);
       expect(result).toEqual({});
     });
 
-    it('extracts shape when it is a function', () => {
-      const shapeFn = () => ({ field1: 'value1', field2: 'value2' });
-      const schema = { _def: { typeName: 'ZodObject', shape: shapeFn } };
-      const result = (core as any).getZodShape(schema);
-      expect(result).toEqual({ field1: 'value1', field2: 'value2' });
-    });
-
-    it('extracts shape when it is an object', () => {
+    it('extracts shape as object', () => {
       const shapeObj = { field1: 'value1', field2: 'value2' };
-      const schema = { _def: { typeName: 'ZodObject', shape: shapeObj } };
+      const schema = { _def: { type: 'object', shape: shapeObj } };
       const result = (core as any).getZodShape(schema);
       expect(result).toEqual({ field1: 'value1', field2: 'value2' });
     });

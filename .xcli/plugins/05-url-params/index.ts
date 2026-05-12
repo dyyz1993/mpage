@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import type { XCLIAPI } from 'xcli';
 import { crawlerUrl } from '../_shared';
 
@@ -73,10 +73,10 @@ export default function (xcli: XCLIAPI) {
           const simArea = document.querySelector('.simulation-area');
           if (!simArea) return [];
 
-          const products: any[] = [];
+          const products: Record<string, unknown>[] = [];
           const lines = simArea.innerText.split('\n').filter((l) => l.trim());
 
-          let currentProduct: any = null;
+          let currentProduct: Record<string, unknown> | null = null;
 
           for (const line of lines) {
             const trimmed = line.trim();

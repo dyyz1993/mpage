@@ -269,7 +269,7 @@ export function createAPIWorker(): WorkerEntryPoint {
     },
     {
       path: 'src/commands/get.ts',
-      content: `import { z } from 'zod';
+      content: `import { z } from 'zod/v4';
 import type { Core } from '@dyyz1993/xcli-core';
 import { ok } from '@dyyz1993/xcli-core';
 import { request } from 'undici';
@@ -312,7 +312,7 @@ export function registerGetCommand(app: Core): void {
     },
     {
       path: 'src/commands/post.ts',
-      content: `import { z } from 'zod';
+      content: `import { z } from 'zod/v4';
 import type { Core } from '@dyyz1993/xcli-core';
 import { ok } from '@dyyz1993/xcli-core';
 import { request } from 'undici';
@@ -357,7 +357,7 @@ export function registerPostCommand(app: Core): void {
     },
     {
       path: 'src/commands/put.ts',
-      content: `import { z } from 'zod';
+      content: `import { z } from 'zod/v4';
 import type { Core } from '@dyyz1993/xcli-core';
 import { ok } from '@dyyz1993/xcli-core';
 import { request } from 'undici';
@@ -401,7 +401,7 @@ export function registerPutCommand(app: Core): void {
     },
     {
       path: 'src/commands/delete.ts',
-      content: `import { z } from 'zod';
+      content: `import { z } from 'zod/v4';
 import type { Core } from '@dyyz1993/xcli-core';
 import { ok } from '@dyyz1993/xcli-core';
 import { request } from 'undici';

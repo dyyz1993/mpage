@@ -177,10 +177,8 @@ export class Core {
 
     const result = schema.safeParse(combined);
     if (!result.success) {
-      const msg = result.error.errors
-        .map(
-          (e: { path: (string | number)[]; message: string }) => `${e.path.join('.')}: ${e.message}`
-        )
+      const msg = result.error.issues
+        .map((e: { path: PropertyKey[]; message: string }) => `${e.path.join('.')}: ${e.message}`)
         .join(', ');
       throw new CommandError('INVALID_ARGS', msg);
     }
@@ -190,13 +188,9 @@ export class Core {
 
   private getZodShape(schema: unknown): Record<string, unknown> {
     if (schema === null || typeof schema !== 'object') return {};
-    const def = (schema as { _def?: { typeName?: string; shape?: unknown } })._def;
-    if (!def || def.typeName !== 'ZodObject' || !def.shape) return {};
-    const shape =
-      typeof def.shape === 'function'
-        ? (def.shape as () => Record<string, unknown>)()
-        : (def.shape as Record<string, unknown>);
-    return shape;
+    const def = (schema as { _def?: { type?: string; shape?: unknown } })._def;
+    if (!def || def.type !== 'object' || !def.shape) return {};
+    return def.shape as Record<string, unknown>;
   }
 
   private suggestCommand(input: string): string | null {

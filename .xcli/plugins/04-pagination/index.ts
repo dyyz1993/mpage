@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import type { XCLIAPI } from 'xcli';
 import { crawlerUrl } from '../_shared';
 
@@ -55,7 +55,9 @@ export default function (xcli: XCLIAPI) {
       const allThreads: z.infer<typeof threadSchema>[] = [];
       let totalPages = 1;
 
-      async function scrapePage(page: number): Promise<{ threads: any[]; totalPages: number }> {
+      async function scrapePage(
+        page: number
+      ): Promise<{ threads: Record<string, unknown>[]; totalPages: number }> {
         const pageUrl = page === 1 ? baseUrl : `${baseUrl}?page=${page}`;
         await ctx.page.goto(pageUrl);
         await ctx.page.waitForSelector('.simulation-area');
@@ -70,8 +72,8 @@ export default function (xcli: XCLIAPI) {
           const totalPages = pageInfoMatch ? parseInt(pageInfoMatch[1], 10) : 1;
 
           const lines = fullText.split('\n').filter((l) => l.trim());
-          const threads: any[] = [];
-          let currentThread: any = null;
+          const threads: Record<string, unknown>[] = [];
+          let currentThread: Record<string, unknown> | null = null;
 
           for (const line of lines) {
             if (line.includes('👤')) {

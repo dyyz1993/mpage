@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { parseArgsToRecord } from '../../src/commands/parser.js';
 import { commands } from '../../src/commands/definitions.js';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 describe('parseArgsToRecord', () => {
   it('should parse positional arguments', () => {

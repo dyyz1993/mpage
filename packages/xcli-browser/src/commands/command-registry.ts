@@ -1,4 +1,4 @@
-import type { ZodType, ZodTypeDef, z } from 'zod';
+import type { ZodType, ZodTypeDef, z } from 'zod/v4';
 import type { CommandScope } from '@dyyz1993/xcli-core';
 import type { BrowserCommandContext } from '../context.js';
 

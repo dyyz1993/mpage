@@ -396,7 +396,7 @@ export function createDatabaseWorker(): WorkerEntryPoint {
     },
     {
       path: 'src/commands/query.ts',
-      content: `import { z } from 'zod';
+      content: `import { z } from 'zod/v4';
 import type { Core } from '@dyyz1993/xcli-core';
 import { ok } from '@dyyz1993/xcli-core';
 import { getDefaultConnection } from '../connection.js';
@@ -425,7 +425,7 @@ export function registerQueryCommand(app: Core): void {
     },
     {
       path: 'src/commands/tables.ts',
-      content: `import { z } from 'zod';
+      content: `import { z } from 'zod/v4';
 import type { Core } from '@dyyz1993/xcli-core';
 import { ok } from '@dyyz1993/xcli-core';
 import { getDefaultConnection } from '../connection.js';
@@ -455,7 +455,7 @@ export function registerTablesCommand(app: Core): void {
     },
     {
       path: 'src/commands/describe.ts',
-      content: `import { z } from 'zod';
+      content: `import { z } from 'zod/v4';
 import type { Core } from '@dyyz1993/xcli-core';
 import { ok } from '@dyyz1993/xcli-core';
 import { getDefaultConnection } from '../connection.js';
@@ -484,7 +484,7 @@ export function registerDescribeCommand(app: Core): void {
     },
     {
       path: 'src/commands/insert.ts',
-      content: `import { z } from 'zod';
+      content: `import { z } from 'zod/v4';
 import type { Core } from '@dyyz1993/xcli-core';
 import { ok } from '@dyyz1993/xcli-core';
 import { getDefaultConnection } from '../connection.js';

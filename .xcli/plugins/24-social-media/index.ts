@@ -1,5 +1,5 @@
-import { z } from 'zod';
-import type { XCLIAPI } from 'xcli';
+import { z } from 'zod/v4';
+import type { XCLIAPI, CommandContext } from '@dyyz1993/xcli-core';
 import { crawlerUrl } from '../_shared';
 
 const BASE_URL = 'https://tools.docker.19930810.xyz:8443/tools/crawler-practice';
@@ -68,7 +68,7 @@ export default function (xcli: XCLIAPI) {
   });
 }
 
-async function expandAllContent(ctx: any) {
+async function expandAllContent(ctx: CommandContext) {
   const expandButtons = await ctx.page.locator('text=/展开|展开全文|Read more/').all();
   for (const btn of expandButtons) {
     try {
@@ -78,7 +78,7 @@ async function expandAllContent(ctx: any) {
   }
 }
 
-async function scrollToLoadAll(ctx: any) {
+async function scrollToLoadAll(ctx: CommandContext) {
   let prevHeight = 0;
   let sameCount = 0;
   const maxScrolls = 10;
@@ -109,9 +109,9 @@ async function scrollToLoadAll(ctx: any) {
   }
 }
 
-async function extractTweets(ctx: any) {
+async function extractTweets(ctx: CommandContext) {
   return await ctx.page.evaluate(() => {
-    const tweets: any[] = [];
+    const tweets: Record<string, unknown>[] = [];
     const tweetElements = document.querySelectorAll('.tweet');
 
     tweetElements.forEach((tweet) => {
@@ -141,7 +141,7 @@ async function extractTweets(ctx: any) {
       const likesEl = tweet.querySelector('.tweet-action:nth-child(3) .count, .like .count');
       const likes = parseInt(likesEl?.textContent?.trim() || '0') || 0;
 
-      const commentsList: any[] = [];
+      const commentsList: Record<string, unknown>[] = [];
       const commentEls = tweet.querySelectorAll('.comment');
       commentEls.forEach((c) => {
         const cAuthor = c.querySelector('.comment-avatar')?.textContent?.trim() || '匿名';

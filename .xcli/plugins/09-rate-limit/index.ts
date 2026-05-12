@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import type { XCLIAPI } from 'xcli';
 import { crawlerUrl } from '../_shared';
 
@@ -111,8 +111,8 @@ tips:
         { requestCount: params.requests, requestDelay: params.delay }
       );
 
-      const limitedCount = data.filter((item: any) => item.limited).length;
-      const successCount = data.filter((item: any) => !item.limited).length;
+      const limitedCount = data.filter((item) => item.limited).length;
+      const successCount = data.filter((item) => !item.limited).length;
 
       return {
         data,
@@ -208,13 +208,13 @@ tips:
       }
 
       // 验证是否触发了限流
-      const limitedCount = data.filter((item: any) => item.limited).length;
+      const limitedCount = data.filter((item) => item.limited).length;
       if (limitedCount === 0) {
         errors.push({ field: 'limitedCount', expected: '> 0', actual: '0' });
       }
 
       // 验证至少有 9 个成功的请求（第 10 个可能被限流）
-      const successCount = data.filter((item: any) => !item.limited).length;
+      const successCount = data.filter((item) => !item.limited).length;
       if (successCount < 9) {
         errors.push({ field: 'successCount', expected: '>= 9', actual: String(successCount) });
       }

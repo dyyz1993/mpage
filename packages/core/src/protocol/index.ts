@@ -24,6 +24,7 @@ export {
   type EventContext,
   CommandError,
   SiteInstanceImpl,
+  GroupedSiteInstance,
   buildInputSchema,
   validateArgs,
 } from './plugin-protocol.js';

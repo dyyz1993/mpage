@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import type { XCLIAPI } from 'xcli';
 import { safeGoto, ok, fail, crawlerUrl } from '../_shared';
 
@@ -45,7 +45,7 @@ export default function (xcli: XCLIAPI) {
             : inputs.map((inp, i) => ({ type: 'input', index: i, ...inp }));
         });
         return ok(data, [
-          `采集到 ${data.length} 个验证码元素, 类型: ${data.map((d: any) => d.type).join(', ')}`,
+          `采集到 ${data.length} 个验证码元素, 类型: ${data.map((d) => d.type).join(', ')}`,
         ]);
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);

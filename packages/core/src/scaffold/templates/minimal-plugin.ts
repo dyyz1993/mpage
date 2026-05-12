@@ -22,7 +22,7 @@ export const MINIMAL_PLUGIN_TEMPLATE: ScaffoldTemplate = {
     {
       path: 'index.ts',
       content: `import type { XCLIAPI } from '@dyyz1993/xcli-core';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export default function (cli: XCLIAPI): void {
   const site = cli.createSite({

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import type { XCLIAPI } from 'xcli';
 import { crawlerUrl } from '../_shared';
 
@@ -21,7 +21,6 @@ export default function (xcli: XCLIAPI) {
     description: '获取点选验证码',
     requiresLogin: false,
     parameters: z.object({}),
-    // @ts-ignore
     handler: async () => {
       const BASE_URL = 'https://tools.docker.19930810.xyz:8443/tools/crawler-practice';
       const TARGET = `${BASE_URL}/examples/35`;
@@ -40,8 +39,7 @@ export default function (xcli: XCLIAPI) {
       captchaId: z.string().describe('验证码ID'),
       positions: z.string().describe('点击位置，如 "0,1,2"'),
     }),
-    // @ts-ignore
-    handler: async (params: any, ctx: any) => {
+    handler: async (params, ctx) => {
       const BASE_URL = 'https://tools.docker.19930810.xyz:8443/tools/crawler-practice';
       const TARGET = `${BASE_URL}/examples/35`;
 
@@ -73,8 +71,7 @@ export default function (xcli: XCLIAPI) {
     parameters: z.object({
       page: z.number().default(1).describe('页码'),
     }),
-    // @ts-ignore
-    handler: async (params: any, ctx: any) => {
+    handler: async (params, ctx) => {
       const BASE_URL = 'https://tools.docker.19930810.xyz:8443/tools/crawler-practice';
       const TARGET = `${BASE_URL}/examples/35`;
 
@@ -87,12 +84,11 @@ export default function (xcli: XCLIAPI) {
     description: '采集所有问题',
     requiresLogin: false,
     parameters: z.object({}),
-    // @ts-ignore
-    handler: async (_params: any, ctx: any) => {
+    handler: async (_params, ctx) => {
       const BASE_URL = 'https://tools.docker.19930810.xyz:8443/tools/crawler-practice';
       const TARGET = `${BASE_URL}/examples/35`;
 
-      const allQuestions: any[] = [];
+      const allQuestions: Record<string, unknown>[] = [];
       let page = 1;
 
       while (true) {
@@ -116,8 +112,7 @@ export default function (xcli: XCLIAPI) {
     parameters: z.object({
       questionId: z.string().describe('问题ID'),
     }),
-    // @ts-ignore
-    handler: async (params: any, ctx: any) => {
+    handler: async (params, ctx) => {
       const BASE_URL = 'https://tools.docker.19930810.xyz:8443/tools/crawler-practice';
       const TARGET = `${BASE_URL}/examples/35`;
 
@@ -142,8 +137,7 @@ export default function (xcli: XCLIAPI) {
     parameters: z.object({
       questionId: z.string().describe('问题ID'),
     }),
-    // @ts-ignore
-    handler: async (params: any, ctx: any) => {
+    handler: async (params, ctx) => {
       const BASE_URL = 'https://tools.docker.19930810.xyz:8443/tools/crawler-practice';
       const TARGET = `${BASE_URL}/examples/35`;
 

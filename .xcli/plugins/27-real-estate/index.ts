@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import type { XCLIAPI } from 'xcli';
 import { safeGoto, ok, fail, crawlerUrl } from '../_shared';
 
@@ -48,7 +48,7 @@ export default function (xcli: XCLIAPI) {
           `采集到 ${data.communities.length} 个小区`,
           `价格范围: ${
             data.communities
-              .map((c: any) => c.priceMain)
+              .map((c) => c.priceMain)
               .filter(Boolean)
               .join(' ~ ') || '未提取到'
           }`,

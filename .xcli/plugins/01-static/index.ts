@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import type { XCLIAPI } from 'xcli';
 import { crawlerUrl } from '../_shared';
 
@@ -160,7 +160,7 @@ tips:
       if (data.length !== 5)
         errors.push({ field: 'length', expected: '5', actual: String(data.length) });
 
-      data.forEach((item: any, i: number) => {
+      data.forEach((item, i) => {
         if (!item.title || typeof item.title !== 'string')
           errors.push({ field: `[${i}].title`, expected: 'string', actual: String(item.title) });
         if (!item.url || typeof item.url !== 'string')

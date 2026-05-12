@@ -19,4 +19,4 @@ export interface CommandDefinition {
 }
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-export type ZodSchema = import('zod').ZodType<unknown>;
+export type ZodSchema = import('zod/v4').ZodType<unknown>;

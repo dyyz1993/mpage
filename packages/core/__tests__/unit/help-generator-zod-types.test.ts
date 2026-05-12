@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { HelpGenerator } from '../../src/help/help-generator.js';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 describe('HelpGenerator — getZodType 边界测试', () => {
   const gen = new HelpGenerator();
@@ -26,13 +26,13 @@ describe('HelpGenerator — getZodType 边界测试', () => {
   it('should unwrap ZodDefault with defaultValue as string fallback', () => {
     const schema = z.string().default('fallback');
     const type = (gen as any).getZodType(schema);
-    expect(type).toBe('[unknown]');
+    expect(type).toBe('[string]');
   });
 
   it('should unwrap ZodDefault with multiple extraction paths', () => {
     const schema = z.object({ field: z.string() }).default({ field: 'value' });
     const type = (gen as any).getZodType(schema);
-    expect(type).toBe('[unknown]');
+    expect(type).toBe('[object] { field }');
   });
 
   it('should handle ZodArray with innerType, wrapped, unwrap', () => {
