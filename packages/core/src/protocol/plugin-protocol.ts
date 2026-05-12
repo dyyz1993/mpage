@@ -118,18 +118,18 @@ export interface SiteInstance {
   url: string;
   config: SiteConfig;
 
-  command<P extends ZodSchema, R extends ZodSchema>(
+  command(
     name: string,
     config: {
       description: string;
       scope?: CommandScope;
       override?: boolean;
-      parameters?: P;
-      result?: R;
+      parameters?: unknown;
+      result?: unknown;
       requiresLogin?: boolean;
       examples?: Array<{ cmd: string; description: string }>;
       tips?: string[];
-      handler: (params: z.infer<P>, ctx: CommandContext) => Promise<z.infer<R>>;
+      handler: (params: Record<string, unknown>, ctx: CommandContext) => Promise<unknown>;
     }
   ): SiteInstance;
 
@@ -207,18 +207,18 @@ export class SiteInstanceImpl implements SiteInstance {
     this.cliName = cliName ?? 'xcli';
   }
 
-  command<P extends ZodSchema, R extends ZodSchema>(
+  command(
     name: string,
     cmd: {
       description: string;
       scope?: CommandScope;
       override?: boolean;
-      parameters?: P;
-      result?: R;
+      parameters?: unknown;
+      result?: unknown;
       requiresLogin?: boolean;
       examples?: Array<{ cmd: string; description: string }>;
       tips?: string[];
-      handler: (params: z.infer<P>, ctx: CommandContext) => Promise<z.infer<R>>;
+      handler: (params: Record<string, unknown>, ctx: CommandContext) => Promise<unknown>;
     }
   ): SiteInstance {
     const existing = this.commands.get(name);
@@ -232,8 +232,8 @@ export class SiteInstanceImpl implements SiteInstance {
       requiresLogin: cmd.requiresLogin ?? false,
       scope: cmd.scope ?? DEFAULT_SCOPE,
       override: cmd.override ?? true,
-      parameters: cmd.parameters,
-      result: cmd.result,
+      parameters: cmd.parameters as ZodSchema | undefined,
+      result: cmd.result as ZodSchema | undefined,
       examples: cmd.examples,
       tips: cmd.tips,
       handler: cmd.handler as unknown as CommandHandler,
