@@ -21,6 +21,11 @@ export function getDefaultPort(config: CoreConfig): number {
   return parseInt(process.env[getEnvVar(config, 'DAEMON_PORT')] || '8054', 10);
 }
 
+/**
+ * @deprecated These constants hardcode `.xcli` paths and should NOT be used in new code.
+ * Use `createPaths(core.config)` or `core.configDir` / `core.sessionDir` / `core.storageDir` instead.
+ * They are kept only for backward compatibility and will be removed in a future major version.
+ */
 /** @deprecated Use createPaths(core.config) instead */
 export const CONFIG_DIR = join(homedir(), '.xcli');
 /** @deprecated Use createPaths(core.config) instead */

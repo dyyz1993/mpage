@@ -49,16 +49,21 @@ export interface SessionArchive {
 
 export interface ArchiveStoreConfig {
   archiveDir: string;
+  configDirName?: string;
 }
 
 let archiveDir: string | null = null;
+let configDirName = '.xcli';
 
 export function configureArchiveStore(config: ArchiveStoreConfig): void {
   archiveDir = config.archiveDir;
+  if (config.configDirName) {
+    configDirName = config.configDirName;
+  }
 }
 
 function getArchiveDir(): string {
-  return archiveDir ?? path.join(homedir(), '.xcli', 'archives');
+  return archiveDir ?? path.join(homedir(), configDirName, 'archives');
 }
 
 function getArchivePath(sessionId: string): string {

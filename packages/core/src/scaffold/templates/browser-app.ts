@@ -181,7 +181,7 @@ try {
       mode: 0o755,
     },
     {
-      path: '.xcli/plugins/.gitkeep',
+      path: '.{{projectName}}/plugins/.gitkeep',
       content: ``,
     },
     {
@@ -190,7 +190,7 @@ try {
 dist/
 *.tgz
 .env
-.xcli/storage/
+.{{projectName}}/storage/
 recordings/
 `,
     },
