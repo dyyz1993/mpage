@@ -60,8 +60,8 @@ export default function (xcli: XCLIAPI) {
     description: '采集用户信息',
     parameters: z.object({}),
     handler: async (_params, ctx) => {
-      const tokenData = await ctx.storage.get('auth_token');
-      const token = (tokenData as any)?.token;
+      const tokenData = await ctx.storage.get<{ token: string; at: number }>('auth_token');
+      const token = tokenData?.token;
 
       if (!token) {
         return {
@@ -114,8 +114,8 @@ export default function (xcli: XCLIAPI) {
     description: '校验用户信息',
     parameters: z.object({}),
     handler: async (_params, ctx) => {
-      const tokenData = await ctx.storage.get('auth_token');
-      const token = (tokenData as any)?.token;
+      const tokenData = await ctx.storage.get<{ token: string; at: number }>('auth_token');
+      const token = tokenData?.token;
       const errors: Array<{ field: string; expected: string; actual: string }> = [];
 
       if (!token) {

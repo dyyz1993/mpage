@@ -161,14 +161,14 @@ export default function (xcli: XCLIAPI) {
   plugin.command('status', {
     description: '查看登录状态',
     parameters: z.object({}),
-    handler: async (params, ctx) => {
-      const token = await ctx.storage.get('auth_token');
+    handler: async (_params, ctx) => {
+      const token = await ctx.storage.get<{ token: string; at: number }>('auth_token');
       return {
         data: [
           {
             isLoggedIn: token !== null,
-            token: token ? (token as any).token?.substring(0, 20) + '...' : null,
-            loginAt: token ? (token as any).at : null,
+            token: token ? token.token?.substring(0, 20) + '...' : null,
+            loginAt: token ? token.at : null,
           },
         ],
       };

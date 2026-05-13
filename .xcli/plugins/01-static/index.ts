@@ -173,7 +173,7 @@ tips:
           errors.push({ field: `[${i}].views`, expected: 'integer', actual: String(item.views) });
       });
 
-      const first = data[0] as any;
+      const first = data[0];
       if (first && !first.title.includes('Python爬虫入门指南'))
         errors.push({
           field: '[0].title',

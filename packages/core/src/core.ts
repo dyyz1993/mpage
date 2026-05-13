@@ -6,6 +6,16 @@ import { buildInputSchema, CommandError } from './protocol/plugin-protocol.js';
 import { parseArgs } from './arg-parser.js';
 import { coerceCliArgs } from './param-coercion.js';
 
+export interface CoreConfig {
+  name: string;
+  version: string;
+  description: string;
+  configDirName: string;
+  envPrefix: string;
+  pluginDirs: string[];
+  pluginPackageName?: string;
+}
+
 function levenshtein(a: string, b: string): number {
   const m = a.length;
   const n = b.length;
@@ -24,16 +34,6 @@ function levenshtein(a: string, b: string): number {
   }
 
   return dp[m][n];
-}
-
-export interface CoreConfig {
-  name: string;
-  version: string;
-  description: string;
-  configDirName: string;
-  envPrefix: string;
-  pluginDirs: string[];
-  pluginPackageName?: string;
 }
 
 export class Core {

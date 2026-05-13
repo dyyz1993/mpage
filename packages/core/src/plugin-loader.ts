@@ -15,11 +15,18 @@ import { SiteInstanceImpl, DEFAULT_SCOPE } from './protocol/plugin-protocol.js';
 import { resolve, isAbsolute, extname, basename, dirname } from 'path';
 import { createJiti } from 'jiti';
 import { fileURLToPath } from 'url';
-import type { Core } from './core.js';
 import { PluginStorage } from './plugin-storage.js';
 import { PluginInstance } from './plugin-instance.js';
 import type { PluginStatus } from './plugin-instance.js';
 export type { PluginStatus, PluginLoaderHost } from './plugin-instance.js';
+
+interface CoreHost {
+  readonly config: {
+    readonly name: string;
+    readonly pluginPackageName?: string;
+  };
+  readonly storageDir: string;
+}
 
 export interface BuiltinCommandEntry {
   name: string;
@@ -37,10 +44,10 @@ export class PluginLoader {
   private plugins: Map<string, PluginInstance> = new Map();
   private storage: StorageContext;
 
-  private readonly core: Core;
+  private readonly core: CoreHost;
   private api: XCLIAPI = this.createAPI();
 
-  constructor(core: Core) {
+  constructor(core: CoreHost) {
     this.core = core;
     this.storage = this.createStorage();
   }

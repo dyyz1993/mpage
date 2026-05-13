@@ -140,7 +140,9 @@ export class HumanizedPage {
         return { x: mx || 0, y: my || 0 };
       });
       if (pos.x > 0 || pos.y > 0) return pos;
-    } catch {}
+    } catch (e) {
+      // evaluate fails on detached pages; use fallback position
+    }
     return {
       x: rand(100, 400),
       y: rand(100, 300),
