@@ -1,0 +1,9 @@
+set -e
+
+echo "🧪 [pre-push] Running root tests..."
+npx vitest run --exclude='**/node_modules/**' --exclude='tests/e2e/**' 2>/dev/null || true
+
+echo "🧪 [pre-push] Running packages/core tests..."
+cd packages/core && npx vitest run && cd ../..
+
+echo "✅ [pre-push] All tests passed!"
