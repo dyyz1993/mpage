@@ -1,0 +1,14 @@
+{
+  "template": "minimal-plugin",
+  "projectName": "test-minimal-plugin",
+  "expectedFiles": [
+    "package.json",
+    "index.ts",
+    "README.md"
+  ],
+  "expectedVariables": {
+    "projectName": "test-minimal-plugin",
+    "ProjectName": "TestMinimalPlugin",
+    "siteUrl": ""
+  }
+}
