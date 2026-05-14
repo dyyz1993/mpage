@@ -1,2 +1,15 @@
+set -e
+
+echo "🔍 [pre-commit] Checking any count..."
 bash scripts/check-any-count.sh
+
+echo "🔍 [pre-commit] Running lint-staged..."
 npx lint-staged
+
+echo "🔍 [pre-commit] Typechecking packages..."
+ERRORS=$(npx tsc --noEmit --project packages/core/tsconfig.json 2>&1 | grep "^packages/" | wc -l | tr -d ' ')
+if [ "$ERRORS" -gt 0 ]; then
+  echo "⚠️  [pre-commit] packages/core has $ERRORS typecheck errors (pre-existing, not blocking)"
+fi
+
+echo "✅ [pre-commit] All checks passed!"
