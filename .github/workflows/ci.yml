@@ -88,13 +88,37 @@ jobs:
           name: core-plugin-coverage
           fail_ci_if_error: false
 
+  template-validation:
+    name: Template Validation (SUCCESS + FAIL cases)
+    runs-on: ubuntu-latest
+    needs: [ci]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build all
+        run: pnpm run build
+
+      - name: Run template validation tests
+        run: cd packages/create-xcli && npx vitest run __tests__/ci-template-validation.test.ts
+
   feishu-notify:
     name: Feishu Notification
     if: always()
-    needs: [ci, test-core]
+    needs: [ci, test-core, template-validation]
     uses: dyyz1993/ci-tools/.github/workflows/feishu-notify.yml@main
     with:
-      jobs: '{"ci":"${{ needs.ci.result }}","test-core":"${{ needs.test-core.result }}"}'
+      jobs: '{"ci":"${{ needs.ci.result }}","test-core":"${{ needs.test-core.result }}","template-validation":"${{ needs.template-validation.result }}"}'
       sha: ${{ github.sha }}
       ref: ${{ github.ref_name }}
       actor: ${{ github.actor }}

@@ -1,0 +1,6 @@
+{
+  "template": "non-existent-template",
+  "projectName": "test-project",
+  "variables": {},
+  "expectedError": "Template not found"
+}

@@ -1,0 +1,20 @@
+{
+  "template": "base",
+  "projectName": "test-base-cli",
+  "expectedFiles": [
+    "package.json",
+    "tsconfig.json",
+    "tsup.config.ts",
+    "src/index.ts",
+    "src/version.ts",
+    "bin/cli.ts",
+    ".gitignore",
+    "README.md"
+  ],
+  "expectedVariables": {
+    "projectName": "test-base-cli",
+    "ProjectName": "TestBaseCli",
+    "description": "A CLI tool built with @dyyz1993/xcli-core",
+    "author": ""
+  }
+}

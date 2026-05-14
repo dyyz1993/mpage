@@ -1,0 +1,30 @@
+{
+  "template": "api",
+  "projectName": "test-api-cli",
+  "expectedFiles": [
+    "package.json",
+    "tsconfig.json",
+    "tsup.config.ts",
+    "src/index.ts",
+    "src/version.ts",
+    "src/types.ts",
+    "src/context.ts",
+    "src/scope.ts",
+    "src/worker.ts",
+    "src/commands/get.ts",
+    "src/commands/post.ts",
+    "src/commands/put.ts",
+    "src/commands/delete.ts",
+    "src/commands/index.ts",
+    "bin/cli.ts",
+    ".gitignore",
+    "README.md"
+  ],
+  "expectedVariables": {
+    "projectName": "test-api-cli",
+    "ProjectName": "TestApiCli",
+    "description": "An API CLI tool built with @dyyz1993/xcli-core",
+    "baseUrl": "https://api.example.com",
+    "author": ""
+  }
+}

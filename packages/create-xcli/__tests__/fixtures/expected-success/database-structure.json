@@ -1,0 +1,31 @@
+{
+  "template": "database",
+  "projectName": "test-db-cli",
+  "expectedFiles": [
+    "package.json",
+    "tsconfig.json",
+    "tsup.config.ts",
+    "src/index.ts",
+    "src/version.ts",
+    "src/types.ts",
+    "src/connection.ts",
+    "src/context.ts",
+    "src/scope.ts",
+    "src/worker.ts",
+    "src/commands/query.ts",
+    "src/commands/tables.ts",
+    "src/commands/describe.ts",
+    "src/commands/insert.ts",
+    "src/commands/index.ts",
+    "bin/cli.ts",
+    ".gitignore",
+    "README.md"
+  ],
+  "expectedVariables": {
+    "projectName": "test-db-cli",
+    "ProjectName": "TestDbCli",
+    "description": "A database CLI tool built with @dyyz1993/xcli-core",
+    "dbType": "sqlite",
+    "author": ""
+  }
+}
