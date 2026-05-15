@@ -1,0 +1,23 @@
+{
+  "template": "browser",
+  "projectName": "test-browser-app",
+  "expectedFiles": [
+    "package.json",
+    "tsconfig.json",
+    "tsup.config.ts",
+    "src/index.ts",
+    "src/version.ts",
+    "src/commands/browser.ts",
+    "src/commands/index.ts",
+    "bin/cli.ts",
+    ".test-browser-app/plugins/.gitkeep",
+    ".gitignore",
+    "README.md"
+  ],
+  "expectedVariables": {
+    "projectName": "test-browser-app",
+    "ProjectName": "TestBrowserApp",
+    "description": "A browser automation CLI built with @dyyz1993/xcli-core",
+    "author": ""
+  }
+}

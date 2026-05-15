@@ -1,0 +1,11 @@
+{
+  "template": "base",
+  "projectName": "test-project",
+  "variables": {},
+  "requiredVarOverride": {
+    "name": "description",
+    "required": true,
+    "omitValue": true
+  },
+  "expectedError": "Required variable"
+}

@@ -66,6 +66,8 @@ export type { ParsedArgs } from './arg-parser.js';
 
 export { coerceCliArgs } from './param-coercion.js';
 
+export { unquote, extractPositionalParams, mapPositionalValues } from './positional-params.js';
+
 export {
   loadConfig,
   saveConfig,
