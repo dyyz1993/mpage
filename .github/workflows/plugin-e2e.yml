@@ -54,7 +54,7 @@ jobs:
         run: cd packages/core && npx vitest run --coverage
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: packages/core/coverage/lcov.info
