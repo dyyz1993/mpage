@@ -1,4 +1,5 @@
 import type { ScaffoldTemplate } from '../scaffold-engine.js';
+import { getEngineeringFiles, mergeEngineeringDeps } from './shared-engineering.js';
 
 export const BASE_CLI_TEMPLATE: ScaffoldTemplate = {
   name: 'base',
@@ -18,7 +19,7 @@ export const BASE_CLI_TEMPLATE: ScaffoldTemplate = {
   files: [
     {
       path: 'package.json',
-      content: `{
+      content: mergeEngineeringDeps(`{
   "name": "{{projectName}}",
   "version": "0.1.0",
   "description": "{{description}}",
@@ -42,7 +43,7 @@ export const BASE_CLI_TEMPLATE: ScaffoldTemplate = {
     "tsup": "^8.0.0",
     "typescript": "^5.0.0"
   }
-}`,
+}`),
     },
     {
       path: 'tsconfig.json',
@@ -120,6 +121,13 @@ dist/
 *.tgz
 .env
 `,
+    },
+    ...getEngineeringFiles(),
+    {
+      path: '.husky/pre-commit',
+      content: `npx lint-staged
+`,
+      mode: 0o755,
     },
     {
       path: 'README.md',

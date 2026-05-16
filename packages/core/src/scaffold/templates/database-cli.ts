@@ -1,4 +1,5 @@
 import type { ScaffoldTemplate } from '../scaffold-engine.js';
+import { getEngineeringFiles, mergeEngineeringDeps } from './shared-engineering.js';
 
 export const DATABASE_CLI_TEMPLATE: ScaffoldTemplate = {
   name: 'database',
@@ -25,7 +26,7 @@ export const DATABASE_CLI_TEMPLATE: ScaffoldTemplate = {
   files: [
     {
       path: 'package.json',
-      content: `{
+      content: mergeEngineeringDeps(`{
   "name": "{{projectName}}",
   "version": "0.1.0",
   "description": "{{description}}",
@@ -51,7 +52,7 @@ export const DATABASE_CLI_TEMPLATE: ScaffoldTemplate = {
     "tsup": "^8.0.0",
     "typescript": "^5.0.0"
   }
-}`,
+}`),
     },
     {
       path: 'tsconfig.json',
@@ -557,6 +558,12 @@ dist/
 *.db
 *.sqlite
 `,
+    },
+    ...getEngineeringFiles(),
+    {
+      path: '.husky/pre-commit',
+      content: `npx lint-staged\n`,
+      mode: 0o755,
     },
     {
       path: 'README.md',

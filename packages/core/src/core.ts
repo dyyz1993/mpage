@@ -1,10 +1,17 @@
 import { join } from 'path';
 import { homedir } from 'os';
 import { PluginLoader } from './plugin-loader.js';
-import type { CommandContext, SiteInstance, CommandEntry } from './protocol/plugin-protocol.js';
+import type {
+  CommandContext,
+  SiteInstance,
+  CommandEntry,
+  OutputMode,
+} from './protocol/plugin-protocol.js';
 import { buildInputSchema, CommandError } from './protocol/plugin-protocol.js';
 import { parseArgs } from './arg-parser.js';
 import { coerceCliArgs } from './param-coercion.js';
+import { isCommandResult } from './command-result.js';
+import { outputFormatter } from './output-formatter.js';
 
 export interface CoreConfig {
   name: string;
@@ -120,6 +127,9 @@ export class Core {
 
     const params = this.buildValidatedParams(entry, parsed.options, parsed.positional);
 
+    // Resolve output mode from --json / --yaml flags
+    const mode: OutputMode = parsed.options.json ? 'json' : parsed.options.yaml ? 'yaml' : 'text';
+
     const ctx: CommandContext = {
       args: parsed.positional,
       options: parsed.options,
@@ -131,7 +141,7 @@ export class Core {
         clear: () => Promise.resolve(),
         keys: () => Promise.resolve([]),
       },
-      output: { mode: 'text', showTips: true, color: true, emoji: false },
+      output: { mode, showTips: true, color: true, emoji: false },
       error: (msg: string) => {
         console.error(msg);
       },
@@ -142,9 +152,43 @@ export class Core {
 
     try {
       const result = await entry.handler(params, ctx);
-      if (result && typeof result === 'object') {
-        console.log(JSON.stringify(result, null, 2));
+
+      // No output for void/undefined handlers
+      if (result === undefined || result === null) {
+        return 0;
       }
+
+      if (isCommandResult(result)) {
+        // CommandResult: format data only, tips routed separately
+        if (mode === 'json' || mode === 'yaml') {
+          // Machine mode: data → stdout, tips → stderr
+          console.log(outputFormatter.format(result.data, { mode, color: false, emoji: false }));
+          if (result.tips?.length) {
+            for (const tip of result.tips) {
+              console.error(`💡 ${tip}`);
+            }
+          }
+        } else {
+          // Human mode: everything to stdout
+          console.log(
+            outputFormatter.format(result.data, { mode: 'text', color: true, emoji: true })
+          );
+          if (result.tips?.length && ctx.output.showTips) {
+            for (const tip of result.tips) {
+              console.log(`  💡 ${tip}`);
+            }
+          }
+        }
+      } else if (typeof result === 'string') {
+        // Plain string passthrough
+        console.log(result);
+      } else if (typeof result === 'object') {
+        // Non-CommandResult object: format as-is
+        console.log(outputFormatter.format(result, { mode, color: false, emoji: false }));
+      } else {
+        console.log(String(result));
+      }
+
       return 0;
     } catch (err) {
       console.error(err instanceof Error ? err.message : String(err));

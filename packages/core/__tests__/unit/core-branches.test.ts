@@ -100,7 +100,11 @@ describe('Core - Branch Coverage', () => {
 
       const code = await core.run(['scrape']);
       expect(code).toBe(0);
-      expect(logSpy).toHaveBeenCalledWith(JSON.stringify({ data: [1, 2, 3], count: 3 }, null, 2));
+      // Non-CommandResult objects are formatted via OutputFormatter in text mode
+      const output = logSpy.mock.calls.map((c: unknown[]) => String(c[0])).join('\n');
+      expect(output).toContain('data');
+      expect(output).toContain('count');
+      expect(code).toBe(0);
       logSpy.mockRestore();
     });
 
