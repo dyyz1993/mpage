@@ -9,6 +9,9 @@
     "src/version.ts",
     "bin/cli.ts",
     ".gitignore",
+    "eslint.config.js",
+    ".editorconfig",
+    ".husky/pre-commit",
     "README.md"
   ],
   "expectedVariables": {

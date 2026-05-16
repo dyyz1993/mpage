@@ -249,15 +249,16 @@ jobs:
       - name: "Case 2: Lint-violating commit should be rejected (husky hook blocks)"
         run: |
           cd /tmp/husky-test
-          # Add code that violates no-console rule
+          # Add code that violates @typescript-eslint/no-unused-vars (error level)
           cat >> src/version.ts << 'EOF'
 
-          // This should trigger no-console warning → lint-staged blocks commit
-          console.log("this should be blocked by husky");
+          // This triggers no-unused-vars error → lint-staged blocks commit
+          const _unusedVar123 = 'this should cause a lint error';
+          const x: string = 'unused';
           EOF
           git add src/version.ts
           # We expect this to FAIL (non-zero exit code)
-          if git commit -m "feat: add console.log" 2>&1; then
+          if git commit -m "feat: add lint errors" 2>&1; then
             echo "=== Case 2 FAILED: commit should have been blocked by husky! ==="
             exit 1
           else

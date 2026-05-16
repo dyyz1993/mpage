@@ -12,6 +12,9 @@
     "bin/cli.ts",
     ".test-browser-app/plugins/.gitkeep",
     ".gitignore",
+    "eslint.config.js",
+    ".editorconfig",
+    ".husky/pre-commit",
     "README.md"
   ],
   "expectedVariables": {
