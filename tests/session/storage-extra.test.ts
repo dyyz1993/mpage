@@ -84,13 +84,12 @@ describe('storage - deleteSessionInfo all retries fail', () => {
 describe('storage - listSessions with empty directory', () => {
   it('should handle sessions directory with only non-session subdirs', async () => {
     const sessionsPath = path.join(DEFAULT_STORAGE, 'sessions');
-    const tempDir = path.join(sessionsPath, 'empty-dir-test-' + Date.now());
+    const tempDirName = 'empty-dir-test-' + Date.now();
+    const tempDir = path.join(sessionsPath, tempDirName);
     fs.mkdirSync(tempDir, { recursive: true });
 
     const sessions = listSessions();
-    const found = sessions.find(
-      (s) => s.name === `empty-dir-test-${sessionsPath.split('empty-dir-test-')[1]}`
-    );
+    const found = sessions.find((s) => s.name === tempDirName);
     expect(found).toBeUndefined();
 
     fs.rmSync(tempDir, { recursive: true, force: true });
