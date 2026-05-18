@@ -13,6 +13,7 @@
     ".test-browser-app/plugins/.gitkeep",
     ".gitignore",
     "eslint.config.js",
+    ".prettierrc",
     ".editorconfig",
     ".husky/pre-commit",
     "README.md"

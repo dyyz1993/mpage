@@ -1,5 +1,9 @@
 import type { ScaffoldTemplate } from '../scaffold-engine.js';
-import { getEngineeringFiles, mergeEngineeringDeps } from './shared-engineering.js';
+import {
+  getEngineeringFiles,
+  getPreCommitHook,
+  mergeEngineeringDeps,
+} from './shared-engineering.js';
 
 export const BROWSER_APP_TEMPLATE: ScaffoldTemplate = {
   name: 'browser',
@@ -36,7 +40,7 @@ export const BROWSER_APP_TEMPLATE: ScaffoldTemplate = {
     "start": "node dist/cli.js"
   },
   "dependencies": {
-    "@dyyz1993/xcli-core": "^0.7.0",
+    "@dyyz1993/xcli-core": "^0.8.4",
     "zod": "^3.25.0",
     "playwright": "^1.59.0",
     "playwright-core": "^1.58.0"
@@ -198,7 +202,7 @@ recordings/
     ...getEngineeringFiles(),
     {
       path: '.husky/pre-commit',
-      content: `npx lint-staged\n`,
+      content: getPreCommitHook(),
       mode: 0o755,
     },
     {

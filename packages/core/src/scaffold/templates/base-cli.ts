@@ -1,5 +1,9 @@
 import type { ScaffoldTemplate } from '../scaffold-engine.js';
-import { getEngineeringFiles, mergeEngineeringDeps } from './shared-engineering.js';
+import {
+  getEngineeringFiles,
+  getPreCommitHook,
+  mergeEngineeringDeps,
+} from './shared-engineering.js';
 
 export const BASE_CLI_TEMPLATE: ScaffoldTemplate = {
   name: 'base',
@@ -35,7 +39,7 @@ export const BASE_CLI_TEMPLATE: ScaffoldTemplate = {
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@dyyz1993/xcli-core": "^0.7.0",
+    "@dyyz1993/xcli-core": "^0.8.4",
     "zod": "^3.25.0"
   },
   "devDependencies": {
@@ -125,8 +129,7 @@ dist/
     ...getEngineeringFiles(),
     {
       path: '.husky/pre-commit',
-      content: `npx lint-staged
-`,
+      content: getPreCommitHook(),
       mode: 0o755,
     },
     {

@@ -20,6 +20,7 @@
     "bin/cli.ts",
     ".gitignore",
     "eslint.config.js",
+    ".prettierrc",
     ".editorconfig",
     ".husky/pre-commit",
     "README.md"

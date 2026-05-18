@@ -26,6 +26,17 @@ export default tseslint.config(
 `,
     },
     {
+      path: '.prettierrc',
+      content: `{
+  "singleQuote": true,
+  "trailingComma": "all",
+  "printWidth": 100,
+  "tabWidth": 2,
+  "semi": true
+}
+`,
+    },
+    {
       path: '.editorconfig',
       content: `root = true
 
@@ -45,9 +56,29 @@ trim_trailing_whitespace = false
 }
 
 /**
- * Package.json fields to merge for engineering tooling.
- * These should be spread into the template's package.json content.
+ * Generates the pre-commit hook content.
+ * Includes typecheck + lint-staged for comprehensive quality gates.
  */
+export function getPreCommitHook(): string {
+  return `set -e
+
+echo "🔍 [pre-commit] Running typecheck..."
+npx tsc --noEmit
+if [ $? -ne 0 ]; then
+  echo "❌ TypeScript typecheck failed. Fix all type errors before committing."
+  exit 1
+fi
+echo "✅ Typecheck passed"
+
+echo "🔍 [pre-commit] Running lint-staged..."
+npx lint-staged
+if [ $? -ne 0 ]; then
+  echo "❌ Lint-staged failed. Fix all errors before committing."
+  exit 1
+fi
+echo "✅ [pre-commit] All checks passed!"
+`;
+}
 export function getEngineeringPkgFields(): Record<string, unknown> {
   return {
     scripts: {
@@ -72,7 +103,7 @@ export function mergeEngineeringDeps(basePkgJson: string): string {
   };
 
   pkg['lint-staged'] = {
-    '*.ts': ['eslint --fix'],
+    '*.ts': ['prettier --write', 'eslint --fix'],
   };
 
   pkg.devDependencies = {
@@ -82,6 +113,7 @@ export function mergeEngineeringDeps(basePkgJson: string): string {
     'typescript-eslint': '^8.0.0',
     eslint: '^9.0.0',
     globals: '^15.0.0',
+    prettier: '^3.0.0',
   };
 
   return JSON.stringify(pkg, null, 2);
