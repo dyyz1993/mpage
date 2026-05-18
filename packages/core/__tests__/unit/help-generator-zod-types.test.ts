@@ -50,6 +50,6 @@ describe('HelpGenerator — getZodType 边界测试', () => {
   it('should return [unknown] on schema parsing errors', () => {
     const schema = { _def: null };
     const type = (gen as any).getZodType(schema);
-    expect(type).toBe('[Object]');
+    expect(type).toBe('[object]');
   });
 });

@@ -149,8 +149,9 @@ export class HelpGenerator {
         (sDef?.type as string) ||
         (schema as object).constructor?.name;
 
-      // ZodOptional / ZodNullable: unwrap via .unwrap() or _def.innerType
-      if (typeName === 'ZodOptional' || typeName === 'ZodNullable') {
+      const normalized = typeName?.replace(/^Zod/, '').toLowerCase() || '';
+
+      if (normalized === 'optional' || normalized === 'nullable') {
         const inner =
           typeof s.unwrap === 'function'
             ? (s.unwrap as () => unknown)()
@@ -158,21 +159,20 @@ export class HelpGenerator {
         return inner ? this.getZodType(inner, depth + 1) : '[unknown]';
       }
 
-      // ZodDefault: unwrap via _def.innerType
-      if (typeName === 'ZodDefault') {
+      if (normalized === 'default') {
         const inner = sDef?.innerType as unknown;
         return inner ? this.getZodType(inner, depth + 1) : '[unknown]';
       }
 
-      if (typeName === 'ZodString') return '[string]';
-      if (typeName === 'ZodNumber') return '[number]';
-      if (typeName === 'ZodBoolean') return '[boolean]';
-      if (typeName === 'ZodArray') {
+      if (normalized === 'string') return '[string]';
+      if (normalized === 'number') return '[number]';
+      if (normalized === 'boolean') return '[boolean]';
+      if (normalized === 'array') {
         const inner = sDef?.element;
         const innerStr = inner ? this.getZodType(inner, depth + 1) : '[unknown]';
         return `[${innerStr}]`;
       }
-      if (typeName === 'ZodObject') {
+      if (normalized === 'object') {
         const shape =
           (s.shape as Record<string, unknown>) || (sDef?.shape as Record<string, unknown>);
         if (shape && Object.keys(shape).length > 0) {
@@ -180,32 +180,30 @@ export class HelpGenerator {
         }
         return '[object]';
       }
-      if (typeName === 'ZodEnum') {
+      if (normalized === 'enum') {
         const values = sDef?.values as unknown[] | undefined;
         if (values && values.length > 0) {
           return '[' + values.join('|') + ']';
         }
         return '[enum]';
       }
-      if (typeName === 'ZodLiteral') {
+      if (normalized === 'literal') {
         const val = sDef?.value;
         return val !== undefined ? `[${JSON.stringify(val)}]` : '[literal]';
       }
-      if (typeName === 'ZodUnion') {
+      if (normalized === 'union') {
         const options = sDef?.options as unknown[] | undefined;
         if (options && options.length > 0) {
           return options.map((o) => this.getZodType(o, depth + 1)).join(' | ');
         }
         return '[union]';
       }
-      if (typeName === 'ZodRecord') {
+      if (normalized === 'record') {
         const valType = sDef?.valueType;
         return valType ? `[record<${this.getZodType(valType, depth + 1)}>]` : '[record]';
       }
 
-      // Fallback: strip Zod prefix and lowercase
-      const cleanName = typeName.replace(/^Zod/, '').toLowerCase();
-      return cleanName ? `[${cleanName}]` : '[unknown]';
+      return normalized ? `[${normalized}]` : '[unknown]';
     } catch (e) {
       return '[unknown]';
     }

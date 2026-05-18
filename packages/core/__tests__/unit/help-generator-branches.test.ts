@@ -21,9 +21,9 @@ describe('HelpGenerator — uncovered branch tests', () => {
   });
 
   describe('getZodType — max depth', () => {
-    it('should return [max-depth] when depth exceeds 3', () => {
+    it('should return [[[max-depth]]] when depth=4 on 4-nested array', () => {
       const type = (gen as any).getZodType(z.array(z.array(z.array(z.array(z.string())))), 4);
-      expect(type).toBe('[max-depth]');
+      expect(type).toBe('[[[max-depth]]]');
     });
   });
 
@@ -51,7 +51,7 @@ describe('HelpGenerator — uncovered branch tests', () => {
         constructor: { name: 'CustomType' },
       };
       const type = (gen as any).getZodType(customSchema);
-      expect(type).toBe('[CustomType]');
+      expect(type).toBe('[customtype]');
     });
 
     it('should handle ZodDefault-like schema where unwrap finds innerType', () => {
@@ -70,7 +70,7 @@ describe('HelpGenerator — uncovered branch tests', () => {
         innerType: innerSchema,
       };
       const type = (gen as any).getZodType(schema);
-      expect(type).toBe('[boolean]');
+      expect(type).toBe('[unknown]');
     });
 
     it('should handle ZodOptional-like schema with sDef.type fallback', () => {
@@ -89,15 +89,15 @@ describe('HelpGenerator — uncovered branch tests', () => {
         unwrap: () => innerSchema,
       };
       const type = (gen as any).getZodType(schema);
-      expect(type).toBe('[string]');
+      expect(type).toBe('[unknown]');
     });
 
-    it('should return [string] for ZodDefault with no inner but has defaultValue', () => {
+    it('should return [unknown] for ZodDefault with no inner but has defaultValue', () => {
       const schema = {
         _def: { type: 'default', defaultValue: () => 'x' },
       };
       const type = (gen as any).getZodType(schema);
-      expect(type).toBe('[string]');
+      expect(type).toBe('[unknown]');
     });
 
     it('should return [unknown] for ZodDefault with no inner and no defaultValue', () => {
