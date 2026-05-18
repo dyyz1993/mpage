@@ -57,7 +57,7 @@ trim_trailing_whitespace = false
 
 /**
  * Generates the pre-commit hook content.
- * Includes typecheck + lint-staged for comprehensive quality gates.
+ * Includes typecheck + lint-staged + help auto-generation check.
  */
 export function getPreCommitHook(): string {
   return `set -e
@@ -69,6 +69,22 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 echo "✅ Typecheck passed"
+
+echo "🔍 [pre-commit] Checking help auto-generation..."
+# Rule: --help must be derived from Zod schemas, not hand-written.
+# Core.run() handles <command> --help automatically via HelpGenerator.
+HAND_WRITTEN=$(find src -path "*/cli/help.ts" -o -path "*/help.ts" 2>/dev/null | head -5)
+if [ -n "$HAND_WRITTEN" ]; then
+  for f in $HAND_WRITTEN; do
+    if ! grep -q "helpGenerator\\|HelpGenerator" "$f" 2>/dev/null; then
+      echo "❌ Found hand-written help file: $f"
+      echo "   Use helpGenerator from '@dyyz1993/xcli-core' instead."
+      echo "   Core.run() already handles <command> --help from Zod schemas."
+      exit 1
+    fi
+  done
+fi
+echo "✅ Help generation check passed"
 
 echo "🔍 [pre-commit] Running lint-staged..."
 npx lint-staged

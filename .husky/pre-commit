@@ -3,6 +3,9 @@ set -e
 echo "🔍 [pre-commit] Checking any count..."
 bash scripts/check-any-count.sh
 
+echo "🔍 [pre-commit] Checking help auto-generation..."
+bash scripts/check-help-auto-gen.sh
+
 echo "🔍 [pre-commit] Running lint-staged..."
 npx lint-staged
 

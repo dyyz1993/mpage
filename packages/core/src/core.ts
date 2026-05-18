@@ -12,6 +12,7 @@ import { parseArgs } from './arg-parser.js';
 import { coerceCliArgs } from './param-coercion.js';
 import { isCommandResult } from './command-result.js';
 import { outputFormatter } from './output-formatter.js';
+import { helpGenerator } from './help/help-generator.js';
 
 export interface CoreConfig {
   name: string;
@@ -100,6 +101,7 @@ export class Core {
       console.log('OPTIONS');
       console.log('  --version, -v        Print version');
       console.log('  --help, -h           Print help');
+      console.log('  <command> --help     Show command-specific help');
     };
 
     if (argv.length === 0 || argv.includes('--help') || argv.includes('-h')) {
@@ -109,6 +111,23 @@ export class Core {
 
     const commandName = argv[0];
     const commandArgs = argv.slice(1);
+
+    // Command-level --help: "cli <command> --help"
+    if (commandArgs.includes('--help') || commandArgs.includes('-h')) {
+      const entry = this.loader.resolveCommand(commandName);
+      if (entry) {
+        console.log(helpGenerator.generate(entry, { color: true, emoji: true }));
+      } else {
+        const suggestion = this.suggestCommand(commandName);
+        console.error(`Unknown command: ${commandName}`);
+        if (suggestion) {
+          console.error(`Did you mean: ${suggestion}?`);
+        }
+        console.error();
+        showHelp();
+      }
+      return 0;
+    }
 
     const entry = this.loader.resolveCommand(commandName);
     if (!entry) {
