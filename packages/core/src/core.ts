@@ -158,6 +158,29 @@ export class Core {
         return 0;
       }
 
+      // Validate result against declared schema if present
+      if (entry.result) {
+        const dataToValidate = isCommandResult(result) ? result.data : result;
+        const validation = (
+          entry.result as {
+            safeParse: (d: unknown) => {
+              success: boolean;
+              error?: { issues: Array<{ path: PropertyKey[]; message: string }> };
+            };
+          }
+        ).safeParse(dataToValidate);
+        if (!validation.success) {
+          const issues = validation.error?.issues ?? [];
+          const details = issues
+            .map(
+              (e: { path: PropertyKey[]; message: string }) => `${e.path.join('.')}: ${e.message}`
+            )
+            .join('; ');
+          console.error(`Result validation failed for "${entry.name}": ${details}`);
+          return 1;
+        }
+      }
+
       if (isCommandResult(result)) {
         // CommandResult: format data only, tips routed separately
         if (mode === 'json' || mode === 'yaml') {
