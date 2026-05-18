@@ -118,18 +118,18 @@ export interface SiteInstance {
   url: string;
   config: SiteConfig;
 
-  command(
+  command<P extends ZodSchema = ZodSchema, R extends ZodSchema = ZodSchema>(
     name: string,
     config: {
       description: string;
       scope?: CommandScope;
       override?: boolean;
-      parameters?: unknown;
-      result?: unknown;
+      parameters?: P;
+      result?: R;
       requiresLogin?: boolean;
       examples?: Array<{ cmd: string; description: string }>;
       tips?: string[];
-      handler: (params: Record<string, unknown>, ctx: CommandContext) => Promise<unknown>;
+      handler: (params: z.infer<P>, ctx: CommandContext) => Promise<z.infer<R>>;
     }
   ): SiteInstance;
 
@@ -207,23 +207,29 @@ export class SiteInstanceImpl implements SiteInstance {
     this.cliName = cliName ?? 'xcli';
   }
 
-  command(
+  command<P extends ZodSchema = ZodSchema, R extends ZodSchema = ZodSchema>(
     name: string,
     cmd: {
       description: string;
       scope?: CommandScope;
       override?: boolean;
-      parameters?: unknown;
-      result?: unknown;
+      parameters?: P;
+      result?: R;
       requiresLogin?: boolean;
       examples?: Array<{ cmd: string; description: string }>;
       tips?: string[];
-      handler: (params: Record<string, unknown>, ctx: CommandContext) => Promise<unknown>;
+      handler: (params: z.infer<P>, ctx: CommandContext) => Promise<z.infer<R>>;
     }
   ): SiteInstance {
     const existing = this.commands.get(name);
     if (existing && !existing.override) {
       return this;
+    }
+
+    if (!cmd.result) {
+      console.warn(
+        `⚠️ [xcli-core] Command "${name}" on site "${this.name}" has no "result" schema. Declare a result schema for runtime validation and help generation.`
+      );
     }
 
     this.commands.set(name, {
@@ -361,20 +367,25 @@ export class GroupedSiteInstance implements SiteInstance {
     this.config = parent.config;
   }
 
-  command(
+  command<P extends ZodSchema = ZodSchema, R extends ZodSchema = ZodSchema>(
     name: string,
     cmd: {
       description: string;
       scope?: CommandScope;
       override?: boolean;
-      parameters?: unknown;
-      result?: unknown;
+      parameters?: P;
+      result?: R;
       requiresLogin?: boolean;
       examples?: Array<{ cmd: string; description: string }>;
       tips?: string[];
-      handler: (params: Record<string, unknown>, ctx: CommandContext) => Promise<unknown>;
+      handler: (params: z.infer<P>, ctx: CommandContext) => Promise<z.infer<R>>;
     }
   ): SiteInstance {
+    if (!cmd.result) {
+      console.warn(
+        `⚠️ [xcli-core] Command "${this.prefix}${name}" on site "${this.name}" has no "result" schema. Declare a result schema for runtime validation and help generation.`
+      );
+    }
     this.parent.command(this.prefix + name, cmd);
     return this;
   }

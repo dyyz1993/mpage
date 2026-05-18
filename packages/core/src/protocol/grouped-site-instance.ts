@@ -1,3 +1,4 @@
+import { type z } from 'zod/v4';
 import type {
   CommandContext,
   CommandEntry,
@@ -7,8 +8,8 @@ import type {
   SiteInstance,
   StorageContext,
   ZodSchema,
-} from './types.js';
-import type { SiteInstanceImpl } from './plugin-protocol.js';
+  SiteInstanceImpl,
+} from './plugin-protocol.js';
 
 export class GroupedSiteInstance implements SiteInstance {
   name: string;
