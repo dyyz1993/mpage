@@ -40,7 +40,7 @@ export const BROWSER_APP_TEMPLATE: ScaffoldTemplate = {
     "start": "node dist/cli.js"
   },
   "dependencies": {
-    "@dyyz1993/xcli-core": "^0.8.4",
+    "@dyyz1993/xcli-core": "^0.9.0",
     "zod": "^3.25.0",
     "playwright": "^1.59.0",
     "playwright-core": "^1.58.0"

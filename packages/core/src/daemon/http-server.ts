@@ -13,7 +13,7 @@ export interface HttpServerConfig {
   rpcHandler: RPCHandler;
   extraRoutes?: Array<{
     pathname: string;
-    handler: (req: IncomingMessage, res: ServerResponse) => void;
+    handler: (req: IncomingMessage, res: ServerResponse, rpcHandler: RPCHandler) => void;
   }>;
 }
 
@@ -27,7 +27,7 @@ function handleHttpRequest(
   if (config.extraRoutes) {
     for (const route of config.extraRoutes) {
       if (pathname === route.pathname) {
-        route.handler(req, res);
+        route.handler(req, res, config.rpcHandler);
         return;
       }
     }

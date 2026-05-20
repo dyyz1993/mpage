@@ -17,6 +17,9 @@ import {
   handlePluginHelp,
 } from './plugin-handlers.js';
 import { handleDirectGoto, handleDirectClick, handleDirectFill } from './browser-handlers.js';
+import { listSessions } from '../session/browser-session-client.js';
+import { DAEMON_CONFIG_PATH } from '@dyyz1993/xcli-core';
+import { readFileSync, existsSync } from 'fs';
 
 export async function routeCommand(argv: string[]): Promise<void> {
   const parsed = parseArgs(argv);
@@ -163,6 +166,33 @@ export async function routeCommand(argv: string[]): Promise<void> {
 
     case 'fill': {
       await handleDirectFill(cmdArgs, values);
+      break;
+    }
+
+    case 'viewer': {
+      const sessionName = (values['session'] as string) || (values['s'] as string) || 'default';
+      const sessions = await listSessions();
+      const session = sessions.find((s) => s.name === sessionName);
+      if (!session) {
+        outputError(
+          `Session "${sessionName}" not found. Available: ${sessions.map((s) => s.name).join(', ')}`,
+          mode
+        );
+        process.exit(1);
+      }
+      let port = 8054;
+      if (existsSync(DAEMON_CONFIG_PATH)) {
+        try {
+          const cfg = JSON.parse(readFileSync(DAEMON_CONFIG_PATH, 'utf-8'));
+          port = cfg.port || 8054;
+        } catch {}
+      }
+      const url = `http://localhost:${port}/viewer.html?s=${session.id}`;
+      console.log(url);
+      const { execSync } = await import('child_process');
+      try {
+        execSync(`open "${url}"`);
+      } catch {}
       break;
     }
 

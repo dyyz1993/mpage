@@ -47,6 +47,12 @@ async function routeCommand(method: string, params: Record<string, unknown>): Pr
     return handleDirectPageCommand(method, p);
   }
 
+  if (method === 'page.url') {
+    const session = findSession(p.name as string);
+    if (!session) return { ok: false, error: 'Session not found' };
+    return { ok: true, url: session.page.url() };
+  }
+
   if (method.startsWith('page.')) {
     const session = findSession(p.name as string);
     if (!session) return { ok: false, error: 'Session not found' };

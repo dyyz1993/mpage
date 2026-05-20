@@ -39,7 +39,7 @@ export const BASE_CLI_TEMPLATE: ScaffoldTemplate = {
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@dyyz1993/xcli-core": "^0.8.4",
+    "@dyyz1993/xcli-core": "^0.9.0",
     "zod": "^3.25.0"
   },
   "devDependencies": {
