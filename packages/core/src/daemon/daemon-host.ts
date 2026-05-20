@@ -9,6 +9,8 @@ import { WSServer, type WSServerConfig } from './ws-server.js';
 export interface DaemonHostConfig extends DaemonConfig {
   wsServer?: WSServerConfig;
   extraRoutes?: HttpServerConfig['extraRoutes'];
+  eventHandler?: (event: string, data: unknown) => void;
+  onReady?: (rpcHandler: RPCHandler) => void;
 }
 
 export async function runDaemonHost(config: DaemonHostConfig): Promise<void> {
@@ -22,6 +24,10 @@ export async function runDaemonHost(config: DaemonHostConfig): Promise<void> {
     requestTimeout: fullConfig.requestTimeout,
     heartbeatInterval: fullConfig.heartbeatInterval,
   });
+
+  if (config.eventHandler) {
+    workerManager.on('screencastFrame', (data) => config.eventHandler?.('screencastFrame', data));
+  }
 
   const rpcHandler: RPCHandler = async (method, params) => {
     const sessionId = (params.sessionId as string) || 'default';
@@ -71,6 +77,8 @@ export async function runDaemonHost(config: DaemonHostConfig): Promise<void> {
 
   process.on('SIGTERM', shutdown);
   process.on('SIGINT', shutdown);
+
+  config.onReady?.(rpcHandler);
 
   setInterval(() => {}, 24 * 60 * 60 * 1000);
 }

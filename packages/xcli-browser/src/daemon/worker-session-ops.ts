@@ -1,4 +1,4 @@
-import type { BrowserContext, Page } from 'playwright';
+import type { BrowserContext, Page, CDPSession } from 'playwright';
 import type { RecorderController } from '@dyyz1993/xpage';
 import { executePageCommand } from '@dyyz1993/xpage';
 
@@ -12,6 +12,27 @@ export interface WorkerSession {
 }
 
 export const sessions = new Map<string, WorkerSession>();
+
+export async function startScreencast(session: WorkerSession): Promise<void> {
+  const cdp: CDPSession = await session.context.newCDPSession(session.page);
+  await cdp.send('Page.startScreencast', {
+    format: 'png',
+    quality: 50,
+    maxWidth: 1280,
+    maxHeight: 720,
+  });
+  cdp.on('Page.screencastFrame', async (event: { data: string; sessionId: number }) => {
+    await cdp.send('Page.screencastFrameAck', { sessionId: event.sessionId });
+    if (process.send) {
+      process.send({
+        type: 'event',
+        event: 'screencastFrame',
+        sessionId: session.id,
+        data: event.data,
+      });
+    }
+  });
+}
 
 export function findSession(name: string): WorkerSession | undefined {
   for (const [, session] of sessions) {
@@ -51,6 +72,7 @@ export async function handleSessionCommand(
         page,
       };
       sessions.set(session.id, session);
+      startScreencast(session).catch(() => {});
       return { id: session.id, name: session.name };
     }
 

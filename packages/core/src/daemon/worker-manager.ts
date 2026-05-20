@@ -208,6 +208,12 @@ export class WorkerManager extends EventEmitter {
       if (eventMsg.event === 'heartbeat') {
         entry.lastHeartbeat = Date.now();
       }
+      if (eventMsg.event === 'screencastFrame') {
+        this.emit('screencastFrame', {
+          sessionId,
+          data: eventMsg.data,
+        });
+      }
     }
   }
 
