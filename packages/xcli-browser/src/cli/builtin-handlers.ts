@@ -125,7 +125,7 @@ export async function handleDaemon(args: CommandArgs, values: CommandValues): Pr
   const action = (args[0] as string) || 'status';
   const config = {
     configDir: core.configDir,
-    workerEntryPath: resolve(dirname(fileURLToPath(import.meta.url)), '../daemon/worker-entry.js'),
+    workerEntryPath: resolve(dirname(fileURLToPath(import.meta.url)), './worker-entry.js'),
   };
 
   switch (action) {

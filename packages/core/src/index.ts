@@ -128,6 +128,8 @@ export type {
   ArchiveStoreConfig,
 } from './session/session-archive.js';
 
+export { runDaemonHost } from './daemon/daemon-host.js';
+export type { DaemonHostConfig } from './daemon/daemon-host.js';
 export type { IPCMessage, IPCResponse } from './daemon/ipc-types.js';
 export type { WorkerContext, WorkerEntryPoint, DaemonConfig } from './daemon/worker-protocol.js';
 export { DEFAULT_DAEMON_CONFIG } from './daemon/worker-protocol.js';

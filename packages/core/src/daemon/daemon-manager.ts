@@ -106,7 +106,11 @@ export async function startDaemon(config: DaemonConfig): Promise<{ port: number;
 
   const basePort = config.basePort ?? 8054;
 
-  const child = spawn('node', ['--import', 'tsx', config.workerEntryPath, '--daemon'], {
+  const isTs = config.workerEntryPath.endsWith('.ts');
+  const args = isTs
+    ? ['--import', 'tsx', config.workerEntryPath, '--daemon']
+    : [config.workerEntryPath, '--daemon'];
+  const child = spawn('node', args, {
     detached: true,
     stdio: 'ignore',
   });

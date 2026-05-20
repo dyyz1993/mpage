@@ -1,3 +1,5 @@
+export { runDaemonHost } from './daemon-host.js';
+export type { DaemonHostConfig } from './daemon-host.js';
 export type { IPCMessage, IPCResponse } from './ipc-types.js';
 export type { WorkerContext, WorkerEntryPoint, DaemonConfig } from './worker-protocol.js';
 export { DEFAULT_DAEMON_CONFIG } from './worker-protocol.js';

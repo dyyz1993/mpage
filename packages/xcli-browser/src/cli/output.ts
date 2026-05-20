@@ -17,7 +17,7 @@ export const CORE_CONFIG: CoreConfig = {
   name: 'xcli-browser',
   version: VERSION,
   description: 'Browser automation CLI powered by xcli',
-  configDirName: '.xcli',
+  configDirName: '.xcli-browser',
   envPrefix: 'XCLI',
   pluginDirs: ['.xcli/plugins'],
   pluginPackageName: '@dyyz1993/xcli-core',
