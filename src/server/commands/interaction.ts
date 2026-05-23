@@ -88,6 +88,12 @@ export const interactionCommands: CommandModule = {
       await context.locator(args.selector as string).scrollIntoViewIfNeeded();
       return { scrolledTo: args.selector };
     }
+    if (args.deltaX !== undefined || args.deltaY !== undefined) {
+      const dx = args.deltaX ?? 0;
+      const dy = args.deltaY ?? 0;
+      await context.evaluate(`window.scrollBy(${dx}, ${dy})`);
+      return { deltaX: dx, deltaY: dy };
+    }
     await context.evaluate(`window.scrollTo(${args.x ?? 0}, ${args.y ?? 0})`);
     return { x: args.x ?? 0, y: args.y ?? 0 };
   },
@@ -134,6 +140,9 @@ export const interactionCommands: CommandModule = {
       await page.mouse.click(x, y, { button: button as 'left' | 'right' | 'middle' });
     } else if (action === 'dblclick') {
       await page.mouse.dblclick(x, y, { button: button as 'left' | 'right' | 'middle' });
+    } else if (action === 'wheel') {
+      await page.mouse.move(x, y);
+      await page.mouse.wheel((args.deltaX as number) || 0, (args.deltaY as number) || 0);
     }
     return { action, x, y };
   },

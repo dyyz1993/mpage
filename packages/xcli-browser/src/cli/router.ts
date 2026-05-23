@@ -1,8 +1,13 @@
 import { parseArgs, type CommandValues, type CommandArgs } from '@dyyz1993/xcli-core';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { homedir } from 'os';
+import { existsSync, readFileSync } from 'fs';
 import { VERSION, getOutputMode, outputResult, outputError, helpGen } from './output.js';
 import { showMainHelp, showInfo } from './help-handlers.js';
 import { handleConfig, handleCreate, handleInit, handleDaemon } from './builtin-handlers.js';
 import { handlePluginCommand } from './plugin-command.js';
+import { initDaemonConfig } from '../session/browser-session-client.js';
 import {
   handleSessionOpen,
   handleSessionClose,
@@ -18,10 +23,9 @@ import {
 } from './plugin-handlers.js';
 import { handleDirectGoto, handleDirectClick, handleDirectFill } from './browser-handlers.js';
 import { listSessions } from '../session/browser-session-client.js';
-import { DAEMON_CONFIG_PATH } from '@dyyz1993/xcli-core';
-import { readFileSync, existsSync } from 'fs';
 
 export async function routeCommand(argv: string[]): Promise<void> {
+  initDaemonConfig(resolve(dirname(fileURLToPath(import.meta.url)), './worker-entry.js'));
   const parsed = parseArgs(argv);
   const { positional, options } = parsed;
 
@@ -180,18 +184,27 @@ export async function routeCommand(argv: string[]): Promise<void> {
         );
         process.exit(1);
       }
+      const daemonConfigPath = resolve(homedir(), '.xcli-browser', 'daemon.json');
       let port = 8054;
-      if (existsSync(DAEMON_CONFIG_PATH)) {
-        try {
-          const cfg = JSON.parse(readFileSync(DAEMON_CONFIG_PATH, 'utf-8'));
+      let wsPort = 8055;
+      try {
+        if (existsSync(daemonConfigPath)) {
+          const cfg = JSON.parse(readFileSync(daemonConfigPath, 'utf-8'));
           port = cfg.port || 8054;
-        } catch {}
-      }
-      const url = `http://localhost:${port}/viewer.html?s=${session.id}`;
+          wsPort = cfg.wsPort || 8055;
+        }
+      } catch {}
+      const url = `http://localhost:${port}/viewer.html?s=${session.id}&wp=${wsPort}`;
       console.log(url);
       const { execSync } = await import('child_process');
       try {
-        execSync(`open "${url}"`);
+        const cmd =
+          process.platform === 'darwin'
+            ? `open "${url}"`
+            : process.platform === 'win32'
+              ? `start "" "${url}"`
+              : `xdg-open "${url}"`;
+        execSync(cmd);
       } catch {}
       break;
     }

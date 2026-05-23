@@ -14,7 +14,8 @@ export const scrollCommand: BrowserCommandDefinition<typeof params> = {
   description: 'Scroll the page or an element',
   scope: 'page',
   parameters: params,
-  handler: async (p, ctx) => {
+  handler: async (raw, ctx) => {
+    const p = params.parse(raw);
     if (p.selector) {
       const result = await executePageCommand(ctx.page, 'scroll', {
         selector: p.selector,

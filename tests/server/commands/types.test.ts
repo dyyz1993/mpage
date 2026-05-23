@@ -60,6 +60,7 @@ describe('server/commands/types and registry', () => {
         'goBack',
         'goForward',
         'reload',
+        'viewport',
         'screenshotBase64',
         'evaluateRaw',
         'wait',

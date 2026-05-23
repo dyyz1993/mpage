@@ -13,7 +13,8 @@ export const evalCommand: BrowserCommandDefinition<typeof params> = {
   description: 'Evaluate JavaScript expression in the browser',
   scope: 'page',
   parameters: params,
-  handler: async (p, ctx) => {
+  handler: async (raw, ctx) => {
+    const p = params.parse(raw);
     const result = await executePageCommand(ctx.page, 'evaluate', {
       expression: p.expression,
     });

@@ -1,48 +1,43 @@
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'fs';
-import { join } from 'path';
-import { SESSION_DIR, DAEMON_CONFIG_PATH } from '@dyyz1993/xcli-core';
-import type { SessionInfo } from '@dyyz1993/xcli-core';
+import { join, resolve } from 'path';
+import { homedir } from 'os';
+import {
+  SESSION_DIR,
+  type SessionInfo,
+  daemonRpc,
+  type DaemonRpcConfig,
+} from '@dyyz1993/xcli-core';
+import { randomUUID } from 'crypto';
 
-function ensureSessionDir() {
-  mkdirSync(SESSION_DIR, { recursive: true });
-}
+const DAEMON_CONFIG: DaemonRpcConfig = {
+  configDir: resolve(homedir(), '.xcli-browser'),
+};
 
 function getDaemonPort(): number {
-  if (!existsSync(DAEMON_CONFIG_PATH)) {
-    return 0;
-  }
+  const configPath = join(DAEMON_CONFIG.configDir, 'daemon.json');
+  if (!existsSync(configPath)) return 0;
   try {
-    const config = JSON.parse(readFileSync(DAEMON_CONFIG_PATH, 'utf-8'));
-    return config.port || 0;
+    const cfg = JSON.parse(readFileSync(configPath, 'utf-8')) as { port?: number };
+    return cfg.port || 0;
   } catch {
     return 0;
   }
 }
 
+export function initDaemonConfig(workerEntryPath: string): void {
+  DAEMON_CONFIG.workerEntryPath = workerEntryPath;
+}
+
+function ensureSessionDir() {
+  mkdirSync(SESSION_DIR, { recursive: true });
+}
+
+// eslint-disable-next-line require-await
 export async function daemonRequest(
   method: string,
   params?: Record<string, unknown>
 ): Promise<Record<string, unknown>> {
-  const port = getDaemonPort();
-  if (!port) {
-    throw new Error('Daemon not running. Use "xcli daemon" to start.');
-  }
-
-  const res = await fetch(`http://localhost:${port}/rpc`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ method, params }),
-  });
-
-  if (!res.ok) {
-    throw new Error(`Request failed: ${res.status}`);
-  }
-
-  const result = (await res.json()) as Record<string, unknown>;
-  if (result.error) {
-    throw new Error(result.error as string);
-  }
-  return result;
+  return daemonRpc(DAEMON_CONFIG, method, params);
 }
 
 export function requireSession(name?: string): string {
@@ -75,9 +70,10 @@ export async function saveSession(session: SessionInfo): Promise<void> {
 
 export async function openSession(name: string, url: string): Promise<SessionInfo> {
   ensureSessionDir();
-  const result = (await daemonRequest('session.open', { name, url })) as { id: string };
+  const id = randomUUID();
+  await daemonRequest('session.create', { sessionId: id, name, url });
   const session: SessionInfo = {
-    id: result.id,
+    id,
     name,
     url,
     createdAt: new Date().toISOString(),
@@ -148,7 +144,7 @@ export async function gotoSession(name: string, url: string): Promise<{ ok: bool
 
 export async function refreshSession(name: string): Promise<{ ok: boolean }> {
   const sessionName = requireSession(name);
-  return (await daemonRequest('page.refresh', { name: sessionName })) as { ok: boolean };
+  return (await daemonRequest('page.reload', { name: sessionName })) as { ok: boolean };
 }
 
 export async function navigateSession(
@@ -223,7 +219,8 @@ export async function scrollSession(
   distance = 500
 ): Promise<{ ok: boolean }> {
   const sessionName = requireSession(name);
-  return (await daemonRequest('page.scroll', { name: sessionName, direction, distance })) as {
+  const deltaY = direction === 'down' ? distance : -distance;
+  return (await daemonRequest('page.scroll', { name: sessionName, deltaX: 0, deltaY })) as {
     ok: boolean;
   };
 }

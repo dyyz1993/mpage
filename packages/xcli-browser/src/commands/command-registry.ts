@@ -1,16 +1,14 @@
-import type { ZodType, ZodTypeDef, z } from 'zod/v4';
+import type { ZodType } from 'zod/v4';
 import type { CommandScope } from '@dyyz1993/xcli-core';
 import type { BrowserCommandContext } from '../context.js';
 
-export interface BrowserCommandDefinition<
-  P extends ZodType<unknown, ZodTypeDef, unknown> = ZodType<unknown, ZodTypeDef, unknown>,
-> {
+export interface BrowserCommandDefinition<P = ZodType<unknown>> {
   name: string;
   description: string;
   scope: CommandScope;
   parameters?: P;
   result?: ZodType<unknown>;
-  handler: (params: z.infer<P>, ctx: BrowserCommandContext) => Promise<unknown>;
+  handler: (params: Record<string, unknown>, ctx: BrowserCommandContext) => Promise<unknown>;
 }
 
 export type RegisteredCommand = {

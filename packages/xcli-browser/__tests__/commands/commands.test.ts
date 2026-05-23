@@ -1,8 +1,12 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
 
-vi.mock('@dyyz1993/xpage', () => ({
-  executePageCommand: vi.fn().mockResolvedValue({ ok: true }),
-}));
+vi.mock('@dyyz1993/xpage', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@dyyz1993/xpage')>();
+  return {
+    ...actual,
+    executePageCommand: vi.fn().mockResolvedValue({ ok: true }),
+  };
+});
 
 vi.mock('@dyyz1993/xcli-core', () => ({
   ok: (data: unknown) => data,

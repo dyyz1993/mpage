@@ -15,7 +15,8 @@ export const screenshotCommand: BrowserCommandDefinition<typeof params> = {
   description: 'Take a screenshot of the page or element',
   scope: 'page',
   parameters: params,
-  handler: async (p, ctx) => {
+  handler: async (raw, ctx) => {
+    const p = params.parse(raw);
     const result = await executePageCommand(ctx.page, 'screenshotBase64', {
       selector: p.selector,
       fullPage: p.fullPage,

@@ -43,6 +43,7 @@ export function findSession(name: string): WorkerSession | undefined {
 
 const SESSION_LIFECYCLE_COMMANDS = new Set([
   'session.create',
+  'session.open',
   'session.close',
   'session.closeAll',
   'session.list',
@@ -59,7 +60,8 @@ export async function handleSessionCommand(
   p: Record<string, unknown>
 ): Promise<unknown> {
   switch (method) {
-    case 'session.create': {
+    case 'session.create':
+    case 'session.open': {
       const { getBrowser } = await import('./browser-worker.js');
       const b = await getBrowser();
       const context = await b.newContext();
@@ -72,7 +74,9 @@ export async function handleSessionCommand(
         page,
       };
       sessions.set(session.id, session);
-      startScreencast(session).catch(() => {});
+      startScreencast(session).catch((err: unknown) => {
+        console.error('Failed to start screencast:', err);
+      });
       return { id: session.id, name: session.name };
     }
 

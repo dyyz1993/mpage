@@ -64,9 +64,10 @@ const sessionId = params.get('s') || 'default';
 let rpcId = 0;
 const pendingRpc = new Map();
 let viewportWidth = 1280, viewportHeight = 720;
-
-const ws = new WebSocket('ws://localhost:8055/?s=' + sessionId);
-ws.binaryType = 'blob';
+let ws = null;
+let reconnectAttempts = 0;
+const MAX_RECONNECT = 10;
+const BASE_DELAY = 1000;
 
 let frameCount = 0;
 setInterval(() => {
@@ -74,45 +75,71 @@ setInterval(() => {
   frameCount = 0;
 }, 1000);
 
-ws.onopen = () => {
-  document.getElementById('status').textContent = 'LIVE';
-  document.getElementById('status').className = 'status live';
-  updateUrl();
-  fetchViewport();
-};
-ws.onmessage = (event) => {
-  if (event.data instanceof Blob) {
-    const blobUrl = URL.createObjectURL(event.data);
-    const img = document.getElementById('screen');
-    img.src = blobUrl;
-    img.onload = () => URL.revokeObjectURL(blobUrl);
-    img.style.display = 'block';
-    document.getElementById('placeholder').style.display = 'none';
-    frameCount++;
-    return;
-  }
-  try {
-    const msg = JSON.parse(event.data);
-    if (msg.type === 'rpcResponse') {
-      const p = pendingRpc.get(msg.id);
-      if (p) { pendingRpc.delete(msg.id); p(msg.result || msg); }
+function connectWs() {
+  const wsProto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const wsPort = params.get('wp') || '8055';
+  const socket = new WebSocket(wsProto + '//localhost:' + wsPort + '/?s=' + sessionId);
+  socket.binaryType = 'blob';
+
+  socket.onopen = () => {
+    reconnectAttempts = 0;
+    document.getElementById('status').textContent = 'LIVE';
+    document.getElementById('status').className = 'status live';
+    updateUrl();
+    fetchViewport();
+  };
+
+  socket.onmessage = (event) => {
+    if (event.data instanceof Blob) {
+      const blobUrl = URL.createObjectURL(event.data);
+      const img = document.getElementById('screen');
+      img.src = blobUrl;
+      img.onload = () => URL.revokeObjectURL(blobUrl);
+      img.style.display = 'block';
+      document.getElementById('placeholder').style.display = 'none';
+      frameCount++;
+      return;
     }
-  } catch {}
-};
-ws.onclose = () => {
-  document.getElementById('status').textContent = 'disconnected';
-  document.getElementById('status').className = 'status error';
-};
-ws.onerror = () => {
-  document.getElementById('status').textContent = 'error';
-  document.getElementById('status').className = 'status error';
-};
+    try {
+      const msg = JSON.parse(event.data);
+      if (msg.type === 'rpcResponse') {
+        const p = pendingRpc.get(msg.id);
+        if (p) { pendingRpc.delete(msg.id); p(msg.result || msg); }
+      }
+    } catch {}
+  };
+
+  socket.onclose = () => {
+    document.getElementById('status').textContent = 'disconnected';
+    document.getElementById('status').className = 'status error';
+    ws = null;
+    if (reconnectAttempts < MAX_RECONNECT) {
+      reconnectAttempts++;
+      const delay = Math.min(BASE_DELAY * Math.pow(1.5, reconnectAttempts - 1), 30000);
+      setTimeout(connectWs, delay);
+    }
+  };
+
+  socket.onerror = () => {
+    document.getElementById('status').textContent = 'error';
+    document.getElementById('status').className = 'status error';
+  };
+
+  ws = socket;
+}
+
+connectWs();
 
 function rpc(method, p) {
   const id = ++rpcId;
   return new Promise(resolve => {
     pendingRpc.set(id, resolve);
-    ws.send(JSON.stringify({ type: 'rpc', id, method, params: { ...p, sessionId, name: sessionId } }));
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: 'rpc', id, method, params: { ...p, sessionId, name: sessionId } }));
+    } else {
+      pendingRpc.delete(id);
+      resolve(null);
+    }
   });
 }
 
@@ -190,7 +217,7 @@ vp.addEventListener('wheel', async (e) => {
   e.preventDefault();
   const { x, y } = mapCoords(e);
   await rpc('page.mouse', { action: 'move', x, y });
-  rpc('page.scroll', { x: viewportWidth / 2, y: viewportHeight / 2 });
+  rpc('page.mouse', { action: 'wheel', x, y, deltaX: Math.round(e.deltaX), deltaY: Math.round(e.deltaY) });
 }, { passive: false });
 
 vp.addEventListener('touchstart', async (e) => {
@@ -257,11 +284,21 @@ async function goto() {
   setTimeout(updateUrl, 1000);
 }
 async function refresh() {
-  await rpc('page.refresh', {});
+  await rpc('page.reload', {});
   setTimeout(updateUrl, 1000);
 }
 document.getElementById('urlInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') goto();
+  e.stopPropagation();
+});
+const MODIFIER_KEYS = new Set(['Control', 'Alt', 'Meta', 'Shift', 'CapsLock', 'NumLock', 'ScrollLock']);
+const BROWSER_SHORTCUTS = new Set(['Tab', 'Escape', 'F1', 'F2', 'F3', 'F4', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12']);
+document.addEventListener('keydown', e => {
+  if (e.target === document.getElementById('urlInput')) return;
+  if (e.ctrlKey || e.altKey || e.metaKey) return;
+  if (MODIFIER_KEYS.has(e.key) || BROWSER_SHORTCUTS.has(e.key)) return;
+  if (e.key === 'F5') { refresh(); return; }
+  rpc('page.press', { key: e.key });
 });
 setInterval(updateUrl, 3000);
 </script>
@@ -302,7 +339,9 @@ if (process.argv.includes('--daemon')) {
             );
           }
         }
-      } catch {}
+      } catch {
+        console.error('Invalid WS message received');
+      }
     });
 
     ws.on('close', () => {

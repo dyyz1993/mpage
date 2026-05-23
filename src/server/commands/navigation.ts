@@ -43,4 +43,11 @@ export const navigationCommands: CommandModule = {
   url: async (ctx: PageContext) => {
     return { url: getUrl(ctx) };
   },
+
+  // eslint-disable-next-line require-await
+  viewport: async (ctx: PageContext) => {
+    const page = ctx as Page;
+    const vp = page.viewportSize();
+    return { width: vp?.width ?? 0, height: vp?.height ?? 0 };
+  },
 };

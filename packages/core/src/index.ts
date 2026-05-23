@@ -142,8 +142,10 @@ export {
   startWSServer,
   stopWSServer,
   getWSServer,
+  ensureDaemon,
+  daemonRpc,
 } from './daemon/daemon-manager.js';
-export type { ExtendedDaemonConfig } from './daemon/daemon-manager.js';
+export type { ExtendedDaemonConfig, DaemonRpcConfig } from './daemon/daemon-manager.js';
 export { WorkerManager } from './daemon/worker-manager.js';
 export type { WorkerManagerConfig } from './daemon/worker-manager.js';
 export { startHttpServer } from './daemon/http-server.js';

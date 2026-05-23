@@ -15,7 +15,9 @@ export interface ExtendedDaemonConfig extends DaemonConfig {
 
 let wsServer: WSServer | null = null;
 
-function resolvePaths(config: DaemonConfig): DaemonPaths {
+type DaemonLikeConfig = DaemonConfig | DaemonRpcConfig;
+
+function resolvePaths(config: DaemonLikeConfig): DaemonPaths {
   return {
     configDir: config.configDir,
     daemonConfigPath: join(config.configDir, 'daemon.json'),
@@ -60,7 +62,7 @@ function removeDaemonConfig(paths: DaemonPaths): void {
   }
 }
 
-export function isDaemonRunning(config: DaemonConfig): boolean {
+export function isDaemonRunning(config: DaemonLikeConfig): boolean {
   const paths = resolvePaths(config);
   const port = getDaemonPort(paths);
   if (!port) return false;
@@ -93,6 +95,56 @@ export async function stopWSServer(): Promise<void> {
 
 export function getWSServer(): WSServer | null {
   return wsServer;
+}
+
+// eslint-disable-next-line require-await
+export interface DaemonRpcConfig {
+  configDir: string;
+  workerEntryPath?: string;
+  basePort?: number;
+}
+
+export async function ensureDaemon(config: DaemonRpcConfig): Promise<number> {
+  const paths = resolvePaths(config);
+  if (isDaemonRunning(config)) {
+    return getDaemonPort(paths);
+  }
+
+  if (!config.workerEntryPath) {
+    throw new Error('Daemon not running and workerEntryPath not provided');
+  }
+
+  const daemonConfig: DaemonConfig = {
+    configDir: config.configDir,
+    workerEntryPath: config.workerEntryPath,
+    basePort: config.basePort,
+  };
+
+  const { port } = await startDaemon(daemonConfig);
+  return port;
+}
+
+export async function daemonRpc(
+  config: DaemonRpcConfig,
+  method: string,
+  params?: Record<string, unknown>
+): Promise<Record<string, unknown>> {
+  const port = await ensureDaemon(config);
+  const res = await fetch(`http://localhost:${port}/rpc`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ method, params }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Daemon RPC failed: ${res.status}`);
+  }
+
+  const result = (await res.json()) as Record<string, unknown>;
+  if (result.error) {
+    throw new Error(result.error as string);
+  }
+  return result;
 }
 
 // eslint-disable-next-line require-await

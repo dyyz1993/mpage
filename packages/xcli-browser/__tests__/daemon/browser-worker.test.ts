@@ -111,6 +111,28 @@ describe('BrowserWorker', () => {
     it('should throw for unknown method', async () => {
       await expect(worker.execute('unknown.method', {})).rejects.toThrow('Unknown method');
     });
+
+    it('should treat session.open as alias for session.create', async () => {
+      await worker.init({} as never);
+      const result = await worker.execute('session.open', {
+        sessionId: 's-open',
+        name: 'open-test',
+        url: 'https://example.com',
+      });
+      expect(result).toEqual({ id: 's-open', name: 'open-test' });
+      expect(sessions.has('s-open')).toBe(true);
+    });
+
+    it('should generate UUID sessionId when not provided in session.create', async () => {
+      await worker.init({} as never);
+      const result = await worker.execute('session.create', {
+        name: 'no-id',
+        url: 'https://example.com',
+      });
+      const typed = result as { id: string; name: string };
+      expect(typed.name).toBe('no-id');
+      expect(typed.id).toBeUndefined();
+    });
   });
 
   describe('destroy()', () => {
