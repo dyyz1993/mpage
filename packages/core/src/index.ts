@@ -187,4 +187,7 @@ export {
   API_CLI_TEMPLATE,
 } from './scaffold/index.js';
 
+export { DebugHost, createDebugHost } from './debug/index.js';
+export type { DebugHostOptions, ExecContext } from './debug/index.js';
+
 export { generateTips } from './output/tips-engine.js';

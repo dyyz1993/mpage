@@ -1,0 +1,124 @@
+import { tmpdir } from 'os';
+import { join } from 'path';
+import { PluginLoader } from '../plugin-loader.js';
+import type {
+  XCLIAPI,
+  CommandContext,
+  StorageContext,
+  OutputContext,
+  SiteInstance,
+} from '../protocol/plugin-protocol.js';
+import { wrapResult, type CommandResult } from '../command-result.js';
+
+export interface DebugHostOptions {
+  cliName?: string;
+  storageDir?: string;
+}
+
+export interface ExecContext {
+  page?: unknown;
+  [key: string]: unknown;
+}
+
+export class DebugHost {
+  private loader: PluginLoader;
+  private cliName: string;
+
+  constructor(options: DebugHostOptions = {}) {
+    this.cliName = options.cliName || 'debug-host';
+    this.loader = new PluginLoader({
+      config: { name: this.cliName },
+      storageDir: options.storageDir || join(tmpdir(), 'xcli-debug'),
+    });
+  }
+
+  async load(pluginPath: string): Promise<void> {
+    await this.loader.loadPlugin(pluginPath);
+  }
+
+  async loadFunction(setup: (xcli: XCLIAPI) => void): Promise<void> {
+    await this.loader.loadFromFunction(setup);
+  }
+
+  async exec<T = unknown>(
+    commandName: string,
+    params: Record<string, unknown> = {},
+    context: ExecContext = {}
+  ): Promise<CommandResult<T>> {
+    const entry = this.loader.resolveCommand(commandName);
+    if (!entry) {
+      const names = this.getCommandNames();
+      throw new Error(`Command "${commandName}" not found. Available: ${names.join(', ')}`);
+    }
+
+    const ctx = this.buildContext(context, entry.name);
+    const raw = await entry.handler(params, ctx);
+    return wrapResult(raw) as CommandResult<T>;
+  }
+
+  getCommandNames(): string[] {
+    return this.loader.getAllCommands().map((c) => c.name);
+  }
+
+  getSite(name: string): SiteInstance | undefined {
+    return this.loader.getSite(name);
+  }
+
+  get api(): XCLIAPI {
+    return this.loader.getAPI();
+  }
+
+  private buildContext(context: ExecContext, commandName: string): CommandContext {
+    const memStore: Record<string, unknown> = {};
+    // eslint-disable-next-line require-await
+    const storage: StorageContext = {
+      // eslint-disable-next-line require-await
+      get: async <T>(key: string): Promise<T | null> => (memStore[key] as T) ?? null,
+      // eslint-disable-next-line require-await
+      set: async <T>(key: string, value: T): Promise<void> => {
+        memStore[key] = value;
+      },
+      // eslint-disable-next-line require-await
+      delete: async (key: string): Promise<void> => {
+        delete memStore[key];
+      },
+      // eslint-disable-next-line require-await
+      clear: async (): Promise<void> => {
+        for (const k of Object.keys(memStore)) delete memStore[k];
+      },
+      // eslint-disable-next-line require-await
+      keys: async (): Promise<string[]> => Object.keys(memStore),
+    };
+
+    const output: OutputContext = {
+      mode: 'json',
+      showTips: true,
+      color: false,
+      emoji: false,
+    };
+
+    const entry = this.loader.resolveCommand(commandName);
+    const site = entry
+      ? (this.loader.findCommand(commandName)?.site ?? this.loader.getSites()[0])
+      : this.loader.getSites()[0];
+
+    return {
+      args: [],
+      options: {},
+      cwd: process.cwd(),
+      storage,
+      output,
+      error: (msg: string) => {
+        throw new Error(msg);
+      },
+      config: {},
+      site: site!,
+      cliName: this.cliName,
+      ...context,
+    };
+  }
+}
+
+export function createDebugHost(options?: DebugHostOptions): DebugHost {
+  return new DebugHost(options);
+}
