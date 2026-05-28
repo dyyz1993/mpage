@@ -22,7 +22,7 @@ export interface ExecContext {
   [key: string]: unknown;
 }
 
-type CommandMap = Record<string, { params: Record<string, unknown>; result: unknown }>;
+export type CommandMap = Record<string, { params: Record<string, unknown>; result: unknown }>;
 
 export class TypedPluginHandle<T extends CommandMap> {
   private host: DebugHost;
