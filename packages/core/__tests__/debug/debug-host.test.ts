@@ -162,4 +162,56 @@ describe('DebugHost', () => {
     expect(result.success).toBe(true);
     expect(result.data).toEqual({ items: [1, 2, 3] });
   });
+
+  it('load() by name resolves plugin from pluginDirs', async () => {
+    const host = createDebugHost({ pluginDirs: ['.xcli/plugins'] });
+    const handle = await host.load('baidu');
+
+    expect(handle.commandNames).toContain('search');
+    expect(handle.commandNames).toContain('hotsearch');
+    expect(handle.commandNames).toContain('suggest');
+    expect(handle.commandNames).toContain('news');
+  });
+
+  it('load() returns TypedPluginHandle with exec', async () => {
+    const host = createDebugHost({ pluginDirs: ['.xcli/plugins'] });
+    const handle = await host.load('baidu');
+
+    const mockPage = {
+      goto: vi.fn().mockResolvedValue(null),
+      evaluate: vi.fn().mockResolvedValue('window.baidu = { su: function(){} }; s:["编程入门"]'),
+      waitForTimeout: vi.fn().mockResolvedValue(undefined),
+      waitForLoadState: vi.fn().mockResolvedValue(undefined),
+    };
+
+    const result = await handle.exec('suggest', { query: '编程' }, { page: mockPage });
+    expect(result).toBeDefined();
+    expect(result.success).toBe(true);
+    expect(mockPage.goto).toHaveBeenCalled();
+  });
+
+  it('load() throws on unknown plugin name', async () => {
+    const host = createDebugHost({ pluginDirs: ['.xcli/plugins'] });
+    await expect(host.load('nonexistent-plugin')).rejects.toThrow(
+      'Plugin "nonexistent-plugin" not found'
+    );
+  });
+
+  it('listAvailablePlugins returns plugin names', async () => {
+    const host = createDebugHost({ pluginDirs: ['.xcli/plugins'] });
+    const plugins = host.listAvailablePlugins();
+    expect(plugins.length).toBeGreaterThan(0);
+    expect(plugins).toContain('baidu');
+  });
+
+  it('resolvePluginPath returns null for unknown plugin', () => {
+    const host = createDebugHost({ pluginDirs: ['.xcli/plugins'] });
+    expect(host.resolvePluginPath('zzz-nonexistent')).toBeNull();
+  });
+
+  it('resolvePluginPath resolves baidu to index.ts', () => {
+    const host = createDebugHost({ pluginDirs: ['.xcli/plugins'] });
+    const path = host.resolvePluginPath('baidu');
+    expect(path).toContain('baidu/index.ts');
+  });
 });

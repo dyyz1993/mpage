@@ -1,5 +1,6 @@
 import { tmpdir } from 'os';
-import { join } from 'path';
+import { join, resolve, isAbsolute } from 'path';
+import { existsSync, readdirSync, statSync } from 'fs';
 import { PluginLoader } from '../plugin-loader.js';
 import type {
   XCLIAPI,
@@ -13,6 +14,7 @@ import { wrapResult, type CommandResult } from '../command-result.js';
 export interface DebugHostOptions {
   cliName?: string;
   storageDir?: string;
+  pluginDirs?: string[];
 }
 
 export interface ExecContext {
@@ -20,20 +22,102 @@ export interface ExecContext {
   [key: string]: unknown;
 }
 
+type CommandMap = Record<string, { params: Record<string, unknown>; result: unknown }>;
+
+export class TypedPluginHandle<T extends CommandMap> {
+  private host: DebugHost;
+  private _commandNames: (keyof T & string)[];
+
+  constructor(host: DebugHost, commandNames: (keyof T & string)[]) {
+    this.host = host;
+    this._commandNames = commandNames;
+  }
+
+  get commandNames(): (keyof T & string)[] {
+    return this._commandNames;
+  }
+
+  exec<K extends keyof T & string>(
+    commandName: K,
+    params: T[K]['params'] = {} as T[K]['params'],
+    context: ExecContext = {}
+  ): Promise<CommandResult<T[K]['result']>> {
+    return this.host.exec(commandName, params as Record<string, unknown>, context) as Promise<
+      CommandResult<T[K]['result']>
+    >;
+  }
+}
+
 export class DebugHost {
   private loader: PluginLoader;
   private cliName: string;
+  private pluginDirs: string[];
 
   constructor(options: DebugHostOptions = {}) {
     this.cliName = options.cliName || 'debug-host';
+    this.pluginDirs = options.pluginDirs || this.defaultPluginDirs();
     this.loader = new PluginLoader({
       config: { name: this.cliName },
       storageDir: options.storageDir || join(tmpdir(), 'xcli-debug'),
     });
   }
 
-  async load(pluginPath: string): Promise<void> {
-    await this.loader.loadPlugin(pluginPath);
+  private defaultPluginDirs(): string[] {
+    const cwd = process.cwd();
+    return [
+      join(cwd, '.xcli/plugins'),
+      join(cwd, '..', '.xcli/plugins'),
+      join(process.env.HOME || '~', '.xcli/plugins'),
+    ];
+  }
+
+  resolvePluginPath(name: string): string | null {
+    if (isAbsolute(name) || name.startsWith('./') || name.includes('/')) {
+      return resolve(name);
+    }
+
+    for (const dir of this.pluginDirs) {
+      const pluginDir = join(dir, name);
+      if (!existsSync(pluginDir)) continue;
+
+      const entryTs = join(pluginDir, 'index.ts');
+      if (existsSync(entryTs)) return entryTs;
+
+      const entryJs = join(pluginDir, 'index.js');
+      if (existsSync(entryJs)) return entryJs;
+
+      if (statSync(pluginDir).isFile()) return pluginDir;
+    }
+
+    return null;
+  }
+
+  listAvailablePlugins(): string[] {
+    const seen = new Set<string>();
+    for (const dir of this.pluginDirs) {
+      if (!existsSync(dir)) continue;
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        if (entry.name.startsWith('_') || entry.name === 'metadata.json') continue;
+        if (entry.isDirectory() || entry.name.endsWith('.ts') || entry.name.endsWith('.js')) {
+          const name = entry.name.replace(/\.(ts|js)$/, '');
+          seen.add(name);
+        }
+      }
+    }
+    return Array.from(seen);
+  }
+
+  async load<T extends CommandMap = CommandMap>(name: string): Promise<TypedPluginHandle<T>> {
+    const path = this.resolvePluginPath(name);
+    if (!path) {
+      const available = this.listAvailablePlugins();
+      throw new Error(
+        `Plugin "${name}" not found.\nSearched: ${this.pluginDirs.join(', ')}\nAvailable: ${available.join(', ')}`
+      );
+    }
+    await this.loader.loadPlugin(path);
+    const names = this.loader.getAllCommands().map((c) => c.name) as (keyof T & string)[];
+    return new TypedPluginHandle<T>(this, names);
   }
 
   async loadFunction(setup: (xcli: XCLIAPI) => void): Promise<void> {
