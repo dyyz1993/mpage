@@ -61,8 +61,13 @@ export type { HelpOptions } from './help/help-generator.js';
 export { OutputFormatter, outputFormatter } from './output-formatter.js';
 export type { FormatOptions } from './output-formatter.js';
 
-export { parseArgs, mergeArgsWithDefaults, resolveShortOptions } from './arg-parser.js';
-export type { ParsedArgs } from './arg-parser.js';
+export {
+  parseArgs,
+  mergeArgsWithDefaults,
+  resolveShortOptions,
+  UnknownOptionError,
+} from './arg-parser.js';
+export type { ParsedArgs, ParseArgsOptions } from './arg-parser.js';
 
 export { coerceCliArgs } from './param-coercion.js';
 
@@ -187,7 +192,14 @@ export {
   API_CLI_TEMPLATE,
 } from './scaffold/index.js';
 
-export { DebugHost, createDebugHost } from './debug/index.js';
-export type { DebugHostOptions, ExecContext } from './debug/index.js';
+export { DebugHost, createDebugHost, defineCommands } from './debug/index.js';
+export type {
+  DebugHostOptions,
+  ExecContext,
+  CommandMap,
+  CommandDef,
+  CommandDefs,
+  InferCommandMap,
+} from './debug/index.js';
 
 export { generateTips } from './output/tips-engine.js';
