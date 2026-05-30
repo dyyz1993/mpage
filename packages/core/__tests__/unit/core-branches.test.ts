@@ -7,11 +7,15 @@ vi.mock('../../src/plugin-loader.js', () => {
   const mockGetAllCommands = vi.fn(() => []);
   const mockResolveCommand = vi.fn(() => null);
   const mockFindCommand = vi.fn(() => null);
+  const mockResolveNestedCommand = vi.fn(() => null);
+  const mockGetSubCommands = vi.fn(() => []);
 
   class MockPluginLoader {
     getAllCommands = mockGetAllCommands;
     resolveCommand = mockResolveCommand;
     findCommand = mockFindCommand;
+    resolveNestedCommand = mockResolveNestedCommand;
+    getSubCommands = mockGetSubCommands;
   }
 
   return { PluginLoader: MockPluginLoader };

@@ -18,6 +18,7 @@ export type {
   SiteConfig,
   SiteInstance,
   CommandContext,
+  ContextExtender,
   CommandEntry,
   CommandHandler,
   CommandScope,
@@ -30,6 +31,16 @@ export type {
   EventHandler,
   EventContext,
   ZodSchema,
+  CommandHooks,
+  HookContext,
+  AfterHookContext,
+  ScanOptions,
+  ScanResult,
+  PluginMeta,
+  LoginConfig,
+  SessionExtractor,
+  PipelineContext,
+  Middleware,
 } from './protocol/plugin-protocol.js';
 
 export {
@@ -50,6 +61,7 @@ export type { SessionInfo, CommandArgs, CommandValues } from './types.js';
 
 export { PluginLoader } from './plugin-loader.js';
 export type { BuiltinCommandEntry } from './plugin-loader.js';
+export { readPluginMeta } from './plugin-loader.js';
 export { PluginInstance } from './plugin-instance.js';
 export type { PluginStatus, PluginLoaderHost } from './plugin-instance.js';
 
@@ -203,3 +215,25 @@ export type {
 } from './debug/index.js';
 
 export { generateTips } from './output/tips-engine.js';
+
+export { extractParamFields, getCommandParamFields } from './param-schema.js';
+export type { ParamFieldInfo } from './param-schema.js';
+
+export { parseChain, executeChain, isOperator } from './chain.js';
+export type {
+  ChainOperator,
+  ChainStep,
+  ParsedChain,
+  ChainGroup,
+  ChainStepResult,
+  ChainResult,
+} from './chain.js';
+
+export { HttpServer, Router, cors, bearerTokenAuth, jsonBody } from './http/index.js';
+export type {
+  HttpServerConfig as HttpMiddlewareServerConfig,
+  HttpRequest,
+  HttpResponse,
+  HttpMiddleware,
+  RouteHandler,
+} from './http/index.js';

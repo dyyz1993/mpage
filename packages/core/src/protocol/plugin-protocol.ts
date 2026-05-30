@@ -61,6 +61,10 @@ export interface CommandContext {
   cliName: string;
 }
 
+export type ContextExtender = (
+  base: CommandContext
+) => Record<string, unknown> | Promise<Record<string, unknown>>;
+
 export interface StorageContext {
   get<T>(key: string): Promise<T | null>;
   set<T>(key: string, value: T): Promise<void>;
@@ -84,6 +88,24 @@ export interface SiteConfig {
   description?: string;
   requiresLogin?: boolean;
   isLogin?: (ctx: CommandContext) => Promise<boolean>;
+}
+
+export interface LoginConfig {
+  handler: (ctx: CommandContext) => Promise<void>;
+  persist?: boolean;
+  restore?: (ctx: CommandContext) => Promise<boolean>;
+  isLoginCheck?: (ctx: CommandContext) => Promise<boolean>;
+  persistHandler?: (ctx: CommandContext) => Promise<void>;
+  auto?: boolean;
+}
+
+export interface SessionExtractor {
+  extractCookies(ctx: CommandContext): Promise<Record<string, string>>;
+  extractToken(
+    ctx: CommandContext,
+    source: 'localStorage' | 'sessionStorage' | 'cookie',
+    key: string
+  ): Promise<string | null>;
 }
 
 export type ZodSchema = z.ZodType<unknown>;
@@ -135,7 +157,7 @@ export interface SiteInstance {
 
   group(name: string): SiteInstance;
 
-  login(handler: (ctx: CommandContext) => Promise<void>): SiteInstance;
+  login(handler: ((ctx: CommandContext) => Promise<void>) | LoginConfig): SiteInstance;
   logout(handler: (ctx: CommandContext) => Promise<void>): SiteInstance;
 
   isLoggedIn(): Promise<boolean>;
@@ -151,6 +173,7 @@ export interface SiteInstance {
   getOriginalHandler(commandName: string): CommandHandler | undefined;
   executeLogin(ctx: CommandContext): Promise<void>;
   executeLogout(ctx: CommandContext): Promise<void>;
+  restoreLogin(ctx: CommandContext): Promise<boolean>;
 }
 
 export interface FlagConfig {
@@ -178,6 +201,38 @@ export interface EventContext {
   args: Record<string, unknown>;
 }
 
+export interface HookContext {
+  command: string;
+  params: Record<string, unknown>;
+  ctx: CommandContext;
+}
+
+export interface AfterHookContext extends HookContext {
+  result: CommandResult;
+  duration: number;
+}
+
+export interface CommandHooks {
+  beforeCommand?: (hookCtx: HookContext) => void | Promise<void>;
+  afterCommand?: (hookCtx: AfterHookContext) => void | Promise<void>;
+}
+
+export interface PipelineContext {
+  argv: string[];
+  commandName?: string;
+  commandArgs?: string[];
+  entry?: CommandEntry;
+  site?: SiteInstance;
+  params?: Record<string, unknown>;
+  ctx?: CommandContext;
+  result?: unknown;
+  exitCode: number;
+  duration?: number;
+  skipped?: boolean;
+}
+
+export type Middleware = (pipeline: PipelineContext, next: () => Promise<void>) => Promise<void>;
+
 export class CommandError extends Error {
   constructor(
     public code: string,
@@ -194,10 +249,15 @@ export class SiteInstanceImpl implements SiteInstance {
   config: SiteConfig;
   private commands: Map<string, CommandEntry> = new Map();
   private loginHandler?: (ctx: CommandContext) => Promise<void>;
+  private loginConfig?: LoginConfig;
   private logoutHandler?: (ctx: CommandContext) => Promise<void>;
   private storage: StorageContext;
   private loggedIn: boolean = false;
   private cliName: string;
+
+  private get loginStateKey(): string {
+    return `__login_state_${this.name}`;
+  }
 
   constructor(config: SiteConfig, storage: StorageContext, cliName?: string) {
     this.name = config.name;
@@ -252,8 +312,13 @@ export class SiteInstanceImpl implements SiteInstance {
     return new GroupedSiteInstance(this, name);
   }
 
-  login(handler: (ctx: CommandContext) => Promise<void>): SiteInstance {
-    this.loginHandler = handler;
+  login(handler: ((ctx: CommandContext) => Promise<void>) | LoginConfig): SiteInstance {
+    if (typeof handler === 'function') {
+      this.loginHandler = handler;
+    } else {
+      this.loginConfig = handler;
+      this.loginHandler = handler.handler;
+    }
     return this;
   }
 
@@ -299,6 +364,22 @@ export class SiteInstanceImpl implements SiteInstance {
     if (!this.config.requiresLogin) {
       return true;
     }
+    if (this.loginConfig?.isLoginCheck) {
+      return this.loginConfig.isLoginCheck({
+        args: [],
+        options: {},
+        cwd: '',
+        storage: this.storage,
+        output: { mode: 'text', showTips: false, color: false, emoji: false },
+        error: () => {},
+        config: {},
+        site: this,
+        cliName: this.cliName,
+      });
+    }
+    if (this.loggedIn) {
+      return true;
+    }
     if (this.config.isLogin) {
       return this.config.isLogin({
         args: [],
@@ -339,6 +420,15 @@ export class SiteInstanceImpl implements SiteInstance {
     }
     await this.loginHandler(ctx);
     this.loggedIn = true;
+    if (this.loginConfig?.persist) {
+      await this.storage.set(this.loginStateKey, {
+        loggedIn: true,
+        timestamp: Date.now(),
+      });
+    }
+    if (this.loginConfig?.persistHandler) {
+      await this.loginConfig.persistHandler(ctx);
+    }
     await this.storage.set('auth_token', { loggedIn: true, at: Date.now() });
   }
 
@@ -348,7 +438,34 @@ export class SiteInstanceImpl implements SiteInstance {
     }
     await this.logoutHandler(ctx);
     this.loggedIn = false;
+    await this.storage.delete(this.loginStateKey);
     await this.storage.delete('auth_token');
+  }
+
+  async restoreLogin(ctx: CommandContext): Promise<boolean> {
+    const state = await this.storage.get<{ loggedIn: boolean; timestamp: number }>(
+      this.loginStateKey
+    );
+    if (!state?.loggedIn) {
+      return false;
+    }
+    if (this.loginConfig?.restore) {
+      const restored = await this.loginConfig.restore(ctx);
+      if (!restored) {
+        await this.storage.delete(this.loginStateKey);
+        return false;
+      }
+    }
+    if (this.loginConfig?.isLoginCheck) {
+      const valid = await this.loginConfig.isLoginCheck(ctx);
+      if (!valid) {
+        await this.storage.delete(this.loginStateKey);
+        this.loggedIn = false;
+        return false;
+      }
+    }
+    this.loggedIn = true;
+    return true;
   }
 }
 
@@ -394,7 +511,7 @@ export class GroupedSiteInstance implements SiteInstance {
     return new GroupedSiteInstance(this.parent, this.prefix + name);
   }
 
-  login(handler: (ctx: CommandContext) => Promise<void>): SiteInstance {
+  login(handler: ((ctx: CommandContext) => Promise<void>) | LoginConfig): SiteInstance {
     this.parent.login(handler);
     return this;
   }
@@ -440,6 +557,10 @@ export class GroupedSiteInstance implements SiteInstance {
   executeLogout(ctx: CommandContext): Promise<void> {
     return this.parent.executeLogout(ctx);
   }
+
+  restoreLogin(ctx: CommandContext): Promise<boolean> {
+    return this.parent.restoreLogin(ctx);
+  }
 }
 
 export function buildInputSchema(command: { parameters?: ZodSchema; options?: Option[] }) {
@@ -480,6 +601,26 @@ export function buildInputSchema(command: { parameters?: ZodSchema; options?: Op
   }
 
   return z.object(shape);
+}
+
+export interface ScanOptions {
+  priority?: 'first-wins' | 'last-wins';
+  validate?: (meta: PluginMeta) => boolean;
+  ignoreDotFiles?: boolean;
+}
+
+export interface ScanResult {
+  loaded: string[];
+  failed: Array<{ path: string; error: string }>;
+  skipped: string[];
+}
+
+export interface PluginMeta {
+  name: string;
+  version?: string;
+  description?: string;
+  commands?: string[];
+  dependencies?: Record<string, string>;
 }
 
 export function validateArgs<T>(
