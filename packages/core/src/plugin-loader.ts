@@ -10,11 +10,15 @@ import type {
   ToolConfig,
   EventContext,
   CommandEntry,
+  ScanOptions,
+  ScanResult,
+  PluginMeta,
 } from './protocol/plugin-protocol.js';
 import { SiteInstanceImpl, DEFAULT_SCOPE } from './protocol/plugin-protocol.js';
-import { resolve, isAbsolute, extname, basename, dirname } from 'path';
+import { resolve, isAbsolute, extname, basename, dirname, join } from 'path';
 import { createJiti } from 'jiti';
 import { fileURLToPath } from 'url';
+import { readdirSync, readFileSync, statSync } from 'fs';
 import { PluginStorage } from './plugin-storage.js';
 import { PluginInstance } from './plugin-instance.js';
 import type { PluginStatus } from './plugin-instance.js';
@@ -378,6 +382,42 @@ export class PluginLoader {
     return null;
   }
 
+  resolveNestedCommand(
+    argv: string[]
+  ): { entry: CommandEntry; site: SiteInstance; consumedArgs: number } | null {
+    let bestMatch: { entry: CommandEntry; site: SiteInstance; consumedArgs: number } | null = null;
+
+    for (let len = 1; len <= Math.min(argv.length, 10); len++) {
+      const candidate = argv.slice(0, len).join('.');
+      for (const site of Array.from(this.sites.values()).reverse()) {
+        const cmd = site.getCommand(candidate);
+        if (cmd) {
+          bestMatch = { entry: cmd, site, consumedArgs: len };
+        }
+      }
+    }
+
+    return bestMatch;
+  }
+
+  getSubCommands(prefix: string): CommandEntry[] {
+    const results: CommandEntry[] = [];
+    const dotPrefix = prefix + '.';
+
+    for (const site of this.sites.values()) {
+      for (const summary of site.getAllCommands()) {
+        if (summary.name.startsWith(dotPrefix) || summary.name === prefix) {
+          const entry = site.getCommand(summary.name);
+          if (entry) {
+            results.push(entry);
+          }
+        }
+      }
+    }
+
+    return results;
+  }
+
   getSiteCommand(
     siteName: string,
     cmdName: string
@@ -440,9 +480,122 @@ export class PluginLoader {
     }
   }
 
+  async scanAndLoad(dirs: string[], options?: ScanOptions): Promise<ScanResult> {
+    const priority = options?.priority ?? 'first-wins';
+    const ignoreDotFiles = options?.ignoreDotFiles ?? true;
+    const result: ScanResult = { loaded: [], failed: [], skipped: [] };
+    const seenNames = new Set<string>();
+
+    for (const dir of dirs) {
+      let entries: string[];
+      try {
+        entries = readdirSync(dir);
+      } catch {
+        continue;
+      }
+
+      for (const entry of entries) {
+        if (ignoreDotFiles && entry.startsWith('.')) {
+          continue;
+        }
+
+        const fullPath = join(dir, entry);
+        let pluginPath: string | null = null;
+
+        try {
+          const stat = statSync(fullPath);
+          if (stat.isDirectory()) {
+            const indexPath = resolve(fullPath, 'index.ts');
+            const indexJsPath = resolve(fullPath, 'index.js');
+            try {
+              statSync(indexPath);
+              pluginPath = indexPath;
+            } catch {
+              try {
+                statSync(indexJsPath);
+                pluginPath = indexJsPath;
+              } catch {
+                continue;
+              }
+            }
+          } else if (stat.isFile() && (extname(entry) === '.ts' || extname(entry) === '.js')) {
+            pluginPath = fullPath;
+          } else {
+            continue;
+          }
+        } catch {
+          continue;
+        }
+
+        if (!pluginPath) continue;
+
+        const pluginDir = dirname(pluginPath);
+        const meta = readPluginMeta(pluginDir);
+
+        if (options?.validate && meta && !options.validate(meta)) {
+          result.skipped.push(pluginPath);
+          continue;
+        }
+
+        const pluginName = meta?.name ?? derivePluginId(pluginPath);
+
+        if (priority === 'first-wins' && seenNames.has(pluginName)) {
+          result.skipped.push(pluginPath);
+          continue;
+        }
+
+        seenNames.add(pluginName);
+
+        try {
+          await this.loadPlugin(pluginPath);
+          result.loaded.push(pluginPath);
+        } catch (err) {
+          result.failed.push({
+            path: pluginPath,
+            error: err instanceof Error ? err.message : String(err),
+          });
+        }
+      }
+    }
+
+    return result;
+  }
+
   async unload(): Promise<void> {
     await this.unloadAll();
   }
+}
+
+export function readPluginMeta(pluginDir: string): PluginMeta | null {
+  const pkgPath = resolve(pluginDir, 'package.json');
+  let raw: string;
+  try {
+    raw = readFileSync(pkgPath, 'utf-8');
+  } catch {
+    return null;
+  }
+
+  let pkg: Record<string, unknown>;
+  try {
+    pkg = JSON.parse(raw) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+
+  const xcli = pkg.xcli as Record<string, unknown> | undefined;
+  const name = (xcli?.name as string) ?? (pkg.name as string);
+  if (!name) return null;
+
+  const meta: PluginMeta = { name };
+
+  if (typeof pkg.version === 'string') meta.version = pkg.version;
+  if (typeof pkg.description === 'string') meta.description = pkg.description;
+  if (Array.isArray(xcli?.commands)) meta.commands = xcli.commands as string[];
+  if (pkg.dependencies && typeof pkg.dependencies === 'object') {
+    meta.dependencies = pkg.dependencies as Record<string, string>;
+  }
+
+  return meta;
 }
 
 export function derivePluginId(pluginPath: string): string {
