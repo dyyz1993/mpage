@@ -1,6 +1,6 @@
 {
   "name": "@dyyz1993/xpage",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Browser automation engine library based on Playwright",
   "private": false,
   "type": "module",
