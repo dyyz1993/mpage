@@ -1,9 +1,30 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { ScopeRegistry } from '../../src/command/scope-registry.js';
 import type { ScopedCommand } from '../../src/command/scope-registry.js';
 import type { ScopeDefinition, ScopeConfig } from '../../src/command/scope.js';
+import type { CommandContext } from '../../src/protocol/plugin-protocol.js';
 
-function makeScope(levels?: string[]): ScopeDefinition {
+function makeCtx(overrides?: Partial<CommandContext>): CommandContext {
+  return {
+    args: [],
+    options: {},
+    cwd: '/tmp',
+    storage: {
+      get: vi.fn(() => Promise.resolve(null)),
+      set: vi.fn(() => Promise.resolve()),
+      delete: vi.fn(() => Promise.resolve()),
+      clear: vi.fn(() => Promise.resolve()),
+      keys: vi.fn(() => Promise.resolve([])),
+    },
+    output: { mode: 'text', showTips: true, color: true, emoji: false },
+    error: vi.fn(),
+    config: {},
+    cliName: 'test',
+    ...overrides,
+  } as unknown as CommandContext;
+}
+
+function makeScope(overrides?: Partial<ScopeDefinition>, levels?: string[]): ScopeDefinition {
   return {
     name: 'test-scope',
     description: 'Test scope',
@@ -13,6 +34,7 @@ function makeScope(levels?: string[]): ScopeDefinition {
       { name: 'resource', description: 'Resource', order: 2 },
       { name: 'action', description: 'Action', order: 3 },
     ],
+    ...overrides,
   };
 }
 
@@ -58,6 +80,116 @@ describe('ScopeRegistry', () => {
     it('should return undefined for non-existent scope', () => {
       const registry = new ScopeRegistry();
       expect(registry.getScope('nope')).toBeUndefined();
+    });
+  });
+
+  describe('checkGuard()', () => {
+    it('should return null when condition met (pass)', () => {
+      const registry = new ScopeRegistry();
+      registry.registerScope(
+        makeScope({
+          guard: () => null,
+        })
+      );
+      expect(registry.checkGuard('test-scope', 'project', makeCtx())).toBeNull();
+    });
+
+    it('should return error string when condition not met (block)', () => {
+      const registry = new ScopeRegistry();
+      registry.registerScope(
+        makeScope({
+          guard: () => 'Browser session required',
+        })
+      );
+      expect(registry.checkGuard('test-scope', 'project', makeCtx())).toBe(
+        'Browser session required'
+      );
+    });
+
+    it('should return error for unknown scope', () => {
+      const registry = new ScopeRegistry();
+      expect(registry.checkGuard('unknown', 'project', makeCtx())).toBe('Unknown scope: unknown');
+    });
+
+    it('should return null when no guard defined', () => {
+      const registry = new ScopeRegistry();
+      registry.registerScope(makeScope());
+      expect(registry.checkGuard('test-scope', 'project', makeCtx())).toBeNull();
+    });
+
+    it('should prefer level-specific guard over scope-level guard', () => {
+      const registry = new ScopeRegistry();
+      registry.registerScope(
+        makeScope({
+          guard: () => 'scope-level-error',
+          levels: [
+            {
+              name: 'browser',
+              description: 'Browser level',
+              order: 0,
+              guard: () => 'level-specific-error',
+            },
+            { name: 'page', description: 'Page level', order: 1 },
+          ],
+        })
+      );
+      expect(registry.checkGuard('test-scope', 'browser', makeCtx())).toBe('level-specific-error');
+    });
+
+    it('should fall back to scope-level guard when no level guard', () => {
+      const registry = new ScopeRegistry();
+      registry.registerScope(
+        makeScope({
+          guard: () => 'scope-level-error',
+          levels: [{ name: 'page', description: 'Page level', order: 0 }],
+        })
+      );
+      expect(registry.checkGuard('test-scope', 'page', makeCtx())).toBe('scope-level-error');
+    });
+  });
+
+  describe('injectContext()', () => {
+    it('should return extra context fields', async () => {
+      const registry = new ScopeRegistry();
+      registry.registerScope(
+        makeScope({
+          inject: async () => ({ page: 'mock-page', browser: 'mock-browser' }),
+        })
+      );
+      const result = await registry.injectContext('test-scope', 'page', makeCtx());
+      expect(result).toEqual({ page: 'mock-page', browser: 'mock-browser' });
+    });
+
+    it('should return empty object when no inject defined', async () => {
+      const registry = new ScopeRegistry();
+      registry.registerScope(makeScope());
+      const result = await registry.injectContext('test-scope', 'page', makeCtx());
+      expect(result).toEqual({});
+    });
+
+    it('should return empty object for unknown scope', async () => {
+      const registry = new ScopeRegistry();
+      const result = await registry.injectContext('unknown', 'page', makeCtx());
+      expect(result).toEqual({});
+    });
+  });
+
+  describe('multiple scopes', () => {
+    it('should register multiple scopes independently', () => {
+      const registry = new ScopeRegistry();
+      const scopeA = makeScope({ name: 'scope-a' });
+      const scopeB = makeScope({ name: 'scope-b' });
+      registry.registerScope(scopeA);
+      registry.registerScope(scopeB);
+      expect(registry.getScope('scope-a')).toBe(scopeA);
+      expect(registry.getScope('scope-b')).toBe(scopeB);
+    });
+  });
+
+  describe('unknown scope', () => {
+    it('should return null from getScope', () => {
+      const registry = new ScopeRegistry();
+      expect(registry.getScope('nonexistent')).toBeUndefined();
     });
   });
 
@@ -225,6 +357,51 @@ describe('ScopeRegistry', () => {
     it('should return empty for non-existent scope', () => {
       const registry = new ScopeRegistry();
       expect(registry.getSortedLevels('nope')).toEqual([]);
+    });
+  });
+
+  describe('ScopeLevel with requires', () => {
+    it('should accept levels with requires array', () => {
+      const registry = new ScopeRegistry();
+      registry.registerScope({
+        name: 'browser-scope',
+        description: 'Browser scope',
+        levels: [
+          { name: 'project', description: 'Project', order: 0 },
+          { name: 'browser', description: 'Browser', order: 1, requires: ['project'] },
+          { name: 'page', description: 'Page', order: 2, requires: ['browser'] },
+          { name: 'element', description: 'Element', order: 3, requires: ['page'] },
+        ],
+      });
+      const scope = registry.getScope('browser-scope');
+      expect(scope!.levels[1].requires).toEqual(['project']);
+      expect(scope!.levels[2].requires).toEqual(['browser']);
+      expect(scope!.levels[3].requires).toEqual(['page']);
+    });
+  });
+
+  describe('level-specific guard overrides scope-level guard', () => {
+    it('should use level guard when defined', () => {
+      const registry = new ScopeRegistry();
+      const ctx = makeCtx();
+      registry.registerScope({
+        name: 'test-scope',
+        description: '',
+        guard: () => 'scope-level-block',
+        levels: [
+          {
+            name: 'browser',
+            description: '',
+            order: 0,
+            guard: (c) => ((c as Record<string, unknown>).hasBrowser ? null : 'No browser'),
+          },
+        ],
+      });
+
+      expect(registry.checkGuard('test-scope', 'browser', ctx)).toBe('No browser');
+
+      const ctxWithBrowser = makeCtx({ hasBrowser: true } as Partial<CommandContext>);
+      expect(registry.checkGuard('test-scope', 'browser', ctxWithBrowser)).toBeNull();
     });
   });
 });

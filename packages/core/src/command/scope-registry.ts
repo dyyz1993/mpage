@@ -1,4 +1,5 @@
 import type { ScopeDefinition, ScopeLevel, ScopeConfig } from './scope.js';
+import type { CommandContext } from '../protocol/plugin-protocol.js';
 
 export interface ScopedCommand {
   name: string;
@@ -16,6 +17,33 @@ export class ScopeRegistry {
 
   getScope(name: string): ScopeDefinition | undefined {
     return this.scopes.get(name);
+  }
+
+  checkGuard(scopeName: string, level: string, ctx: CommandContext): string | null {
+    const scope = this.scopes.get(scopeName);
+    if (!scope) return `Unknown scope: ${scopeName}`;
+
+    const levelDef = scope.levels.find((l) => l.name === level);
+    if (levelDef?.guard) {
+      return levelDef.guard(ctx);
+    }
+
+    if (scope.guard) {
+      return scope.guard(ctx, level);
+    }
+
+    return null;
+  }
+
+  injectContext(
+    scopeName: string,
+    level: string,
+    ctx: CommandContext
+  ): Promise<Record<string, unknown>> {
+    const scope = this.scopes.get(scopeName);
+    if (!scope?.inject) return Promise.resolve({});
+
+    return scope.inject(ctx, level);
   }
 
   registerCommand(siteName: string, command: ScopedCommand): ScopedCommand | null {

@@ -39,6 +39,23 @@ describe('session-store', () => {
       const b = createSessionMeta('b', {});
       expect(a.id).not.toBe(b.id);
     });
+
+    it('should throw if session name already exists', () => {
+      createSessionMeta('dup', {});
+      expect(() => createSessionMeta('dup', {})).toThrow("Session 'dup' already exists");
+    });
+
+    it('should throw if name is empty string', () => {
+      createSessionMeta('', {});
+      expect(() => createSessionMeta('', {})).toThrow("Session '' already exists");
+    });
+
+    it('should allow different names after a duplicate rejection', () => {
+      createSessionMeta('first', {});
+      expect(() => createSessionMeta('first', {})).toThrow();
+      const second = createSessionMeta('second', {});
+      expect(second.name).toBe('second');
+    });
   });
 
   describe('getSession()', () => {

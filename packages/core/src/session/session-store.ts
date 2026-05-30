@@ -19,6 +19,9 @@ export function createSessionMeta(
   config: Record<string, unknown>,
   id?: string
 ): SessionMeta {
+  if (findSession(sessionName)) {
+    throw new Error(`Session '${sessionName}' already exists`);
+  }
   const sessionId = id || generateSessionId();
   const meta: SessionMeta = { id: sessionId, name: sessionName, config };
   sessions.set(sessionId, meta);

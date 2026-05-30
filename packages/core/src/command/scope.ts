@@ -1,13 +1,19 @@
+import type { CommandContext } from '../protocol/plugin-protocol.js';
+
 export interface ScopeDefinition {
   name: string;
   description: string;
   levels: ScopeLevel[];
+  guard?: (ctx: CommandContext, level: string) => string | null;
+  inject?: (ctx: CommandContext, level: string) => Promise<Record<string, unknown>>;
 }
 
 export interface ScopeLevel {
   name: string;
   description: string;
   order: number;
+  requires?: string[];
+  guard?: (ctx: CommandContext) => string | null;
 }
 
 export interface ScopeConfig {
