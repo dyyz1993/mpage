@@ -3,6 +3,7 @@ import {
   type CommandArgs,
   type CommandValues,
   coerceCliArgs,
+  validateArgs,
   wrapResult,
   withMeta,
   type CommandEntry,
@@ -49,6 +50,10 @@ async function executeCommand(
     const params: Record<string, unknown> = { ...coercedValues };
     for (let i = 0; i < args.length; i++) {
       params[`arg${i}`] = args[i];
+    }
+
+    if (cmd.parameters) {
+      validateArgs(cmd, params);
     }
 
     const result = await cmd.handler(params, {

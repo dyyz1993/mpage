@@ -6,6 +6,7 @@ import { queryCommands } from './query.js';
 import { snapshotCommands } from './snapshot.js';
 import { evaluateCommands } from './evaluate.js';
 import { frameCommands } from './frame.js';
+import { validateCommandParams } from '../../commands/validator.js';
 
 const allCommands: CommandModule = {
   ...navigationCommands,
@@ -41,8 +42,10 @@ export function executePageCommand(
     throw new Error(`Unknown command: ${commandName}`);
   }
 
-  const frameRef = args.frame;
-  delete args.frame;
+  const validated = validateCommandParams(commandName, args);
+
+  const frameRef = validated.frame;
+  delete validated.frame;
 
   let context: PageContext = page;
   if (frameRef !== undefined) {
@@ -57,7 +60,7 @@ export function executePageCommand(
     }
   }
 
-  return Promise.resolve(handler(context, args));
+  return Promise.resolve(handler(context, validated));
 }
 
 export { navigationCommands } from './navigation.js';
