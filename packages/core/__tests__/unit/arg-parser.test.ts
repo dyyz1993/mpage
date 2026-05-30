@@ -3,6 +3,7 @@ import {
   parseArgs,
   mergeArgsWithDefaults,
   resolveShortOptions,
+  UnknownOptionError,
   type ParsedArgs,
 } from '../../src/arg-parser.js';
 import type { Command } from '../../src/protocol/plugin-protocol.js';
@@ -130,6 +131,97 @@ describe('parseArgs()', () => {
   it('should not create "--" key when no double dash', () => {
     const result = parseArgs(['--flag']);
     expect(result['--']).toBeUndefined();
+  });
+
+  it('should parse quoted JSON array values correctly', () => {
+    const result = parseArgs(['--urls=["https://example.com","https://test.com"]']);
+    expect(result.options.urls).toEqual(['https://example.com', 'https://test.com']);
+  });
+
+  it('should parse JSON array with numbers', () => {
+    const result = parseArgs(['--ids=[1,2,3]']);
+    expect(result.options.ids).toEqual([1, 2, 3]);
+  });
+
+  it('should fallback to naive split for non-JSON arrays', () => {
+    const result = parseArgs(['--items=[a,b,c]']);
+    expect(result.options.items).toEqual(['a', 'b', 'c']);
+  });
+});
+
+describe('parseArgs() strict mode', () => {
+  it('should accept known options in strict mode', () => {
+    const result = parseArgs(['--verbose', '--output', 'out.txt'], {
+      strict: true,
+      knownOptions: ['verbose', 'output'],
+    });
+    expect(result.options.verbose).toBe(true);
+    expect(result.options.output).toBe('out.txt');
+  });
+
+  it('should throw UnknownOptionError for unknown long option with value', () => {
+    expect(() =>
+      parseArgs(['--cdp-endpont', 'http://localhost:9222'], {
+        strict: true,
+        knownOptions: ['cdp-endpoint'],
+      })
+    ).toThrow(UnknownOptionError);
+  });
+
+  it('should throw UnknownOptionError for unknown --key=value', () => {
+    expect(() =>
+      parseArgs(['--foo-bar=baz'], {
+        strict: true,
+        knownOptions: ['verbose'],
+      })
+    ).toThrow(UnknownOptionError);
+  });
+
+  it('should include option name in error', () => {
+    try {
+      parseArgs(['--typo-flag'], { strict: true, knownOptions: ['verbose'] });
+    } catch (e) {
+      expect(e).toBeInstanceOf(UnknownOptionError);
+      expect((e as UnknownOptionError).option).toBe('typo-flag');
+    }
+  });
+
+  it('should throw for unknown --no-* option', () => {
+    expect(() => parseArgs(['--no-cache'], { strict: true, knownOptions: ['verbose'] })).toThrow(
+      UnknownOptionError
+    );
+  });
+
+  it('should throw for unknown short option', () => {
+    expect(() => parseArgs(['-x'], { strict: true, knownOptions: ['v'] })).toThrow(
+      UnknownOptionError
+    );
+  });
+
+  it('should accept --no-X when X is known', () => {
+    const result = parseArgs(['--no-cache'], {
+      strict: true,
+      knownOptions: ['cache'],
+    });
+    expect(result.options.cache).toBe(false);
+  });
+
+  it('should not validate when strict is false (default)', () => {
+    const result = parseArgs(['--unknown-flag', 'value']);
+    expect(result.options['unknown-flag']).toBe('value');
+  });
+
+  it('should not validate when strict is true but knownOptions is undefined', () => {
+    const result = parseArgs(['--unknown-flag'], { strict: true });
+    expect(result.options['unknown-flag']).toBe(true);
+  });
+
+  it('should accept positional args regardless of strict mode', () => {
+    const result = parseArgs(['foo', 'bar'], {
+      strict: true,
+      knownOptions: ['verbose'],
+    });
+    expect(result.positional).toEqual(['foo', 'bar']);
   });
 });
 

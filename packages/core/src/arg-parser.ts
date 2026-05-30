@@ -6,11 +6,35 @@ export interface ParsedArgs {
   '--'?: string[];
 }
 
-export function parseArgs(argv: string[]): ParsedArgs {
+export interface ParseArgsOptions {
+  strict?: boolean;
+  knownOptions?: string[];
+}
+
+export class UnknownOptionError extends Error {
+  readonly option: string;
+
+  constructor(option: string) {
+    super(`Unknown option: --${option}`);
+    this.name = 'UnknownOptionError';
+    this.option = option;
+  }
+}
+
+export function parseArgs(argv: string[], opts?: ParseArgsOptions): ParsedArgs {
   const result: ParsedArgs = {
     positional: [],
     options: {},
   };
+
+  const strict = opts?.strict ?? false;
+  const knownSet = opts?.knownOptions ? new Set(opts.knownOptions) : null;
+
+  function checkOption(key: string): void {
+    if (strict && knownSet && !knownSet.has(key)) {
+      throw new UnknownOptionError(key);
+    }
+  }
 
   let i = 0;
   let afterDoubleDash = false;
@@ -35,13 +59,17 @@ export function parseArgs(argv: string[]): ParsedArgs {
       const eqIndex = arg.indexOf('=');
       if (eqIndex !== -1) {
         const key = arg.slice(2, eqIndex);
+        checkOption(key);
         const value = arg.slice(eqIndex + 1);
         result.options[key] = parseValue(value);
       } else {
         const key = arg.slice(2);
         if (key.startsWith('no-')) {
-          result.options[key.slice(3)] = false;
+          const realKey = key.slice(3);
+          checkOption(realKey);
+          result.options[realKey] = false;
         } else {
+          checkOption(key);
           const next = argv[i + 1];
           if (next && !next.startsWith('-')) {
             result.options[key] = parseValue(next);
@@ -58,6 +86,7 @@ export function parseArgs(argv: string[]): ParsedArgs {
     if (arg.startsWith('-') && arg.length > 1) {
       const shorts = arg.slice(1).split('');
       for (const short of shorts) {
+        checkOption(short);
         const next = argv[i + 1];
         if (next && !next.startsWith('-')) {
           result.options[short] = parseValue(next);
@@ -86,6 +115,12 @@ function parseValue(value: string): unknown {
   if (/^\d+$/.test(value)) return parseInt(value, 10);
   if (/^\d+\.\d+$/.test(value)) return parseFloat(value);
   if (value.startsWith('[') && value.endsWith(']')) {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) return parsed;
+    } catch {
+      // not valid JSON, fallback to naive split
+    }
     return value
       .slice(1, -1)
       .split(',')
