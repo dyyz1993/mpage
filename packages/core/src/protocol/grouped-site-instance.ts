@@ -94,4 +94,8 @@ export class GroupedSiteInstance implements SiteInstance {
   executeLogout(ctx: CommandContext): Promise<void> {
     return this.parent.executeLogout(ctx);
   }
+
+  restoreLogin(ctx: CommandContext): Promise<boolean> {
+    return this.parent.restoreLogin(ctx);
+  }
 }
