@@ -79,7 +79,7 @@ export class SessionStore<TMeta extends { id: string; name: string }> {
   }
 
   /** Raw Map access for advanced use. */
-  get entries(): Map<string, TMeta> {
+  get rawMap(): Map<string, TMeta> {
     return this.map;
   }
 

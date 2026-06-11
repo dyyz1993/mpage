@@ -120,6 +120,9 @@ export type { ValidationResult, ToolCallRecord } from './validator.js';
 export type { SessionMeta } from './session/session-meta.js';
 export type { SessionManagerContract } from './session/session-manager-interface.js';
 export { SessionManager } from './session/session-manager.js';
+export type { SessionPersistence } from './session/session-persistence.js';
+export { FileSessionPersistence } from './session/session-persistence.js';
+export type { SessionLifecycle } from './session/session-lifecycle.js';
 export {
   findSession,
   createSessionMeta,
