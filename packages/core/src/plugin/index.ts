@@ -23,3 +23,6 @@ export {
   safeCleanup,
 } from './installers/index.js';
 export type { PluginVerifyResult, VerifyPluginOptions } from './installers/index.js';
+
+export { detectSourceType, deriveName } from './installers/detect-source.js';
+export type { SourceType } from './installers/detect-source.js';
