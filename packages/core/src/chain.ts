@@ -415,6 +415,25 @@ export function registerCommandDefinition(name: string, positional: string[]): v
  * mapped via registered command definitions. Values are automatically coerced
  * to boolean, number, or string.
  */
+/**
+ * Simple unquote: strip matching leading+trailing single or double quotes.
+ */
+function stripQuotes(s: string): string {
+  if ((s.startsWith("'") && s.endsWith("'")) || (s.startsWith('"') && s.endsWith('"'))) {
+    return s.slice(1, -1);
+  }
+  return s;
+}
+
+function coerceValue(raw: string): unknown {
+  const v = stripQuotes(raw);
+  if (v === 'true') return true;
+  if (v === 'false') return false;
+  if (/^\d+$/.test(v)) return parseInt(v, 10);
+  if (/^\d+\.\d+$/.test(v)) return parseFloat(v);
+  return v;
+}
+
 export function parseCommandArgs(
   name: string,
   args: string[],
@@ -425,7 +444,7 @@ export function parseCommandArgs(
   const positionalKeys = def ? def.positional : [];
   const params: Record<string, unknown> = {};
   let positionalIndex = 0;
-  const unq = unquoteFn ?? ((s: string) => s);
+  const unq = unquoteFn ?? stripQuotes;
 
   for (let i = 0; i < args.length; i++) {
     const raw = args[i];
@@ -435,7 +454,7 @@ export function parseCommandArgs(
       const key = raw.slice(2);
       const value = args[i + 1];
       if (value && !value.startsWith('-')) {
-        params[key] = value;
+        params[key] = coerceValue(value);
         i++;
       } else {
         params[key] = true;
@@ -445,10 +464,10 @@ export function parseCommandArgs(
       const mappedKey = SHORT_FLAG_MAP[flag];
       const value = args[i + 1];
       if (mappedKey && value && !value.startsWith('-')) {
-        params[mappedKey] = value;
+        params[mappedKey] = coerceValue(value);
         i++;
       } else if (value && !value.startsWith('-')) {
-        params[flag] = value;
+        params[flag] = coerceValue(value);
         i++;
       } else {
         params[mappedKey || flag] = true;
