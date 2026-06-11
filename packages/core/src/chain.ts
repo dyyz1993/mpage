@@ -1,4 +1,4 @@
-export type ChainOperator = '&&' | '||' | ';' | ',';
+export type ChainOperator = '&&' | '||' | ';' | ',' | '->' | '+';
 
 export interface ChainStep {
   command: string;
@@ -72,13 +72,20 @@ function splitRespectingQuotes(input: string): string[] {
     }
 
     const rest = input.slice(i);
-    const opMatch = rest.match(/^(&&|\|\||[;,])\s*/);
+    const opMatch = rest.match(/^(&&|\|\||->|[;,+])/);
 
     if (opMatch) {
+      const op = opMatch[1];
+      // Require space around -> and + to avoid false matches
+      if ((op === '->' || op === '+') && !isSpaceAround(input, i, op.length)) {
+        current += ch;
+        i++;
+        continue;
+      }
       if (current.trim()) {
         tokens.push(current.trim());
       }
-      tokens.push(opMatch[1]);
+      tokens.push(op);
       i += opMatch[0].length;
       current = '';
       continue;
@@ -93,6 +100,12 @@ function splitRespectingQuotes(input: string): string[] {
   }
 
   return tokens;
+}
+
+function isSpaceAround(input: string, pos: number, tokenLen: number): boolean {
+  const before = pos > 0 && input[pos - 1] === ' ';
+  const after = pos + tokenLen < input.length && input[pos + tokenLen] === ' ';
+  return before || after;
 }
 
 function parseCommandSegment(segment: string): ChainStep {
@@ -177,7 +190,14 @@ export function parseChain(input: string): ParsedChain {
   let currentOperator: ChainOperator | null = null;
 
   for (const token of tokens) {
-    if (token === '&&' || token === '||' || token === ';' || token === ',') {
+    if (
+      token === '&&' ||
+      token === '||' ||
+      token === ';' ||
+      token === ',' ||
+      token === '->' ||
+      token === '+'
+    ) {
       const op = token as ChainOperator;
       if (currentOperator !== null && currentOperator !== op && currentSteps.length > 0) {
         groups.push({ operator: currentOperator, steps: [...currentSteps] });
@@ -197,7 +217,14 @@ export function parseChain(input: string): ParsedChain {
 }
 
 function isOperator(token: string): token is ChainOperator {
-  return token === '&&' || token === '||' || token === ';' || token === ',';
+  return (
+    token === '&&' ||
+    token === '||' ||
+    token === ';' ||
+    token === ',' ||
+    token === '->' ||
+    token === '+'
+  );
 }
 
 export { isOperator };
@@ -309,4 +336,130 @@ export async function executeChain(
     steps: results,
     totalDuration: Date.now() - startTime,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Command argument parsing utilities
+// ---------------------------------------------------------------------------
+
+/**
+ * Split a command string into whitespace-separated tokens, respecting quotes.
+ */
+export function splitCommand(cmdStr: string): string[] {
+  const parts: string[] = [];
+  let current = '';
+  let inQuote: "'" | '"' | null = null;
+
+  for (let i = 0; i < cmdStr.length; i++) {
+    const char = cmdStr[i];
+
+    if (!inQuote && (char === "'" || char === '"')) {
+      inQuote = char;
+      current += char;
+      continue;
+    }
+
+    if (inQuote && char === inQuote) {
+      inQuote = null;
+      current += char;
+      continue;
+    }
+
+    if (!inQuote && /\s/.test(char)) {
+      if (current.trim()) {
+        parts.push(current.trim());
+        current = '';
+      }
+      continue;
+    }
+
+    current += char;
+  }
+
+  if (current.trim()) {
+    parts.push(current.trim());
+  }
+
+  return parts;
+}
+
+const SHORT_FLAG_MAP: Record<string, string> = {
+  s: 'selector',
+  v: 'value',
+};
+
+interface CommandDef {
+  positional: string[];
+}
+
+const commandDefCache: Record<string, CommandDef> = {};
+
+function getCommandDefinitions(): Record<string, CommandDef> {
+  return commandDefCache;
+}
+
+/**
+ * Register positional parameter names for a command used by {@link parseCommandArgs}.
+ *
+ * @param name - The command name.
+ * @param positional - Ordered array of positional parameter names.
+ */
+export function registerCommandDefinition(name: string, positional: string[]): void {
+  commandDefCache[name] = { positional };
+}
+
+/**
+ * Parse positional and flagged arguments into a parameter object.
+ *
+ * Supports `--key value`, `-s value` (short flags), and positional arguments
+ * mapped via registered command definitions. Values are automatically coerced
+ * to boolean, number, or string.
+ */
+export function parseCommandArgs(
+  name: string,
+  args: string[],
+  unquoteFn?: (raw: string) => string
+): { command: string; params: Record<string, unknown> } {
+  const definitions = getCommandDefinitions();
+  const def = definitions[name];
+  const positionalKeys = def ? def.positional : [];
+  const params: Record<string, unknown> = {};
+  let positionalIndex = 0;
+  const unq = unquoteFn ?? ((s: string) => s);
+
+  for (let i = 0; i < args.length; i++) {
+    const raw = args[i];
+    const arg = unq(raw);
+
+    if (raw.startsWith('--')) {
+      const key = raw.slice(2);
+      const value = args[i + 1];
+      if (value && !value.startsWith('-')) {
+        params[key] = value;
+        i++;
+      } else {
+        params[key] = true;
+      }
+    } else if (raw.startsWith('-') && raw.length === 2) {
+      const flag = raw[1];
+      const mappedKey = SHORT_FLAG_MAP[flag];
+      const value = args[i + 1];
+      if (mappedKey && value && !value.startsWith('-')) {
+        params[mappedKey] = value;
+        i++;
+      } else if (value && !value.startsWith('-')) {
+        params[flag] = value;
+        i++;
+      } else {
+        params[mappedKey || flag] = true;
+      }
+    } else {
+      if (positionalIndex < positionalKeys.length) {
+        params[positionalKeys[positionalIndex]] = arg;
+        positionalIndex++;
+      }
+    }
+  }
+
+  return { command: name, params };
 }

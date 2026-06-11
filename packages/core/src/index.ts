@@ -230,6 +230,8 @@ export type {
 
 export { generateTips } from './output/tips-engine.js';
 
+export { readStdin, readCommandFile, splitFileLine } from './stdin.js';
+
 export { extractParamFields, getCommandParamFields } from './param-schema.js';
 export type { ParamFieldInfo } from './param-schema.js';
 
@@ -241,7 +243,14 @@ export {
 } from './param-reflection.js';
 export type { ZodUnwrapResult, ReflectedField } from './param-reflection.js';
 
-export { parseChain, executeChain, isOperator } from './chain.js';
+export {
+  parseChain,
+  executeChain,
+  isOperator,
+  splitCommand,
+  parseCommandArgs,
+  registerCommandDefinition,
+} from './chain.js';
 export type {
   ChainOperator,
   ChainStep,
