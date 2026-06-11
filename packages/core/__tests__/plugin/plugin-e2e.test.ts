@@ -236,7 +236,7 @@ describe('Plugin E2E: multiple plugins', () => {
         cliName: 'test-cli',
       }
     );
-    expect((resultA as any).data.source).toBe('alpha');
+    expect(resultA).toHaveProperty('data.source', 'alpha');
 
     const resultB = await cmdB!.handler(
       {},
@@ -252,7 +252,7 @@ describe('Plugin E2E: multiple plugins', () => {
         cliName: 'test-cli',
       }
     );
-    expect((resultB as any).data.source).toBe('beta');
+    expect(resultB).toHaveProperty('data.source', 'beta');
 
     await loader.unloadPlugin('alpha');
     expect(loader.getSite('alpha')).toBeUndefined();
@@ -276,7 +276,7 @@ describe('Plugin E2E: multiple plugins', () => {
         cliName: 'test-cli',
       }
     );
-    expect((resultB2 as any).data.source).toBe('beta');
+    expect(resultB2).toHaveProperty('data.source', 'beta');
   });
 });
 
@@ -345,7 +345,7 @@ describe('Plugin E2E: error recovery', () => {
         cliName: 'test-cli',
       }
     );
-    expect((result as any).data.status).toBe('ok');
+    expect(result).toHaveProperty('data.status', 'ok');
 
     expect(loader.getLoadedPlugins().length).toBeGreaterThanOrEqual(1);
     const loadedIds = loader.getLoadedPlugins().map((p) => p.id);
@@ -429,7 +429,7 @@ describe('Plugin E2E: loadFromFunction integration', () => {
         cliName: 'test-cli',
       }
     );
-    expect((fnResult as any).data.from).toBe('fn');
+    expect(fnResult).toHaveProperty('data.from', 'fn');
   });
 });
 
@@ -482,6 +482,6 @@ describe('Plugin E2E: storage per plugin', () => {
 
     await saveCmd.handler({ value: 'test-data-42' }, ctx);
     const result = await loadCmd.handler({}, ctx);
-    expect((result as any).data.loaded).toBe('test-data-42');
+    expect(result).toHaveProperty('data.loaded', 'test-data-42');
   });
 });

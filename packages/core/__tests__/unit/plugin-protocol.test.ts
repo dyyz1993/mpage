@@ -6,7 +6,11 @@ import {
   SiteInstanceImpl,
   CommandError,
 } from '../../src/protocol/plugin-protocol.js';
-import type { CommandContext, StorageContext } from '../../src/protocol/plugin-protocol.js';
+import type {
+  CommandContext,
+  StorageContext,
+  SiteInstance,
+} from '../../src/protocol/plugin-protocol.js';
 
 function mockStorage(): StorageContext {
   const store = new Map<string, unknown>();
@@ -34,7 +38,7 @@ function mockCtx(overrides?: Partial<CommandContext>): CommandContext {
     output: { mode: 'text' as const, showTips: false, color: false, emoji: false },
     error: () => {},
     config: {},
-    site: {} as any,
+    site: {} as SiteInstance,
     cliName: 'test',
     ...overrides,
   };

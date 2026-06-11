@@ -142,6 +142,7 @@ describe('Core - Branch Coverage', () => {
     });
 
     it('uses default storage when site not found and calls all methods', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let capturedCtx: any;
       const handler = makeHandler(async (params, ctx) => {
         capturedCtx = ctx;
@@ -305,40 +306,43 @@ describe('Core - Branch Coverage', () => {
   });
 
   describe('getZodShape branches', () => {
+    const getShape = (schema: unknown) =>
+      (core as { getZodShape(schema: unknown): Record<string, unknown> }).getZodShape(schema);
+
     it('returns empty object for null schema', () => {
       const schema = null;
-      const result = (core as any).getZodShape(schema);
+      const result = getShape(schema);
       expect(result).toEqual({});
     });
 
     it('returns empty object for non-object schema', () => {
       const schema = 'invalid';
-      const result = (core as any).getZodShape(schema);
+      const result = getShape(schema);
       expect(result).toEqual({});
     });
 
     it('returns empty object when def is missing', () => {
       const schema = {};
-      const result = (core as any).getZodShape(schema);
+      const result = getShape(schema);
       expect(result).toEqual({});
     });
 
     it('returns empty object when type is not object', () => {
       const schema = { _def: { type: 'string' } };
-      const result = (core as any).getZodShape(schema);
+      const result = getShape(schema);
       expect(result).toEqual({});
     });
 
     it('returns empty object when shape is missing', () => {
       const schema = { _def: { type: 'object' } };
-      const result = (core as any).getZodShape(schema);
+      const result = getShape(schema);
       expect(result).toEqual({});
     });
 
     it('extracts shape as object', () => {
       const shapeObj = { field1: 'value1', field2: 'value2' };
       const schema = { _def: { type: 'object', shape: shapeObj } };
-      const result = (core as any).getZodShape(schema);
+      const result = getShape(schema);
       expect(result).toEqual({ field1: 'value1', field2: 'value2' });
     });
   });

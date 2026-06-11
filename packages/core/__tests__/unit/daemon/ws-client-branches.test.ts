@@ -244,7 +244,7 @@ describe('WSClient — uncovered branch tests', () => {
 
       const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const ws = (client as any).ws;
+      const ws = (client as { ws: WebSocket | null }).ws;
       ws.emit('message', Buffer.from('not json'));
 
       expect(errorSpy).toHaveBeenCalled();

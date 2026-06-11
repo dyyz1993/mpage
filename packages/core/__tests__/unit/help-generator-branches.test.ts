@@ -4,25 +4,30 @@ import { z } from 'zod/v4';
 
 describe('HelpGenerator — uncovered branch tests', () => {
   const gen = new HelpGenerator();
+  const g = gen as unknown as {
+    getZodType(schema: unknown, depth?: number): string;
+    zodParameters(schema: unknown, color: boolean, emoji: boolean): string;
+    zodResult(schema: unknown, color: boolean, emoji: boolean): string;
+  };
 
   describe('getZodType — ZodObject empty shape', () => {
     it('should return [object] for empty object schema', () => {
       const schema = z.object({});
-      const type = (gen as any).getZodType(schema);
+      const type = g.getZodType(schema);
       expect(type).toBe('[object]');
     });
   });
 
   describe('getZodType — null schema', () => {
     it('should return [null] for null input', () => {
-      const type = (gen as any).getZodType(null);
+      const type = g.getZodType(null);
       expect(type).toBe('[null]');
     });
   });
 
   describe('getZodType — max depth', () => {
     it('should return [[[max-depth]]] when depth=4 on 4-nested array', () => {
-      const type = (gen as any).getZodType(z.array(z.array(z.array(z.array(z.string())))), 4);
+      const type = g.getZodType(z.array(z.array(z.array(z.array(z.string())))), 4);
       expect(type).toBe('[[[max-depth]]]');
     });
   });
@@ -30,19 +35,19 @@ describe('HelpGenerator — uncovered branch tests', () => {
   describe('getZodType — ZodOptional/ZodDefault inner extraction paths', () => {
     it('should extract inner from ZodDefault with innerType', () => {
       const schema = z.string().default('hello');
-      const type = (gen as any).getZodType(schema);
+      const type = g.getZodType(schema);
       expect(type).toBe('[string]');
     });
 
     it('should extract inner from ZodDefault wrapping an object', () => {
       const schema = z.object({ x: z.number() }).default({ x: 1 });
-      const type = (gen as any).getZodType(schema);
+      const type = g.getZodType(schema);
       expect(type).toBe('[object] { x }');
     });
 
     it('should handle ZodOptional wrapping ZodObject', () => {
       const schema = z.object({ a: z.string() }).optional();
-      const type = (gen as any).getZodType(schema);
+      const type = g.getZodType(schema);
       expect(type).toBe('[object] { a }');
     });
 
@@ -50,7 +55,7 @@ describe('HelpGenerator — uncovered branch tests', () => {
       const customSchema = {
         constructor: { name: 'CustomType' },
       };
-      const type = (gen as any).getZodType(customSchema);
+      const type = g.getZodType(customSchema);
       expect(type).toBe('[customtype]');
     });
 
@@ -59,7 +64,7 @@ describe('HelpGenerator — uncovered branch tests', () => {
       const schema = {
         _def: { type: 'default', innerType: innerSchema },
       };
-      const type = (gen as any).getZodType(schema);
+      const type = g.getZodType(schema);
       expect(type).toBe('[number]');
     });
 
@@ -69,7 +74,7 @@ describe('HelpGenerator — uncovered branch tests', () => {
         _def: { type: 'default' },
         innerType: innerSchema,
       };
-      const type = (gen as any).getZodType(schema);
+      const type = g.getZodType(schema);
       expect(type).toBe('[unknown]');
     });
 
@@ -78,7 +83,7 @@ describe('HelpGenerator — uncovered branch tests', () => {
       const schema = {
         _def: { type: 'optional', innerType: innerSchema },
       };
-      const type = (gen as any).getZodType(schema);
+      const type = g.getZodType(schema);
       expect(type).toBe('[string]');
     });
 
@@ -88,7 +93,7 @@ describe('HelpGenerator — uncovered branch tests', () => {
         _def: { type: 'default' },
         unwrap: () => innerSchema,
       };
-      const type = (gen as any).getZodType(schema);
+      const type = g.getZodType(schema);
       expect(type).toBe('[unknown]');
     });
 
@@ -96,7 +101,7 @@ describe('HelpGenerator — uncovered branch tests', () => {
       const schema = {
         _def: { type: 'default', defaultValue: () => 'x' },
       };
-      const type = (gen as any).getZodType(schema);
+      const type = g.getZodType(schema);
       expect(type).toBe('[unknown]');
     });
 
@@ -104,7 +109,7 @@ describe('HelpGenerator — uncovered branch tests', () => {
       const schema = {
         _def: { type: 'default' },
       };
-      const type = (gen as any).getZodType(schema);
+      const type = g.getZodType(schema);
       expect(type).toBe('[unknown]');
     });
   });
@@ -112,7 +117,7 @@ describe('HelpGenerator — uncovered branch tests', () => {
   describe('getZodType — ZodArray unwrap fallback', () => {
     it('should handle ZodArray with element type', () => {
       const schema = z.array(z.number());
-      const type = (gen as any).getZodType(schema);
+      const type = g.getZodType(schema);
       expect(type).toBe('[[number]]');
     });
 
@@ -122,7 +127,7 @@ describe('HelpGenerator — uncovered branch tests', () => {
         _def: { type: 'array' },
         unwrap: () => ({ _def: { type: innerSchema } }),
       };
-      const type = (gen as any).getZodType(schema);
+      const type = g.getZodType(schema);
       expect(type).toBe('[[unknown]]');
     });
 
@@ -130,7 +135,7 @@ describe('HelpGenerator — uncovered branch tests', () => {
       const schema = {
         _def: { type: 'array' },
       };
-      const type = (gen as any).getZodType(schema);
+      const type = g.getZodType(schema);
       expect(type).toBe('[[unknown]]');
     });
   });
@@ -142,7 +147,7 @@ describe('HelpGenerator — uncovered branch tests', () => {
           shape: { field: { _def: { type: 'string' }, isOptional: () => true } },
         },
       };
-      const result = (gen as any).zodParameters(fakeSchema, false, false);
+      const result = g.zodParameters(fakeSchema, false, false);
       expect(result).toContain('field');
     });
   });
@@ -157,7 +162,7 @@ describe('HelpGenerator — uncovered branch tests', () => {
           },
         },
       };
-      const result = (gen as any).zodResult(fakeSchema, false, false);
+      const result = g.zodResult(fakeSchema, false, false);
       expect(result).toContain('data');
       expect(result).not.toContain('tips');
     });
@@ -170,7 +175,7 @@ describe('HelpGenerator — uncovered branch tests', () => {
           throw new Error('bad schema');
         },
       };
-      const result = (gen as any).zodParameters(badSchema, false, false);
+      const result = g.zodParameters(badSchema, false, false);
       expect(result).toContain('无法解析参数 schema');
     });
   });
@@ -182,7 +187,7 @@ describe('HelpGenerator — uncovered branch tests', () => {
           throw new Error('bad result');
         },
       };
-      const result = (gen as any).zodResult(badSchema, false, false);
+      const result = g.zodResult(badSchema, false, false);
       expect(result).toContain('无法解析结果 schema');
     });
   });
@@ -194,7 +199,7 @@ describe('HelpGenerator — uncovered branch tests', () => {
           throw new Error('boom');
         },
       };
-      const type = (gen as any).getZodType(evil);
+      const type = g.getZodType(evil);
       expect(type).toBe('[unknown]');
     });
   });

@@ -123,7 +123,10 @@ describe('Command Override', () => {
         const origResult = orig ? await orig(params, ctx) : null;
         return {
           success: true,
-          data: { ...((origResult as any)?.data ?? {}), enhanced: true },
+          data: {
+            ...((origResult as { data?: Record<string, unknown> } | null)?.data ?? {}),
+            enhanced: true,
+          },
           message: '',
           tips: ['enhanced'],
         };
@@ -140,8 +143,8 @@ describe('Command Override', () => {
       expect(cmd.previousHandler).toBe(originalHandler);
 
       const result = await cmd.handler({}, mockCtx({ site }));
-      expect((result as any).data.value).toBe(1);
-      expect((result as any).data.enhanced).toBe(true);
+      expect(result).toHaveProperty('data.value', 1);
+      expect(result).toHaveProperty('data.enhanced', true);
     });
   });
 
@@ -356,7 +359,7 @@ describe('Command Override', () => {
 
       expect(receivedParams.count).toBe(10);
       expect(receivedParams.added).toBe(true);
-      expect((result as any).data.count).toBe(10);
+      expect(result).toHaveProperty('data.count', 10);
     });
   });
 
@@ -373,7 +376,7 @@ describe('Command Override', () => {
       const wrapperHandler: CommandHandler = async (params, ctx) => {
         const orig = site.getOriginalHandler('query');
         const origResult = orig ? await orig(params, ctx) : null;
-        const origData = (origResult as any)?.data ?? {};
+        const origData = (origResult as { data?: { items?: unknown[] } } | null)?.data ?? {};
         return {
           success: true,
           data: {
@@ -395,10 +398,10 @@ describe('Command Override', () => {
       const cmd = site.getCommand('query')!;
       const result = await cmd.handler({}, mockCtx({ site }));
 
-      expect((result as any).data.items).toEqual([1, 2, 3]);
-      expect((result as any).data.count).toBe(3);
-      expect((result as any).data.timestamp).toBe('2025-01-01');
-      expect((result as any).tips).toEqual(['wrapped with metadata']);
+      expect(result).toHaveProperty('data.items', [1, 2, 3]);
+      expect(result).toHaveProperty('data.count', 3);
+      expect(result).toHaveProperty('data.timestamp', '2025-01-01');
+      expect(result).toHaveProperty('tips', ['wrapped with metadata']);
     });
   });
 

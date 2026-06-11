@@ -772,7 +772,7 @@ describe('PluginLoader - branch coverage tests', () => {
 
       await loader.loadPlugin(resolve(dir, 'index.ts'), 'storage-test');
 
-      const storage = (loader as any).storage;
+      const storage = (loader as unknown as { storage: StorageContext }).storage;
       await storage.set('key1', 'value1');
       await storage.set('key2', 'value2');
       expect(await storage.get('key1')).toBe('value1');

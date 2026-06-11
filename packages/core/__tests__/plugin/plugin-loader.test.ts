@@ -547,9 +547,11 @@ describe('PluginLoader', () => {
         args: { key: 'val' },
       });
 
-      expect((globalThis as any).__test_events).toHaveLength(1);
-      expect((globalThis as any).__test_events[0].args).toEqual({ key: 'val' });
-      delete (globalThis as any).__test_events;
+      expect((globalThis as Record<string, unknown>).__test_events).toHaveLength(1);
+      expect((globalThis as Record<string, unknown>).__test_events).toHaveProperty([0, 'args'], {
+        key: 'val',
+      });
+      delete (globalThis as Record<string, unknown>).__test_events;
     });
   });
 

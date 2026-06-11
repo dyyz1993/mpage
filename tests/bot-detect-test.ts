@@ -1,4 +1,5 @@
 import { chromium } from 'playwright';
+import type { Page } from 'playwright';
 import { humanize } from '../src/server/humanize';
 
 const PAGE_URL = 'file://' + process.cwd() + '/tests/fixtures/bot-detector.html';
@@ -17,7 +18,7 @@ interface CaseResult {
   duration: number;
 }
 
-async function runAllCases(page: any, mode: 'native' | 'humanized'): Promise<CaseResult> {
+async function runAllCases(page: Page, mode: 'native' | 'humanized'): Promise<CaseResult> {
   const h = mode === 'humanized' ? humanize(page) : null;
 
   const doClick = async (sel: string) => {
@@ -145,7 +146,7 @@ async function runAllCases(page: any, mode: 'native' | 'humanized'): Promise<Cas
       offsetStd: document.getElementById('click-offset-std')?.textContent || '-',
       mdGap: document.getElementById('md-click-gap')?.textContent || '-',
     };`);
-  const result = await page.evaluate(evalFn as any);
+  const result = await page.evaluate(evalFn);
 
   return {
     name: 'All Cases',
