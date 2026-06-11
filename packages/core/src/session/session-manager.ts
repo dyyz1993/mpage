@@ -141,7 +141,7 @@ export class SessionManager<
    */
   protected allocateSession(name: string, config: Record<string, unknown>): Promise<TMeta> {
     const id = Math.random().toString(36).substring(2, 10);
-    return Promise.resolve({ id, name, config } as TMeta);
+    return Promise.resolve({ id, name, config } as unknown as TMeta);
   }
 
   /**
