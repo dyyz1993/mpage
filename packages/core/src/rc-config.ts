@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { CONFIG_DIR } from './constants.js';
-import type { Core } from './core.js';
 
 /** @deprecated Use path.join(core.configDir, 'config.json') instead */
 export const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
@@ -16,6 +15,17 @@ export interface RcConfig {
   daemon?: {
     port?: number;
   };
+}
+
+/**
+ * Minimal config source — accepts either a Core instance or
+ * a plain object with configDir and optional envPrefix.
+ *
+ * Core is structurally compatible (has configDir + envPrefix getter).
+ */
+export interface ConfigSource {
+  configDir: string;
+  envPrefix?: string;
 }
 
 export const CONFIG_KEY_MAP: Record<string, { path: string[]; description: string }> = {
@@ -34,31 +44,52 @@ export const CONFIG_KEY_MAP: Record<string, { path: string[]; description: strin
   },
 };
 
-export function loadConfig(core: Core): RcConfig {
-  const configFile = path.join(core.configDir, 'config.json');
+function configFile(configDir: string): string {
+  return path.join(configDir, 'config.json');
+}
+
+/**
+ * Load config from a config source.
+ *
+ * @param source - Either a Core instance or an object with configDir
+ */
+export function loadConfig(source: ConfigSource): RcConfig {
+  const file = configFile(source.configDir);
   try {
-    if (!fs.existsSync(configFile)) {
+    if (!fs.existsSync(file)) {
       return {};
     }
-    const raw = fs.readFileSync(configFile, 'utf-8');
+    const raw = fs.readFileSync(file, 'utf-8');
     return JSON.parse(raw) as RcConfig;
   } catch {
     return {};
   }
 }
 
-export function saveConfig(core: Core, config: RcConfig): void {
-  const configFile = path.join(core.configDir, 'config.json');
-  if (!fs.existsSync(core.configDir)) {
-    fs.mkdirSync(core.configDir, { recursive: true });
+/**
+ * Save config to a config source's directory.
+ *
+ * @param source - Either a Core instance or an object with configDir
+ * @param config - The config object to persist
+ */
+export function saveConfig(source: ConfigSource, config: RcConfig): void {
+  const dir = source.configDir;
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
   }
-  fs.writeFileSync(configFile, JSON.stringify(config, null, 2) + '\n', 'utf-8');
+  fs.writeFileSync(configFile(dir), JSON.stringify(config, null, 2) + '\n', 'utf-8');
 }
 
-export function getConfigValue(core: Core, key: string): string | number | undefined {
+/**
+ * Get a config value by dotted key (e.g. "viewer.host").
+ *
+ * @param source - Either a Core instance or an object with configDir
+ * @param key - Dotted config key registered in CONFIG_KEY_MAP
+ */
+export function getConfigValue(source: ConfigSource, key: string): string | number | undefined {
   const mapping = CONFIG_KEY_MAP[key];
   if (!mapping) return undefined;
-  const config = loadConfig(core);
+  const config = loadConfig(source);
   let current: unknown = config;
   for (const segment of mapping.path) {
     if (current === null || current === undefined || typeof current !== 'object') {
@@ -69,11 +100,19 @@ export function getConfigValue(core: Core, key: string): string | number | undef
   return current as string | number | undefined;
 }
 
-export function setConfigValue(core: Core, key: string, value: string): boolean {
+/**
+ * Set a config value by dotted key (e.g. "viewer.host").
+ * Returns true on success, false if the key is not registered.
+ *
+ * @param source - Either a Core instance or an object with configDir
+ * @param key - Dotted config key registered in CONFIG_KEY_MAP
+ * @param value - Value to persist
+ */
+export function setConfigValue(source: ConfigSource, key: string, value: string): boolean {
   const mapping = CONFIG_KEY_MAP[key];
   if (!mapping) return false;
 
-  const config = loadConfig(core);
+  const config = loadConfig(source);
   let current: Record<string, unknown> = config as Record<string, unknown>;
 
   for (let i = 0; i < mapping.path.length - 1; i++) {
@@ -94,15 +133,24 @@ export function setConfigValue(core: Core, key: string, value: string): boolean 
     current[lastKey] = value;
   }
 
-  saveConfig(core, config);
+  saveConfig(source, config);
   return true;
 }
 
-export function getEffectiveValue(core: Core, key: string): string | number | undefined {
+/**
+ * Get a config value, checking environment variable first.
+ *
+ * Environment variable names follow the pattern `<ENV_PREFIX>_<UPPER_KEY>`.
+ *
+ * @param source - Either a Core instance or an object with configDir+envPrefix
+ * @param key - Dotted config key registered in CONFIG_KEY_MAP
+ */
+export function getEffectiveValue(source: ConfigSource, key: string): string | number | undefined {
+  const prefix = source.envPrefix ?? '';
   const envMap: Record<string, string> = {
-    'viewer.host': `${core.config.envPrefix}_VIEWER_HOST`,
-    'browser.executablePath': `${core.config.envPrefix}_CHROMIUM_PATH`,
-    'daemon.port': `${core.config.envPrefix}_DAEMON_PORT`,
+    'viewer.host': `${prefix}_VIEWER_HOST`,
+    'browser.executablePath': `${prefix}_CHROMIUM_PATH`,
+    'daemon.port': `${prefix}_DAEMON_PORT`,
   };
 
   const envKey = envMap[key];
@@ -115,29 +163,29 @@ export function getEffectiveValue(core: Core, key: string): string | number | un
     return val;
   }
 
-  return getConfigValue(core, key);
+  return getConfigValue(source, key);
 }
 
-export function getViewerHost(core: Core): string {
-  return (getEffectiveValue(core, 'viewer.host') as string) || '';
+export function getViewerHost(source: ConfigSource): string {
+  return (getEffectiveValue(source, 'viewer.host') as string) || '';
 }
 
-export function getChromiumPath(core: Core): string {
+export function getChromiumPath(source: ConfigSource): string {
   return (
-    (getEffectiveValue(core, 'browser.executablePath') as string) ||
+    (getEffectiveValue(source, 'browser.executablePath') as string) ||
     '/Applications/Chromium.app/Contents/MacOS/Chromium'
   );
 }
 
-export function getDaemonPort(core: Core): number {
-  const val = getEffectiveValue(core, 'daemon.port');
+export function getDaemonPort(source: ConfigSource): number {
+  const val = getEffectiveValue(source, 'daemon.port');
   if (typeof val === 'number') return val;
   const parsed = parseInt(String(val || '8054'), 10);
   return isNaN(parsed) ? 8054 : parsed;
 }
 
-export function getViewerUrl(core: Core, sessionId: string, daemonPort: number): string {
-  const host = getViewerHost(core);
+export function getViewerUrl(source: ConfigSource, sessionId: string, daemonPort: number): string {
+  const host = getViewerHost(source);
   if (host) {
     return host.includes('://')
       ? `${host}/viewer.html?s=${sessionId}`

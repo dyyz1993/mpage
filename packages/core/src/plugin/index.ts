@@ -13,3 +13,12 @@ export { BuiltinInstaller } from './installers/builtin-installer.js';
 
 export { PluginInstallerRegistry } from './plugin-installer-registry.js';
 export type { InstallerRegistryConfig } from './plugin-installer-registry.js';
+
+// Utility functions for plugin installation
+export {
+  downloadToFile,
+  extractTarGz,
+  flattenPackageRoot,
+  safeCleanup,
+} from './installers/index.js';
+export type { PluginVerifyResult } from './installers/index.js';

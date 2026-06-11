@@ -99,7 +99,7 @@ export {
   CONFIG_FILE,
   CONFIG_KEY_MAP,
 } from './rc-config.js';
-export type { RcConfig } from './rc-config.js';
+export type { RcConfig, ConfigSource } from './rc-config.js';
 
 export {
   checkGuard,
@@ -182,6 +182,10 @@ export type {
 export { PluginInstallerRegistry } from './plugin/plugin-installer-registry.js';
 export type { InstallerRegistryConfig } from './plugin/plugin-installer-registry.js';
 
+// Plugin installation utility functions
+export { downloadToFile, extractTarGz, flattenPackageRoot, safeCleanup } from './plugin/index.js';
+export type { PluginVerifyResult } from './plugin/index.js';
+
 export type { ScopeDefinition, ScopeLevel, ScopeConfig } from './command/scope.js';
 export { DEFAULT_SCOPE as DEFAULT_GENERIC_SCOPE } from './command/scope.js';
 
@@ -218,6 +222,14 @@ export { generateTips } from './output/tips-engine.js';
 
 export { extractParamFields, getCommandParamFields } from './param-schema.js';
 export type { ParamFieldInfo } from './param-schema.js';
+
+export {
+  unwrapZod,
+  fieldsFromZodObject as fieldsFromZodObjectReflected,
+  extractEnumValues,
+  zodTypeToContractType,
+} from './param-reflection.js';
+export type { ZodUnwrapResult, ReflectedField } from './param-reflection.js';
 
 export { parseChain, executeChain, isOperator } from './chain.js';
 export type {
