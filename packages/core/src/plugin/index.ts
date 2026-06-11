@@ -19,6 +19,7 @@ export {
   downloadToFile,
   extractTarGz,
   flattenPackageRoot,
+  verifyPlugin,
   safeCleanup,
 } from './installers/index.js';
-export type { PluginVerifyResult } from './installers/index.js';
+export type { PluginVerifyResult, VerifyPluginOptions } from './installers/index.js';

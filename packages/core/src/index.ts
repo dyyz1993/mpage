@@ -183,8 +183,14 @@ export { PluginInstallerRegistry } from './plugin/plugin-installer-registry.js';
 export type { InstallerRegistryConfig } from './plugin/plugin-installer-registry.js';
 
 // Plugin installation utility functions
-export { downloadToFile, extractTarGz, flattenPackageRoot, safeCleanup } from './plugin/index.js';
-export type { PluginVerifyResult } from './plugin/index.js';
+export {
+  downloadToFile,
+  extractTarGz,
+  flattenPackageRoot,
+  verifyPlugin,
+  safeCleanup,
+} from './plugin/index.js';
+export type { PluginVerifyResult, VerifyPluginOptions } from './plugin/index.js';
 
 export type { ScopeDefinition, ScopeLevel, ScopeConfig } from './command/scope.js';
 export { DEFAULT_SCOPE as DEFAULT_GENERIC_SCOPE } from './command/scope.js';

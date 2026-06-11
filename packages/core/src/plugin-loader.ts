@@ -566,7 +566,11 @@ export class PluginLoader {
   }
 }
 
-export function readPluginMeta(pluginDir: string): PluginMeta | null {
+export function readPluginMeta(
+  pluginDir: string,
+  options: { metadataField?: string } = {}
+): PluginMeta | null {
+  const metadataField = options.metadataField ?? 'xcli';
   const pkgPath = resolve(pluginDir, 'package.json');
   let raw: string;
   try {
@@ -582,20 +586,20 @@ export function readPluginMeta(pluginDir: string): PluginMeta | null {
     return null;
   }
 
-  const xcli = pkg.xcli as Record<string, unknown> | undefined;
-  const name = (xcli?.name as string) ?? (pkg.name as string);
+  const meta = pkg[metadataField] as Record<string, unknown> | undefined;
+  const name = (meta?.name as string) ?? (pkg.name as string);
   if (!name) return null;
 
-  const meta: PluginMeta = { name };
+  const result: PluginMeta = { name };
 
-  if (typeof pkg.version === 'string') meta.version = pkg.version;
-  if (typeof pkg.description === 'string') meta.description = pkg.description;
-  if (Array.isArray(xcli?.commands)) meta.commands = xcli.commands as string[];
+  if (typeof pkg.version === 'string') result.version = pkg.version;
+  if (typeof pkg.description === 'string') result.description = pkg.description;
+  if (Array.isArray(meta?.commands)) result.commands = meta.commands as string[];
   if (pkg.dependencies && typeof pkg.dependencies === 'object') {
-    meta.dependencies = pkg.dependencies as Record<string, string>;
+    result.dependencies = pkg.dependencies as Record<string, string>;
   }
 
-  return meta;
+  return result;
 }
 
 export function derivePluginId(pluginPath: string): string {
