@@ -128,6 +128,7 @@ export {
   clearAll as clearAllSessions,
   listSessions,
   sessions,
+  SessionStore,
 } from './session/session-store.js';
 export {
   saveArchive,

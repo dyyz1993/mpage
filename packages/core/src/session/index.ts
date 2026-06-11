@@ -1,6 +1,7 @@
 export type { SessionMeta } from './session-meta.js';
 export type { SessionManagerContract } from './session-manager-interface.js';
 export { SessionManager } from './session-manager.js';
+export { SessionStore } from './session-store.js';
 export {
   findSession,
   createSessionMeta,

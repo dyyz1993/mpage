@@ -28,9 +28,8 @@ describe('session-store', () => {
       expect(meta.id).toBe('custom-id');
     });
 
-    it('should store the session in the map', () => {
+    it('should store the session in the store', () => {
       const meta = createSessionMeta('stored', { port: 3000 });
-      expect(sessions.has(meta.id)).toBe(true);
       expect(sessions.get(meta.id)).toBe(meta);
     });
 
@@ -74,7 +73,7 @@ describe('session-store', () => {
       const meta = createSessionMeta('removable', {});
       const removed = removeSession('removable');
       expect(removed).toEqual(meta);
-      expect(sessions.has(meta.id)).toBe(false);
+      expect(sessions.get(meta.id)).toBeUndefined();
     });
 
     it('should return undefined when removing non-existent session', () => {
@@ -85,7 +84,7 @@ describe('session-store', () => {
       const keep = createSessionMeta('keep', {});
       createSessionMeta('remove-me', {});
       removeSession('remove-me');
-      expect(sessions.has(keep.id)).toBe(true);
+      expect(sessions.get(keep.id)).toBe(keep);
     });
   });
 
@@ -138,9 +137,9 @@ describe('session-store', () => {
     });
   });
 
-  describe('sessions Map', () => {
-    it('should be directly accessible', () => {
-      expect(sessions).toBeInstanceOf(Map);
+  describe('sessions store', () => {
+    it('should be a SessionStore instance', () => {
+      expect(sessions.constructor.name).toBe('SessionStore');
     });
 
     it('should reflect createSessionMeta changes', () => {
