@@ -118,6 +118,7 @@ export type { ValidationResult, ToolCallRecord } from './validator.js';
 // --- New Phase 2 exports (domain-agnostic) ---
 
 export type { SessionMeta } from './session/session-meta.js';
+export type { SessionManagerContract } from './session/session-manager-interface.js';
 export { SessionManager } from './session/session-manager.js';
 export {
   findSession,

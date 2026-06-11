@@ -1,4 +1,5 @@
 import type { SessionMeta } from './session-meta.js';
+import type { SessionManagerContract } from './session-manager-interface.js';
 import {
   createSessionMeta,
   removeSession,
@@ -6,7 +7,7 @@ import {
   clearAll,
 } from './session-store.js';
 
-export class SessionManager {
+export class SessionManager implements SessionManagerContract<SessionMeta> {
   createSession(name: string, config: Record<string, unknown>): SessionMeta {
     const existing = listSessionsFromStore().find((s) => s.name === name);
     if (existing) {
