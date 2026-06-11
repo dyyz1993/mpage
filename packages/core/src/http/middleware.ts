@@ -22,11 +22,29 @@ export function cors(options?: { origins?: string[]; methods?: string[] }): Http
 export function bearerTokenAuth(options: {
   tokens: string[];
   publicPaths?: string[];
+  envTokenKey?: string;
 }): HttpMiddleware {
-  const { tokens, publicPaths = [] } = options;
+  const { tokens: configTokens, publicPaths = [], envTokenKey } = options;
+
+  const resolveTokens = (): string[] => {
+    const all = new Set<string>(configTokens);
+    if (envTokenKey && process.env[envTokenKey]) {
+      for (const t of process.env[envTokenKey]!.split(',')) {
+        const trimmed = t.trim();
+        if (trimmed) all.add(trimmed);
+      }
+    }
+    return Array.from(all);
+  };
 
   return async (req: HttpRequest, res: HttpResponse, next: () => Promise<void>) => {
     if (publicPaths.some((p) => req.pathname === p || req.pathname.startsWith(p + '/'))) {
+      await next();
+      return;
+    }
+
+    const tokens = resolveTokens();
+    if (tokens.length === 0) {
       await next();
       return;
     }
