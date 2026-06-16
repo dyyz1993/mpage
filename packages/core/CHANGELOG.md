@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.0] - 2026-06-16
+
+### Added
+- **分层存储** — `ctx.storage` 扩展为四层：plugin/global/cache/tmp
+- `GlobalStorage` — 全局共享存储（`~/.{cli}/global.json`）
+- `CacheStorage` — 带 TTL 过期的缓存（`~/.{cli}/cache/{pluginId}/`）
+- `TmpStorage` — 进程级临时文件（`/tmp/{cli}-{pid}/{pluginId}/`）
+- `CompositeStorage` — 包装四层存储，顶层 delegate 到 plugin
+- `ctx.config` — 从 rc-config loader 加载用户配置
+- `PluginStore` / `GlobalStore` / `CacheStore` / `TmpStore` — 分层存储接口类型
+
+### Changed
+- `StorageContext` 接口扩展：新增 `plugin` / `global` / `cache` / `tmp` 属性
+- `CoreHost` 接口新增 `configDir` 字段
+- 顶层 `ctx.storage.get/set` 仍可用（delegate 到 plugin，向后兼容）
+
 ## [0.14.0] - 2026-06-16
 
 ### Added
