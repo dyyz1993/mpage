@@ -1,3 +1,5 @@
+import type { Tip } from '../tip.js';
+
 const API_TIPS: Record<string, string[]> = {
   'ctx.page': [
     '使用 ctx.page 前务必做 null 检查: if (!ctx.page) return fail("需要浏览器页面")',
@@ -20,13 +22,15 @@ const API_TIPS: Record<string, string[]> = {
   ],
 };
 
-export function generateTips(error: Error | string): string[] {
+export function generateTips(error: Error | string): Tip[] {
   const message = typeof error === 'string' ? error : error.message;
-  const tips: string[] = [];
+  const tips: Tip[] = [];
 
   for (const [pattern, suggestions] of Object.entries(API_TIPS)) {
     if (message.includes(pattern) || message.match(new RegExp(pattern, 'i'))) {
-      tips.push(...suggestions);
+      for (const suggestion of suggestions) {
+        tips.push({ level: 'warn', message: suggestion, label: 'TROUBLESHOOTING' });
+      }
     }
   }
 

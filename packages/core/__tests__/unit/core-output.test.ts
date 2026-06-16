@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { CommandEntry } from '../../src/protocol/plugin-protocol.js';
 import { ok, fail } from '../../src/command-result.js';
+import { tip } from '../../src/tip.js';
 
 vi.mock('../../src/plugin-loader.js', () => {
   const mockGetAllCommands = vi.fn(() => []);
@@ -82,7 +83,7 @@ describe('Core.run() output formatting', () => {
 
   describe('--json mode', () => {
     it('should output only data to stdout (no success/tips/meta)', async () => {
-      const handler = vi.fn(async () => ok([{ title: 'hello' }], ['采集到 1 篇文章']));
+      const handler = vi.fn(async () => ok([{ title: 'hello' }], [tip.info('采集到 1 篇文章')]));
       const core = setupCore(makeEntry(handler));
 
       await core.run(['scrape', '--json']);
@@ -97,7 +98,9 @@ describe('Core.run() output formatting', () => {
     });
 
     it('should send tips to stderr in json mode', async () => {
-      const handler = vi.fn(async () => ok([1, 2, 3], ['采集到 3 条数据', '耗时 1.2s']));
+      const handler = vi.fn(async () =>
+        ok([1, 2, 3], [tip.info('采集到 3 条数据'), tip.info('耗时 1.2s')])
+      );
       const core = setupCore(makeEntry(handler));
 
       await core.run(['scrape', '--json']);
@@ -141,7 +144,7 @@ describe('Core.run() output formatting', () => {
 
   describe('--yaml mode', () => {
     it('should output YAML formatted data to stdout', async () => {
-      const handler = vi.fn(async () => ok([{ title: 'hello', count: 1 }], ['1 条记录']));
+      const handler = vi.fn(async () => ok([{ title: 'hello', count: 1 }], [tip.info('1 条记录')]));
       const core = setupCore(makeEntry(handler));
 
       await core.run(['scrape', '--yaml']);
@@ -153,7 +156,7 @@ describe('Core.run() output formatting', () => {
     });
 
     it('should send tips to stderr in yaml mode', async () => {
-      const handler = vi.fn(async () => ok([1], ['yaml tip']));
+      const handler = vi.fn(async () => ok([1], [tip.info('yaml tip')]));
       const core = setupCore(makeEntry(handler));
 
       await core.run(['scrape', '--yaml']);
@@ -182,7 +185,7 @@ describe('Core.run() output formatting', () => {
     });
 
     it('should output data + tips to stdout in text mode', async () => {
-      const handler = vi.fn(async () => ok({ name: 'test' }, ['这是一个提示']));
+      const handler = vi.fn(async () => ok({ name: 'test' }, [tip.info('这是一个提示')]));
       const core = setupCore(makeEntry(handler));
 
       await core.run(['scrape']);
@@ -193,7 +196,7 @@ describe('Core.run() output formatting', () => {
     });
 
     it('should not send tips to stderr in text mode', async () => {
-      const handler = vi.fn(async () => ok([1], ['text tip']));
+      const handler = vi.fn(async () => ok([1], [tip.info('text tip')]));
       const core = setupCore(makeEntry(handler));
 
       await core.run(['scrape']);
@@ -274,7 +277,7 @@ describe('Core.run() output formatting', () => {
     });
 
     it('should handle fail() result correctly in json mode', async () => {
-      const handler = vi.fn(async () => fail('something went wrong', ['error tip']));
+      const handler = vi.fn(async () => fail('something went wrong', [tip.error('error tip')]));
       const core = setupCore(makeEntry(handler));
 
       await core.run(['scrape', '--json']);
@@ -288,7 +291,7 @@ describe('Core.run() output formatting', () => {
     });
 
     it('should output CommandResult.data even when data is empty array', async () => {
-      const handler = vi.fn(async () => ok([], ['empty']));
+      const handler = vi.fn(async () => ok([], [tip.info('empty')]));
       const core = setupCore(makeEntry(handler));
 
       await core.run(['scrape', '--json']);

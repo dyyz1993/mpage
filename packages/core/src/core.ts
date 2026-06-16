@@ -17,6 +17,7 @@ import { buildInputSchema, CommandError } from './protocol/plugin-protocol.js';
 import { parseArgs } from './arg-parser.js';
 import { coerceCliArgs } from './param-coercion.js';
 import { isCommandResult, wrapResult } from './command-result.js';
+import { TipCollector } from './tip.js';
 import { outputFormatter } from './output-formatter.js';
 import { helpGenerator } from './help/help-generator.js';
 import type { ScopeDefinition } from './command/scope.js';
@@ -345,6 +346,7 @@ export class Core {
       config: {},
       site: site as SiteInstance,
       cliName: this.config.name,
+      tips: new TipCollector(),
     };
 
     for (const extender of this.contextExtenders) {
@@ -481,6 +483,16 @@ export class Core {
       const result = await entry.handler(params, ctx);
       const duration = Date.now() - start;
 
+      // Merge ctx.tips.collected into CommandResult.tips
+      const ctxTips = ctx.tips.collected;
+      if (ctxTips.length > 0) {
+        if (isCommandResult(result)) {
+          result.tips = [...result.tips, ...ctxTips];
+        } else {
+          pipeline.result = { success: true, data: result, tips: ctxTips };
+        }
+      }
+
       pipeline.result = result;
       pipeline.duration = duration;
 
@@ -538,8 +550,10 @@ export class Core {
       if (mode === 'json' || mode === 'yaml') {
         console.log(outputFormatter.format(result.data, { mode, color: false, emoji: false }));
         if (result.tips?.length) {
-          for (const tip of result.tips) {
-            console.error(`💡 ${tip}`);
+          for (const t of result.tips) {
+            const icon = t.level === 'warn' ? '⚠️' : t.level === 'error' ? '❌' : '💡';
+            const label = t.label ? `[${t.label}] ` : '';
+            console.error(`${icon} ${label}${t.message}`);
           }
         }
       } else {
@@ -547,8 +561,10 @@ export class Core {
           outputFormatter.format(result.data, { mode: 'text', color: true, emoji: true })
         );
         if (result.tips?.length && ctx.output.showTips) {
-          for (const tip of result.tips) {
-            console.log(`  💡 ${tip}`);
+          for (const t of result.tips) {
+            const icon = t.level === 'warn' ? '⚠️' : t.level === 'error' ? '❌' : '💡';
+            const label = t.label ? `[${t.label}] ` : '';
+            console.log(`  ${icon} ${label}${t.message}`);
           }
         }
       }

@@ -2,32 +2,66 @@
 
 ## 1. 项目分工规则
 
-### mpage — 浏览器自动化引擎（底层库）
+### @dyyz1993/xcli-core — 通用抽象层
 
-- **定位**: npm 包 `@dyyz1993/xpage`，提供可编程的浏览器自动化能力
-- **职责**: CDP 连接、录制/回放、页面结构提取、命令执行引擎
-- **原则**: mpage 不关心 CLI 交互，不关心插件，不关心输出格式化
-- **公共 API**: 通过 `src/index.ts` 统一导出，其他项目通过 `import` 使用
+- **定位**: 通用 npm 包，提供 CLI 工具的底层抽象，不绑定任何业务领域
+- **职责**: 会话管理（SessionStore、SessionManager）、持久化适配器、生命周期钩子、通用基础设施
+- **原则**: 纯抽象，不关心浏览器、不关心 CLI 交互、不关心具体业务逻辑
+- **公共 API**: 通过 `src/index.ts` 统一导出，任何 CLI 工具都可通过 `import` 使用
 
-### xcli — 插件化 CLI 框架（上层工具）
+### mpage — 浏览器自动化能力包
 
-- **定位**: 独立的 CLI 工具 `xcli`，依赖 mpage 的能力
-- **职责**: 插件系统、Daemon 进程、HTTP/WebSocket API、命令路由、输出格式化
-- **原则**: xcli 可以依赖 mpage，mpage 不能依赖 xcli
+- **定位**: 基于 Playwright/CDP 的浏览器自动化能力包
+- **核心模块**:
+  - `@dyyz1993/xpage` — 浏览器自动化核心（Playwright/CDP）
+  - `xcli-browser` — 浏览器内置命令（cookie、localStorage、录制等）
+- **原则**: 依赖 xcli-core 的抽象，但不关心 CLI 路由和输出格式化
+- **公共 API**: 通过各包的 `src/index.ts` 统一导出
+
+### xbrowser — 浏览器自动化 CLI（上层工具）
+
+- **定位**: 独立的 CLI 工具 `xbrowser`，面向终端用户的浏览器自动化入口
+- **职责**: CLI 路由、插件系统、Daemon 进程、会话管理、命令分发
+- **依赖关系**: 依赖 mpage 的 core 和 browser 包
+- **会话管理**: `BrowserSessionManager` 继承 core 的 `SessionManager<BrowserSessionInfo>`
+
+### 项目间依赖方向
+
+```
+xbrowser → xcli-core (SessionManager, SessionStore, SessionPersistence, SessionLifecycle)
+xbrowser → mpage/xcli-browser (浏览器内置命令)
+mpage → xcli-core (会话管理抽象)
+xcli-core ← 不依赖任何业务项目，纯通用抽象
+```
 
 ### 禁止事项
 
-- mpage 的 `src/` 不得 import xcli 的任何模块
+- xcli-core 不得 import 任何业务项目的模块（xbrowser、xcli 等）
+- mpage 的 `src/` 不得 import xbrowser 或 xcli 的任何模块
 - 根目录不得放置临时脚本（debug-*.ts、test-*.cjs 等）
 - 录制产物（.yaml/.json）放入 `recordings/` 目录或 .gitignore，不得提交
-- 两个项目各自维护 eslint 配置，根配置 exclude xcli/
+- 各项目各自维护 eslint 配置，根配置 exclude xbrowser/
+
+### 会话架构
+
+xcli-core 提供会话管理的分层抽象（不绑定任何业务领域）：
+
+| 层级 | 类 | 职责 |
+|------|-----|------|
+| 数据层 | `SessionStore<TMeta>` | 纯 Map 包装器，CRUD 操作 |
+| 行为层 | `SessionManager<TMeta>` | 生命周期管理、持久化、恢复模板方法 |
+| 持久化 | `SessionPersistence<TMeta>` | 适配器接口 + `FileSessionPersistence` JSON 实现 |
+| 生命周期 | `SessionLifecycle<TMeta>` | 钩子接口（onCreate/onClose/onRestore） |
+
+上层项目继承 `SessionManager`，覆写 `allocateSession` 和 `restoreSession` 实现特有逻辑。
+
+**会话创建方式**: 隐式创建，不提供显式 `session open` 命令。通过 `--session <name>` 全局选项，首次使用时自动创建。
 
 ## 2. 代码规范
 
 ### ESLint 配置
 
-- mpage 和 xcli 各自独立的 `.eslintrc.cjs`，均设 `root: true`
-- 根 `.eslintrc.cjs` 的 `ignorePatterns` 必须包含 `xcli/`
+- 各项目各自独立的 eslint 配置，均设 `root: true`
 - 统一规则:
   - `@typescript-eslint/no-explicit-any`: `warn`（逐步消除，新代码不允许新增 any）
   - `@typescript-eslint/no-unused-vars`: `error`，args 可用 `_` 前缀忽略
@@ -62,13 +96,13 @@
 ```
 
 - **type**: `feat` | `fix` | `refactor` | `chore` | `docs` | `test` | `style`
-- **scope**: `mpage` | `xcli` | `plugins` | `deps` | 可选
+- **scope**: `core` | `xbrowser` | `xcli` | `plugins` | `deps` | 可选
 - **description**: 中文或英文，简短说明"为什么"而非"做了什么"
 
 示例:
 ```
-feat(xcli): use jiti to load TS plugins independently
-fix(mpage): fix multi-tab recording missing events
+feat(core): add SessionManager with persistence and lifecycle hooks
+fix(xbrowser): remove session open command, auto-create via --session
 chore: clean up debug scripts and recording files
 ```
 
@@ -143,12 +177,6 @@ export default function (xcli: XCLIAPI): void {
 
 ## 5. Rules 编写规范
 
-当需要创建或修改 OpenCode rules（`.md`/`.mdc` 文件）时，先加载 `crafting-rules` skill 获取完整的编写指南:
-
-```
-/load-skill crafting-rules
-```
-
 ### 何时需要编写 Rule
 
 - 用户反复纠正同一个行为（"我之前说过"、"又来了"）
@@ -158,20 +186,11 @@ export default function (xcli: XCLIAPI): void {
 
 ### Rule 存放位置
 
-- `~/.config/opencode/rules/` — 个人偏好（跨项目生效）
-- `.opencode/rules/` — 项目/团队约定（仓库内）
+- `.trae/rules/` — 项目/团队约定（仓库内）
 
 ### Rule 基本格式
 
 ```md
----
-globs:
-  - '**/*.ts'
-keywords:
-  - 'vitest'
-match: any
----
-
 # Rule Title
 
 - 具体的、可执行的指令
@@ -180,7 +199,6 @@ match: any
 
 ### 注意事项
 
-- 优先用 `globs` 限定文件范围，避免用泛化关键词（如 `test`、`code`）
 - 一个 rule 只表达一个概念，不要堆叠 6+ 个维度
 - 写 rule 前先检查是否已有 eslint/prettier 配置覆盖了同样的事情
 - 用祈使语气："Do X"、"Avoid Y"、"Prefer Z"

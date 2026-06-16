@@ -1,8 +1,10 @@
+import type { Tip } from './tip.js';
+
 export interface CommandResult<T = unknown> {
   success: boolean;
   data: T;
   message?: string;
-  tips: string[];
+  tips: Tip[];
   meta?: {
     duration?: number;
     command?: string;
@@ -10,11 +12,11 @@ export interface CommandResult<T = unknown> {
   };
 }
 
-export function ok<T>(data: T, tips?: string[]): CommandResult<T> {
+export function ok<T>(data: T, tips?: Tip[]): CommandResult<T> {
   return { success: true, data, tips: tips || [] };
 }
 
-export function fail(message: string, tips?: string[]): CommandResult<null> {
+export function fail(message: string, tips?: Tip[]): CommandResult<null> {
   return { success: false, data: null, message, tips: tips || [] };
 }
 

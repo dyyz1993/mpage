@@ -1,5 +1,6 @@
 import { z } from 'zod/v4';
 import type { CommandResult } from '../command-result.js';
+import { TipCollector } from '../tip.js';
 
 export type BaseScope = 'project' | 'module' | 'resource' | 'action';
 export type CommandScope = string;
@@ -59,6 +60,7 @@ export interface CommandContext {
   config: Record<string, unknown>;
   site: SiteInstance;
   cliName: string;
+  tips: TipCollector;
 }
 
 export type ContextExtender = (
@@ -375,6 +377,7 @@ export class SiteInstanceImpl implements SiteInstance {
         config: {},
         site: this,
         cliName: this.cliName,
+        tips: new TipCollector(),
       });
     }
     if (this.loggedIn) {
@@ -391,6 +394,7 @@ export class SiteInstanceImpl implements SiteInstance {
         config: {},
         site: this,
         cliName: this.cliName,
+        tips: new TipCollector(),
       });
     }
     const token = await this.storage.get('auth_token');

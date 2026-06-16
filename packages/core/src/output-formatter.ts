@@ -90,9 +90,11 @@ export class OutputFormatter {
       }
 
       if (tips && Array.isArray(tips) && tips.length > 0) {
-        for (const tip of tips) {
-          const tipText = emoji ? `💡 ${tip}` : tip;
-          lines.push(tipText);
+        for (const t of tips) {
+          const tipObj = typeof t === 'string' ? { level: 'info', message: t } : t;
+          const icon = tipObj.level === 'warn' ? '⚠️' : tipObj.level === 'error' ? '❌' : '💡';
+          const label = tipObj.label ? `[${tipObj.label}] ` : '';
+          lines.push(`${emoji ? icon : ''} ${label}${tipObj.message}`.trim());
         }
       }
       return;

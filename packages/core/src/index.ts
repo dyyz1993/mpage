@@ -235,6 +235,9 @@ export type {
 
 export { generateTips } from './output/tips-engine.js';
 
+export type { TipLevel, Tip } from './tip.js';
+export { TipCollector, normalizeTip, normalizeTips, tip } from './tip.js';
+
 export { readStdin, readCommandFile, splitFileLine } from './stdin.js';
 
 export { extractParamFields, getCommandParamFields } from './param-schema.js';
