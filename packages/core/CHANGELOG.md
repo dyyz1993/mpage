@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.0] - 2026-06-16
+
+### Added
+- `TipCollector` — 结构化 Tips 系统，支持 level (info/warn/error) 和 label
+- `ctx.tips` — CommandContext 注入 TipCollector，插件执行过程中随时推送 tips
+- `SessionManager<TMeta>` — 泛型模板基类，支持子类覆写 allocateSession/restoreSession
+- `SessionPersistence<TMeta>` — 持久化适配器接口
+- `FileSessionPersistence<TMeta>` — JSON 文件持久化默认实现
+- `SessionLifecycle<TMeta>` — 生命周期钩子接口 (onCreate/onClose/onRestore)
+- `SessionManager.findOrRestore()` — 内存 → 磁盘 → 恢复的标准流程
+
+### Changed
+- `CommandResult.tips` 从 `string[]` 升级为 `Tip[]`（含 level/message/label）
+- `SessionManagerContract` 所有方法统一为 async 返回
+- Tips 输出按 level 显示不同 icon: info / warn / error
+- `generateTips()` 返回 `Tip[]` 而非 `string[]`
+
+### Removed
+- 显式 `session open` 命令（改为 `--session` 隐式自动创建，仅影响 xbrowser）
+
 ## [0.7.5] - 2026-05-15
 
 ### Added
