@@ -68,11 +68,47 @@ export type ContextExtender = (
 ) => Record<string, unknown> | Promise<Record<string, unknown>>;
 
 export interface StorageContext {
+  // ─── Plugin-scoped persistent (backward-compatible top-level) ───
   get<T>(key: string): Promise<T | null>;
   set<T>(key: string, value: T): Promise<void>;
   delete(key: string): Promise<void>;
   clear(): Promise<void>;
   keys(): Promise<string[]>;
+
+  // ─── Layered storage ───
+  plugin: PluginStore;
+  global: GlobalStore;
+  cache: CacheStore;
+  tmp: TmpStore;
+}
+
+export interface PluginStore {
+  get<T>(key: string): Promise<T | null>;
+  set<T>(key: string, value: T): Promise<void>;
+  delete(key: string): Promise<void>;
+  clear(): Promise<void>;
+  keys(): Promise<string[]>;
+}
+
+export interface GlobalStore {
+  get<T>(key: string): Promise<T | null>;
+  set<T>(key: string, value: T): Promise<void>;
+  delete(key: string): Promise<void>;
+  keys(): Promise<string[]>;
+}
+
+export interface CacheStore {
+  get<T>(key: string, maxAge?: number): Promise<T | null>;
+  set<T>(key: string, value: T, maxAge: number): Promise<void>;
+  delete(key: string): Promise<void>;
+  clear(): Promise<void>;
+}
+
+export interface TmpStore {
+  path(filename: string): string;
+  read(filename: string): Promise<Buffer>;
+  write(filename: string, data: Buffer | string): Promise<void>;
+  clean(): Promise<void>;
 }
 
 export interface OutputContext {

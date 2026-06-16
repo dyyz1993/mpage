@@ -10,6 +10,7 @@ import type {
   SiteInstance,
 } from '../protocol/plugin-protocol.js';
 import { wrapResult, type CommandResult } from '../command-result.js';
+import { TipCollector } from '../tip.js';
 
 export interface DebugHostOptions {
   cliName?: string;
@@ -59,6 +60,7 @@ export class DebugHost {
     this.loader = new PluginLoader({
       config: { name: this.cliName },
       storageDir: options.storageDir || join(tmpdir(), 'xcli-debug'),
+      configDir: options.storageDir ? join(options.storageDir, '..') : join(tmpdir(), 'xcli-debug'),
     });
   }
 
@@ -154,6 +156,64 @@ export class DebugHost {
 
   private buildContext(context: ExecContext, commandName: string): CommandContext {
     const memStore: Record<string, unknown> = {};
+
+    const makeNoopStore = () => ({
+      // eslint-disable-next-line require-await
+      async get<T>(_key: string): Promise<T | null> {
+        return null;
+      },
+      // eslint-disable-next-line require-await
+      async set<T>(_key: string, _value: T): Promise<void> {},
+      // eslint-disable-next-line require-await
+      async delete(_key: string): Promise<void> {},
+      // eslint-disable-next-line require-await
+      async clear(): Promise<void> {},
+      // eslint-disable-next-line require-await
+      async keys(): Promise<string[]> {
+        return [];
+      },
+    });
+
+    const noopGlobal = {
+      // eslint-disable-next-line require-await
+      async get<T>(_key: string): Promise<T | null> {
+        return null;
+      },
+      // eslint-disable-next-line require-await
+      async set<T>(_key: string, _value: T): Promise<void> {},
+      // eslint-disable-next-line require-await
+      async delete(_key: string): Promise<void> {},
+      // eslint-disable-next-line require-await
+      async keys(): Promise<string[]> {
+        return [];
+      },
+    };
+
+    const noopCache = {
+      // eslint-disable-next-line require-await
+      async get<T>(_key: string, _maxAge?: number): Promise<T | null> {
+        return null;
+      },
+      // eslint-disable-next-line require-await
+      async set<T>(_key: string, _value: T, _maxAge: number): Promise<void> {},
+      // eslint-disable-next-line require-await
+      async delete(_key: string): Promise<void> {},
+      // eslint-disable-next-line require-await
+      async clear(): Promise<void> {},
+    };
+
+    const noopTmp = {
+      path: (f: string) => f,
+      // eslint-disable-next-line require-await
+      async read(_f: string): Promise<Buffer> {
+        return Buffer.alloc(0);
+      },
+      // eslint-disable-next-line require-await
+      async write(_f: string, _d: Buffer | string): Promise<void> {},
+      // eslint-disable-next-line require-await
+      async clean(): Promise<void> {},
+    };
+
     // eslint-disable-next-line require-await
     const storage: StorageContext = {
       // eslint-disable-next-line require-await
@@ -172,6 +232,10 @@ export class DebugHost {
       },
       // eslint-disable-next-line require-await
       keys: async (): Promise<string[]> => Object.keys(memStore),
+      plugin: makeNoopStore(),
+      global: noopGlobal,
+      cache: noopCache,
+      tmp: noopTmp,
     };
 
     const output: OutputContext = {
@@ -198,6 +262,7 @@ export class DebugHost {
       config: {},
       site: site!,
       cliName: this.cliName,
+      tips: new TipCollector(),
       ...context,
     };
   }

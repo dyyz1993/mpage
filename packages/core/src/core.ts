@@ -19,6 +19,7 @@ import { coerceCliArgs } from './param-coercion.js';
 import { isCommandResult, wrapResult } from './command-result.js';
 import { TipCollector } from './tip.js';
 import { outputFormatter } from './output-formatter.js';
+import { loadConfig } from './rc-config.js';
 import { helpGenerator } from './help/help-generator.js';
 import type { ScopeDefinition } from './command/scope.js';
 
@@ -338,12 +339,37 @@ export class Core {
         delete: () => Promise.resolve(),
         clear: () => Promise.resolve(),
         keys: () => Promise.resolve([]),
+        plugin: {
+          get: () => Promise.resolve(null),
+          set: () => Promise.resolve(),
+          delete: () => Promise.resolve(),
+          clear: () => Promise.resolve(),
+          keys: () => Promise.resolve([]),
+        },
+        global: {
+          get: () => Promise.resolve(null),
+          set: () => Promise.resolve(),
+          delete: () => Promise.resolve(),
+          keys: () => Promise.resolve([]),
+        },
+        cache: {
+          get: () => Promise.resolve(null),
+          set: () => Promise.resolve(),
+          delete: () => Promise.resolve(),
+          clear: () => Promise.resolve(),
+        },
+        tmp: {
+          path: (f: string) => f,
+          read: () => Promise.resolve(Buffer.alloc(0)),
+          write: () => Promise.resolve(),
+          clean: () => Promise.resolve(),
+        },
       },
       output: { mode, showTips: true, color: true, emoji: false },
       error: (msg: string) => {
         console.error(msg);
       },
-      config: {},
+      config: loadConfig({ configDir: this.configDir }) as Record<string, unknown>,
       site: site as SiteInstance,
       cliName: this.config.name,
       tips: new TipCollector(),

@@ -19,7 +19,7 @@ import { resolve, isAbsolute, extname, basename, dirname, join } from 'path';
 import { createJiti } from 'jiti';
 import { fileURLToPath } from 'url';
 import { readdirSync, readFileSync, statSync } from 'fs';
-import { PluginStorage } from './plugin-storage.js';
+import { CompositeStorage } from './plugin-storage.js';
 import { PluginInstance } from './plugin-instance.js';
 import type { PluginStatus } from './plugin-instance.js';
 export type { PluginStatus, PluginLoaderHost } from './plugin-instance.js';
@@ -30,6 +30,7 @@ interface CoreHost {
     readonly pluginPackageName?: string;
   };
   readonly storageDir: string;
+  readonly configDir: string;
 }
 
 export interface BuiltinCommandEntry {
@@ -58,6 +59,45 @@ export class PluginLoader {
 
   private createStorage(): StorageContext {
     const store: Record<string, unknown> = {};
+    const noop = {
+      // eslint-disable-next-line require-await
+      async get<T>(_key: string): Promise<T | null> {
+        return null;
+      },
+      // eslint-disable-next-line require-await
+      async set<T>(_key: string, _value: T): Promise<void> {},
+      // eslint-disable-next-line require-await
+      async delete(_key: string): Promise<void> {},
+      // eslint-disable-next-line require-await
+      async clear(): Promise<void> {},
+      // eslint-disable-next-line require-await
+      async keys(): Promise<string[]> {
+        return [];
+      },
+    };
+    const noopCache = {
+      // eslint-disable-next-line require-await
+      async get<T>(_key: string, _maxAge?: number): Promise<T | null> {
+        return null;
+      },
+      // eslint-disable-next-line require-await
+      async set<T>(_key: string, _value: T, _maxAge: number): Promise<void> {},
+      // eslint-disable-next-line require-await
+      async delete(_key: string): Promise<void> {},
+      // eslint-disable-next-line require-await
+      async clear(): Promise<void> {},
+    };
+    const noopTmp = {
+      path: (f: string) => f,
+      // eslint-disable-next-line require-await
+      async read(_f: string): Promise<Buffer> {
+        return Buffer.alloc(0);
+      },
+      // eslint-disable-next-line require-await
+      async write(_f: string, _d: Buffer | string): Promise<void> {},
+      // eslint-disable-next-line require-await
+      async clean(): Promise<void> {},
+    };
     return {
       // eslint-disable-next-line require-await
       async get<T>(key: string): Promise<T | null> {
@@ -81,11 +121,28 @@ export class PluginLoader {
       async keys(): Promise<string[]> {
         return Object.keys(store);
       },
+      plugin: noop,
+      global: {
+        // eslint-disable-next-line require-await
+        async get<T>(_key: string): Promise<T | null> {
+          return null;
+        },
+        // eslint-disable-next-line require-await
+        async set<T>(_key: string, _value: T): Promise<void> {},
+        // eslint-disable-next-line require-await
+        async delete(_key: string): Promise<void> {},
+        // eslint-disable-next-line require-await
+        async keys(): Promise<string[]> {
+          return [];
+        },
+      },
+      cache: noopCache,
+      tmp: noopTmp,
     };
   }
 
   private createPluginStorage(pluginId: string): StorageContext {
-    return new PluginStorage(pluginId, this.core.storageDir);
+    return new CompositeStorage(pluginId, this.core.configDir, this.core.config.name);
   }
 
   private createAPI(): XCLIAPI {

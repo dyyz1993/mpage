@@ -65,7 +65,14 @@ export { readPluginMeta } from './plugin-loader.js';
 export { PluginInstance } from './plugin-instance.js';
 export type { PluginStatus, PluginLoaderHost } from './plugin-instance.js';
 
-export { PluginStorage } from './plugin-storage.js';
+export {
+  PluginStorage,
+  GlobalStorage,
+  CacheStorage,
+  TmpStorage,
+  CompositeStorage,
+} from './plugin-storage.js';
+export type { PluginStore, GlobalStore, CacheStore, TmpStore } from './protocol/plugin-protocol.js';
 
 export { HelpGenerator, helpGenerator } from './help/help-generator.js';
 export type { HelpOptions } from './help/help-generator.js';

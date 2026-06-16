@@ -7,7 +7,7 @@ import {
 
 export const BROWSER_APP_TEMPLATE: ScaffoldTemplate = {
   name: 'browser',
-  description: 'A browser automation CLI with Playwright and CDP support',
+  description: 'A browser automation CLI with Playwright, CDP support, and full type inference',
   variables: [
     {
       name: 'description',
@@ -40,7 +40,7 @@ export const BROWSER_APP_TEMPLATE: ScaffoldTemplate = {
     "start": "node dist/cli.js"
   },
   "dependencies": {
-    "@dyyz1993/xcli-core": "^0.9.0",
+    "@dyyz1993/xcli-core": "^0.14.0",
     "zod": "^3.25.0",
     "playwright": "^1.59.0",
     "playwright-core": "^1.58.0"
@@ -66,7 +66,7 @@ export const BROWSER_APP_TEMPLATE: ScaffoldTemplate = {
     "sourceMap": true,
     "outDir": "dist"
   },
-  "include": ["src/**/*", "bin/**/*"],
+  "include": ["src/**/*", "bin/**/*", "types/**/*"],
   "exclude": ["node_modules", "dist"]
 }`,
     },
@@ -92,9 +92,29 @@ export default defineConfig([
 ]);`,
     },
     {
+      // ─── KEY: Type augmentation for CommandContext ───
+      // This file extends CommandContext with browser-specific fields.
+      // All plugins automatically get type-safe access to ctx.page, ctx.browser.
+      // No `as` casts needed — TypeScript declaration merging handles it.
+      path: 'types/browser-context.d.ts',
+      content: `import type { Page, Browser, BrowserContext } from 'playwright';
+
+declare module '@dyyz1993/xcli-core' {
+  interface CommandContext {
+    /** Playwright Page (available for scope: page/element commands) */
+    page: Page;
+    /** Playwright Browser instance */
+    browser: Browser;
+    /** Playwright BrowserContext */
+    context: BrowserContext;
+  }
+}
+`,
+    },
+    {
       path: 'src/index.ts',
       content: `import { Core } from '@dyyz1993/xcli-core';
-import { loadBrowserPlugin } from './commands/browser.js';
+import { loadBrowserCommands } from './commands/index.js';
 
 export function createApp() {
   const app = new Core({
@@ -102,11 +122,19 @@ export function createApp() {
     version: '0.1.0',
     description: '{{description}}',
     configDirName: '.{{projectName}}',
-    envPrefix: '{{projectName}}',
-    pluginDirs: [],
+    envPrefix: '{{ProjectName}}',
+    pluginDirs: ['.{{projectName}}/plugins'],
   });
 
-  loadBrowserPlugin(app);
+  // Inject browser fields into ctx via ContextExtender.
+  // Combined with types/browser-context.d.ts, plugins get type-safe ctx.page.
+  app.extendContext(async () => {
+    const { ensureBrowser } = await import('./commands/browser.js');
+    const page = await ensureBrowser();
+    return { page, browser: page.context().browser()!, context: page.context() };
+  });
+
+  loadBrowserCommands(app);
 
   return app;
 }
@@ -121,8 +149,7 @@ export { version } from './version.js';
     },
     {
       path: 'src/commands/browser.ts',
-      content: `import type { Core } from '@dyyz1993/xcli-core';
-import { chromium, type Browser, type BrowserContext, type Page } from 'playwright';
+      content: `import { chromium, type Browser, type BrowserContext, type Page } from 'playwright';
 
 interface BrowserState {
   browser: Browser | null;
@@ -155,18 +182,69 @@ export async function closeBrowser(): Promise<void> {
   state.context = null;
   state.browser = null;
 }
-
-export function loadBrowserPlugin(_app: Core): void {
-  // Register browser commands here
-  // Example:
-  // const site = app.loader.getAPI().createSite({ name: 'browser', url: '' });
-  // site.command('open', { ... });
-}
 `,
     },
     {
       path: 'src/commands/index.ts',
-      content: `export { loadBrowserPlugin, ensureBrowser, closeBrowser } from './browser.js';
+      content: `import type { Core } from '@dyyz1993/xcli-core';
+import { z } from 'zod/v4';
+
+export function loadBrowserCommands(app: Core): void {
+  const api = app.loader.getAPI();
+  const site = api.createSite({
+    name: 'browser',
+    url: '',
+  });
+
+  // ─── Example command with full type inference ───
+  //
+  // params: inferred from z.object({ url: z.string() }) → { url: string }
+  // result: inferred from z.object({ title: z.string() }) → { title: string }
+  // ctx:    CommandContext + { page, browser, context } via declaration merging
+  //         ctx.page is type-safe, no ` as ` needed!
+  site.command('open', {
+    description: 'Navigate to a URL and return the page title',
+    scope: 'page',
+    parameters: z.object({
+      url: z.string().describe('URL to navigate to'),
+    }),
+    result: z.object({
+      title: z.string(),
+      url: z.string(),
+    }),
+    handler: async (params, ctx) => {
+      // ctx.page ← Page (type-safe, declared in types/browser-context.d.ts)
+      await ctx.page.goto(params.url);
+
+      const title = await ctx.page.title();
+      const url = ctx.page.url();
+
+      ctx.tips.info(\`Navigated to \${url}\`);
+
+      return { title, url };
+    },
+  });
+
+  site.command('screenshot', {
+    description: 'Take a screenshot of the current page',
+    scope: 'page',
+    parameters: z.object({
+      fullPage: z.coerce.boolean().default(false).describe('Capture full page'),
+    }),
+    result: z.object({
+      path: z.string(),
+      size: z.number(),
+    }),
+    handler: async (params, ctx) => {
+      const path = \`screenshot-\${Date.now()}.png\`;
+      const buf = await ctx.page.screenshot({ fullPage: params.fullPage });
+
+      ctx.tips.info(\`Screenshot saved: \${path} (\${buf.length} bytes)\`);
+
+      return { path, size: buf.length };
+    },
+  });
+}
 `,
     },
     {
@@ -196,7 +274,7 @@ dist/
 *.tgz
 .env
 .{{projectName}}/storage/
-recordings/
+record/
 `,
     },
     ...getEngineeringFiles(),
@@ -210,6 +288,17 @@ recordings/
       content: `# {{projectName}}
 
 {{description}}
+
+## Type Safety
+
+This project demonstrates **end-to-end TypeScript type inference**:
+
+| Layer | How | Example |
+|-------|-----|---------|
+| **params** | Zod schema → \`z.infer<P>\` | \`params.url\` is \`string\` |
+| **result** | Zod schema → \`z.infer<R>\` | return value type-checked |
+| **ctx.page** | Declaration merging (\`types/browser-context.d.ts\`) | No \`as\` cast needed |
+| **ctx.tips** | CommandContext interface | \`ctx.tips.info/warn/error\` |
 
 ## Install
 
@@ -226,28 +315,36 @@ npm run build
 ## Usage
 
 \`\`\`bash
-node dist/cli.js <command>
+# Navigate to a page
+node dist/cli.js browser open --url https://example.com
+
+# Take a screenshot
+node dist/cli.js browser screenshot --fullPage true
 \`\`\`
 
-## Browser Automation
+## Writing New Commands
 
-This project includes Playwright for browser automation. The browser commands are registered through the plugin system.
-
-### Example
+All type inference is automatic. Just write Zod schemas:
 
 \`\`\`typescript
-import { ensureBrowser, closeBrowser } from './commands/browser.js';
+site.command('myCommand', {
+  parameters: z.object({
+    keyword: z.string(),
+    limit: z.coerce.number().default(10),
+  }),
+  result: z.object({
+    items: z.array(z.object({ title: z.string() })),
+    total: z.number(),
+  }),
+  handler: async (params, ctx) => {
+    // params.keyword ← string
+    // params.limit   ← number
+    // ctx.page       ← Playwright Page (no cast!)
+    // ctx.tips.info  ← TipCollector
 
-const page = await ensureBrowser();
-await page.goto('https://example.com');
-console.log(await page.title());
-await closeBrowser();
-\`\`\`
-
-## Development
-
-\`\`\`bash
-npm run dev
+    return { items: [...], total: 0 };
+  },
+});
 \`\`\`
 `,
     },

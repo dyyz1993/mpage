@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { PluginLoader } from '../../src/plugin-loader.js';
-import type { StorageContext } from '../../src/protocol/plugin-protocol.js';
 import { Core } from '../../src/core.js';
 import type { CoreConfig } from '../../src/core.js';
 import { z } from 'zod/v4';
@@ -9,6 +8,7 @@ function makeCoreHost() {
   return {
     config: { name: 'test-cli', pluginPackageName: '@dyyz1993/xpage' },
     storageDir: '/tmp/test-storage',
+    configDir: '/tmp/test-storage',
   };
 }
 
