@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { TipCollector, tip, normalizeTip, normalizeTips } from '../../src/tip.js';
+import { TipCollector, tip, normalizeTip, normalizeTips, tipsToMessages } from '../../src/tip.js';
 
 describe('TipCollector', () => {
   it('collects info/warn/error tips', () => {
@@ -72,5 +72,31 @@ describe('normalizeTips', () => {
       { level: 'info', message: 'raw' },
       { level: 'warn', message: 'structured' },
     ]);
+  });
+});
+
+describe('tipsToMessages', () => {
+  it('converts Tip[] to string[] (message only)', () => {
+    const tips = [
+      { level: 'info' as const, message: '开始采集' },
+      { level: 'warn' as const, message: '第3页失败', label: 'PAGINATION' },
+      { level: 'error' as const, message: 'Token过期', label: 'AUTH' },
+    ];
+    expect(tipsToMessages(tips)).toEqual(['开始采集', '第3页失败', 'Token过期']);
+  });
+
+  it('normalizes mixed input then extracts messages', () => {
+    expect(tipsToMessages(['raw', { level: 'warn', message: 'structured' }])).toEqual([
+      'raw',
+      'structured',
+    ]);
+  });
+
+  it('handles undefined', () => {
+    expect(tipsToMessages(undefined)).toEqual([]);
+  });
+
+  it('handles empty array', () => {
+    expect(tipsToMessages([])).toEqual([]);
   });
 });

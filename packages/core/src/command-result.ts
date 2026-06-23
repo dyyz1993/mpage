@@ -1,4 +1,4 @@
-import type { Tip } from './tip.js';
+import { normalizeTips, type Tip } from './tip.js';
 
 export interface CommandResult<T = unknown> {
   success: boolean;
@@ -12,12 +12,22 @@ export interface CommandResult<T = unknown> {
   };
 }
 
-export function ok<T>(data: T, tips?: Tip[]): CommandResult<T> {
-  return { success: true, data, tips: tips || [] };
+/**
+ * Build a success CommandResult.
+ * Backward compatible: accepts both `string[]` (legacy plugins) and `Tip[]` (new).
+ * The returned `tips` is always normalized to `Tip[]`.
+ */
+export function ok<T>(data: T, tips?: Array<string | Tip>): CommandResult<T> {
+  return { success: true, data, tips: normalizeTips(tips) };
 }
 
-export function fail(message: string, tips?: Tip[]): CommandResult<null> {
-  return { success: false, data: null, message, tips: tips || [] };
+/**
+ * Build a failure CommandResult.
+ * Backward compatible: accepts both `string[]` (legacy plugins) and `Tip[]` (new).
+ * The returned `tips` is always normalized to `Tip[]`.
+ */
+export function fail(message: string, tips?: Array<string | Tip>): CommandResult<null> {
+  return { success: false, data: null, message, tips: normalizeTips(tips) };
 }
 
 export function withMeta<T>(

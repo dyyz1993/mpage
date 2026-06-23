@@ -7,6 +7,7 @@ import {
   wrapResult,
   type CommandResult,
 } from '../../src/command-result.js';
+import type { Tip } from '../../src/tip.js';
 
 describe('ok()', () => {
   it('should return success result with data and empty tips', () => {
@@ -14,13 +15,33 @@ describe('ok()', () => {
     expect(result).toEqual({ success: true, data: 'hello', tips: [] });
   });
 
-  it('should include tips when provided', () => {
+  it('should include tips when provided as strings (legacy, normalized to Tip[])', () => {
     const result = ok(42, ['tip1', 'tip2']);
     expect(result).toEqual({
       success: true,
       data: 42,
-      tips: ['tip1', 'tip2'],
+      tips: [
+        { level: 'info', message: 'tip1' },
+        { level: 'info', message: 'tip2' },
+      ],
     });
+  });
+
+  it('should accept Tip[] directly (new API)', () => {
+    const tips: Tip[] = [
+      { level: 'warn', message: 'be careful' },
+      { level: 'error', message: 'bad thing', label: 'AUTH' },
+    ];
+    const result = ok('data', tips);
+    expect(result.tips).toEqual(tips);
+  });
+
+  it('should accept mixed string[] and Tip[] array', () => {
+    const result = ok('data', ['legacy string', { level: 'warn', message: 'structured tip' }]);
+    expect(result.tips).toEqual([
+      { level: 'info', message: 'legacy string' },
+      { level: 'warn', message: 'structured tip' },
+    ]);
   });
 
   it('should return null data when data is null', () => {
@@ -50,6 +71,12 @@ describe('ok()', () => {
     const result = ok('x');
     expect(result.tips).toEqual([]);
   });
+
+  it('should always return normalized Tip[] (never raw strings)', () => {
+    const result = ok('x', ['plain']);
+    expect(result.tips[0]).toEqual({ level: 'info', message: 'plain' });
+    expect(typeof result.tips[0]).toBe('object');
+  });
 });
 
 describe('fail()', () => {
@@ -63,14 +90,19 @@ describe('fail()', () => {
     });
   });
 
-  it('should include tips when provided', () => {
+  it('should include tips when provided as strings (legacy, normalized to Tip[])', () => {
     const result = fail('error', ['hint']);
     expect(result).toEqual({
       success: false,
       data: null,
       message: 'error',
-      tips: ['hint'],
+      tips: [{ level: 'info', message: 'hint' }],
     });
+  });
+
+  it('should accept Tip[] directly (new API)', () => {
+    const result = fail('err', [{ level: 'error', message: 'fix this' }]);
+    expect(result.tips).toEqual([{ level: 'error', message: 'fix this' }]);
   });
 
   it('should default tips to empty array', () => {

@@ -18,6 +18,7 @@ export interface CommandArchiveEntry {
     success: boolean;
     data: unknown;
     message?: string;
+    /** Plain string messages. Use `tipsToMessages(result.tips)` to convert from `Tip[]`. */
     tips: string[];
   };
   toolCalls: ToolCallRecord[];

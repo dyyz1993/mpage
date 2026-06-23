@@ -35,6 +35,14 @@ export function normalizeTips(tips: Array<string | Tip> | undefined): Tip[] {
   return tips.map(normalizeTip);
 }
 
+/**
+ * Convert Tip[] back to string[] (message only).
+ * Useful for archives, IPC boundaries, and legacy string[] consumers.
+ */
+export function tipsToMessages(tips: Array<Tip | string> | undefined): string[] {
+  return normalizeTips(tips).map((t) => t.message);
+}
+
 export const tip = {
   info: (message: string, label?: string): Tip => ({ level: 'info', message, label }),
   warn: (message: string, label?: string): Tip => ({ level: 'warn', message, label }),

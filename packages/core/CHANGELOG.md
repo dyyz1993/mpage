@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.16.0] - 2026-06-24
+
+### Added
+- `tipsToMessages(tips)` — 将 `Tip[]` 转回 `string[]`（提取 message），用于归档、IPC 边界等需要纯字符串的场景
+- 导出 `tipsToMessages` 至公共 API（`index.ts`）
+
+### Changed
+- `ok()` / `fail()` 向后兼容：参数类型从 `tips?: Tip[]` 改为 `tips?: Array<string | Tip>`
+  - 插件层零改动，`ok(data, ['采集到 5 条'])` 仍可正常工作
+  - 内部自动通过 `normalizeTips()` 归一化为 `Tip[]`，返回值 `CommandResult.tips` 保持 `Tip[]`
+- `CommandArchiveEntry.result.tips` 保持 `string[]`（归档是磁盘格式），新增 JSDoc 提示用 `tipsToMessages()` 转换
+
+### Fixed
+- `handlerMiddleware`（core.ts）合并 tips 时的 `string` / `Tip` 混排 bug
+  - 之前 `[...result.tips, ...ctxTips]` 会把插件返回的 `string[]` 和 `ctx.tips.collected`（`Tip[]`）混在一个数组里
+  - 现在统一 `normalizeTips()` 后再合并
+- 即使插件绕过 `ok()` 直接返回 `{ data, tips: ['字符串'] }` 也能正确归一化
+
 ## [0.15.0] - 2026-06-16
 
 ### Added

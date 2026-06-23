@@ -17,7 +17,7 @@ import { buildInputSchema, CommandError } from './protocol/plugin-protocol.js';
 import { parseArgs } from './arg-parser.js';
 import { coerceCliArgs } from './param-coercion.js';
 import { isCommandResult, wrapResult } from './command-result.js';
-import { TipCollector } from './tip.js';
+import { TipCollector, normalizeTips } from './tip.js';
 import { outputFormatter } from './output-formatter.js';
 import { loadConfig } from './rc-config.js';
 import { helpGenerator } from './help/help-generator.js';
@@ -513,10 +513,15 @@ export class Core {
       const ctxTips = ctx.tips.collected;
       if (ctxTips.length > 0) {
         if (isCommandResult(result)) {
-          result.tips = [...result.tips, ...ctxTips];
+          // Normalize first: result.tips may contain legacy strings if a plugin
+          // returned a raw object bypassing ok()/fail().
+          result.tips = normalizeTips([...result.tips, ...ctxTips]);
         } else {
           pipeline.result = { success: true, data: result, tips: ctxTips };
         }
+      } else if (isCommandResult(result)) {
+        // Ensure tips are normalized even without ctx tips (defensive).
+        result.tips = normalizeTips(result.tips);
       }
 
       pipeline.result = result;
