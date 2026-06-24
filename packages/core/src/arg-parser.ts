@@ -9,6 +9,8 @@ export interface ParsedArgs {
 export interface ParseArgsOptions {
   strict?: boolean;
   knownOptions?: string[];
+  /** Flags that should always be treated as booleans (never consume the next arg). */
+  booleanFlags?: string[];
 }
 
 export class UnknownOptionError extends Error {
@@ -70,12 +72,17 @@ export function parseArgs(argv: string[], opts?: ParseArgsOptions): ParsedArgs {
           result.options[realKey] = false;
         } else {
           checkOption(key);
-          const next = argv[i + 1];
-          if (next && !next.startsWith('-')) {
-            result.options[key] = parseValue(next);
-            i++;
-          } else {
+          const boolFlags = opts?.booleanFlags;
+          if (boolFlags?.includes(key)) {
             result.options[key] = true;
+          } else {
+            const next = argv[i + 1];
+            if (next && !next.startsWith('-')) {
+              result.options[key] = parseValue(next);
+              i++;
+            } else {
+              result.options[key] = true;
+            }
           }
         }
       }

@@ -149,6 +149,43 @@ describe('parseArgs()', () => {
   });
 });
 
+describe('parseArgs() — booleanFlags option', () => {
+  it('should treat booleanFlags as booleans, not consuming next arg', () => {
+    const result = parseArgs(['--json', 'goto https://example.com'], {
+      booleanFlags: ['json', 'yaml'],
+    });
+    expect(result.options.json).toBe(true);
+    expect(result.positional).toEqual(['goto https://example.com']);
+  });
+
+  it('should still consume arg for non-booleanFlags', () => {
+    const result = parseArgs(['--name', 'alice'], { booleanFlags: ['json'] });
+    expect(result.options.name).toBe('alice');
+    expect(result.positional).toEqual([]);
+  });
+
+  it('should work with multiple boolean flags in sequence', () => {
+    const result = parseArgs(['--json', '--yaml', 'cmd'], {
+      booleanFlags: ['json', 'yaml'],
+    });
+    expect(result.options.json).toBe(true);
+    expect(result.options.yaml).toBe(true);
+    expect(result.positional).toEqual(['cmd']);
+  });
+
+  it('should not affect behavior when booleanFlags is empty', () => {
+    const result = parseArgs(['--name', 'alice'], { booleanFlags: [] });
+    expect(result.options.name).toBe('alice');
+    expect(result.positional).toEqual([]);
+  });
+
+  it('should not affect behavior when booleanFlags is not provided', () => {
+    const result = parseArgs(['--name', 'alice']);
+    expect(result.options.name).toBe('alice');
+    expect(result.positional).toEqual([]);
+  });
+});
+
 describe('parseArgs() strict mode', () => {
   it('should accept known options in strict mode', () => {
     const result = parseArgs(['--verbose', '--output', 'out.txt'], {

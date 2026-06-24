@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.0] - 2026-06-24
+
+### Added
+- `parseArgs()` 新增 `booleanFlags` 选项：指定哪些 flag 是布尔类型，不消耗后面的参数
+  - `parseArgs(['--json', 'goto url'], { booleanFlags: ['json', 'yaml'] })` 现在正确将 `--json` 解析为 `{ json: true }`，`'goto url'` 作为位置参数
+
+### Fixed
+- `--json` / `--yaml` 等布尔 flag 不再错误吸收后面的参数（Close #46）
+
 ## [0.17.0] - 2026-06-24
 
 ### Fixed
