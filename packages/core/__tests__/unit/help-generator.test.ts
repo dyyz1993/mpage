@@ -83,7 +83,39 @@ describe('HelpGenerator — parameters (Zod)', () => {
     expect(result).toContain('[string]');
     expect(result).toContain('[number]');
     expect(result).toContain('[boolean]');
-    expect(result).toContain('[[string]]');
+    expect(result).toContain('[string[]]');
+  });
+
+  it('should unwrap top-level ZodDefault to extract shape', () => {
+    const schema = z
+      .object({
+        keyword: z.string().describe('Search term'),
+        limit: z.number().optional(),
+      })
+      .default({ keyword: 'hello' });
+    const result = gen.generate({ name: 'search', parameters: schema });
+    expect(result).toContain('--keyword');
+    expect(result).toContain('--limit');
+    expect(result).toContain('Search term');
+    expect(result).toContain('[string]');
+  });
+
+  it('should unwrap top-level ZodOptional to extract shape', () => {
+    const schema = z
+      .object({
+        url: z.string(),
+        timeout: z.number().optional(),
+      })
+      .optional();
+    const result = gen.generate({ name: 'fetch', parameters: schema });
+    expect(result).toContain('--url');
+    expect(result).toContain('--timeout');
+  });
+
+  it('should gracefully handle non-object schemas (union, literal) without crashing', () => {
+    const unionSchema = z.union([z.string(), z.number()]);
+    const result = gen.generate({ name: 'cmd', parameters: unionSchema });
+    expect(result).not.toContain('无法解析');
   });
 });
 

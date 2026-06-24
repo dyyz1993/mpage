@@ -70,10 +70,7 @@ export class HelpGenerator {
     lines.push(`${prefix}Parameters (Zod):`);
 
     try {
-      const schemaAny = schema as unknown as Record<string, unknown>;
-      const shape =
-        (schemaAny.shape as Record<string, unknown>) ||
-        ((schemaAny._def as Record<string, unknown>)?.shape as Record<string, unknown>);
+      const shape = this.extractShape(schema);
       if (shape) {
         for (const [key, value] of Object.entries(shape)) {
           const fieldSchema = value as unknown as Record<string, unknown>;
@@ -110,10 +107,7 @@ export class HelpGenerator {
     lines.push(`${prefix}Result (Zod):`);
 
     try {
-      const schemaAny = schema as unknown as Record<string, unknown>;
-      const shape =
-        (schemaAny.shape as Record<string, unknown>) ||
-        ((schemaAny._def as Record<string, unknown>)?.shape as Record<string, unknown>);
+      const shape = this.extractShape(schema);
       if (shape) {
         for (const [key, value] of Object.entries(shape)) {
           if (key === 'tips' || key === 'errors') continue;
@@ -135,6 +129,37 @@ export class HelpGenerator {
     }
 
     return lines.join('\n');
+  }
+
+  /**
+   * Extract the field shape from a Zod schema, unwrapping ZodDefault/ZodOptional/
+   * ZodNullable wrappers that may hide the underlying ZodObject.
+   */
+  private extractShape(schema: unknown): Record<string, unknown> | null {
+    const s = schema as Record<string, unknown>;
+
+    // Direct shape access (ZodObject)
+    let shape = s.shape as Record<string, unknown> | undefined;
+    if (shape) return shape;
+
+    // shape on _def (some wrappers expose it here)
+    shape = (s._def as Record<string, unknown> | undefined)?.shape as
+      | Record<string, unknown>
+      | undefined;
+    if (shape) return shape;
+
+    // Unwrap ZodDefault / ZodOptional / ZodNullable
+    const sDef = s._def as Record<string, unknown> | undefined;
+    const typeName = (sDef?.typeName as string) || (sDef?.type as string) || '';
+    const normalized = typeName.replace(/^Zod/, '').toLowerCase();
+
+    if (['default', 'optional', 'nullable'].includes(normalized)) {
+      const inner = sDef?.innerType as unknown;
+      if (inner) return this.extractShape(inner);
+      if (typeof s.unwrap === 'function') return this.extractShape((s.unwrap as () => unknown)());
+    }
+
+    return null;
   }
 
   private getZodType(schema: unknown, depth = 0): string {
@@ -169,8 +194,10 @@ export class HelpGenerator {
       if (normalized === 'boolean') return '[boolean]';
       if (normalized === 'array') {
         const inner = sDef?.element;
-        const innerStr = inner ? this.getZodType(inner, depth + 1) : '[unknown]';
-        return `[${innerStr}]`;
+        const innerStr = inner ? this.getZodType(inner, depth + 1) : 'unknown';
+        // Use [] suffix notation instead of double brackets: [[string]] → [string[]]
+        const clean = innerStr.replace(/^\[|\]$/g, '');
+        return `[${clean}[]]`;
       }
       if (normalized === 'object') {
         const shape =
@@ -181,7 +208,9 @@ export class HelpGenerator {
         return '[object]';
       }
       if (normalized === 'enum') {
-        const values = sDef?.values as unknown[] | undefined;
+        const values =
+          (sDef?.values as unknown[] | undefined) ??
+          (sDef?.entries ? Object.keys(sDef.entries as Record<string, unknown>) : undefined);
         if (values && values.length > 0) {
           return '[' + values.join('|') + ']';
         }

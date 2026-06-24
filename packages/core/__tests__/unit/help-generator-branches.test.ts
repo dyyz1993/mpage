@@ -26,9 +26,9 @@ describe('HelpGenerator — uncovered branch tests', () => {
   });
 
   describe('getZodType — max depth', () => {
-    it('should return [[[max-depth]]] when depth=4 on 4-nested array', () => {
+    it('should return formatted max-depth when depth=4 on 4-nested array', () => {
       const type = g.getZodType(z.array(z.array(z.array(z.array(z.string())))), 4);
-      expect(type).toBe('[[[max-depth]]]');
+      expect(type).toBe('[max-depth[][]]');
     });
   });
 
@@ -118,7 +118,7 @@ describe('HelpGenerator — uncovered branch tests', () => {
     it('should handle ZodArray with element type', () => {
       const schema = z.array(z.number());
       const type = g.getZodType(schema);
-      expect(type).toBe('[[number]]');
+      expect(type).toBe('[number[]]');
     });
 
     it('should handle ZodArray-like with unwrap fallback for inner type', () => {
@@ -128,7 +128,7 @@ describe('HelpGenerator — uncovered branch tests', () => {
         unwrap: () => ({ _def: { type: innerSchema } }),
       };
       const type = g.getZodType(schema);
-      expect(type).toBe('[[unknown]]');
+      expect(type).toBe('[unknown[]]');
     });
 
     it('should handle ZodArray-like with no inner returning [unknown]', () => {
@@ -136,7 +136,7 @@ describe('HelpGenerator — uncovered branch tests', () => {
         _def: { type: 'array' },
       };
       const type = g.getZodType(schema);
-      expect(type).toBe('[[unknown]]');
+      expect(type).toBe('[unknown[]]');
     });
   });
 

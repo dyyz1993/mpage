@@ -39,13 +39,13 @@ describe('HelpGenerator — getZodType 边界测试', () => {
   it('should handle ZodArray with innerType, wrapped, unwrap', () => {
     const schema = z.array(z.string());
     const type = g.getZodType(schema);
-    expect(type).toBe('[[string]]');
+    expect(type).toBe('[string[]]');
   });
 
   it('should return [max-depth] when recursion depth > 3', () => {
     const schema = z.array(z.array(z.array(z.string())));
     const type = g.getZodType(schema);
-    expect(type).toBe('[[[[string]]]]');
+    expect(type).toBe('[string[][][]]');
   });
 
   it('should return [unknown] on schema parsing errors', () => {

@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.0] - 2026-06-24
+
+### Fixed
+- **help-generator**: `zodParameters()` / `zodResult()` 现在能正确展开 `ZodDefault`/`ZodOptional`/`ZodNullable` 顶层包装，提取底层 `ZodObject` 的字段信息
+  - 之前 `z.object({...}).default({})` 导致 Parameters 节为空
+  - 新增 `extractShape()` 递归展开方法
+- **help-generator**: 数组类型显示从 `[[string]]` 改为 `[string[]]`（更接近 TypeScript 语法）
+- **help-generator**: 枚举值兼容 Zod v4 模式（`_def.entries`），现在正确显示枚举常量如 `[load|domcontentloaded|networkidle]`
+
+### Changed
+- 无破坏性变更，所有改动仅在 help 渲染层，不涉及运行时 API
+
 ## [0.16.0] - 2026-06-24
 
 ### Added
