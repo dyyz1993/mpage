@@ -1,9 +1,19 @@
 import type { OutputMode } from './protocol/plugin-protocol.js';
+import type { CommandResult } from './command-result.js';
 
 export interface FormatOptions {
   mode: OutputMode;
   color: boolean;
   emoji: boolean;
+}
+
+export interface EnvelopeFormatOptions {
+  /** 命令名称，放进 meta.command */
+  command?: string;
+  /** 额外 meta 字段，合并到 meta 对象 */
+  extraMeta?: Record<string, unknown>;
+  /** 输出模式（默认继承自调用方，或 json） */
+  mode?: OutputMode;
 }
 
 export class OutputFormatter {
@@ -173,6 +183,35 @@ export class OutputFormatter {
     } else {
       return `OK: ${message}`;
     }
+  }
+
+  /**
+   * Wrap a CommandResult into a standardized JSON envelope.
+   *
+   * ```json
+   * { "success": true, "command": "goto", "data": {...}, "error": null, "meta": { "duration": 1234 } }
+   * ```
+   *
+   * All xcli-core based CLI tools get a consistent output format by using this
+   * instead of formatting `result.data` directly.
+   */
+  formatEnvelope<T>(result: CommandResult<T>, options?: EnvelopeFormatOptions): string {
+    const command = options?.command || 'unknown';
+    const extraMeta = options?.extraMeta || {};
+    const mode = options?.mode || 'json';
+
+    const envelope = {
+      success: result.success,
+      command,
+      data: result.data ?? null,
+      error: result.success ? null : result.message || null,
+      meta: {
+        duration: result.meta?.duration ?? 0,
+        ...extraMeta,
+      },
+    };
+
+    return this.format(envelope, { mode, color: false, emoji: false });
   }
 }
 

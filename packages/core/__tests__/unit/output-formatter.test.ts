@@ -253,4 +253,76 @@ describe('OutputFormatter', () => {
       expect(outputFormatter).toBeInstanceOf(OutputFormatter);
     });
   });
+
+  describe('formatEnvelope', () => {
+    const fmt = new OutputFormatter();
+    const okResult = {
+      success: true,
+      data: { url: 'https://example.com', title: 'Test' },
+      tips: [] as import('../../src/tip.js').Tip[],
+      meta: { duration: 1234, command: 'goto' },
+    };
+    const failResult = {
+      success: false,
+      data: null,
+      message: 'Navigation timed out',
+      tips: [] as import('../../src/tip.js').Tip[],
+      meta: { duration: 30123 },
+    };
+
+    it('should format success result as JSON envelope', () => {
+      const out = fmt.formatEnvelope(okResult);
+      const parsed = JSON.parse(out);
+      expect(parsed).toEqual({
+        success: true,
+        command: 'unknown',
+        data: { url: 'https://example.com', title: 'Test' },
+        error: null,
+        meta: { duration: 1234 },
+      });
+    });
+
+    it('should format failure result as JSON envelope', () => {
+      const out = fmt.formatEnvelope(failResult, { command: 'goto' });
+      const parsed = JSON.parse(out);
+      expect(parsed).toEqual({
+        success: false,
+        command: 'goto',
+        data: null,
+        error: 'Navigation timed out',
+        meta: { duration: 30123 },
+      });
+    });
+
+    it('should include extraMeta in the envelope', () => {
+      const out = fmt.formatEnvelope(okResult, {
+        command: 'goto',
+        extraMeta: { user: 'alice' },
+      });
+      const parsed = JSON.parse(out);
+      expect(parsed.meta).toEqual({ duration: 1234, user: 'alice' });
+    });
+
+    it('should reject null data as null (not undefined)', () => {
+      const out = fmt.formatEnvelope({
+        success: true,
+        data: null,
+        tips: [],
+      } as import('../../src/command-result.js').CommandResult);
+      const parsed = JSON.parse(out);
+      expect(parsed.data).toBeNull();
+    });
+
+    it('should set error to null when result.success is true', () => {
+      const out = fmt.formatEnvelope(okResult);
+      const parsed = JSON.parse(out);
+      expect(parsed.error).toBeNull();
+    });
+
+    it('should default command to "unknown"', () => {
+      const out = fmt.formatEnvelope(okResult);
+      const parsed = JSON.parse(out);
+      expect(parsed.command).toBe('unknown');
+    });
+  });
 });

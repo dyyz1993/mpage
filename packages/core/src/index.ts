@@ -78,7 +78,7 @@ export { HelpGenerator, helpGenerator } from './help/help-generator.js';
 export type { HelpOptions } from './help/help-generator.js';
 
 export { OutputFormatter, outputFormatter } from './output-formatter.js';
-export type { FormatOptions } from './output-formatter.js';
+export type { FormatOptions, EnvelopeFormatOptions } from './output-formatter.js';
 
 export {
   parseArgs,

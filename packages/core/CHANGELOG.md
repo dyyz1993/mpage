@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.0] - 2026-06-24
+
+### Added
+- `OutputFormatter.formatEnvelope(result, options?)` — 将 `CommandResult` 包装为标准 JSON 信封
+  - 统一格式：`{ success, command, data, error, meta: { duration } }`
+  - 所有基于 xcli-core 的 CLI 工具通过此方法获得一致的 JSON 输出
+  - 支持 `extraMeta` 参数扩展 meta 字段
+  - 默认 `mode: 'json'`，也支持 yaml/text 输出
+- 导出 `EnvelopeFormatOptions` 类型
+
+### Changed
+- 向后兼容，不影响现有 `format()` / `formatError()` / `formatSuccess()` 方法
+
 ## [0.18.0] - 2026-06-24
 
 ### Added
